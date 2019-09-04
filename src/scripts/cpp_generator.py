@@ -45,6 +45,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def outputGeneratedAuthorNote(self):
         pass
 
+    def outputCopywriteHeader(self):
+        pass
+
     def projectParamsForDeclaration(self, cur_cmd):
         param_string = self.projectParamsForDefinition(cur_cmd)
         if self.isCoreExtensionName(cur_cmd.ext_name):
@@ -61,6 +64,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         return ", ".join(params)
     # Override the base class header warning so the comment indicates this file.
     #   self            the AutomaticSourceOutputGenerator object
+
     def outputGeneratedHeaderWarning(self):
         # File Comment
         generated_warning = '// *********** THIS FILE IS GENERATED - DO NOT EDIT ***********\n'
@@ -100,7 +104,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             project_params_for_declaration=self.projectParamsForDeclaration,
             project_params_for_definition=self.projectParamsForDefinition,
             project_params_for_implementation=self.projectParamsForImplementation,
-            )
+        )
         write(file_data, file=self.outFile)
 
         # Finish processing in superclass
