@@ -26,6 +26,7 @@ sys.path.append(os.path.join(base_dir, 'specification', 'scripts'))
 
 from api_dump_generator import ApiDumpOutputGenerator
 from automatic_source_generator import AutomaticSourceGeneratorOptions
+from cpp_generator import CppGenerator
 from generator import write
 from loader_source_generator import LoaderSourceOutputGenerator
 from reg import Registry
@@ -310,6 +311,43 @@ def makeGenOpts(args):
           AutomaticSourceGeneratorOptions(
             conventions       = conventions,
             filename          = 'xr_generated_core_validation.cpp',
+            directory         = directory,
+            apiname           = 'openxr',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'openxr',
+            addExtensions     = None,
+            removeExtensions  = None,
+            emitExtensions    = emitExtensionsPat)
+        ]
+
+    genOpts['openxr.hpp'] = [
+        CppGenerator,
+        # AutomaticSourceGeneratorOptions(
+        #     conventions       = conventions,
+        #     filename          = 'openxr.hpp',
+        #     directory         = directory,
+        #     apiname           = 'openxr',
+        #     profile           = None,
+        #     versions          = featuresPat,
+        #     emitversions      = featuresPat,
+        #     defaultExtensions = 'openxr',
+        #     addExtensions     = None,
+        #     removeExtensions  = None,
+        #     emitExtensions    = emitExtensionsPat,
+        #     prefixText        = prefixStrings + xrPrefixStrings,
+        #     protectFeature    = False,
+        #     protectProto      = '#ifndef',
+        #     protectProtoStr   = 'XR_NO_PROTOTYPES',
+        #     apicall           = 'XRAPI_ATTR ',
+        #     apientry          = 'XRAPI_CALL ',
+        #     apientryp         = 'XRAPI_PTR *',
+        #     alignFuncParam    = 48)
+
+          AutomaticSourceGeneratorOptions(
+            conventions       = conventions,
+            filename          = 'openxr.hpp',
             directory         = directory,
             apiname           = 'openxr',
             profile           = None,
