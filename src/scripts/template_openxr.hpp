@@ -245,18 +245,70 @@ class ArrayProxy {
 };
 #endif
 
+/*% macro make_pfn_name(cur_cmd) -%*/ /*{cur_cmd.name | replace("xr", "pfn")}*/ /*%- endmacro %*/
+
+/*% macro make_pfn_type(cur_cmd) -%*/ /*{"PFN_" + cur_cmd.name}*/ /*%- endmacro %*/
+
 /*% macro forwardCommandArgs(cur_cmd) %*/ /*{ cur_cmd.params | map(attribute="name") | join(", ") }*/ /*% endmacro %*/
+
+//## Dummy curly braces to get indendation right on output
+//## This generates a lazy-populating wrapper for a dispatch call.
+{
+    /*% macro create_dispatch_lazy_call(cur_cmd) %*/
+    /*{- protect_begin(cur_cmd) }*/
+    /*{ cur_cmd.cdecl | collapse_whitespace | replace(";", "") }*/ {
+        XrResult result = populate_(/*{ cur_cmd.name | quote_string }*/, /*{ make_pfn_name(cur_cmd) }*/);
+        if (XR_FAILED(result)) {
+            return result;
+        }
+        OPENXR_HPP_ASSERT(/*{ make_pfn_name(cur_cmd) }*/ != nullptr);
+        return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{ make_pfn_name(cur_cmd) }*/))(
+            /*{ forwardCommandArgs(cur_cmd) }*/);
+    }
+    /*{ protect_end(cur_cmd) }*/
+    /*% endmacro %*/
+}
+
 class DispatchLoaderStatic {
    public:
+    /*!
+     * Create a mostly-static dispatch table.
+     *
+     * Function pointers for extension functions will be lazily populated.
+     */
+    explicit DispatchLoaderStatic(XrInstance instance = XR_NULL_HANDLE)
+        : m_instance(instance){}
+
+    /*
+     * Core Commands
+     */
+
     //# for cur_cmd in gen.core_commands
     /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ {
         return ::/*{cur_cmd.name}*/ (/*{ forwardCommandArgs(cur_cmd) }*/);
     }
     //# endfor
-};
-/*% macro makePFNName(cur_cmd) -%*/ /*{cur_cmd.name | replace("xr", "pfn")}*/ /*%- endmacro %*/
 
-/*% macro makePFNType(cur_cmd) -%*/ /*{"PFN_" + cur_cmd.name}*/ /*%- endmacro %*/
+    /*
+     * Extension Commands
+     */
+
+    //# for cur_cmd in gen.ext_commands
+    /*{ create_dispatch_lazy_call(cur_cmd) }*/
+    //# endfor
+
+   private:
+    XrResult populate_(const char *function_name, PFN_xrVoidPointer &pfn) {
+        if (pfn == nullptr) {
+            return ::xrGetInstanceProcAddress(m_instance, function_name, &pfn);
+        }
+        return XR_SUCCESS;
+    }
+    XrInstance m_instance;
+    //# for cur_cmd in gen.ext_commands
+    PFN_xrVoidFunction /*{ make_pfn_name(cur_cmd)}*/;
+    //# endfor
+};
 
 class DispatchLoaderDynamic {
    public:
@@ -283,7 +335,7 @@ class DispatchLoaderDynamic {
         OPENXR_HPP_ASSERT(instance != XR_NULL_HANDLE);
         DispatchLoaderDynamic dispatch{instance, getInstanceProcAddress};
         //# for cur_cmd in sorted_cmds
-        populate_(/*{cur_cmd.name | quote_string}*/, /*{makePFNName(cur_cmd)}*/);
+        populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
         //# endfor
         return dispatch;
     }
@@ -298,11 +350,12 @@ class DispatchLoaderDynamic {
     //# for cur_cmd in sorted_cmds
     /*{ protect_begin(cur_cmd) }*/
     /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ {
-        XrResult result = populate_(/*{cur_cmd.name | quote_string}*/, /*{makePFNName(cur_cmd)}*/);
+        XrResult result = populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
         if (XR_FAILED(result)) {
             return result;
         }
-        return (reinterpret_cast</*{ makePFNType(cur_cmd) }*/>(/*{makePFNName(cur_cmd)}*/))(/*{ forwardCommandArgs(cur_cmd) }*/);
+        return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/))(
+            /*{ forwardCommandArgs(cur_cmd) }*/);
     }
     /*{ protect_end(cur_cmd) }*/
     //# endfor
@@ -316,7 +369,7 @@ class DispatchLoaderDynamic {
     }
     XrInstance m_instance;
     //# for cur_cmd in sorted_cmds
-    PFN_xrVoidFunction /*{ cur_cmd.name | replace("xr", "pfn")}*/;
+    PFN_xrVoidFunction /*{ make_pfn_name(cur_cmd) }*/;
     //# endfor
 };
 
