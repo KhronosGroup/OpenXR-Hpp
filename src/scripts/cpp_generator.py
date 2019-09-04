@@ -26,6 +26,15 @@ VALID_FOR_NULL_INSTANCE = set((
     'xrCreateInstance'
 ))
 
+
+def _member_function_name(cmdname):
+    return cmdname[2].lower() + cmdname[3:]
+
+
+def _member_function_params(cmd):
+    return [x.cdecl.strip() for x in cmd.params[1:]]
+
+
 class CppGenerator(AutomaticSourceOutputGenerator):
     """Generate C++ wrapper header using XML element attributes from registry"""
 
@@ -36,6 +45,20 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def outputGeneratedAuthorNote(self):
         pass
 
+    def projectParamsForDeclaration(self, cur_cmd):
+        param_string = self.projectParamsForDefinition(cur_cmd)
+        if self.isCoreExtensionName(cur_cmd.ext_name):
+            param_string += " = Dispatch()"
+        return param_string
+
+    def projectParamsForDefinition(self, cur_cmd):
+        params = [x.cdecl.strip() for x in cur_cmd.params[1:]]
+        params.append("Dispatch const& d")
+        return ", ".join(params)
+
+    def projectParamsForImplementation(self, cur_cmd):
+        params = ['get()'] + [x.name.strip() for x in cur_cmd.params[1:]]
+        return ", ".join(params)
     # Override the base class header warning so the comment indicates this file.
     #   self            the AutomaticSourceOutputGenerator object
     def outputGeneratedHeaderWarning(self):
@@ -71,7 +94,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             gen=self,
             registry=self.registry,
             null_instance_ok=VALID_FOR_NULL_INSTANCE,
-            sorted_cmds=sorted_cmds)
+            sorted_cmds=sorted_cmds,
+            member_function_name=_member_function_name,
+            member_function_params=_member_function_params,
+            project_params_for_declaration=self.projectParamsForDeclaration,
+            project_params_for_definition=self.projectParamsForDefinition,
+            project_params_for_implementation=self.projectParamsForImplementation,
+            )
         write(file_data, file=self.outFile)
 
         # Finish processing in superclass

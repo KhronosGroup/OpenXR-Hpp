@@ -1,8 +1,9 @@
-#ifndef OPENXR_CPP_H_
-#define OPENXR_CPP_H_ 1
+#ifndef OPENXR_HPP_
+#define OPENXR_HPP_ 1
 
 /*
 ** Copyright (c) 2017-2019 The Khronos Group Inc.
+** Copyright (c) 2019 Collabora, Ltd.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -23,6 +24,7 @@
 */
 
 #include <openxr/openxr.h>
+#include <openxr/openxr_platform.h>
 
 #include <algorithm>
 #include <array>
@@ -79,7 +81,7 @@
 #endif
 
 #if !defined(OPENXR_HPP_NAMESPACE)
-#define OPENXR_HPP_NAMESPACE vk
+#define OPENXR_HPP_NAMESPACE xr
 #endif
 
 #define OPENXR_HPP_STRINGIFY2(text) #text
@@ -88,12 +90,12 @@
 
 namespace OPENXR_HPP_NAMESPACE {
 
-template <name FlagBitsType>
+template <typename FlagBitsType>
 struct FlagTraits {
     enum { allFlags = 0 };
 };
 
-template <name BitType, name MaskType = XrFlags64>
+template <typename BitType, typename MaskType = XrFlags64>
 class Flags {
    public:
     OPENXR_HPP_CONSTEXPR Flags() : m_mask(0) {}
@@ -162,22 +164,22 @@ class Flags {
     MaskType m_mask;
 };
 
-template <name BitType>
+template <typename BitType>
 Flags<BitType> operator|(BitType bit, Flags<BitType> const &flags) {
     return flags | bit;
 }
 
-template <name BitType>
+template <typename BitType>
 Flags<BitType> operator&(BitType bit, Flags<BitType> const &flags) {
     return flags & bit;
 }
 
-template <name BitType>
+template <typename BitType>
 Flags<BitType> operator^(BitType bit, Flags<BitType> const &flags) {
     return flags ^ bit;
 }
 
-template <name RefType>
+template <typename RefType>
 class Optional {
    public:
     Optional(RefType &reference) { m_ptr = &reference; }
@@ -193,7 +195,7 @@ class Optional {
 };
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-template <name T>
+template <typename T>
 class ArrayProxy {
    public:
     OPENXR_HPP_CONSTEXPR ArrayProxy(std::nullptr_t) : m_count(0), m_ptr(nullptr) {}
@@ -203,17 +205,17 @@ class ArrayProxy {
     ArrayProxy(uint32_t count, T *ptr) : m_count(count), m_ptr(ptr) {}
 
     template <size_t N>
-    ArrayProxy(std::array<name std::remove_const<T>::type, N> &data) : m_count(N), m_ptr(data.data()) {}
+    ArrayProxy(std::array<typename std::remove_const<T>::type, N> &data) : m_count(N), m_ptr(data.data()) {}
 
     template <size_t N>
-    ArrayProxy(std::array<name std::remove_const<T>::type, N> const &data) : m_count(N), m_ptr(data.data()) {}
+    ArrayProxy(std::array<typename std::remove_const<T>::type, N> const &data) : m_count(N), m_ptr(data.data()) {}
 
-    template <class Allocator = std::allocator<name std::remove_const<T>::type>>
-    ArrayProxy(std::vector<name std::remove_const<T>::type, Allocator> &data)
+    template <class Allocator = std::allocator<typename std::remove_const<T>::type>>
+    ArrayProxy(std::vector<typename std::remove_const<T>::type, Allocator> &data)
         : m_count(static_cast<uint32_t>(data.size())), m_ptr(data.data()) {}
 
-    template <class Allocator = std::allocator<name std::remove_const<T>::type>>
-    ArrayProxy(std::vector<name std::remove_const<T>::type, Allocator> const &data)
+    template <class Allocator = std::allocator<typename std::remove_const<T>::type>>
+    ArrayProxy(std::vector<typename std::remove_const<T>::type, Allocator> const &data)
         : m_count(static_cast<uint32_t>(data.size())), m_ptr(data.data()) {}
 
     ArrayProxy(std::initializer_list<T> const &data)
@@ -245,40 +247,10 @@ class ArrayProxy {
 };
 #endif
 
-/*% macro make_pfn_name(cur_cmd) -%*/ /*{cur_cmd.name | replace("xr", "pfn")}*/ /*%- endmacro %*/
-
-/*% macro make_pfn_type(cur_cmd) -%*/ /*{"PFN_" + cur_cmd.name}*/ /*%- endmacro %*/
-
 /*% macro forwardCommandArgs(cur_cmd) %*/ /*{ cur_cmd.params | map(attribute="name") | join(", ") }*/ /*% endmacro %*/
-
-//## Dummy curly braces to get indendation right on output
-//## This generates a lazy-populating wrapper for a dispatch call.
-{
-    /*% macro create_dispatch_lazy_call(cur_cmd) %*/
-    /*{- protect_begin(cur_cmd) }*/
-    /*{ cur_cmd.cdecl | collapse_whitespace | replace(";", "") }*/ {
-        XrResult result = populate_(/*{ cur_cmd.name | quote_string }*/, /*{ make_pfn_name(cur_cmd) }*/);
-        if (XR_FAILED(result)) {
-            return result;
-        }
-        OPENXR_HPP_ASSERT(/*{ make_pfn_name(cur_cmd) }*/ != nullptr);
-        return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{ make_pfn_name(cur_cmd) }*/))(
-            /*{ forwardCommandArgs(cur_cmd) }*/);
-    }
-    /*{ protect_end(cur_cmd) }*/
-    /*% endmacro %*/
-}
 
 class DispatchLoaderStatic {
    public:
-    /*!
-     * Create a mostly-static dispatch table.
-     *
-     * Function pointers for extension functions will be lazily populated.
-     */
-    explicit DispatchLoaderStatic(XrInstance instance = XR_NULL_HANDLE)
-        : m_instance(instance){}
-
     /*
      * Core Commands
      */
@@ -288,54 +260,110 @@ class DispatchLoaderStatic {
         return ::/*{cur_cmd.name}*/ (/*{ forwardCommandArgs(cur_cmd) }*/);
     }
     //# endfor
+};
 
-    /*
-     * Extension Commands
-     */
+// forward declarations
 
-    //# for cur_cmd in gen.ext_commands
-    /*{ create_dispatch_lazy_call(cur_cmd) }*/
+//# for handle in gen.api_handles
+class /*{ handle.name | replace("Xr", "") }*/;
+//# endfor
+
+//# for handle in gen.api_handles
+//# set shortname = handle.name | replace("Xr", "")
+class /*{shortname}*/ {
+   public:
+    using Type = /*{ shortname }*/;
+    using RawHandleType = /*{handle.name}*/;
+    OPENXR_HPP_CONSTEXPR /*{shortname -}*/ () : m_raw(XR_NULL_HANDLE) {}
+
+    OPENXR_HPP_CONSTEXPR /*{shortname -}*/ (std::nullptr_t /* unused */) : m_raw(XR_NULL_HANDLE) {}
+
+    OPENXR_HPP_TYPESAFE_EXPLICIT /*{shortname -}*/ (RawHandleType handle) : m_raw(handle) {}
+
+#if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
+    Type &operator=(RawHandleType handle) {
+        m_raw = handle;
+        return *this;
+    }
+#endif
+
+    Type &operator=(std::nullptr_t /* unused */) {
+        m_raw = XR_NULL_HANDLE;
+        return *this;
+    }
+    RawHandleType *put() {
+        m_raw = XR_NULL_HANDLE;
+        return &m_raw;
+    }
+    RawHandleType get() const { return m_raw; }
+
+    //## Generate "member function" prototypes
+    //# for cur_cmd in sorted_cmds
+
+    //#     if cur_cmd.params[0].type == handle.name
+
+    /*{- protect_begin(cur_cmd) }*/
+    //#         if gen.isCoreExtensionName(cur_cmd.ext_name)
+    //#             set dispatch_type_default = " = DispatchLoaderStatic"
+    //#             set param_decl_list = member_function_params(cur_cmd) + ["Dispatch const &d = Dispatch()"]
+    //#         else
+    //#             set dispatch_type_default = ""
+    //#             set param_decl_list = member_function_params(cur_cmd) + ["Dispatch const &d"]
+    //#         endif
+    //! /*{cur_cmd.name}*/ wrapper
+    template <typename Dispatch /*{- dispatch_type_default}*/>
+    /*{cur_cmd.return_type.text}*/ /*{ member_function_name(cur_cmd.name) -}*/ (
+        /*{- project_params_for_declaration(cur_cmd) -}*/) const;
+    /*{ protect_end(cur_cmd) }*/
+
+    //#     endif
     //# endfor
 
    private:
-    XrResult populate_(const char *function_name, PFN_xrVoidPointer &pfn) {
-        if (pfn == nullptr) {
-            return ::xrGetInstanceProcAddress(m_instance, function_name, &pfn);
-        }
-        return XR_SUCCESS;
-    }
-    XrInstance m_instance;
-    //# for cur_cmd in gen.ext_commands
-    PFN_xrVoidFunction /*{ make_pfn_name(cur_cmd)}*/;
-    //# endfor
+    RawHandleType m_raw;
 };
+OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, /*{shortname}*/ const &rhs) { return lhs.get() == rhs.get(); }
+OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, /*{handle.name}*/ rhs) { return lhs.get() == rhs; }
+OPENXR_HPP_INLINE bool operator==(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return rhs == lhs; }
+OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() == XR_NULL_HANDLE; }
+OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() == XR_NULL_HANDLE; }
+OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, /*{shortname}*/ const &rhs) { return !(lhs == rhs); }
+OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, /*{handle.name}*/ rhs) { return !(lhs == rhs); }
+OPENXR_HPP_INLINE bool operator!=(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return !(lhs == rhs); }
+OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() != XR_NULL_HANDLE; }
+OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() != XR_NULL_HANDLE; }
+
+//# endfor
+
+/*% macro make_pfn_name(cur_cmd) -%*/ /*{cur_cmd.name | replace("xr", "pfn")}*/ /*%- endmacro %*/
+
+/*% macro make_pfn_type(cur_cmd) -%*/ /*{"PFN_" + cur_cmd.name}*/ /*%- endmacro %*/
 
 class DispatchLoaderDynamic {
    public:
     /*!
      * Create a lazy-populating dispatch table.
      *
-     * If getInstanceProcAddress is not supplied, the static ::xrGetInstanceProcAddress will be used.
+     * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr will be used.
      */
-    explicit DispatchLoaderDynamic(XrInstance instance = XR_NULL_HANDLE,
-                                   PFN_xrGetInstanceProcAddress getInstanceProcAddress = nullptr)
-        : m_instance(instance), pfnGetInstanceProcAddress(getInstanceProcAddress) {
-        if (pfnGetInstanceProcAddress == nullptr) {
-            pfnGetInstanceProcAddress = reinterpret_cast<PFN_xrVoidFunction>(&::xrGetInstanceProcAddress);
+    explicit DispatchLoaderDynamic(XrInstance instance = XR_NULL_HANDLE, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr)
+        : m_instance(instance), pfnGetInstanceProcAddr(reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr)) {
+        if (pfnGetInstanceProcAddr == nullptr) {
+            pfnGetInstanceProcAddr = reinterpret_cast<PFN_xrVoidFunction>(&::xrGetInstanceProcAddr);
         }
     }
 
     /*!
-     * Create a fully-populated dispatch table given a non-null XrInstance and an optional getInstanceProcAddress.
+     * Create a fully-populated dispatch table given a non-null XrInstance and an optional getInstanceProcAddr.
      *
-     * If getInstanceProcAddress is not supplied, the static ::xrGetInstanceProcAddress will be used.
+     * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr will be used.
      */
     static DispatchLoaderDynamic createFullyPopulated(XrInstance instance,
-                                                      PFN_xrGetInstanceProcAddress getInstanceProcAddress = nullptr) {
+                                                      PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr) {
         OPENXR_HPP_ASSERT(instance != XR_NULL_HANDLE);
-        DispatchLoaderDynamic dispatch{instance, getInstanceProcAddress};
+        DispatchLoaderDynamic dispatch{instance, getInstanceProcAddr};
         //# for cur_cmd in sorted_cmds
-        populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
+        dispatch.populate_(/*{cur_cmd.name | quote_string}*/, dispatch./*{make_pfn_name(cur_cmd)}*/);
         //# endfor
         return dispatch;
     }
@@ -361,9 +389,9 @@ class DispatchLoaderDynamic {
     //# endfor
 
    private:
-    XrResult populate_(const char *function_name, PFN_xrVoidPointer &pfn) {
+    XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
         if (pfn == nullptr) {
-            return reinterpret_cast<PFN_xrGetInstanceProcAddress>(pfnGetInstanceProcAddress)(m_instance, function_name, &pfn);
+            return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance, function_name, &pfn);
         }
         return XR_SUCCESS;
     }
@@ -373,44 +401,25 @@ class DispatchLoaderDynamic {
     //# endfor
 };
 
-// forward declarations
-
-//# for handle in gen.api_handles
-class /*{ handle.name | replace("Xr", "") }*/;
+//# for cur_cmd in sorted_cmds
+//#     if gen.isHandle(cur_cmd.params[0].type)
+/*{ protect_begin(cur_cmd) }*/
+//#         set param_decl_list = member_function_params(cur_cmd) + ["Dispatch const &d"]
+template <typename Dispatch>
+OPENXR_HPP_INLINE /*{cur_cmd.return_type.text}*/ /*{cur_cmd.params[0].type | replace("Xr", "") -}*/ ::
+    /*{- member_function_name(cur_cmd.name) -}*/ (/*{- project_params_for_definition(cur_cmd) -}*/) const {
+    d./*{ cur_cmd.name -}*/ (/*{ project_params_for_implementation(cur_cmd) }*/);
+}
+/*{ protect_end(cur_cmd) }*/
+//#     endif
 //# endfor
 
-//# for handle in gen.api_handles
-//# set shortname = handle.name | replace("Xr", "")
-class /*{shortname}*/ {
-   public:
-    using RawHandleType = /*{handle.name}*/;
-    OPENXR_HPP_CONSTEXPR /*{shortname}*/ () : m_raw(XR_NULL_HANDLE) {}
-
-    OPENXR_HPP_CONSTEXPR /*{shortname}*/ (std::nullptr_t /* unused */) : m_raw(XR_NULL_HANDLE) {}
-
-    OPENXR_HPP_TYPESAFE_EXPLICIT /*{shortname}*/ (RawHandleType handle) : m_raw(handle) {}
-
-    RawHandleType *put() {
-        m_raw = XR_NULL_HANDLE;
-        return &m_raw;
-    }
-    RawHandleType get() const { return m_raw; }
-
-   private:
-    RawHandleType m_raw;
-};
-OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, /*{shortname}*/ const &rhs) { return lhs.get() == rhs.get(); }
-OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, /*{handle.name}*/ rhs) { return lhs.get() == rhs; }
-OPENXR_HPP_INLINE bool operator==(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return rhs == lhs; }
-OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() == XR_NULL_HANDLE; }
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() == XR_NULL_HANDLE; }
-OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, /*{shortname}*/ const &rhs) { return !(lhs == rhs); }
-OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, /*{handle.name}*/ rhs) { return !(lhs == rhs); }
-OPENXR_HPP_INLINE bool operator!=(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return !(lhs == rhs); }
-OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() != XR_NULL_HANDLE; }
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() != XR_NULL_HANDLE; }
-
-//# endfor
+//## Must manually provide this one for ease of use.
+template <typename Dispatch = DispatchLoaderStatic>
+OPENXR_HPP_INLINE XrResult createInstance(const XrInstanceCreateInfo *createInfo, Instance &instance,
+                                          Dispatch const &d = Dispatch()) {
+    return d.xrCreateInstance(createInfo, instance.put());
+}
 
 }  // namespace OPENXR_HPP_NAMESPACE
 #endif
