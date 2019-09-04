@@ -29,6 +29,13 @@ class /*{shortname}*/ {
         m_raw = XR_NULL_HANDLE;
         return *this;
     }
+
+    OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const { return m_raw; }
+
+    explicit operator bool() const { return m_raw != XR_NULL_HANDLE; }
+
+    bool operator!() const { return m_raw == XR_NULL_HANDLE; }
+
     RawHandleType *put() {
         m_raw = XR_NULL_HANDLE;
         return &m_raw;
@@ -60,6 +67,8 @@ class /*{shortname}*/ {
    private:
     RawHandleType m_raw;
 };
+static_assert(sizeof(/*{ shortname }*/) == sizeof(/*{handle.name}*/), "handle and wrapper have different size!");
+
 OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, /*{shortname}*/ const &rhs) { return lhs.get() == rhs.get(); }
 OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, /*{handle.name}*/ rhs) { return lhs.get() == rhs; }
 OPENXR_HPP_INLINE bool operator==(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return rhs == lhs; }

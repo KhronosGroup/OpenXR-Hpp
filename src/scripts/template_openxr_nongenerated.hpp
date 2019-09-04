@@ -5,8 +5,11 @@
 #include <array>
 #include <cstddef>
 #include <initializer_list>
-#include <memory>
 #include <type_traits>
+#ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
+#include <memory>
+#include <vector>
+#endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 // #include <cstdint>
 // #include <cstring>
@@ -157,11 +160,11 @@ Flags<BitType> operator^(BitType bit, Flags<BitType> const &flags) {
 }
 
 template <typename RefType>
-class Optional {
+class OptionalRef {
    public:
-    Optional(RefType &reference) { m_ptr = &reference; }
-    Optional(RefType *ptr) { m_ptr = ptr; }
-    Optional(std::nullptr_t) { m_ptr = nullptr; }
+    OptionalRef(RefType &reference) { m_ptr = &reference; }
+    OptionalRef(RefType *ptr) { m_ptr = ptr; }
+    OptionalRef(std::nullptr_t) { m_ptr = nullptr; }
 
     operator RefType *() const { return m_ptr; }
     RefType const *operator->() const { return m_ptr; }
@@ -223,4 +226,179 @@ class ArrayProxy {
     T *m_ptr;
 };
 #endif
+
+#ifndef OPENXR_HPP_NO_SMART_HANDLE
+
+template <typename Type, typename Dispatch>
+class UniqueHandleTraits;
+
+template <typename Type, typename Dispatch>
+class UniqueHandle : public UniqueHandleTraits<Type, Dispatch>::deleter {
+   private:
+    using Deleter = typename UniqueHandleTraits<Type, Dispatch>::deleter;
+
+   public:
+    explicit UniqueHandle(Type const &value = Type(), Deleter const &deleter = Deleter()) : Deleter(deleter), m_value(value) {}
+
+    UniqueHandle(UniqueHandle const &) = delete;
+
+    UniqueHandle(UniqueHandle &&other) : Deleter(std::move(static_cast<Deleter &>(other))), m_value(other.release()) {}
+
+    ~UniqueHandle() {
+        if (m_value) this->destroy(m_value);
+    }
+
+    UniqueHandle &operator=(UniqueHandle const &) = delete;
+
+    UniqueHandle &operator=(UniqueHandle &&other) {
+        reset(other.release());
+        *static_cast<Deleter *>(this) = std::move(static_cast<Deleter &>(other));
+        return *this;
+    }
+
+    explicit operator bool() const { return m_value.operator bool(); }
+
+    Type const *operator->() const { return &m_value; }
+
+    Type *operator->() { return &m_value; }
+
+    Type const &operator*() const { return m_value; }
+
+    Type &operator*() { return m_value; }
+
+    const Type &get() const { return m_value; }
+
+    Type &get() { return m_value; }
+
+    void reset(Type const &value = Type()) {
+        if (m_value != value) {
+            if (m_value) this->destroy(m_value);
+            m_value = value;
+        }
+    }
+
+    Type release() {
+        Type value = m_value;
+        m_value = nullptr;
+        return value;
+    }
+
+    void swap(UniqueHandle<Type, Dispatch> &rhs) {
+        std::swap(m_value, rhs.m_value);
+        std::swap(static_cast<Deleter &>(*this), static_cast<Deleter &>(rhs));
+    }
+
+   private:
+    Type m_value;
+};
+
+template <typename Type, typename Dispatch>
+OPENXR_HPP_INLINE void swap(UniqueHandle<Type, Dispatch> &lhs, UniqueHandle<Type, Dispatch> &rhs) {
+    lhs.swap(rhs);
+}
+#endif
+
+template <typename X, typename Y>
+struct isStructureChainValid {
+    enum { value = false };
+};
+
+template <typename P, typename T>
+struct TypeList {
+    using list = P;
+    using last = T;
+};
+
+template <typename List, typename X>
+struct extendCheck {
+    static const bool valid = isStructureChainValid<typename List::last, X>::value || extendCheck<typename List::list, X>::valid;
+};
+
+template <typename T, typename X>
+struct extendCheck<TypeList<void, T>, X> {
+    static const bool valid = isStructureChainValid<T, X>::value;
+};
+
+template <typename X>
+struct extendCheck<void, X> {
+    static const bool valid = true;
+};
+
+template <class Element>
+class StructureChainElement {
+   public:
+    explicit operator Element &() { return value; }
+    explicit operator const Element &() const { return value; }
+
+   private:
+    Element value;
+};
+
+template <typename... StructureElements>
+class StructureChain : private StructureChainElement<StructureElements>... {
+   public:
+    StructureChain() { link<void, StructureElements...>(); }
+
+    StructureChain(StructureChain const &rhs) { linkAndCopy<void, StructureElements...>(rhs); }
+
+    StructureChain(StructureElements const &... elems) { linkAndCopyElements<void, StructureElements...>(elems...); }
+
+    StructureChain &operator=(StructureChain const &rhs) {
+        linkAndCopy<void, StructureElements...>(rhs);
+        return *this;
+    }
+
+    template <typename ClassType>
+    ClassType &get() {
+        return static_cast<ClassType &>(*this);
+    }
+
+   private:
+    template <typename List, typename X>
+    void link() {
+        static_assert(extendCheck<List, X>::valid, "The structure chain is not valid!");
+    }
+
+    template <typename List, typename X, typename Y, typename... Z>
+    void link() {
+        static_assert(extendCheck<List, X>::valid, "The structure chain is not valid!");
+        X &x = static_cast<X &>(*this);
+        Y &y = static_cast<Y &>(*this);
+        x.pNext = &y;
+        link<TypeList<List, X>, Y, Z...>();
+    }
+
+    template <typename List, typename X>
+    void linkAndCopy(StructureChain const &rhs) {
+        static_assert(extendCheck<List, X>::valid, "The structure chain is not valid!");
+        static_cast<X &>(*this) = static_cast<X const &>(rhs);
+    }
+
+    template <typename List, typename X, typename Y, typename... Z>
+    void linkAndCopy(StructureChain const &rhs) {
+        static_assert(extendCheck<List, X>::valid, "The structure chain is not valid!");
+        X &x = static_cast<X &>(*this);
+        Y &y = static_cast<Y &>(*this);
+        x = static_cast<X const &>(rhs);
+        x.pNext = &y;
+        linkAndCopy<TypeList<List, X>, Y, Z...>(rhs);
+    }
+
+    template <typename List, typename X>
+    void linkAndCopyElements(X const &xelem) {
+        static_assert(extendCheck<List, X>::valid, "The structure chain is not valid!");
+        static_cast<X &>(*this) = xelem;
+    }
+
+    template <typename List, typename X, typename Y, typename... Z>
+    void linkAndCopyElements(X const &xelem, Y const &yelem, Z const &... zelem) {
+        static_assert(extendCheck<List, X>::valid, "The structure chain is not valid!");
+        X &x = static_cast<X &>(*this);
+        Y &y = static_cast<Y &>(*this);
+        x = xelem;
+        x.pNext = &y;
+        linkAndCopyElements<TypeList<List, X>, Y, Z...>(yelem, zelem...);
+    }
+};
+
 }  // namespace OPENXR_HPP_NAMESPACE
