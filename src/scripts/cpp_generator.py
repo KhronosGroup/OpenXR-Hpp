@@ -27,8 +27,36 @@ VALID_FOR_NULL_INSTANCE = set((
 ))
 
 
+class MemberParamProjection:
+    """Converting to/from the C++ projection of OpenXR for a member or parameter."""
+
+    def __init__(self, name, declaration, get, put=None):
+        self.name = name
+        self.decl = declaration
+        self.get_val = get
+        self.put_val = put
+
+    def declaration(self):
+        return self.decl
+
+    def get_convert_from(self, struct_access=None):
+        """Get the code to retrieve the value(s) and convert to native C format."""
+        if struct_access:
+            return self.get_val.replace(self.name, struct_access + self.name)
+        return self.get_val
+
+    # def get_convert_to(self, struct_access=None):
+    #     """Get the code to retrieve the value(s) and convert to native C format."""
+    #     if struct_access:
+    #         return self.get_val.replace(self.name, struct_access + self.name)
+    #     return self.get_val
+
+
 def _member_function_name(cmdname):
-    return cmdname[2].lower() + cmdname[3:]
+    base = cmdname[2].lower() + cmdname[3:]
+    if base.startswith('destroy'):
+        return 'destroy'
+    return base
 
 
 def _member_function_params(cmd):
@@ -62,6 +90,10 @@ def _strip_suffix(val, suffix):
     if val.endswith(suffix):
         return val[:-len(suffix)]
     return val
+
+
+def _simple_project_typename(typename):
+    return _strip_suffix(typename, "Xr")
 
 
 RULE_BREAKING_ENUMS = {
@@ -115,25 +147,65 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         return enum_name
 
+    def filter_for_success_codes(self, return_codes):
+        return ['Result::' + self.createEnumValue(x, 'XrResult')
+                for x in return_codes
+                if not x.startswith('XR_ERROR')]
+
+    def createEnumException(self, name):
+        enum_val = self.createEnumValue(name, 'XrResult')
+        return enum_val.replace('Error', '') + 'Error'
+
     def projectTypeName(self, typename):
         return typename.replace('Xr', '')
 
-    def projectParamsForDeclaration(self, cur_cmd):
-        param_string = self.projectParamsForDefinition(cur_cmd)
+    def projectParam(self, param, context):
+        """Return a tuple of the argument declaration and the argument usage."""
+        if param.is_bool:
+            return MemberParamProjection(param.name,
+                                         "bool {}".format(param.name),
+                                         "({} ? XR_TRUE : XR_FALSE)".format(param.name))
+        if param.type in self.dict_handles:
+            decl = param.cdecl.replace(param.type, self.projectTypeName(param.type)).strip()
+            if context.is_create_connect and param.pointer_count and not param.is_const:
+                return MemberParamProjection(param.name,
+                                             decl,
+                                             "OPENXR_HPP_NAMESPACE::put({})".format(param.name))
+
+            return MemberParamProjection(param.name,
+                                         decl,
+                                         "OPENXR_HPP_NAMESPACE::get({})".format(param.name))
+
+        return MemberParamProjection(param.name,
+                                     param.cdecl.strip(),
+                                     param.name.strip())
+
+    def projectParamsForDeclaration(self, cur_cmd, enhanced=False):
+        param_string = self.projectParamsForDefinition(cur_cmd, enhanced=enhanced)
         if self.isCoreExtensionName(cur_cmd.ext_name):
             param_string += " = Dispatch()"
         return param_string
 
-    def projectParamsForDefinition(self, cur_cmd):
-        params = [x.cdecl.strip() for x in cur_cmd.params[1:]]
-        params.append("Dispatch const& d")
+    def projectParamsForDefinition(self, cur_cmd, enhanced=False):
+
+        params = [self.projectParam(x, cur_cmd).declaration()
+                  for x in cur_cmd.params]
+        if cur_cmd.handle is not None:
+            params.pop(0)
+        if cur_cmd.is_create_connect and enhanced:
+            params.pop()
+        params.append("Dispatch && d")
         return ", ".join(params)
 
-    def projectParamsForImplementation(self, cur_cmd):
-        params = ['get()'] + [x.name.strip() for x in cur_cmd.params[1:]]
+    def projectParamsForImplementation(self, cur_cmd, enhanced=False):
+        params = [self.projectParam(x, cur_cmd).get_convert_from()
+                  for x in cur_cmd.params]
+
+        if cur_cmd.handle is not None:
+            params[0] = 'get()'
+        if cur_cmd.is_create_connect and enhanced:
+            params.pop()
         return ", ".join(params)
-    # Override the base class header warning so the comment indicates this file.
-    #   self            the AutomaticSourceOutputGenerator object
 
     def outputGeneratedHeaderWarning(self):
         # File Comment
@@ -168,6 +240,17 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     #   self            the ConformanceLayerBaseGenerator object
     def endFile(self):
         sorted_cmds = self.core_commands + self.ext_commands
+
+        self.dict_handles = {}
+        for handle in self.api_handles:
+            self.dict_handles[handle.name] = handle
+
+        self.dict_enums = {}
+        for enum in self.api_enums:
+            self.dict_enums[enum.name] = enum
+            if enum.name == 'XrResult':
+                result_enum = enum
+
         file_data = self.template.render(
             gen=self,
             registry=self.registry,
@@ -179,7 +262,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             project_params_for_definition=self.projectParamsForDefinition,
             project_params_for_implementation=self.projectParamsForImplementation,
             create_enum_value=self.createEnumValue,
-            project_type_name=self.projectTypeName
+            project_type_name=self.projectTypeName,
+            result_enum=result_enum,
+            create_enum_exception=self.createEnumException,
+            filter_for_success_codes=self.filter_for_success_codes
         )
         write(file_data, file=self.outFile)
 

@@ -28,6 +28,7 @@
 /*% include('template_openxr_nongenerated.hpp')%*/
 /*% include('template_openxr_dispatchstatic.hpp')%*/
 /*% include('template_openxr_enums.hpp')%*/
+/*% include('template_openxr_exceptions.hpp')%*/
 /*% include('template_openxr_handleclasses.hpp')%*/
 /*% include('template_openxr_dispatchdynamic.hpp')%*/
 /*% include('template_openxr_methodimpls.hpp')%*/

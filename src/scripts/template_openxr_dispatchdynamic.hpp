@@ -12,7 +12,7 @@ class DispatchLoaderDynamic {
      *
      * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr will be used.
      */
-    explicit DispatchLoaderDynamic(XrInstance instance = XR_NULL_HANDLE, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr)
+    explicit DispatchLoaderDynamic(Instance instance = nullptr, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr)
         : m_instance(instance), pfnGetInstanceProcAddr(reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr)) {
         if (pfnGetInstanceProcAddr == nullptr) {
             pfnGetInstanceProcAddr = reinterpret_cast<PFN_xrVoidFunction>(&::xrGetInstanceProcAddr);
@@ -24,9 +24,8 @@ class DispatchLoaderDynamic {
      *
      * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr will be used.
      */
-    static DispatchLoaderDynamic createFullyPopulated(XrInstance instance,
-                                                      PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr) {
-        OPENXR_HPP_ASSERT(instance != XR_NULL_HANDLE);
+    static DispatchLoaderDynamic createFullyPopulated(Instance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr) {
+        OPENXR_HPP_ASSERT(instance != nullptr);
         DispatchLoaderDynamic dispatch{instance, getInstanceProcAddr};
         //# for cur_cmd in sorted_cmds
         dispatch.populate_(/*{cur_cmd.name | quote_string}*/, dispatch./*{make_pfn_name(cur_cmd)}*/);
@@ -43,11 +42,17 @@ class DispatchLoaderDynamic {
 
     //# for cur_cmd in sorted_cmds
     /*{ protect_begin(cur_cmd) }*/
+    //! Call /*{cur_cmd.name}*/, populating function pointer if required.
     /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ {
         XrResult result = populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
         if (XR_FAILED(result)) {
             return result;
         }
+        return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/))(
+            /*{ forwardCommandArgs(cur_cmd) }*/);
+    }
+    //! Call /*{cur_cmd.name}*/ (const overload - does not populate function pointer)
+    /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
         return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/))(
             /*{ forwardCommandArgs(cur_cmd) }*/);
     }
@@ -57,15 +62,14 @@ class DispatchLoaderDynamic {
    private:
     XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
         if (pfn == nullptr) {
-            return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance, function_name, &pfn);
+            return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance.get(), function_name, &pfn);
         }
         return XR_SUCCESS;
     }
-    XrInstance m_instance;
+    Instance m_instance;
     //# for cur_cmd in sorted_cmds
     PFN_xrVoidFunction /*{ make_pfn_name(cur_cmd) }*/;
     //# endfor
 };
-
 
 }  // namespace OPENXR_HPP_NAMESPACE

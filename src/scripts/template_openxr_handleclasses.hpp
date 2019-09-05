@@ -47,6 +47,8 @@ class /*{shortname}*/ {
 
     //#     if cur_cmd.params[0].type == handle.name
 
+    //## Should we hide the result-returning function in enhanced mode?
+    //#         set hide_simple = not cur_cmd.is_create_connect
     /*{- protect_begin(cur_cmd) }*/
     //#         if gen.isCoreExtensionName(cur_cmd.ext_name)
     //#             set dispatch_type_default = " = DispatchLoaderStatic"
@@ -55,10 +57,44 @@ class /*{shortname}*/ {
     //#             set dispatch_type_default = ""
     //#             set param_decl_list = member_function_params(cur_cmd) + ["Dispatch const &d"]
     //#         endif
+
+//# if hide_simple
+#ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
+    //# endif
     //! /*{cur_cmd.name}*/ wrapper
     template <typename Dispatch /*{- dispatch_type_default}*/>
-    /*{project_type_name(cur_cmd.return_type.text)}*/ /*{ member_function_name(cur_cmd.name) -}*/ (
-        /*{- project_params_for_declaration(cur_cmd) -}*/) const;
+    Result
+        /*{ member_function_name(cur_cmd.name) -}*/ (
+            /*{- project_params_for_declaration(cur_cmd) -}*/) const;
+
+//# if hide_simple
+#endif /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
+    //# endif
+
+#ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
+    //# if cur_cmd.is_create_connect
+    //#     set out_param = cur_cmd.params[-1]
+    //#     set out_type = project_type_name(out_param.type)
+    template <typename Dispatch /*{- dispatch_type_default}*/>
+    typename ResultValueType</*{ out_type }*/>::type
+        /*{ member_function_name(cur_cmd.name) -}*/ (
+            /*{- project_params_for_declaration(cur_cmd, enhanced=true) -}*/) const;
+#ifndef OPENXR_HPP_NO_SMART_HANDLE
+    template <typename Dispatch /*{- dispatch_type_default}*/>
+    typename ResultValueType<UniqueHandle</*{ out_type }*/, Dispatch>>::type
+        /*{ member_function_name(cur_cmd.name) -}*/ (
+            /*{- project_params_for_declaration(cur_cmd, enhanced=true) -}*/) const;
+#endif /*OPENXR_HPP_NO_SMART_HANDLE*/
+    //# else
+    //## Not create/connect
+    template <typename Dispatch /*{- dispatch_type_default}*/>
+    typename ResultValueType<void>::type
+        /*{ member_function_name(cur_cmd.name) -}*/ (
+            /*{- project_params_for_declaration(cur_cmd, enhanced=true) -}*/) const;
+    //# endif
+
+#endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
+
     /*{ protect_end(cur_cmd) }*/
 
     //#     endif
@@ -79,6 +115,12 @@ OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, /*{handle.name}*/ 
 OPENXR_HPP_INLINE bool operator!=(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return !(lhs == rhs); }
 OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() != XR_NULL_HANDLE; }
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() != XR_NULL_HANDLE; }
+
+OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{handle.name}*/ get(/*{shortname}*/ const &h) { return h.get(); }
+
+OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{handle.name}*/ *put(/*{shortname}*/ &h) { return h.put(); }
+
+OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{handle.name}*/ *put(/*{shortname}*/ *h) { return h->put(); }
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 

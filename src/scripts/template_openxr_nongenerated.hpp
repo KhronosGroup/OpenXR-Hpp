@@ -4,18 +4,16 @@
 
 #include <array>
 #include <cstddef>
+#include <cstring>
 #include <initializer_list>
+#include <string>
+#include <system_error>
+#include <tuple>
 #include <type_traits>
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 #include <memory>
 #include <vector>
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
-
-// #include <cstdint>
-// #include <cstring>
-// #include <string>
-// #include <system_error>
-// #include <tuple>
 
 // Fix name collisions from noisy includes
 #ifdef Success
@@ -283,6 +281,11 @@ class UniqueHandle : public UniqueHandleTraits<Type, Dispatch>::deleter {
             if (m_value) this->destroy(m_value);
             m_value = value;
         }
+    }
+
+    typename Type::RawHandleType *put() {
+        reset();
+        return m_value.put();
     }
 
     Type release() {
