@@ -3,11 +3,11 @@ namespace OPENXR_HPP_NAMESPACE {
 // forward declarations
 
 //# for handle in gen.api_handles
-class /*{ handle.name | replace("Xr", "") }*/;
+class /*{ project_type_name(handle.name) }*/;
 //# endfor
 
 //# for handle in gen.api_handles
-//# set shortname = handle.name | replace("Xr", "")
+//# set shortname = project_type_name(handle.name)
 class /*{shortname}*/ {
    public:
     using Type = /*{ shortname }*/;
@@ -57,7 +57,7 @@ class /*{shortname}*/ {
     //#         endif
     //! /*{cur_cmd.name}*/ wrapper
     template <typename Dispatch /*{- dispatch_type_default}*/>
-    /*{cur_cmd.return_type.text}*/ /*{ member_function_name(cur_cmd.name) -}*/ (
+    /*{project_type_name(cur_cmd.return_type.text)}*/ /*{ member_function_name(cur_cmd.name) -}*/ (
         /*{- project_params_for_declaration(cur_cmd) -}*/) const;
     /*{ protect_end(cur_cmd) }*/
 
@@ -79,6 +79,16 @@ OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, /*{handle.name}*/ 
 OPENXR_HPP_INLINE bool operator!=(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return !(lhs == rhs); }
 OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() != XR_NULL_HANDLE; }
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() != XR_NULL_HANDLE; }
+
+#ifndef OPENXR_HPP_NO_SMART_HANDLE
+
+template <typename Dispatch>
+class UniqueHandleTraits</*{shortname}*/, Dispatch> {
+   public:
+    using deleter = ObjectDestroy<Dispatch>;
+};
+using /*{'Unique' + shortname}*/ = UniqueHandle</*{shortname}*/, DispatchLoaderStatic>;
+#endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //# endfor
 

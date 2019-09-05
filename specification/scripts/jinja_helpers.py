@@ -57,14 +57,20 @@ def _collapse_whitespace(s):
     return _WHITESPACE.sub(" ", s)
 
 
-def _protect_begin(entity):
+def _protect_begin(entity, parent=None):
     if entity.protect_value:
+        if parent and parent.protect_string == entity.protect_string:
+            # No need to double-protect if condition the same
+            return ""
         return "#if {}".format(entity.protect_string)
     return ""
 
 
-def _protect_end(entity):
+def _protect_end(entity, parent=None):
     if entity.protect_value:
+        if parent and parent.protect_string == entity.protect_string:
+            # No need to double-protect if condition the same
+            return ""
         return "#endif // {}".format(entity.protect_string)
     return ""
 

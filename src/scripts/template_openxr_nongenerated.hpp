@@ -17,6 +17,11 @@
 // #include <system_error>
 // #include <tuple>
 
+// Fix name collisions from noisy includes
+#ifdef Success
+#undef Success
+#endif
+
 #if !defined(OPENXR_HPP_ASSERT)
 #include <cassert>
 #define OPENXR_HPP_ASSERT assert
@@ -59,6 +64,9 @@
 #else
 #define OPENXR_HPP_CONSTEXPR constexpr
 #endif
+
+//! @todo set this to constexpr in c++14
+#define OPENXR_HPP_SWITCH_CONSTEXPR
 
 #if !defined(OPENXR_HPP_NAMESPACE)
 #define OPENXR_HPP_NAMESPACE xr
@@ -400,5 +408,18 @@ class StructureChain : private StructureChainElement<StructureElements>... {
         linkAndCopyElements<TypeList<List, X>, Y, Z...>(yelem, zelem...);
     }
 };
+template <typename Dispatch>
+class ObjectDestroy {
+   public:
+    ObjectDestroy(Dispatch const &dispatch = Dispatch()) : m_dispatch(&dispatch) {}
 
+   protected:
+    template <typename T>
+    void destroy(T t) {
+        t.destroy(*m_dispatch);
+    }
+
+   private:
+    Dispatch const *m_dispatch;
+};
 }  // namespace OPENXR_HPP_NAMESPACE

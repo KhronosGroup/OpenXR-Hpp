@@ -35,6 +35,41 @@ def _member_function_params(cmd):
     return [x.cdecl.strip() for x in cmd.params[1:]]
 
 
+def _to_camel_case(val):
+    chars = []
+    keep_upper = True
+    for c in val:
+        if c == '_':
+            keep_upper = True
+        elif str.isdigit(c):
+            keep_upper = True
+            chars.append(c)
+        elif keep_upper:
+            chars.append(c)
+            keep_upper = False
+        else:
+            chars.append(str.lower(c))
+    return ''.join(chars)
+
+
+def _strip_prefix(val, prefix):
+    if val.startswith(prefix):
+        return val[len(prefix):]
+    return val
+
+
+def _strip_suffix(val, suffix):
+    if val.endswith(suffix):
+        return val[:-len(suffix)]
+    return val
+
+
+RULE_BREAKING_ENUMS = {
+    'XrResult': 'XR',
+    'XrStructureType': 'XR_TYPE',
+}
+
+
 class CppGenerator(AutomaticSourceOutputGenerator):
     """Generate C++ wrapper header using XML element attributes from registry"""
 
@@ -47,6 +82,41 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def outputCopywriteHeader(self):
         pass
+
+    def findVendorSuffix(self, name):
+        for vendor in self.vendor_tags:
+            if name.endswith(vendor):
+                return vendor
+
+    def getEnumValuePrefixSuffix(self, typename):
+        if typename in RULE_BREAKING_ENUMS:
+            prefix = RULE_BREAKING_ENUMS[typename]
+        else:
+            prefix = self.genOpts.conventions.generate_structure_type_from_name(typename).replace('XR_TYPE', 'XR')
+        suffix = self.findVendorSuffix(prefix)
+        if suffix:
+            prefix = _strip_suffix(prefix, '_' + suffix)
+        return prefix, suffix
+
+    def createEnumValue(self, name, typename):
+        prefix, type_suffix = self.getEnumValuePrefixSuffix(typename)
+        name = _strip_prefix(name, prefix + '_')
+        suffix = None
+        if type_suffix:
+            name = _strip_suffix(name, '_' + type_suffix)
+
+        suffix = self.findVendorSuffix(name)
+        if suffix:
+            name = _strip_suffix(name, '_' + suffix)
+        enum_name = _to_camel_case(name)
+
+        if suffix:
+            enum_name += suffix
+
+        return enum_name
+
+    def projectTypeName(self, typename):
+        return typename.replace('Xr', '')
 
     def projectParamsForDeclaration(self, cur_cmd):
         param_string = self.projectParamsForDefinition(cur_cmd)
@@ -70,6 +140,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         generated_warning = '// *********** THIS FILE IS GENERATED - DO NOT EDIT ***********\n'
         generated_warning += '//     See cpp_generator.py for modifications\n'
         generated_warning += '// ************************************************************\n'
+        assert(self.createEnumValue("XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT", "XrStructureType")
+               == "SpatialAnchorSpaceCreateInfoMSFT")
+        assert(self.createEnumValue("XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT", "XrPerfSettingsSubDomainEXT")
+               == "Compositing")
         write(generated_warning, file=self.outFile)
 
     # Call the base class to properly begin the file, and then add
@@ -104,6 +178,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             project_params_for_declaration=self.projectParamsForDeclaration,
             project_params_for_definition=self.projectParamsForDefinition,
             project_params_for_implementation=self.projectParamsForImplementation,
+            create_enum_value=self.createEnumValue,
+            project_type_name=self.projectTypeName
         )
         write(file_data, file=self.outFile)
 
