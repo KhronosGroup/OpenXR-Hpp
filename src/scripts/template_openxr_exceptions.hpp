@@ -222,7 +222,7 @@ OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 template <typename T, typename D>
 OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle<T, D>>::type createResultValue(
-    Result result, T& data, char const* message, typename UniqueHandleTraits<T, D>::deleter const& deleter) {
+    Result result, T& data, typename UniqueHandleTraits<T, D>::deleter const& deleter, char const* message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
     ignore(message);
     OPENXR_HPP_ASSERT(result == Result::Success);
@@ -235,8 +235,9 @@ OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle<T, D>>::type createResul
 #endif
 }
 template <typename T, typename D>
-OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>> createResultValue(Result result, T& data, char const* message,
+OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>> createResultValue(Result result, T& data,
                                                                     typename UniqueHandleTraits<T, D>::deleter const& deleter,
+                                                                    char const* message,
                                                                     std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
     ignore(message);

@@ -477,8 +477,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.returns.append("deleter")
         method.return_template_params = [method.bare_return_type, "impl::RemoveRefConst<Dispatch>"]
         method.post_statements.append('ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};')
-        self._update_enhanced_return_type(method)
         method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
+        self._update_enhanced_return_type(method)
 
     def outputGeneratedHeaderWarning(self):
         # File Comment
