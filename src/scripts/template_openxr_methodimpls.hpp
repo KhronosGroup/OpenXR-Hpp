@@ -34,6 +34,7 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     /*{ enhanced.get_definition_params() | join(", ")}*/) /*{enhanced.qualifiers}*/ {
     // Two-call idiom
     /*{ enhanced.vec_type }*/ /*{ enhanced.array_param_name }*/;
+    /*% set twocallbody %*/
     uint32_t /*{ enhanced.count_output_param_name }*/ = 0;
     uint32_t /*{ enhanced.capacity_input_param_name }*/ = 0;
     
@@ -62,6 +63,17 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     }
     /*{ enhanced.post_statements |join("\n") | indent }*/
     /*{ enhanced.return_statement }*/
+    /*% endset %*/
+    /*{ twocallbody }*/
+}
+
+template </*{ enhanced.template_defns }*/>
+OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
+    //# set params = enhanced.get_definition_params(extras=["Allocator const& vectorAllocator"])
+    /*{ params | join(", ")}*/) /*{enhanced.qualifiers}*/ {
+    // Two-call idiom
+    /*{ enhanced.vec_type }*/ /*{ enhanced.array_param_name }*/{vectorAllocator};
+    /*{ twocallbody }*/
 }
 //# else
 //## Not two-call

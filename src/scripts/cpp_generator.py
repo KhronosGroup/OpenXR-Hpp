@@ -32,9 +32,9 @@ DISCOURAGED = set((
     'xrStructureTypeToString',
 ))
 
-SUPPRESS_TWO_CALL = set((
+SUPPRESS_TWO_CALL = set([
     'xrEnumerateSwapchainImages'
-))
+])
 
 TWO_CALL_STRING_NAME = "buffer"
 
@@ -164,17 +164,21 @@ class MethodProjection:
     def template_defns(self):
         return ", ".join(self.template_defn_list)
 
-    def get_declaration_params(self, replacements=None):
+    def get_declaration_params(self, replacements=None, extras=None, suppress_default_dispatch_arg=False):
         params = self._declparams(replacements)
-        suppress_default_dispatch_arg = False
+        if extras:
+            params.extend(extras)
+
         params.append(self.dispatch)
         if not self.suppress_default_dispatch_arg \
                 and not suppress_default_dispatch_arg:
             params[-1] = params[-1] + " = Dispatch{}"
         return params
 
-    def get_definition_params(self, replacements=None):
+    def get_definition_params(self, replacements=None, extras=None):
         params = self._declparams(replacements)
+        if extras:
+            params.extend(extras)
         params.append(self.dispatch)
         return params
 
@@ -324,8 +328,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             return False
         return any((x.name == "type" for x in self.dict_structs[typename].members))
 
-    def _enhanced_method_projection_twocall(self, method, passed_allocator=False):
-        print(method.name)
+    def _enhanced_method_projection_twocall(self, method):
         if method.name in SUPPRESS_TWO_CALL:
             return False
         # Find the three important parameters
@@ -397,18 +400,6 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.count_output_param = count_output_param
         method.array_param = array_param
 
-        # if passed_allocator:
-        #     method.suppress_default_dispatch_arg = True
-        #     alloc_name = "vectorAllocator"
-        #     alloc_cdecl = "Allocator const& " + alloc_name
-        #     method.decl_params.append(_make_dummy_param(alloc_name,
-        #                                                 "Allocator",
-        #                                                 alloc_cdecl))
-        #     method.decl_dict[alloc_name] = alloc_cdecl
-        #     method.access_dict[alloc_name] = None  # don't pass to openxr function
-
-        # method.pre_statements.append("{} {};".format(vec_type, array_param_name))
-        # method.pre_statements.append("uint32_t {};".format(count_output_param_name))
         method.decl_dict[capacity_input_param_name] = None
         method.decl_dict[count_output_param_name] = None
         method.decl_dict[array_param_name] = None
@@ -416,30 +407,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.access_dict[count_output_param_name] = "&" + count_output_param_name
         method.return_statement = method.return_statement.replace("result,", "result, {},".format(array_param_name))
         self._update_enhanced_return_type(method)
-        # method.access_dict[capacity_input_param_name] = "0"
-        # method.access_dict[count_output_param_name] = "&" + count_output_param_name
-        # method.access_dict[array_param_name] = "&" + count_output_param_name
 
-        # if self._is_tagged_type(item_type):
-
-        #     method.pre_statements.append('%s empty{%s, nullptr};' % (
-        #         item_type, self.conventions.generate_structure_type_from_name(item_type)))
-        #     empty_item_arg = ", empty"
-        # else:
-        #     empty_item_arg = ""
-
-        # get_count = method.get_main_invoke()
-        # method.pre_statements.extend((
-        #     get_count,
-        #     "if ({} == 0 || !unqualifiedSuccess(result)) {",
-        #     method.return_statement.replace("result,", "result, {},".format(array_param_name)),
-        #     "}",
-        #     "do {",
-        #     "{}.resize({}{})".format(
-        #         array_param_name, count_output_param_name, empty_item_arg)
-        # ))
-
-        # print(method.name, "is a two-call")
+        print(method.name, "is a two-call")
 
     def _enhanced_method_projection(self, method):
         """Perform the manipulation of a MethodProjection to convert it from C to C++ for "enhanced mode"."""
