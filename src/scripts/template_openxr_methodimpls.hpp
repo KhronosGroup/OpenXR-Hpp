@@ -39,7 +39,8 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     uint32_t /*{ enhanced.capacity_input_param_name }*/ = 0;
     
     //# if is_tagged_type(enhanced.item_type)
-    /*{ enhanced.item_type_cpp }*/ empty{/*{generate_structure_type_from_name(enhanced.item_type)}*/, nullptr};
+    /*{ enhanced.item_type_cpp }*/ empty{};
+    empty.type = /*{generate_structure_type_from_name(enhanced.item_type)}*/;
     //# set empty_arg = ", empty"
     //# endif
 
