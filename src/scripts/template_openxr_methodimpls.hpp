@@ -20,10 +20,12 @@ OPENXR_HPP_INLINE /*{method.return_type}*/ /*{method.qualified_name}*/ (
     /*{ method.get_invocation() | join("\n") | indent}*/
 }
 //# if hide_simple
-#endif /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-//# endif
+#else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
+//# else
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
+//# endif
+
 template <typename Dispatch>
 OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     /*{ enhanced.get_definition_params() | join(", ")}*/) /*{enhanced.qualifiers}*/ {
@@ -33,30 +35,25 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
 //# if enhanced.is_create
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+//#     set uniq = unique_cmds[cur_cmd.name]
 template <typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle</*{ enhanced.bare_return_type }*/, Dispatch>>::type
-    /*{enhanced.qualified_name + "Unique"}*/ (
-        /*{ enhanced.get_definition_params()[:-1] | join(", ")}*/) /*{enhanced.qualifiers}*/ {
-    //# set enh_invoke = enhanced.get_invocation()
-    /*{ enh_invoke[:-1] | join("\n") | indent}*/
-
-    ObjectDestroy<Dispatch> deleter{d};
-    /*{ enh_invoke[-1]
-    | replace("createResultValue", "createResultValue<" + enhanced.bare_return_type + ", Dispatch>")
-    | replace(enhanced.qualified_name + '"', enhanced.qualified_name + 'Unique", deleter')}*/
+OPENXR_HPP_INLINE /*{uniq.return_type}*/ /*{uniq.qualified_name}*/ (
+    /*{ uniq.get_definition_params() | join(", ")}*/) /*{uniq.qualifiers}*/ {
+    /*{ uniq.get_invocation() | join("\n") | indent}*/
 }
+
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 //# endif
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 /*{ protect_end(cur_cmd) }*/
 //# endfor
 
-//## Must manually provide this one for ease of use.
+#if 0
+// Must manually provide this one for ease of use.
 template <typename Dispatch = DispatchLoaderStatic>
 OPENXR_HPP_INLINE Result createInstance(const XrInstanceCreateInfo *createInfo, Instance &instance, Dispatch &&d = Dispatch()) {
     return static_cast<Result>(d.xrCreateInstance(createInfo, instance.put()));
 }
-#if 1
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Dispatch>
 OPENXR_HPP_INLINE ResultValueType<Instance>::type createInstance(const XrInstanceCreateInfo &createInfo, Dispatch &&d) {

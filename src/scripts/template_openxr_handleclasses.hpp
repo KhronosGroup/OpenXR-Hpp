@@ -78,9 +78,10 @@ class /*{shortname}*/ {
         /*{ method.get_declaration_params() | join(", ")}*/) const;
 
 //# if hide_simple
-#endif /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-    //# endif
+#else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
+//# else
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
+    //# endif
 
     //! /*{cur_cmd.name}*/ wrapper - enhanced mode
     template <typename Dispatch /*{- enhanced.dispatch_type_default }*/>
@@ -90,11 +91,11 @@ class /*{shortname}*/ {
     //# if enhanced.is_create
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+    //#     set uniq = unique_cmds[cur_cmd.name]
     //! /*{cur_cmd.name}*/ wrapper returning a smart handle
-    template <typename Dispatch /*{- enhanced.dispatch_type_default}*/>
-    typename ResultValueType<UniqueHandle</*{ enhanced.bare_return_type }*/, Dispatch>>::type
-        /*{enhanced.cpp_name + "Unique"}*/ (
-            /*{ enhanced.get_declaration_params()[:-1] | join(", ")}*/) const;
+    template <typename Dispatch /*{- uniq.dispatch_type_default }*/>
+    /*{uniq.return_type}*/ /*{uniq.cpp_name}*/ (
+        /*{ uniq.get_declaration_params() | join(", ")}*/) const;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
     //# endif
 

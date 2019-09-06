@@ -164,7 +164,7 @@ struct ResultValueType<void> {
 template <typename T>
 OPENXR_HPP_INLINE void ignore(T const&) {}
 
-OPENXR_HPP_INLINE typename ResultValueType<void>::type createResultValue(Result result, char const* message) {
+OPENXR_HPP_INLINE ResultValueType<void>::type createResultValue(Result result, char const* message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
     ignore(message);
     OPENXR_HPP_ASSERT(result == Result::Success);

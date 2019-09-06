@@ -103,6 +103,7 @@ class MethodProjection:
 
         self.return_statement = "return result;"
         self.pre_statements = []
+        self.post_statements = []
 
         self.masks_simple = False
 
@@ -135,6 +136,7 @@ class MethodProjection:
             self.name, ", ".join(invocation_params)
         )
         lines.append(main_invoke)
+        lines.extend(self.post_statements)
         lines.append(custom_return if custom_return else self.return_statement)
         return lines
 
@@ -223,20 +225,29 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                     # Output handle
                     method.decl_dict[name] = "{}& {}".format(
                         cpp_type, name)
-                    method.access_dict[name] = "{}.put())".format(name.strip())
+                    method.access_dict[name] = "{}.put()".format(name.strip())
+
+    def _update_enhanced_return_type(self, method):
+        if method.successes_arg:
+            if method.bare_return_type == "void":
+                method.return_type = "Result"
+            else:
+                method.return_type = "ResultValue<{}>".format(method.bare_return_type)
+        else:
+            method.return_type = "ResultValueType<{}>::type".format(method.bare_return_type)
+            if method.bare_return_type != "void":
+                method.return_type = "typename " + method.return_type
 
     def _enhanced_method_projection(self, method):
         method.masks_simple = True
         self._basic_method_projection(method)
         method.bare_return_type = "void"
-
         successes = method.get_success_codes()
         if len(successes) > 1:
             method.successes_arg = ", {%s}" % (", ".join(successes))
-            method.bare_return_type = 'Result'
-            method.return_type = 'Result'
         else:
             method.successes_arg = ""
+
         method.return_statement = 'return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING "::{}"{});'.format(
             method.qualified_name, method.successes_arg)
 
@@ -245,14 +256,36 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             outparam = method.decl_params[-1]
             cpp_outtype = _project_type_name(outparam.type)
             method.bare_return_type = cpp_outtype
+
             method.decl_params.pop()
             method.decl_dict[outparam.name] = None
             method.pre_statements.append("{} handle;".format(cpp_outtype))
             method.access_dict[outparam.name] = "handle.put()"
             method.return_statement = method.return_statement.replace("result,", "result, handle,")
+        self._update_enhanced_return_type(method)
 
-        if method.bare_return_type != 'Result':
-            method.return_type = "typename ResultValueType<{}>::type".format(method.bare_return_type)
+    def _unique_method_projection(self, method):
+
+        self._enhanced_method_projection(method)
+        vendor = self.findVendorSuffix(method.cpp_name)
+        if vendor:
+            # Keep the vendor suffix on the end.
+            method.cpp_name = _strip_suffix(method.cpp_name, vendor)
+        method.cpp_name += "Unique"
+        if vendor:
+            method.cpp_name += vendor
+        if method.handle:
+            method.qualified_name = "{}::{}".format(method.cpp_handle, method.cpp_name)
+        else:
+            method.qualified_name = method.cpp_name
+
+        method.post_statements.append('ObjectDestroy<Dispatch> deleter{d};')
+        method.return_statement = 'return createResultValue<{}, Dispatch>(result, handle, OPENXR_HPP_NAMESPACE_STRING "::{}", deleter{});'.format(
+            method.bare_return_type,
+            method.qualified_name,
+            method.successes_arg)
+        method.bare_return_type = "UniqueHandle<{}, Dispatch>".format(method.bare_return_type)
+        self._update_enhanced_return_type(method)
 
     def outputGeneratedHeaderWarning(self):
         # File Comment
@@ -301,6 +334,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         basic_cmds = {}
         enhanced_cmds = {}
+        unique_cmds = {}
         for cmd in sorted_cmds:
             basic = MethodProjection(cmd, self)
             self._basic_method_projection(basic)
@@ -309,6 +343,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             enhanced = MethodProjection(cmd, self)
             self._enhanced_method_projection(enhanced)
             enhanced_cmds[cmd.name] = enhanced
+
+            if enhanced.is_create:
+                unique = MethodProjection(cmd, self)
+                self._unique_method_projection(unique)
+                unique_cmds[cmd.name] = unique
 
         file_data = self.template.render(
             gen=self,
@@ -321,6 +360,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             create_enum_exception=self.createEnumException,
             basic_cmds=basic_cmds,
             enhanced_cmds=enhanced_cmds,
+            unique_cmds=unique_cmds
 
         )
         write(file_data, file=self.outFile)
