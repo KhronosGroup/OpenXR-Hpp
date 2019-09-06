@@ -94,6 +94,10 @@ RULE_BREAKING_ENUMS = {
 }
 
 
+def _make_dummy_param(name, typename, cdecl):
+    return MemberOrParam(typename, False, True, False, False, False, 0, False, [], None, None, 0, None, False, True, name, None, cdecl)
+
+
 class MethodProjection:
     """Stores the method declaration and implementation."""
 
@@ -133,9 +137,7 @@ class MethodProjection:
         self.masks_simple = False
 
         self.dispatch = "Dispatch&& d"
-        self.decl_dispatch = self.dispatch
-        if self.is_core:
-            self.decl_dispatch += " = Dispatch()"
+        self.suppress_default_dispatch_arg = not self.is_core
         self.template_decl_list = ["typename Dispatch"]
         self.template_defn_list = self.template_decl_list[:]
         if self.is_core:
@@ -156,7 +158,9 @@ class MethodProjection:
 
     def get_declaration_params(self):
         params = self._declparams()
-        params.append(self.decl_dispatch)
+        params.append(self.dispatch)
+        if not self.suppress_default_dispatch_arg:
+            params[-1] = params[-1] + " = Dispatch{}"
         return params
 
     def get_definition_params(self):
@@ -164,13 +168,15 @@ class MethodProjection:
         params.append(self.dispatch)
         return params
 
-    def get_invocation(self, custom_return=None):
-        lines = self.pre_statements[:]
+    def get_main_invoke(self):
         invocation_params = (self.access_dict[param.name] for param in self.params)
-        main_invoke = "Result result = static_cast<Result>( d.{}({}) );".format(
+        return "Result result = static_cast<Result>( d.{}({}) );".format(
             self.name, ", ".join(invocation_params)
         )
-        lines.append(main_invoke)
+
+    def get_invocation(self, custom_return=None):
+        lines = self.pre_statements[:]
+        lines.append(self.get_main_invoke())
         lines.extend(self.post_statements)
         lines.append(custom_return if custom_return else self.return_statement)
         return lines
@@ -299,29 +305,51 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if method.bare_return_type != "void":
                 method.return_type = "typename " + method.return_type
 
-    def _enhanced_method_projection_twocall(self, method):
+    def _is_tagged_type(self, typename):
+        if typename not in self.dict_structs:
+            return False
+        return any((x.name == "type" for x in self.dict_structs[typename].members))
+
+    def _enhanced_method_projection_twocall(self, method, passed_allocator=False):
 
         # Find the three important parameters
+        capacity_input_param = None
         capacity_input_param_name = None
-        capacity_input_param_match = None
+        count_output_param = None
         count_output_param_name = None
-        count_output_param_match = None
+        array_param = None
         array_param_name = None
-        for p in method.params:
+        for i, p in enumerate(method.decl_params):
+            if p.no_auto_validity:
+                continue
             param_name = p.name
             match = CAPACITY_INPUT_RE.match(param_name)
             if match:
+                capacity_input_param = {
+                    "param": p,
+                    "index": i,
+                    "match": match
+                }
                 capacity_input_param_name = param_name
-                capacity_input_param_match = match
                 continue
             match = COUNT_OUTPUT_RE.match(param_name)
             if match:
+                count_output_param = {
+                    "param": p,
+                    "index": i,
+                    "match": match
+                }
                 count_output_param_name = param_name
-                count_output_param_match = match
                 continue
 
             # Try detecting the output array using its length field
-            if p.pointer_count_var == capacity_input_param_name:
+            if capacity_input_param_name is not None \
+                    and p.pointer_count_var == capacity_input_param_name:
+                array_param = {
+                    "param": p,
+                    "index": i,
+                    "match": match
+                }
                 array_param_name = param_name
 
         if not capacity_input_param_name or \
@@ -329,6 +357,51 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 not array_param_name:
             # If we're missing at least one, stop checking two-call stuff here.
             return False
+        method.is_two_call = True
+        item_type = array_param['param'].type
+
+        item_type_cpp = item_type
+        if item_type in self.dict_enums:
+            item_type_cpp = _project_type_name(item_type)
+
+        vec_type = "std::vector<{}, Allocator>".format(item_type_cpp)
+        method.bare_return_type = vec_type
+        method.template_decl_list.insert(0, "typename Allocator = std::allocator<{}>".format(item_type_cpp))
+        method.template_defn_list.insert(0, "typename Allocator")
+        if passed_allocator:
+            method.suppress_default_dispatch_arg = True
+            alloc_name = "vectorAllocator"
+            alloc_cdecl = "Allocator const& " + alloc_name
+            method.decl_params.append(_make_dummy_param(alloc_name,
+                                                        "Allocator",
+                                                        alloc_cdecl))
+            method.decl_dict[alloc_name] = alloc_cdecl
+            method.access_dict[alloc_name] = None  # don't pass to openxr function
+
+        method.pre_statements.append("{} {};".format(vec_type, array_param_name))
+        method.pre_statements.append("uint32_t {};".format(count_output_param_name))
+        method.access_dict[capacity_input_param_name] = "0"
+        method.access_dict[count_output_param_name] = "&" + count_output_param_name
+
+        if self._is_tagged_type(item_type):
+
+            method.pre_statements.append('%s empty{%s, nullptr};' % (
+                item_type, self.conventions.generate_structure_type_from_name(item_type)))
+            empty_item_arg = ", empty"
+        else:
+            empty_item_arg = ""
+
+        get_count = method.get_main_invoke()
+        method.pre_statements.extend((
+            get_count,
+            "if ({} == 0 || !unqualifiedSuccess(result)) {",
+            method.return_statement.replace("result,", "result, {},".format(array_param_name)),
+            "}",
+            "do {",
+            "{}.resize({}{})".format(
+                array_param_name, count_output_param_name, empty_item_arg)
+        ))
+
         # print(method.name, "is a two-call")
 
     def _enhanced_method_projection(self, method):
@@ -431,6 +504,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             self.dict_enums[enum.name] = enum
             if enum.name == 'XrResult':
                 result_enum = enum
+
+        self.dict_structs = {}
+        for struct in self.api_structures:
+            self.dict_structs[struct.name] = struct
 
         basic_cmds = {}
         enhanced_cmds = {}
