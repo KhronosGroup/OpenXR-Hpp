@@ -45,8 +45,12 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     //# endif
 
     /*{ enhanced.pre_statements |join("\n") | indent }*/
+    //# if enhanced.item_type == 'char'
+    std::basic_string<char, std::char_traits<char>, Allocator> str{vectorAllocator};
+    //# endif
     /*{ enhanced.get_main_invoke({enhanced.array_param_name: "nullptr"}) }*/
     if (!unqualifiedSuccess(result) || /*{ enhanced.count_output_param_name }*/ == 0) {
+        
         /*{ enhanced.return_statement }*/
     }
     do {
@@ -63,9 +67,12 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
         /*{enhanced.array_param_name}*/.resize(/*{ enhanced.count_output_param_name }*//*{ empty_arg }*/);
     }
     /*{ enhanced.post_statements |join("\n") | indent }*/
+    //# if enhanced.item_type == 'char'
+    str.assign(/*{ enhanced.array_param_name }*/.begin(), /*{ enhanced.array_param_name }*/.end());
+    //# endif
     /*{ enhanced.return_statement }*/
     /*% endset %*/
-    /*{ twocallbody }*/
+    /*{ twocallbody |replace('vectorAllocator', '{}') }*/
 }
 
 template </*{ enhanced.template_defns }*/>

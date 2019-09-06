@@ -140,6 +140,9 @@ class MethodProjection:
 
         self.masks_simple = False
 
+        self.returns = ['result']
+        self.return_template_params = []
+
         self.dispatch = "Dispatch&& d"
         self.suppress_default_dispatch_arg = not self.is_core
         self.template_decl_list = ["typename Dispatch"]
@@ -323,6 +326,15 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if method.bare_return_type != "void":
                 method.return_type = "typename " + method.return_type
 
+        if method.return_template_params:
+            tmpl = "<{}>".format(",".join(method.return_template_params))
+        else:
+            tmpl = ""
+        method.return_statement = 'return createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
+            tmpl=tmpl,
+            rets=",".join(method.returns),
+            name=method.qualified_name, successes=method.successes_arg)
+
     def _is_tagged_type(self, typename):
         if typename not in self.dict_structs:
             return False
@@ -389,7 +401,6 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         vec_type = "std::vector<{}, Allocator>".format(item_type_cpp)
         method.vec_type = vec_type
-        method.bare_return_type = vec_type
         method.template_decl_list.insert(0, "typename Allocator = std::allocator<{}>".format(item_type_cpp))
         method.template_defn_list.insert(0, "typename Allocator")
 
@@ -405,7 +416,15 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.decl_dict[array_param_name] = None
 
         method.access_dict[count_output_param_name] = "&" + count_output_param_name
-        method.return_statement = method.return_statement.replace("result,", "result, {},".format(array_param_name))
+
+        if item_type == "char":
+            method.bare_return_type = "std::basic_string<char, std::char_traits<char>, Allocator>"
+            method.return_constructor = method.bare_return_type + "{%s.begin(), %s.end(), vectorAllocator}" % (array_param_name, array_param_name)
+            method.returns.append("str")
+        else:
+            method.bare_return_type = vec_type
+            method.return_constructor = array_param_name
+            method.returns.append(array_param_name)
         self._update_enhanced_return_type(method)
 
         print(method.name, "is a two-call")
@@ -421,9 +440,6 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         else:
             method.successes_arg = ""
 
-        method.return_statement = 'return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING "::{}"{});'.format(
-            method.qualified_name, method.successes_arg)
-
         if method.is_create:
             method.masks_simple = False
             outparam = method.decl_params[-1]
@@ -434,7 +450,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.decl_dict[outparam.name] = None
             method.pre_statements.append("{} handle;".format(cpp_outtype))
             method.access_dict[outparam.name] = "handle.put()"
-            method.return_statement = method.return_statement.replace("result,", "result, handle,")
+            method.returns.append("handle")
         self._update_enhanced_return_type(method)
 
         # Look for two-call
@@ -458,13 +474,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         else:
             method.qualified_name = method.cpp_name
 
+        method.returns.append("deleter")
+        method.return_template_params = [method.bare_return_type, "impl::RemoveRefConst<Dispatch>"]
         method.post_statements.append('ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};')
-        method.return_statement = 'return createResultValue<{}, impl::RemoveRefConst<Dispatch>>(result, handle, OPENXR_HPP_NAMESPACE_STRING "::{}", deleter{});'.format(
-            method.bare_return_type,
-            method.qualified_name,
-            method.successes_arg)
-        method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
         self._update_enhanced_return_type(method)
+        method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
 
     def outputGeneratedHeaderWarning(self):
         # File Comment
