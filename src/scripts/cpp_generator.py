@@ -230,6 +230,26 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                         cpp_type, name)
                     method.access_dict[name] = "{}.put()".format(name.strip())
 
+        # Convert enums
+        for param in method.decl_params:
+            if param.type in self.dict_enums:
+                name = param.name
+                cpp_type = _project_type_name(param.type)
+                if param.pointer_count == 0:
+                    # Input enum
+                    method.decl_dict[name] = "{} {}".format(
+                        cpp_type, name)
+                    method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
+                elif param.pointer_count == 1:
+                    # Output enum
+                    method.decl_dict[name] = "{}& {}".format(
+                        cpp_type, name)
+                    method.pre_statements.append(
+                        "{} {}_tmp;".format(param.type, name.strip()))
+                    method.access_dict[name] = "{}_tmp".format(name.strip())
+                    method.post_statements.append(
+                        "{name} = static_cast<{t}>({name}_tmp);".format(name=name.strip(), t=cpp_type))
+
     def _update_enhanced_return_type(self, method):
         if method.successes_arg:
             if method.bare_return_type == "void":
@@ -282,12 +302,12 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         else:
             method.qualified_name = method.cpp_name
 
-        method.post_statements.append('ObjectDestroy<Dispatch> deleter{d};')
-        method.return_statement = 'return createResultValue<{}, Dispatch>(result, handle, OPENXR_HPP_NAMESPACE_STRING "::{}", deleter{});'.format(
+        method.post_statements.append('ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};')
+        method.return_statement = 'return createResultValue<{}, impl::RemoveRefConst<Dispatch>>(result, handle, OPENXR_HPP_NAMESPACE_STRING "::{}", deleter{});'.format(
             method.bare_return_type,
             method.qualified_name,
             method.successes_arg)
-        method.bare_return_type = "UniqueHandle<{}, Dispatch>".format(method.bare_return_type)
+        method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
         self._update_enhanced_return_type(method)
 
     def outputGeneratedHeaderWarning(self):

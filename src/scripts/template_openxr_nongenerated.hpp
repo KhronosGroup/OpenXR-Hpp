@@ -2,6 +2,7 @@
 #include <openxr/openxr.h>
 #include <openxr/openxr_platform.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstring>
@@ -231,6 +232,12 @@ class ArrayProxy {
     uint32_t m_count;
     T *m_ptr;
 };
+
+namespace impl {
+
+template <typename T>
+using RemoveRefConst = typename std::remove_const<typename std::remove_reference<T>::type>::type;
+}  // namespace impl
 #endif
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
@@ -302,7 +309,11 @@ class UniqueHandle : public UniqueHandleTraits<Type, Dispatch>::deleter {
    private:
     Type m_value;
 };
+template <typename Type, typename Dispatch>
+class UniqueHandle<Type, Dispatch &> : public UniqueHandle<Type, Dispatch> {};
 
+template <typename Type, typename Dispatch>
+class UniqueHandle<Type, Dispatch const> : public UniqueHandle<Type, Dispatch> {};
 template <typename Type, typename Dispatch>
 OPENXR_HPP_INLINE void swap(UniqueHandle<Type, Dispatch> &lhs, UniqueHandle<Type, Dispatch> &rhs) {
     lhs.swap(rhs);
