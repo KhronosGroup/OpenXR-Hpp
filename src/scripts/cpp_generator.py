@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 
 from automatic_source_generator import AutomaticSourceOutputGenerator, write
 from jinja_helpers import JinjaTemplate, make_jinja_environment
@@ -25,6 +26,26 @@ VALID_FOR_NULL_INSTANCE = set((
     'xrEnumerateApiLayerProperties',
     'xrCreateInstance'
 ))
+
+DISCOURAGED = set((
+    'xrResultToString',
+    'xrStructureTypeToString',
+))
+
+TWO_CALL_STRING_NAME = "buffer"
+
+CAPACITY_INPUT_RE = re.compile(r'(?P<itemname>[a-z]*)CapacityInput')
+COUNT_OUTPUT_RE = re.compile(r'(?P<itemname>[a-z]*)CountOutput')
+
+
+def _discouraged_begin(cmd):
+    if cmd.name in DISCOURAGED:
+        return "\n#ifdef OPENXR_HPP_PROVIDE_DISCOURAGED_FUNCTIONS\n"
+    return ""
+
+
+def _discouraged_end(cmd):
+    return _discouraged_begin(cmd).replace("#ifdef", "#endif  // ")
 
 
 def _member_function_name(cmdname):
@@ -87,6 +108,7 @@ class MethodProjection:
         self.decl_params = cmd.params[:]
         self.is_create = cmd.is_create_connect
         self.is_destroy = cmd.is_destroy_disconnect
+        self.is_two_call = False
 
         self.handle = cmd.handle
         if self.handle:
@@ -114,13 +136,23 @@ class MethodProjection:
         self.decl_dispatch = self.dispatch
         if self.is_core:
             self.decl_dispatch += " = Dispatch()"
-
-        self.dispatch_type_default = " = DispatchLoaderStatic" if self.is_core else ""
+        self.template_decl_list = ["typename Dispatch"]
+        self.template_defn_list = self.template_decl_list[:]
+        if self.is_core:
+            self.template_decl_list[0] = self.template_decl_list[0] + " = DispatchLoaderStatic"
 
     def _declparams(self):
         params = (self.decl_dict[param.name] for param in self.params)
         params = [x for x in params if x is not None]
         return params
+
+    @property
+    def template_decls(self):
+        return ", ".join(self.template_decl_list)
+
+    @property
+    def template_defns(self):
+        return ", ".join(self.template_defn_list)
 
     def get_declaration_params(self):
         params = self._declparams()
@@ -161,9 +193,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.env = make_jinja_environment(file_with_templates_as_sibs=__file__)
 
     def outputGeneratedAuthorNote(self):
+        # Disabled
         pass
 
     def outputCopywriteHeader(self):
+        # Disabled - there is one in the template.
         pass
 
     def findVendorSuffix(self, name):
@@ -204,6 +238,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         return enum_val.replace('Error', '') + 'Error'
 
     def _basic_method_projection(self, method):
+        """Perform the basic manipulation of a MethodProjection to convert it from C to C++."""
         # Free function to method
         if method.handle:
             handle = method.params[0]
@@ -251,6 +286,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                         "{name} = static_cast<{t}>({name}_tmp);".format(name=name.strip(), t=cpp_type))
 
     def _update_enhanced_return_type(self, method):
+        """Set the return type based on the bare return type.
+
+        Used by _enhanced_method_projection and _unique_method_projection."""
         if method.successes_arg:
             if method.bare_return_type == "void":
                 method.return_type = "Result"
@@ -261,7 +299,40 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if method.bare_return_type != "void":
                 method.return_type = "typename " + method.return_type
 
+    def _enhanced_method_projection_twocall(self, method):
+
+        # Find the three important parameters
+        capacity_input_param_name = None
+        capacity_input_param_match = None
+        count_output_param_name = None
+        count_output_param_match = None
+        array_param_name = None
+        for p in method.params:
+            param_name = p.name
+            match = CAPACITY_INPUT_RE.match(param_name)
+            if match:
+                capacity_input_param_name = param_name
+                capacity_input_param_match = match
+                continue
+            match = COUNT_OUTPUT_RE.match(param_name)
+            if match:
+                count_output_param_name = param_name
+                count_output_param_match = match
+                continue
+
+            # Try detecting the output array using its length field
+            if p.pointer_count_var == capacity_input_param_name:
+                array_param_name = param_name
+
+        if not capacity_input_param_name or \
+                not count_output_param_name or \
+                not array_param_name:
+            # If we're missing at least one, stop checking two-call stuff here.
+            return False
+        # print(method.name, "is a two-call")
+
     def _enhanced_method_projection(self, method):
+        """Perform the manipulation of a MethodProjection to convert it from C to C++ for "enhanced mode"."""
         method.masks_simple = True
         self._basic_method_projection(method)
         method.bare_return_type = "void"
@@ -287,7 +358,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.return_statement = method.return_statement.replace("result,", "result, handle,")
         self._update_enhanced_return_type(method)
 
+        # Look for two-call
+        if self._enhanced_method_projection_twocall(method):
+                # No further enhancements.
+            return
+
     def _unique_method_projection(self, method):
+        """Perform the manipulation of a MethodProjection for a creation function to convert it from C to C++ returning a UniqueHandle."""
 
         self._enhanced_method_projection(method)
         vendor = self.findVendorSuffix(method.cpp_name)
@@ -383,7 +460,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             create_enum_exception=self.createEnumException,
             basic_cmds=basic_cmds,
             enhanced_cmds=enhanced_cmds,
-            unique_cmds=unique_cmds
+            unique_cmds=unique_cmds,
+            discouraged_begin=_discouraged_begin,
+            discouraged_end=_discouraged_end,
 
         )
         write(file_data, file=self.outFile)

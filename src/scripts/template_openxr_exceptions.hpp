@@ -1,6 +1,4 @@
 
-#if !defined(OPENXR_HPP_NO_EXCEPTIONS)
-
 namespace OPENXR_HPP_NAMESPACE {
 
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) { return static_cast<int>(v) < 0; }
@@ -18,6 +16,12 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(int lhs, Result
 /*{resultOperators('>=')}*/
 /*{resultOperators('==')}*/
 /*{resultOperators('!=')}*/
+
+}  // namespace OPENXR_HPP_NAMESPACE
+
+#if !defined(OPENXR_HPP_NO_EXCEPTIONS)
+
+namespace OPENXR_HPP_NAMESPACE {
 
 namespace impl {
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
