@@ -28,7 +28,10 @@ VALID_FOR_NULL_INSTANCE = set((
 
 
 def _member_function_name(cmdname):
-    return cmdname[2].lower() + cmdname[3:]
+    base = cmdname[2].lower() + cmdname[3:]
+    if base.startswith('destroy'):
+        return 'destroy'
+    return base
 
 
 def _to_camel_case(val):
@@ -207,8 +210,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.decl_params.pop(0)
             method.decl_dict[handle.name] = None
             method.access_dict[handle.name] = "this->get()"
-            if method.cpp_name.endswith(method.cpp_handle):
-                method.cpp_name = _strip_suffix(method.cpp_name, method.cpp_handle)
+            # if method.cpp_name.endswith(method.cpp_handle):
+            #     method.cpp_name = _strip_suffix(method.cpp_name, method.cpp_handle)
             method.qualified_name = "{}::{}".format(method.cpp_handle, method.cpp_name)
 
         # Convert handles
