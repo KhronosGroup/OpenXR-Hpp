@@ -2,12 +2,27 @@ namespace OPENXR_HPP_NAMESPACE {
 
 // forward declarations
 
+template <ObjectType o>
+struct cpp_type;
+
 //# for handle in gen.api_handles
 class /*{ project_type_name(handle.name) }*/;
 //# endfor
 
 //# for handle in gen.api_handles
 //# set shortname = project_type_name(handle.name)
+
+/*{- protect_begin(handle) }*/
+#ifndef OPENXR_HPP_NO_SMART_HANDLE
+
+template <typename Dispatch>
+class UniqueHandleTraits</*{shortname}*/, Dispatch> {
+   public:
+    using deleter = ObjectDestroy<Dispatch>;
+};
+using /*{'Unique' + shortname}*/ = UniqueHandle</*{shortname}*/, DispatchLoaderStatic>;
+#endif /*OPENXR_HPP_NO_SMART_HANDLE*/
+
 class /*{shortname}*/ {
    public:
     using Type = /*{ shortname }*/;
@@ -43,61 +58,50 @@ class /*{shortname}*/ {
     RawHandleType get() const { return m_raw; }
 
     //## Generate "member function" prototypes
-    //# for cur_cmd in sorted_cmds
+    //# for cur_cmd in sorted_cmds if cur_cmd.params[0].type == handle.name
 
-    //#     if cur_cmd.params[0].type == handle.name
+    /*{- protect_begin(cur_cmd, handle) }*/
+    //#     set method = basic_cmds[cur_cmd.name]
+    //#     set enhanced = enhanced_cmds[cur_cmd.name]
 
     //## Should we hide the result-returning function in enhanced mode?
-    //#         set hide_simple = not cur_cmd.is_create_connect
-    /*{- protect_begin(cur_cmd) }*/
-    //#         if gen.isCoreExtensionName(cur_cmd.ext_name)
-    //#             set dispatch_type_default = " = DispatchLoaderStatic"
-    //#             set param_decl_list = member_function_params(cur_cmd) + ["Dispatch const &d = Dispatch()"]
-    //#         else
-    //#             set dispatch_type_default = ""
-    //#             set param_decl_list = member_function_params(cur_cmd) + ["Dispatch const &d"]
-    //#         endif
+    //#     set hide_simple = enhanced.masks_simple
+
+    //#     set dispatch_type_default = " = DispatchLoaderStatic" if method.is_core else ""
 
 //# if hide_simple
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
     //# endif
     //! /*{cur_cmd.name}*/ wrapper
-    template <typename Dispatch /*{- dispatch_type_default}*/>
-    Result
-        /*{ member_function_name(cur_cmd.name) -}*/ (
-            /*{- project_params_for_declaration(cur_cmd) -}*/) const;
+    template <typename Dispatch /*{- method.dispatch_type_default }*/>
+    /*{method.return_type}*/ /*{method.cpp_name}*/ (
+        /*{ method.get_declaration_params() | join(", ")}*/) const;
 
 //# if hide_simple
 #endif /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
     //# endif
-
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-    //# if cur_cmd.is_create_connect
-    //#     set out_param = cur_cmd.params[-1]
-    //#     set out_type = project_type_name(out_param.type)
-    template <typename Dispatch /*{- dispatch_type_default}*/>
-    typename ResultValueType</*{ out_type }*/>::type
-        /*{ member_function_name(cur_cmd.name) -}*/ (
-            /*{- project_params_for_declaration(cur_cmd, enhanced=true) -}*/) const;
+
+    //! /*{cur_cmd.name}*/ wrapper - enhanced mode
+    template <typename Dispatch /*{- enhanced.dispatch_type_default }*/>
+    /*{enhanced.return_type}*/ /*{enhanced.cpp_name}*/ (
+        /*{ enhanced.get_declaration_params() | join(", ")}*/) const;
+
+    //# if enhanced.is_create
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
-    template <typename Dispatch /*{- dispatch_type_default}*/>
-    typename ResultValueType<UniqueHandle</*{ out_type }*/, Dispatch>>::type
-        /*{ member_function_name(cur_cmd.name) -}*/ (
-            /*{- project_params_for_declaration(cur_cmd, enhanced=true) -}*/) const;
+
+    //! /*{cur_cmd.name}*/ wrapper returning a smart handle
+    template <typename Dispatch /*{- enhanced.dispatch_type_default}*/>
+    typename ResultValueType<UniqueHandle</*{ enhanced.bare_return_type }*/, Dispatch>>::type
+        /*{enhanced.cpp_name + "Unique"}*/ (
+            /*{ enhanced.get_declaration_params()[:-1] | join(", ")}*/) const;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
-    //# else
-    //## Not create/connect
-    template <typename Dispatch /*{- dispatch_type_default}*/>
-    typename ResultValueType<void>::type
-        /*{ member_function_name(cur_cmd.name) -}*/ (
-            /*{- project_params_for_declaration(cur_cmd, enhanced=true) -}*/) const;
     //# endif
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-    /*{ protect_end(cur_cmd) }*/
+    /*{ protect_end(cur_cmd, handle) }*/
 
-    //#     endif
     //# endfor
 
    private:
@@ -122,15 +126,12 @@ OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{handle.name}*/ *put(/*{shortname}*/ &h
 
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{handle.name}*/ *put(/*{shortname}*/ *h) { return h->put(); }
 
-#ifndef OPENXR_HPP_NO_SMART_HANDLE
-
-template <typename Dispatch>
-class UniqueHandleTraits</*{shortname}*/, Dispatch> {
-   public:
-    using deleter = ObjectDestroy<Dispatch>;
+template <>
+struct cpp_type<ObjectType::/*{shortname}*/> {
+    using type = /*{shortname}*/;
 };
-using /*{'Unique' + shortname}*/ = UniqueHandle</*{shortname}*/, DispatchLoaderStatic>;
-#endif /*OPENXR_HPP_NO_SMART_HANDLE*/
+
+/*{- protect_end(handle) }*/
 
 //# endfor
 

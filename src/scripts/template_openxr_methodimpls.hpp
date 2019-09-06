@@ -3,69 +3,49 @@ namespace OPENXR_HPP_NAMESPACE {
 
 //# for cur_cmd in sorted_cmds
 // /*{ cur_cmd }*/
-//#     if cur_cmd.handle is not none
-//#         set qualified_name = project_type_name(cur_cmd.handle_type) + "::" + member_function_name(cur_cmd.name)
-//#         set qualifiers = "const"
-//#     else
-//#         set qualified_name = member_function_name(cur_cmd.name)
-//#         set qualifiers = ""
-//#     endif
-//## Should we hide the result-returning function in enhanced mode?
-//#     set hide_simple = not cur_cmd.is_create_connect
-//#     set successes = filter_for_success_codes(cur_cmd.return_values)
-//#     if (successes | length) > 1
-//#         set successes_arg = ", {" + (successes | join(', ')) + "}"
-//#     else
-//#         set successes_arg = ""
-//#     endif
+
 /*{ protect_begin(cur_cmd) }*/
+//#     set method = basic_cmds[cur_cmd.name]
+//#     set enhanced = enhanced_cmds[cur_cmd.name]
+
+//## Should we hide the result-returning function in enhanced mode?
+//#     set hide_simple = enhanced.masks_simple
+
 //# if hide_simple
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
 //# endif
 template <typename Dispatch>
-OPENXR_HPP_INLINE Result /*{ qualified_name -}*/ (
-    /*{- project_params_for_definition(cur_cmd) -}*/) /*{qualifiers}*/ {
-    return static_cast<Result>(d./*{ cur_cmd.name -}*/ (/*{ project_params_for_implementation(cur_cmd) }*/));
+OPENXR_HPP_INLINE /*{method.return_type}*/ /*{method.qualified_name}*/ (
+    /*{ method.get_definition_params() | join(", ")}*/) /*{ method.qualifiers }*/ {
+    /*{ method.get_invocation() | join("\n") | indent}*/
 }
 //# if hide_simple
 #endif /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
 //# endif
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//# if cur_cmd.is_create_connect
-//#     set out_param = cur_cmd.params[-1]
-//#     set out_type = project_type_name(out_param.type)
 template <typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType</*{ out_type }*/>::type /*{ qualified_name -}*/ (
-    /*{- project_params_for_definition(cur_cmd, enhanced=true) -}*/) /*{qualifiers}*/ {
-    /*{ out_type }*/ handle;
-    Result result =
-        static_cast<Result>(d./*{ cur_cmd.name -}*/ (/*{ project_params_for_implementation(cur_cmd, true) }*/, handle.put()));
-    return createResultValue(result, handle,
-                             OPENXR_HPP_NAMESPACE_STRING "::" /*{- qualified_name | quote_string-}*/ /*{successes_arg}*/);
+OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
+    /*{ enhanced.get_definition_params() | join(", ")}*/) /*{enhanced.qualifiers}*/ {
+    /*{ enhanced.get_invocation() | join("\n") | indent}*/
 }
 
+//# if enhanced.is_create
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
+
 template <typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle</*{ out_type }*/, Dispatch>>::type /*{ qualified_name + "Unique" -}*/ (
-    /*{- project_params_for_definition(cur_cmd, enhanced=true) -}*/) /*{qualifiers}*/ {
-    /*{ out_type }*/ handle;
-    Result result =
-        static_cast<Result>(d./*{ cur_cmd.name -}*/ (/*{ project_params_for_implementation(cur_cmd, true) }*/, handle.put()));
-    ObjectDestroy<Dispatch> deleter(d);
-    return createResultValue</*{ out_type }*/, Dispatch>(
-        result, handle, OPENXR_HPP_NAMESPACE_STRING "::" /*{ (qualified_name + "Unique") | quote_string -}*/, deleter);
+OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle</*{ enhanced.bare_return_type }*/, Dispatch>>::type
+    /*{enhanced.qualified_name + "Unique"}*/ (
+        /*{ enhanced.get_definition_params()[:-1] | join(", ")}*/) /*{enhanced.qualifiers}*/ {
+    //# set enh_invoke = enhanced.get_invocation()
+    /*{ enh_invoke[:-1] | join("\n") | indent}*/
+
+    ObjectDestroy<Dispatch> deleter{d};
+    /*{ enh_invoke[-1]
+    | replace("createResultValue", "createResultValue<" + enhanced.bare_return_type + ", Dispatch>")
+    | replace(enhanced.qualified_name + '"', enhanced.qualified_name + 'Unique", deleter')}*/
 }
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
-//# else
-//## Not create/connect
-template <typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<void>::type /*{ qualified_name -}*/ (
-    /*{- project_params_for_definition(cur_cmd, enhanced=true) -}*/) /*{qualifiers}*/ {
-    Result result =
-        static_cast<Result>(d./*{ cur_cmd.name -}*/ (/*{ project_params_for_implementation(cur_cmd, enhanced=true) }*/));
-    return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING "::" /*{- qualified_name | quote_string-}*/ /*{successes_arg}*/);
-}
 //# endif
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 /*{ protect_end(cur_cmd) }*/

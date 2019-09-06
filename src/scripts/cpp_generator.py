@@ -27,40 +27,8 @@ VALID_FOR_NULL_INSTANCE = set((
 ))
 
 
-class MemberParamProjection:
-    """Converting to/from the C++ projection of OpenXR for a member or parameter."""
-
-    def __init__(self, name, declaration, get, put=None):
-        self.name = name
-        self.decl = declaration
-        self.get_val = get
-        self.put_val = put
-
-    def declaration(self):
-        return self.decl
-
-    def get_convert_from(self, struct_access=None):
-        """Get the code to retrieve the value(s) and convert to native C format."""
-        if struct_access:
-            return self.get_val.replace(self.name, struct_access + self.name)
-        return self.get_val
-
-    # def get_convert_to(self, struct_access=None):
-    #     """Get the code to retrieve the value(s) and convert to native C format."""
-    #     if struct_access:
-    #         return self.get_val.replace(self.name, struct_access + self.name)
-    #     return self.get_val
-
-
 def _member_function_name(cmdname):
-    base = cmdname[2].lower() + cmdname[3:]
-    if base.startswith('destroy'):
-        return 'destroy'
-    return base
-
-
-def _member_function_params(cmd):
-    return [x.cdecl.strip() for x in cmd.params[1:]]
+    return cmdname[2].lower() + cmdname[3:]
 
 
 def _to_camel_case(val):
@@ -92,14 +60,92 @@ def _strip_suffix(val, suffix):
     return val
 
 
-def _simple_project_typename(typename):
-    return _strip_suffix(typename, "Xr")
+def _project_type_name(typename):
+    return _strip_prefix(typename, "Xr")
 
 
 RULE_BREAKING_ENUMS = {
     'XrResult': 'XR',
     'XrStructureType': 'XR_TYPE',
 }
+
+
+class MethodProjection:
+    """Stores the method declaration and implementation."""
+
+    def __init__(self, cmd, gen):
+        self.cmd = cmd
+        self.conventions = gen.genOpts.conventions
+        self.name = cmd.name
+        self.cpp_name = _member_function_name(cmd.name)
+        self.qualified_name = self.cpp_name
+        self.is_core = gen.isCoreExtensionName(cmd.ext_name)
+        self.params = cmd.params[:]
+        self.decl_params = cmd.params[:]
+        self.is_create = cmd.is_create_connect
+        self.is_destroy = cmd.is_destroy_disconnect
+
+        self.handle = cmd.handle
+        if self.handle:
+            self.cpp_handle = _project_type_name(cmd.handle_type)
+        else:
+            self.cpp_handle = None
+
+        self.decl_dict = {x.name: x.cdecl.strip() for x in self.params}
+        self.access_dict = {x.name: x.name.strip() for x in self.params}
+
+        self.return_type = "Result"
+        self.bare_return_type = self.return_type
+
+        self.return_codes = cmd.return_values[:]
+        self.cpp_return_codes = ['Result::' + gen.createEnumValue(x, 'XrResult')
+                                 for x in self.return_codes]
+
+        self.return_statement = "return result;"
+        self.pre_statements = []
+
+        self.masks_simple = False
+
+        self.dispatch = "Dispatch&& d"
+        self.decl_dispatch = self.dispatch
+        if self.is_core:
+            self.decl_dispatch += " = Dispatch()"
+
+        self.dispatch_type_default = " = DispatchLoaderStatic" if self.is_core else ""
+
+    def _declparams(self):
+        params = (self.decl_dict[param.name] for param in self.params)
+        params = [x for x in params if x is not None]
+        return params
+
+    def get_declaration_params(self):
+        params = self._declparams()
+        params.append(self.decl_dispatch)
+        return params
+
+    def get_definition_params(self):
+        params = self._declparams()
+        params.append(self.dispatch)
+        return params
+
+    def get_invocation(self, custom_return=None):
+        lines = self.pre_statements[:]
+        invocation_params = (self.access_dict[param.name] for param in self.params)
+        main_invoke = "Result result = static_cast<Result>( d.{}({}) );".format(
+            self.name, ", ".join(invocation_params)
+        )
+        lines.append(main_invoke)
+        lines.append(custom_return if custom_return else self.return_statement)
+        return lines
+
+    def get_success_codes(self):
+        return [x for x in self.cpp_return_codes if "Error" not in x]
+
+    @property
+    def qualifiers(self):
+        if self.handle:
+            return "const"
+        return ""
 
 
 class CppGenerator(AutomaticSourceOutputGenerator):
@@ -124,7 +170,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if typename in RULE_BREAKING_ENUMS:
             prefix = RULE_BREAKING_ENUMS[typename]
         else:
-            prefix = self.genOpts.conventions.generate_structure_type_from_name(typename).replace('XR_TYPE', 'XR')
+            prefix = self.conventions.generate_structure_type_from_name(typename)
+            prefix = prefix.replace('XR_TYPE', 'XR')
         suffix = self.findVendorSuffix(prefix)
         if suffix:
             prefix = _strip_suffix(prefix, '_' + suffix)
@@ -147,75 +194,75 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         return enum_name
 
-    def filter_for_success_codes(self, return_codes):
-        return ['Result::' + self.createEnumValue(x, 'XrResult')
-                for x in return_codes
-                if not x.startswith('XR_ERROR')]
-
     def createEnumException(self, name):
         enum_val = self.createEnumValue(name, 'XrResult')
         return enum_val.replace('Error', '') + 'Error'
 
-    def projectTypeName(self, typename):
-        return typename.replace('Xr', '')
+    def _basic_method_projection(self, method):
+        # Free function to method
+        if method.handle:
+            handle = method.params[0]
+            method.decl_params.pop(0)
+            method.decl_dict[handle.name] = None
+            method.access_dict[handle.name] = "this->get()"
+            if method.cpp_name.endswith(method.cpp_handle):
+                method.cpp_name = _strip_suffix(method.cpp_name, method.cpp_handle)
+            method.qualified_name = "{}::{}".format(method.cpp_handle, method.cpp_name)
 
-    def projectParam(self, param, context):
-        """Return a tuple of the argument declaration and the argument usage."""
-        if param.is_bool:
-            return MemberParamProjection(param.name,
-                                         "bool {}".format(param.name),
-                                         "({} ? XR_TRUE : XR_FALSE)".format(param.name))
-        if param.type in self.dict_handles:
-            decl = param.cdecl.replace(param.type, self.projectTypeName(param.type)).strip()
-            if context.is_create_connect and param.pointer_count and not param.is_const:
-                return MemberParamProjection(param.name,
-                                             decl,
-                                             "OPENXR_HPP_NAMESPACE::put({})".format(param.name))
+        # Convert handles
+        for param in method.decl_params:
+            if param.type in self.dict_handles:
+                name = param.name
+                cpp_type = _project_type_name(param.type)
+                if param.pointer_count == 0:
+                    # Input handle
+                    method.decl_dict[name] = "{} {}".format(
+                        cpp_type, name)
+                    method.access_dict[name] = "{}.get()".format(name.strip())
+                elif param.pointer_count == 1:
+                    # Output handle
+                    method.decl_dict[name] = "{}& {}".format(
+                        cpp_type, name)
+                    method.access_dict[name] = "{}.put())".format(name.strip())
 
-            return MemberParamProjection(param.name,
-                                         decl,
-                                         "OPENXR_HPP_NAMESPACE::get({})".format(param.name))
+    def _enhanced_method_projection(self, method):
+        method.masks_simple = True
+        self._basic_method_projection(method)
+        method.bare_return_type = "void"
 
-        return MemberParamProjection(param.name,
-                                     param.cdecl.strip(),
-                                     param.name.strip())
+        successes = method.get_success_codes()
+        if len(successes) > 1:
+            method.successes_arg = ", {%s}" % (", ".join(successes))
+            method.bare_return_type = 'Result'
+            method.return_type = 'Result'
+        else:
+            method.successes_arg = ""
+        method.return_statement = 'return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING "::{}"{});'.format(
+            method.qualified_name, method.successes_arg)
 
-    def projectParamsForDeclaration(self, cur_cmd, enhanced=False):
-        param_string = self.projectParamsForDefinition(cur_cmd, enhanced=enhanced)
-        if self.isCoreExtensionName(cur_cmd.ext_name):
-            param_string += " = Dispatch()"
-        return param_string
+        if method.is_create:
+            method.masks_simple = False
+            outparam = method.decl_params[-1]
+            cpp_outtype = _project_type_name(outparam.type)
+            method.bare_return_type = cpp_outtype
+            method.decl_params.pop()
+            method.decl_dict[outparam.name] = None
+            method.pre_statements.append("{} handle;".format(cpp_outtype))
+            method.access_dict[outparam.name] = "handle.put()"
+            method.return_statement = method.return_statement.replace("result,", "result, handle,")
 
-    def projectParamsForDefinition(self, cur_cmd, enhanced=False):
-
-        params = [self.projectParam(x, cur_cmd).declaration()
-                  for x in cur_cmd.params]
-        if cur_cmd.handle is not None:
-            params.pop(0)
-        if cur_cmd.is_create_connect and enhanced:
-            params.pop()
-        params.append("Dispatch && d")
-        return ", ".join(params)
-
-    def projectParamsForImplementation(self, cur_cmd, enhanced=False):
-        params = [self.projectParam(x, cur_cmd).get_convert_from()
-                  for x in cur_cmd.params]
-
-        if cur_cmd.handle is not None:
-            params[0] = 'get()'
-        if cur_cmd.is_create_connect and enhanced:
-            params.pop()
-        return ", ".join(params)
+        if method.bare_return_type != 'Result':
+            method.return_type = "typename ResultValueType<{}>::type".format(method.bare_return_type)
 
     def outputGeneratedHeaderWarning(self):
         # File Comment
         generated_warning = '// *********** THIS FILE IS GENERATED - DO NOT EDIT ***********\n'
         generated_warning += '//     See cpp_generator.py for modifications\n'
         generated_warning += '// ************************************************************\n'
-        assert(self.createEnumValue("XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT", "XrStructureType")
-               == "SpatialAnchorSpaceCreateInfoMSFT")
-        assert(self.createEnumValue("XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT", "XrPerfSettingsSubDomainEXT")
-               == "Compositing")
+        assert(self.createEnumValue("XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT", "XrStructureType") ==
+               "SpatialAnchorSpaceCreateInfoMSFT")
+        assert(self.createEnumValue("XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT", "XrPerfSettingsSubDomainEXT") ==
+               "Compositing")
         write(generated_warning, file=self.outFile)
 
     # Call the base class to properly begin the file, and then add
@@ -224,6 +271,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     #   gen_opts        the ConformanceLayerHeaderGeneratorOptions object
     def beginFile(self, genOpts):
         AutomaticSourceOutputGenerator.beginFile(self, genOpts)
+        self.conventions = self.genOpts.conventions
         self.template = JinjaTemplate(
             self.env, "template_{}".format(genOpts.filename))
 
@@ -251,21 +299,29 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if enum.name == 'XrResult':
                 result_enum = enum
 
+        basic_cmds = {}
+        enhanced_cmds = {}
+        for cmd in sorted_cmds:
+            basic = MethodProjection(cmd, self)
+            self._basic_method_projection(basic)
+            basic_cmds[cmd.name] = basic
+
+            enhanced = MethodProjection(cmd, self)
+            self._enhanced_method_projection(enhanced)
+            enhanced_cmds[cmd.name] = enhanced
+
         file_data = self.template.render(
             gen=self,
             registry=self.registry,
             null_instance_ok=VALID_FOR_NULL_INSTANCE,
             sorted_cmds=sorted_cmds,
-            member_function_name=_member_function_name,
-            member_function_params=_member_function_params,
-            project_params_for_declaration=self.projectParamsForDeclaration,
-            project_params_for_definition=self.projectParamsForDefinition,
-            project_params_for_implementation=self.projectParamsForImplementation,
             create_enum_value=self.createEnumValue,
-            project_type_name=self.projectTypeName,
+            project_type_name=_project_type_name,
             result_enum=result_enum,
             create_enum_exception=self.createEnumException,
-            filter_for_success_codes=self.filter_for_success_codes
+            basic_cmds=basic_cmds,
+            enhanced_cmds=enhanced_cmds,
+
         )
         write(file_data, file=self.outFile)
 
