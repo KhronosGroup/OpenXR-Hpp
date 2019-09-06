@@ -2,6 +2,7 @@
 #include <openxr/openxr.h>
 #include <openxr/openxr_platform.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstring>
@@ -11,7 +12,6 @@
 #include <tuple>
 #include <type_traits>
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-#include <algorithm>
 #include <memory>
 #include <vector>
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/

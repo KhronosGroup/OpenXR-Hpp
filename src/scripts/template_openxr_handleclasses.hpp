@@ -80,7 +80,7 @@ class /*{shortname}*/ {
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
 //# else
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-    //# endif
+//# endif
 
     //! /*{cur_cmd.name}*/ wrapper - enhanced mode
     template </*{ enhanced.template_decls }*/>
@@ -100,9 +100,10 @@ class /*{shortname}*/ {
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-    /*{- discouraged_end(cur_cmd) }*/    /*{ protect_end(cur_cmd, handle) }*/
+/*{ discouraged_end(cur_cmd) }*/ 
+/*{ protect_end(cur_cmd, handle) }*/
 
-    //# endfor
+//# endfor
 
    private:
     RawHandleType m_raw;
