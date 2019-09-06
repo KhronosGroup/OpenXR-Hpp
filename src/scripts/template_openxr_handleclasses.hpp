@@ -136,4 +136,53 @@ struct cpp_type<ObjectType::/*{shortname}*/> {
 
 //# endfor
 
+//## Generate free-function prototypes
+
+    //# for cur_cmd in sorted_cmds if not cur_cmd.handle
+
+    /*{- protect_begin(cur_cmd, handle) }*/
+    //#     set method = basic_cmds[cur_cmd.name]
+    //#     set enhanced = enhanced_cmds[cur_cmd.name]
+
+    //## Should we hide the result-returning function in enhanced mode?
+    //#     set hide_simple = enhanced.masks_simple
+
+    //#     set dispatch_type_default = " = DispatchLoaderStatic" if method.is_core else ""
+
+//# if hide_simple
+#ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
+    //# endif
+    //! /*{cur_cmd.name}*/ wrapper
+    template <typename Dispatch /*{- method.dispatch_type_default }*/>
+    /*{method.return_type}*/ /*{method.cpp_name}*/ (
+        /*{ method.get_declaration_params() | join(", ")}*/) ;
+
+//# if hide_simple
+#else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
+//# else
+#ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
+    //# endif
+
+    //! /*{cur_cmd.name}*/ wrapper - enhanced mode
+    template <typename Dispatch /*{- enhanced.dispatch_type_default }*/>
+    /*{enhanced.return_type}*/ /*{enhanced.cpp_name}*/ (
+        /*{ enhanced.get_declaration_params() | join(", ")}*/) ;
+
+    //# if enhanced.is_create
+#ifndef OPENXR_HPP_NO_SMART_HANDLE
+
+    //#     set uniq = unique_cmds[cur_cmd.name]
+    //! /*{cur_cmd.name}*/ wrapper returning a smart handle
+    template <typename Dispatch /*{- uniq.dispatch_type_default }*/>
+    /*{uniq.return_type}*/ /*{uniq.cpp_name}*/ (
+        /*{ uniq.get_declaration_params() | join(", ")}*/) ;
+#endif /*OPENXR_HPP_NO_SMART_HANDLE*/
+    //# endif
+
+#endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
+
+    /*{ protect_end(cur_cmd, handle) }*/
+
+    //# endfor
+
 }  // namespace OPENXR_HPP_NAMESPACE
