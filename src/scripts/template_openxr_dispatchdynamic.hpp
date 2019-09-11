@@ -88,7 +88,7 @@ class DispatchLoaderDynamic {
     }
     Instance m_instance;
     //# for cur_cmd in sorted_cmds
-    PFN_xrVoidFunction /*{ make_pfn_name(cur_cmd) }*/;
+    PFN_xrVoidFunction /*{ make_pfn_name(cur_cmd) }*/{};
     //# endfor
 };
 
