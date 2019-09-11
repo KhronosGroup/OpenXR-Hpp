@@ -99,17 +99,17 @@ class /*{shortname}*/ {
         return *this;
     }
 
-    OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const { return m_raw; }
+    OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const { return m_raw; }
 
-    explicit operator bool() const { return m_raw != XR_NULL_HANDLE; }
+    OPENXR_HPP_CONSTEXPR explicit operator bool() const { return m_raw != XR_NULL_HANDLE; }
 
-    bool operator!() const { return m_raw == XR_NULL_HANDLE; }
+    OPENXR_HPP_CONSTEXPR bool operator!() const { return m_raw == XR_NULL_HANDLE; }
 
     RawHandleType *put() {
         m_raw = XR_NULL_HANDLE;
         return &m_raw;
     }
-    RawHandleType get() const { return m_raw; }
+    OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
     //## Generate "member function" prototypes
     //# for cur_cmd in sorted_cmds if cur_cmd.params[0].type == handle.name
@@ -135,9 +135,9 @@ OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ c
 
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{handle.name}*/ get(/*{shortname}*/ const &h) { return h.get(); }
 
-OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{handle.name}*/ *put(/*{shortname}*/ &h) { return h.put(); }
+OPENXR_HPP_INLINE /*{handle.name}*/ *put(/*{shortname}*/ &h) { return h.put(); }
 
-OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{handle.name}*/ *put(/*{shortname}*/ *h) { return h->put(); }
+OPENXR_HPP_INLINE /*{handle.name}*/ *put(/*{shortname}*/ *h) { return h->put(); }
 
 template <>
 struct cpp_type<ObjectType::/*{shortname}*/> {

@@ -1,12 +1,20 @@
 
 namespace OPENXR_HPP_NAMESPACE {
 
+//! Return true if the Result is negative, indicating a failure.
+//! Equivalent of XR_FAILED()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) { return static_cast<int>(v) < 0; }
+//! Return true if the result is non-negative, indicating a success or non-error result.
+//! Equivalent of XR_SUCCEEDED()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool succeeded(Result v) { return static_cast<int>(v) >= 0; }
+//! Return true if the result is exactly equal to Success.
+//! Equivalent of XR_UNQUALIFIED_SUCCESS()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool unqualifiedSuccess(Result v) { return v == Result::Success; }
 
 /*% macro resultOperators(op) %*/
+//! /*{op}*/ comparison between Result and integer, for compatibility with the XR_ function-type macros and XrResult.
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(Result lhs, int rhs) { return get(lhs) /*{- op -}*/ rhs; }
+//! /*{op}*/ comparison between integer and Result, for compatibility with the XR_ function-type macros and XrResult.
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(int lhs, Result rhs) { return lhs /*{- op -}*/ get(rhs); }
 /*% endmacro %*/
 
@@ -135,6 +143,11 @@ struct is_error_code_enum<OPENXR_HPP_NAMESPACE::Result> : public true_type {};
 
 namespace OPENXR_HPP_NAMESPACE {
 
+/*!
+ * Contains a Result enumerant and a returned value.
+ *
+ * Implicitly convertible to std::tuple<> so you can do `std::tie(result, value) = callThatReturnsResultValue()`
+ */
 template <typename T>
 struct ResultValue {
     ResultValue(Result r, T& v) : result(r), value(v) {}
@@ -147,27 +160,54 @@ struct ResultValue {
     operator std::tuple<Result&, T&>() { return std::tuple<Result&, T&>(result, value); }
 };
 
+/*! Computes the return type of a function (in enhanced mode) with no non-Result::Success success codes and potentially an output
+ * value of type T.
+ *
+ * The behavior differs based on whether or not you have OPENXR_HPP_NO_EXCEPTIONS defined. If it is defined,
+ * then all functions return either a Result (for T=void) or a ResultValue<T>. Otherwise, with exceptions enabled, the Result does
+ * not need to be returned in these cases, so the return type is T (which may be void).
+ */
+template <typename T>
+struct ResultValueType;
+
+#ifdef OPENXR_HPP_NO_EXCEPTIONS
 template <typename T>
 struct ResultValueType {
-#ifdef OPENXR_HPP_NO_EXCEPTIONS
     typedef ResultValue<T> type;
-#else
-    typedef T type;
-#endif
 };
-
 template <>
 struct ResultValueType<void> {
-#ifdef OPENXR_HPP_NO_EXCEPTIONS
     typedef Result type;
-#else
-    typedef void type;
-#endif
 };
+#else
+template <typename T>
+struct ResultValueType {
+    typedef T type;
+};
+template <>
+struct ResultValueType<void> {
+    typedef void type;
+};
+#endif
 
 template <typename T>
 OPENXR_HPP_INLINE void ignore(T const&) {}
 
+/*!
+ * Returned by enhanced-mode functions with no output value and no non-Result::Success success codes.
+ *
+ * On failure:
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns nothing (void)
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result == Result::Success.
+ * - Returns Result.
+ */
 OPENXR_HPP_INLINE ResultValueType<void>::type createResultValue(Result result, char const* message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
     ignore(message);
@@ -179,6 +219,22 @@ OPENXR_HPP_INLINE ResultValueType<void>::type createResultValue(Result result, c
     }
 #endif
 }
+
+/*!
+ * Returned by enhanced-mode functions with output value of type T and no non-Result::Success success codes.
+ *
+ * On failure:
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns the value of type T
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result == Result::Success.
+ * - Returns ResultValue<T> containing both the result (which may be an error or Result::Success) and the value.
+ */
 template <typename T>
 OPENXR_HPP_INLINE typename ResultValueType<T>::type createResultValue(Result result, T& data, char const* message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
@@ -193,6 +249,21 @@ OPENXR_HPP_INLINE typename ResultValueType<T>::type createResultValue(Result res
 #endif
 }
 
+/*!
+ * Returned by enhanced-mode functions with no output value and at least one success code specified that is not Result::Success.
+ *
+ * Return type is always Result.
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns Result (which may be Result::Success, or a non-Result::Success success code)
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result == Result::Success.
+ * - Returns Result (which may be an error, Result::Success, or a non-Result::Success success code).
+ */
 OPENXR_HPP_INLINE Result createResultValue(Result result, char const* message, std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
     ignore(message);
@@ -205,6 +276,21 @@ OPENXR_HPP_INLINE Result createResultValue(Result result, char const* message, s
     return result;
 }
 
+/*!
+ * Returned by enhanced-mode functions with an output value of type T and at least one success code specified that is not Result::Success.
+ *
+ * Return type is always ResultValue<T>, containing both a Result and the output of type T.
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns ResultValue<T>, containing both a Result (which may be Result::Success, or a non-Result::Success success code) and the output of type T.
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result == Result::Success.
+ * - Returns ResultValue<T>, containing both a Result (which may be an error, Result::Success, or a non-Result::Success success code) and the output of type T.
+ */
 template <typename T>
 OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char const* message,
                                                    std::initializer_list<Result> successCodes) {
@@ -220,6 +306,21 @@ OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char 
 }
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
+/*!
+ * Returned by enhanced-mode functions that create a UniqueHandle<T, D> an output value of type T and at least one success code specified that is not Result::Success.
+ *
+ * Return type is always ResultValue<T>, containing both a Result and the output of type T.
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns ResultValue<T>, containing both a Result (which may be Result::Success, or a non-Result::Success success code) and the output of type T.
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result == Result::Success.
+ * - Returns ResultValue<T>, containing both a Result (which may be an error, Result::Success, or a non-Result::Success success code) and the output of type T.
+ */
 template <typename T, typename D>
 OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle<T, D>>::type createResultValue(
     Result result, T& data, typename UniqueHandleTraits<T, D>::deleter const& deleter, char const* message) {

@@ -25,8 +25,15 @@
 
 /*% macro forwardCommandArgs(cur_cmd) %*/ /*{ cur_cmd.params | map(attribute="name") | join(", ") }*/ /*% endmacro %*/
 
-/*% include('template_openxr_nongenerated.hpp')%*/
+/*% include('template_openxr_nongenerated_base.hpp')%*/
 /*% include('template_openxr_dispatchstatic.hpp')%*/
+
+//## These includes are currently unused
+//## /*% include('template_openxr_nongenerated_chains.hpp')%*/
+//## /*% include('template_openxr_nongenerated_enhanced.hpp')%*/
+//## /*% include('template_openxr_nongenerated_flags.hpp')%*/
+
+/*% include('template_openxr_nongenerated_unique.hpp')%*/
 /*% include('template_openxr_enums.hpp')%*/
 /*% include('template_openxr_exceptions.hpp')%*/
 /*% include('template_openxr_handleclasses.hpp')%*/

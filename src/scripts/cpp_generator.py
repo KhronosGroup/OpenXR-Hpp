@@ -399,9 +399,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             item_type_cpp = _project_type_name(item_type)
         method.item_type_cpp = item_type_cpp
 
-        vec_type = "std::vector<{}, Allocator>".format(item_type_cpp)
+        vec_type = "::std::vector<{}, Allocator>".format(item_type_cpp)
         method.vec_type = vec_type
-        method.template_decl_list.insert(0, "typename Allocator = std::allocator<{}>".format(item_type_cpp))
+        method.template_decl_list.insert(0, "typename Allocator = ::std::allocator<{}>".format(item_type_cpp))
         method.template_defn_list.insert(0, "typename Allocator")
 
         method.capacity_input_param_name = capacity_input_param_name
@@ -418,7 +418,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.access_dict[count_output_param_name] = "&" + count_output_param_name
 
         if item_type == "char":
-            method.bare_return_type = "std::basic_string<char, std::char_traits<char>, Allocator>"
+            method.bare_return_type = "::std::basic_string<char, ::std::char_traits<char>, Allocator>"
             method.return_constructor = method.bare_return_type + "{%s.begin(), %s.end(), vectorAllocator}" % (array_param_name, array_param_name)
             method.returns.append("str")
         else:
