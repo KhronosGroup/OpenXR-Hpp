@@ -38,6 +38,11 @@
 /*% include('template_openxr_exceptions.hpp')%*/
 /*% include('template_openxr_handleclasses.hpp')%*/
 /*% include('template_openxr_dispatchdynamic.hpp')%*/
+
+/*
+ * Inline implementations of all trampoline methods and free functions follow.
+ * Prototypes may be found above, either in the associated handle class, or immediately following the section of handle classes.
+ */
 /*% include('template_openxr_methodimpls.hpp')%*/
 
 #endif

@@ -62,6 +62,9 @@ OPENXR_HPP_INLINE std::error_condition make_error_condition(Result e) {
 #define noexcept _NOEXCEPT
 #endif
 
+//! Base class for all OpenXR exceptions.
+//!
+//! Only used for catching all OpenXR exceptions.
 class Error {
    public:
     virtual ~Error() = default;
@@ -69,6 +72,9 @@ class Error {
     virtual const char* what() const noexcept = 0;
 };
 
+//! OpenXR logic error base exception class.
+//!
+//! Derives from both Error and std::logic_error for flexibility in catching.
 class LogicError : public Error, public std::logic_error {
    public:
     explicit LogicError(const std::string& what) : Error(), std::logic_error(what) {}
@@ -78,6 +84,9 @@ class LogicError : public Error, public std::logic_error {
     virtual const char* what() const noexcept { return std::logic_error::what(); }
 };
 
+//! OpenXR system error exception class - may be derived from or thrown directly.
+//!
+//! Derives from both Error and std::system_error for flexibility in catching.
 class SystemError : public Error, public std::system_error {
    public:
     SystemError(std::error_code ec) : Error(), std::system_error(ec) {}
@@ -100,6 +109,8 @@ class SystemError : public Error, public std::system_error {
 /*{ protect_begin(val, enum) }*/
 //#     set valname = create_enum_value(val.name, 'XrResult')
 //#    set classname = create_enum_exception(val.name)
+//## TODO identify which errors would be considered LogicError and subclass that instead. Add to XML?
+//! Exception class associated with the Result::/*{valname}*/ aka /*{val.name}*/ result code.
 class /*{classname}*/ : public SystemError {
    public:
     /*{classname}*/ (std::string const& message)
@@ -112,6 +123,10 @@ class /*{classname}*/ : public SystemError {
 //# endif
 //# endfor
 
+/*!
+ * Takes a result code and a message (usually the method triggering the exception) and throws the most-specific exception available
+ * for that result code. As a fallback, it will throw a SystemError directly.
+ */
 OPENXR_HPP_INLINE void throwResultException(Result result, char const* message) {
     switch (result) {
         //# for val in result_enum.values
@@ -122,7 +137,7 @@ OPENXR_HPP_INLINE void throwResultException(Result result, char const* message) 
             //#     set classname = create_enum_exception(val.name)
             throw /*{classname}*/ (message);
             //# else
-
+            // Not actually an error!
             throw SystemError(make_error_code(result));
             //# endif
             /*{ protect_end(val, enum) }*/

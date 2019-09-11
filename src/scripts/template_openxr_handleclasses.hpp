@@ -25,6 +25,10 @@ class /*{ project_type_name(handle.name) }*/;
 //# endif
 
 //! /*{cur_cmd.name}*/ wrapper
+//# if not method.is_core
+//! No default dispatch is provided as this is a non-core function,
+//! and thus requires some dynamic dispatch class.
+//# endif
 template </*{ method.template_decls }*/>
 /*{method.return_type}*/ /*{method.cpp_name}*/ (
     /*{ method.get_declaration_params() | join(", ")}*/) /*{method.qualifiers}*/;
@@ -36,12 +40,20 @@ template </*{ method.template_decls }*/>
 //# endif
 
     //! /*{cur_cmd.name}*/ wrapper - enhanced mode
+    //# if not enhanced.is_core
+    //! No default dispatch is provided as this is a non-core function,
+    //! and thus requires some dynamic dispatch class.
+    //# endif
     template </*{ enhanced.template_decls }*/>
     /*{enhanced.return_type}*/ /*{enhanced.cpp_name}*/ (
         /*{ enhanced.get_declaration_params() | join(", ")}*/) /*{enhanced.qualifiers}*/;
 
 //# if enhanced.is_two_call
-//! /*{cur_cmd.name}*/ wrapper - enhanced mode, stateful allocator for two-call result
+    //! /*{cur_cmd.name}*/ wrapper - enhanced mode, stateful allocator for two-call result
+    //# if not enhanced.is_core
+    //! No default dispatch is provided as this is a non-core function,
+    //! and thus requires some dynamic dispatch class.
+    //# endif
     template </*{ enhanced.template_decls }*/>
     /*{enhanced.return_type}*/ /*{enhanced.cpp_name}*/ (
         /*{ enhanced.get_declaration_params(extras=["Allocator const& vectorAllocator"], suppress_default_dispatch_arg=true) | join(", ")}*/) /*{enhanced.qualifiers}*/;
@@ -52,6 +64,10 @@ template </*{ method.template_decls }*/>
 
     //#     set uniq = unique_cmds[cur_cmd.name]
     //! /*{cur_cmd.name}*/ wrapper returning a smart handle
+    //# if not uniq.is_core
+    //! No default dispatch is provided as this is a non-core function,
+    //! and thus requires some dynamic dispatch class.
+    //# endif
     template </*{ uniq.template_decls }*/>
     /*{uniq.return_type}*/ /*{uniq.cpp_name}*/ (
         /*{ uniq.get_declaration_params() | join(", ")}*/) /*{uniq.qualifiers}*/;
