@@ -80,6 +80,8 @@ class UniqueHandleTraits</*{shortname}*/, Dispatch> {
 //## TODO use DispatchLoaderDynamic for extension-provided handles!
 //! Shorthand name for unique handles of type /*{shortname}*/, using a static dispatch.
 using /*{'Unique' + shortname}*/ = UniqueHandle</*{shortname}*/, DispatchLoaderStatic>;
+//! Shorthand name for unique handles of type /*{shortname}*/, using a dynamic dispatch.
+using /*{'UniqueDynamic' + shortname}*/ = UniqueHandle</*{shortname}*/, DispatchLoaderDynamic>;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping /*{handle.name}*/

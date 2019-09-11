@@ -1,5 +1,8 @@
 
 namespace OPENXR_HPP_NAMESPACE {
+// Forward declaration
+class DispatchLoaderDynamic;
+
 /*!
  * Dispatch class for OpenXR core functions that uses exported, statically-available symbols.
  */
