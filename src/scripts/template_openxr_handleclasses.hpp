@@ -134,6 +134,12 @@ class /*{shortname}*/ {
 
     //! "Put" function for assigning as null then getting the address of the raw pointer to pass to creation functions.
     //!
+    //! e.g.
+    //! ```
+    //! /*{shortname}*/ yourHandle;
+    //! auto result = d.xrCreate/*{shortname}*/(..., yourHandle.put()));
+    //! ```
+    //!
     //! See also OPENXR_HPP_NAMESPACE::put()
     RawHandleType *put() {
         m_raw = XR_NULL_HANDLE;
@@ -156,25 +162,50 @@ class /*{shortname}*/ {
 };
 static_assert(sizeof(/*{ shortname }*/) == sizeof(/*{handle.name}*/), "handle and wrapper have different size!");
 
+//# for op in ('<', '>', '<=', '>=', '==', '!=')
+//! /*{op}*/ comparison between /*{shortname}*/.
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{shortname}*/ const &lhs, /*{shortname}*/ const &rhs) { return lhs.get() /*{- op -}*/ rhs.get(); }
+//! /*{op}*/ comparison between /*{shortname}*/ and raw /*{handle.name}*/.
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{shortname}*/ const &lhs, /*{handle.name}*/ rhs) { return lhs.get() /*{- op -}*/ rhs; }
+//! /*{op}*/ comparison between raw /*{handle.name}*/ and /*{shortname}*/.
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return lhs /*{- op -}*/ rhs.get(); }
+//# endfor
+
+//! Equality comparison between /*{shortname}*/ and nullptr: true if the handle is null.
+OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() == XR_NULL_HANDLE; }
+//! Equality comparison between nullptr and /*{shortname}*/: true if the handle is null.
+OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() == XR_NULL_HANDLE; }
+//! Inequality comparison between /*{shortname}*/ and nullptr: true if the handle is not null.
+OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() != XR_NULL_HANDLE; }
+//! Inequality comparison between nullptr and /*{shortname}*/: true if the handle is not null.
+OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() != XR_NULL_HANDLE; }
+
 //! Free function accessor for the raw /*{handle.name}*/ handle in a /*{shortname}*/
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{handle.name}*/ get(/*{shortname}*/ const &h) { return h.get(); }
 
 //! Free "put" function for clearing and getting the address of the raw /*{handle.name}*/ handle in a /*{shortname}*/ (by reference)
+//!
+//! e.g.
+//! ```
+//! /*{shortname}*/ yourHandle;
+//! auto result = d.xrCreate/*{shortname}*/(..., put(yourHandle));
+//! ```
+//!
+//! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
 OPENXR_HPP_INLINE /*{handle.name}*/ *put(/*{shortname}*/ &h) { return h.put(); }
 
 //! Free "put" function for clearing and getting the address of the raw /*{handle.name}*/ handle in a /*{shortname}*/ (by pointer)
+//!
+//! e.g.
+//! ```
+//! void yourFunction(/*{shortname}*/* yourHandle) {
+//!     auto result = d.xrCreate/*{shortname}*/(..., put(yourHandle));
+//!     ....
+//! }
+//! ```
+//!
+//! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
 OPENXR_HPP_INLINE /*{handle.name}*/ *put(/*{shortname}*/ *h) { return h->put(); }
-
-OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, /*{shortname}*/ const &rhs) { return lhs.get() == rhs.get(); }
-OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, /*{handle.name}*/ rhs) { return lhs.get() == rhs; }
-OPENXR_HPP_INLINE bool operator==(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return rhs == lhs; }
-OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() == XR_NULL_HANDLE; }
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() == XR_NULL_HANDLE; }
-OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, /*{shortname}*/ const &rhs) { return !(lhs == rhs); }
-OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, /*{handle.name}*/ rhs) { return !(lhs == rhs); }
-OPENXR_HPP_INLINE bool operator!=(/*{handle.name}*/ lhs, /*{shortname}*/ const &rhs) { return !(lhs == rhs); }
-OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() != XR_NULL_HANDLE; }
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() != XR_NULL_HANDLE; }
 
 template <>
 struct cpp_type<ObjectType::/*{shortname}*/> {
