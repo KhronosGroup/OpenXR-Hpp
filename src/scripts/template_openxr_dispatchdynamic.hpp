@@ -5,6 +5,20 @@ namespace OPENXR_HPP_NAMESPACE {
 
 /*% macro make_pfn_type(cur_cmd) -%*/ /*{"PFN_" + cur_cmd.name}*/ /*%- endmacro %*/
 
+/*!
+ * Dispatch class for OpenXR that looks up all functions using a provided or statically-available xrGetInstanceProcAddr function and
+ * the optional Instance.
+ *
+ * This is safer to use, especially in large/multi-module applications, than DispatchLoaderStatic, and is thus recommended.
+ *
+ * By default, it is lazy-populating: only populating a function pointer when it is attempted to be called (if this object is not
+ * const). You can early-populate it using the createFullyPopulated() factory method, providing an Instance and optionally a
+ * xrGetInstanceProcAddr function pointer.
+ *
+ * This class stores all function pointers as type-erased PFN_xrVoidFunction, casting at time of call. This allows the same memory
+ * representation to be used across translation units that may not share the same platform defines. Only the member function
+ * trampolines containing the casts are conditional on platform defines.
+ */
 class DispatchLoaderDynamic {
    public:
     /*!
@@ -44,22 +58,28 @@ class DispatchLoaderDynamic {
     /*{ protect_begin(cur_cmd) }*/
     //! Call /*{cur_cmd.name}*/, populating function pointer if required.
     /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ {
+        //## Populate
         XrResult result = populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
         if (XR_FAILED(result)) {
             return result;
         }
+        //## Cast and call
         return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/))(
             /*{ forwardCommandArgs(cur_cmd) }*/);
     }
+
     //! Call /*{cur_cmd.name}*/ (const overload - does not populate function pointer)
     /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
+        //## Cast and call
         return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/))(
             /*{ forwardCommandArgs(cur_cmd) }*/);
     }
     /*{ protect_end(cur_cmd) }*/
+
     //# endfor
 
    private:
+    //! Internal utility function to populate a function pointer if it is nullptr.
     XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
         if (pfn == nullptr) {
             return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance.get(), function_name, &pfn);

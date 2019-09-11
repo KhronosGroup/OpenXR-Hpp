@@ -1,5 +1,8 @@
 
 namespace OPENXR_HPP_NAMESPACE {
+/*!
+ * Dispatch class for OpenXR core functions that uses exported, statically-available symbols.
+ */
 class DispatchLoaderStatic {
    public:
     /*
@@ -12,6 +15,5 @@ class DispatchLoaderStatic {
     }
     //# endfor
 };
-
 
 }  // namespace OPENXR_HPP_NAMESPACE
