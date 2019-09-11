@@ -45,7 +45,6 @@ class ErrorCategoryImpl : public std::error_category {
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
 #undef noexcept
 #endif
-}  // namespace impl
 
 OPENXR_HPP_INLINE const std::error_category& errorCategory() {
     static impl::ErrorCategoryImpl instance;
@@ -61,6 +60,7 @@ OPENXR_HPP_INLINE std::error_condition make_error_condition(Result e) {
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
 #define noexcept _NOEXCEPT
 #endif
+}  // namespace impl
 
 //! Base class for all OpenXR exceptions.
 //!
@@ -114,10 +114,10 @@ class SystemError : public Error, public std::system_error {
 class /*{classname}*/ : public SystemError {
    public:
     /*{classname}*/ (std::string const& message)
-        : SystemError(make_error_code(Result::/*{valname}*/), message){}
+        : SystemError(impl::make_error_code(Result::/*{valname}*/), message){}
 
           /*{classname}*/ (char const* message)
-        : SystemError(make_error_code(Result::/*{valname}*/), message) {}
+        : SystemError(impl::make_error_code(Result::/*{valname}*/), message) {}
 };
 /*{ protect_end(val, enum) }*/
 //# endif
@@ -138,14 +138,14 @@ OPENXR_HPP_INLINE void throwResultException(Result result, char const* message) 
             throw /*{classname}*/ (message);
             //# else
             // Not actually an error!
-            throw SystemError(make_error_code(result));
+            throw SystemError(impl::make_error_code(result));
             //# endif
             /*{ protect_end(val, enum) }*/
 
             //# endfor
 
         default:
-            throw SystemError(make_error_code(result));
+            throw SystemError(impl::make_error_code(result));
     }
 }
 }  // namespace OPENXR_HPP_NAMESPACE

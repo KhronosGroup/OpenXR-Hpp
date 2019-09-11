@@ -518,6 +518,7 @@ private:
 
 namespace OPENXR_HPP_NAMESPACE {
 
+//! Enum class associated with XrResult
 enum class Result : int32_t {
 
   Success = XR_SUCCESS,
@@ -639,10 +640,13 @@ enum class Result : int32_t {
 
 };
 
+//! Free function for retrieving the raw XrResult value from a Result
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrResult get(Result const &v) {
   return static_cast<XrResult>(v);
 }
 
+//! Free function for retrieving the string name of a Result value as a const
+//! char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(Result value) {
   switch (value) {
@@ -820,11 +824,14 @@ to_string_literal(Result value) {
   }
 }
 
+//! Free function for retrieving the string name of a Result value as a
+//! std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(Result value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrStructureType
 enum class StructureType : uint32_t {
 
   Unknown = XR_TYPE_UNKNOWN,
@@ -1006,11 +1013,15 @@ enum class StructureType : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrStructureType value from a
+//! StructureType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrStructureType
 get(StructureType const &v) {
   return static_cast<XrStructureType>(v);
 }
 
+//! Free function for retrieving the string name of a StructureType value as a
+//! const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(StructureType value) {
   switch (value) {
@@ -1269,11 +1280,14 @@ to_string_literal(StructureType value) {
   }
 }
 
+//! Free function for retrieving the string name of a StructureType value as a
+//! std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(StructureType value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrFormFactor
 enum class FormFactor : uint32_t {
 
   HeadMountedDisplay = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY,
@@ -1282,10 +1296,13 @@ enum class FormFactor : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrFormFactor value from a FormFactor
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrFormFactor get(FormFactor const &v) {
   return static_cast<XrFormFactor>(v);
 }
 
+//! Free function for retrieving the string name of a FormFactor value as a
+//! const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(FormFactor value) {
   switch (value) {
@@ -1301,11 +1318,14 @@ to_string_literal(FormFactor value) {
   }
 }
 
+//! Free function for retrieving the string name of a FormFactor value as a
+//! std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(FormFactor value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrViewConfigurationType
 enum class ViewConfigurationType : uint32_t {
 
   PrimaryMono = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO,
@@ -1316,11 +1336,15 @@ enum class ViewConfigurationType : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrViewConfigurationType value from a
+//! ViewConfigurationType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrViewConfigurationType
 get(ViewConfigurationType const &v) {
   return static_cast<XrViewConfigurationType>(v);
 }
 
+//! Free function for retrieving the string name of a ViewConfigurationType
+//! value as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(ViewConfigurationType value) {
   switch (value) {
@@ -1339,11 +1363,14 @@ to_string_literal(ViewConfigurationType value) {
   }
 }
 
+//! Free function for retrieving the string name of a ViewConfigurationType
+//! value as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(ViewConfigurationType value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrEnvironmentBlendMode
 enum class EnvironmentBlendMode : uint32_t {
 
   Opaque = XR_ENVIRONMENT_BLEND_MODE_OPAQUE,
@@ -1354,11 +1381,15 @@ enum class EnvironmentBlendMode : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrEnvironmentBlendMode value from a
+//! EnvironmentBlendMode
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrEnvironmentBlendMode
 get(EnvironmentBlendMode const &v) {
   return static_cast<XrEnvironmentBlendMode>(v);
 }
 
+//! Free function for retrieving the string name of a EnvironmentBlendMode value
+//! as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(EnvironmentBlendMode value) {
   switch (value) {
@@ -1377,11 +1408,14 @@ to_string_literal(EnvironmentBlendMode value) {
   }
 }
 
+//! Free function for retrieving the string name of a EnvironmentBlendMode value
+//! as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(EnvironmentBlendMode value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrReferenceSpaceType
 enum class ReferenceSpaceType : uint32_t {
 
   View = XR_REFERENCE_SPACE_TYPE_VIEW,
@@ -1394,11 +1428,15 @@ enum class ReferenceSpaceType : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrReferenceSpaceType value from a
+//! ReferenceSpaceType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrReferenceSpaceType
 get(ReferenceSpaceType const &v) {
   return static_cast<XrReferenceSpaceType>(v);
 }
 
+//! Free function for retrieving the string name of a ReferenceSpaceType value
+//! as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(ReferenceSpaceType value) {
   switch (value) {
@@ -1420,11 +1458,14 @@ to_string_literal(ReferenceSpaceType value) {
   }
 }
 
+//! Free function for retrieving the string name of a ReferenceSpaceType value
+//! as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(ReferenceSpaceType value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrActionType
 enum class ActionType : uint32_t {
 
   BooleanInput = XR_ACTION_TYPE_BOOLEAN_INPUT,
@@ -1439,10 +1480,13 @@ enum class ActionType : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrActionType value from a ActionType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrActionType get(ActionType const &v) {
   return static_cast<XrActionType>(v);
 }
 
+//! Free function for retrieving the string name of a ActionType value as a
+//! const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(ActionType value) {
   switch (value) {
@@ -1467,11 +1511,14 @@ to_string_literal(ActionType value) {
   }
 }
 
+//! Free function for retrieving the string name of a ActionType value as a
+//! std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(ActionType value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrEyeVisibility
 enum class EyeVisibility : uint32_t {
 
   Both = XR_EYE_VISIBILITY_BOTH,
@@ -1482,11 +1529,15 @@ enum class EyeVisibility : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrEyeVisibility value from a
+//! EyeVisibility
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrEyeVisibility
 get(EyeVisibility const &v) {
   return static_cast<XrEyeVisibility>(v);
 }
 
+//! Free function for retrieving the string name of a EyeVisibility value as a
+//! const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(EyeVisibility value) {
   switch (value) {
@@ -1505,11 +1556,14 @@ to_string_literal(EyeVisibility value) {
   }
 }
 
+//! Free function for retrieving the string name of a EyeVisibility value as a
+//! std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(EyeVisibility value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrSessionState
 enum class SessionState : uint32_t {
 
   Unknown = XR_SESSION_STATE_UNKNOWN,
@@ -1532,11 +1586,15 @@ enum class SessionState : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrSessionState value from a
+//! SessionState
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrSessionState
 get(SessionState const &v) {
   return static_cast<XrSessionState>(v);
 }
 
+//! Free function for retrieving the string name of a SessionState value as a
+//! const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(SessionState value) {
   switch (value) {
@@ -1573,11 +1631,14 @@ to_string_literal(SessionState value) {
   }
 }
 
+//! Free function for retrieving the string name of a SessionState value as a
+//! std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(SessionState value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrObjectType
 enum class ObjectType : uint32_t {
 
   Unknown = XR_OBJECT_TYPE_UNKNOWN,
@@ -1600,10 +1661,13 @@ enum class ObjectType : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrObjectType value from a ObjectType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrObjectType get(ObjectType const &v) {
   return static_cast<XrObjectType>(v);
 }
 
+//! Free function for retrieving the string name of a ObjectType value as a
+//! const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(ObjectType value) {
   switch (value) {
@@ -1640,12 +1704,15 @@ to_string_literal(ObjectType value) {
   }
 }
 
+//! Free function for retrieving the string name of a ObjectType value as a
+//! std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(ObjectType value) {
   return {to_string_literal(value)};
 }
 
 #if defined(XR_USE_PLATFORM_ANDROID)
+//! Enum class associated with XrAndroidThreadTypeKHR
 enum class AndroidThreadTypeKHR : uint32_t {
 
   ApplicationMain = XR_ANDROID_THREAD_TYPE_APPLICATION_MAIN_KHR,
@@ -1658,11 +1725,15 @@ enum class AndroidThreadTypeKHR : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrAndroidThreadTypeKHR value from a
+//! AndroidThreadTypeKHR
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrAndroidThreadTypeKHR
 get(AndroidThreadTypeKHR const &v) {
   return static_cast<XrAndroidThreadTypeKHR>(v);
 }
 
+//! Free function for retrieving the string name of a AndroidThreadTypeKHR value
+//! as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(AndroidThreadTypeKHR value) {
   switch (value) {
@@ -1684,6 +1755,8 @@ to_string_literal(AndroidThreadTypeKHR value) {
   }
 }
 
+//! Free function for retrieving the string name of a AndroidThreadTypeKHR value
+//! as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(AndroidThreadTypeKHR value) {
   return {to_string_literal(value)};
@@ -1691,6 +1764,7 @@ to_string(AndroidThreadTypeKHR value) {
 
 #endif // defined(XR_USE_PLATFORM_ANDROID)
 
+//! Enum class associated with XrVisibilityMaskTypeKHR
 enum class VisibilityMaskTypeKHR : uint32_t {
 
   HiddenTriangleMesh = XR_VISIBILITY_MASK_TYPE_HIDDEN_TRIANGLE_MESH_KHR,
@@ -1701,11 +1775,15 @@ enum class VisibilityMaskTypeKHR : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrVisibilityMaskTypeKHR value from a
+//! VisibilityMaskTypeKHR
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrVisibilityMaskTypeKHR
 get(VisibilityMaskTypeKHR const &v) {
   return static_cast<XrVisibilityMaskTypeKHR>(v);
 }
 
+//! Free function for retrieving the string name of a VisibilityMaskTypeKHR
+//! value as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(VisibilityMaskTypeKHR value) {
   switch (value) {
@@ -1724,11 +1802,14 @@ to_string_literal(VisibilityMaskTypeKHR value) {
   }
 }
 
+//! Free function for retrieving the string name of a VisibilityMaskTypeKHR
+//! value as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(VisibilityMaskTypeKHR value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrPerfSettingsDomainEXT
 enum class PerfSettingsDomainEXT : uint32_t {
 
   Cpu = XR_PERF_SETTINGS_DOMAIN_CPU_EXT,
@@ -1737,11 +1818,15 @@ enum class PerfSettingsDomainEXT : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrPerfSettingsDomainEXT value from a
+//! PerfSettingsDomainEXT
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrPerfSettingsDomainEXT
 get(PerfSettingsDomainEXT const &v) {
   return static_cast<XrPerfSettingsDomainEXT>(v);
 }
 
+//! Free function for retrieving the string name of a PerfSettingsDomainEXT
+//! value as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(PerfSettingsDomainEXT value) {
   switch (value) {
@@ -1757,11 +1842,14 @@ to_string_literal(PerfSettingsDomainEXT value) {
   }
 }
 
+//! Free function for retrieving the string name of a PerfSettingsDomainEXT
+//! value as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(PerfSettingsDomainEXT value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrPerfSettingsSubDomainEXT
 enum class PerfSettingsSubDomainEXT : uint32_t {
 
   Compositing = XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT,
@@ -1772,11 +1860,15 @@ enum class PerfSettingsSubDomainEXT : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrPerfSettingsSubDomainEXT value from a
+//! PerfSettingsSubDomainEXT
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrPerfSettingsSubDomainEXT
 get(PerfSettingsSubDomainEXT const &v) {
   return static_cast<XrPerfSettingsSubDomainEXT>(v);
 }
 
+//! Free function for retrieving the string name of a PerfSettingsSubDomainEXT
+//! value as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(PerfSettingsSubDomainEXT value) {
   switch (value) {
@@ -1795,11 +1887,14 @@ to_string_literal(PerfSettingsSubDomainEXT value) {
   }
 }
 
+//! Free function for retrieving the string name of a PerfSettingsSubDomainEXT
+//! value as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(PerfSettingsSubDomainEXT value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrPerfSettingsLevelEXT
 enum class PerfSettingsLevelEXT : uint32_t {
 
   PowerSavings = XR_PERF_SETTINGS_LEVEL_POWER_SAVINGS_EXT,
@@ -1812,11 +1907,15 @@ enum class PerfSettingsLevelEXT : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrPerfSettingsLevelEXT value from a
+//! PerfSettingsLevelEXT
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrPerfSettingsLevelEXT
 get(PerfSettingsLevelEXT const &v) {
   return static_cast<XrPerfSettingsLevelEXT>(v);
 }
 
+//! Free function for retrieving the string name of a PerfSettingsLevelEXT value
+//! as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(PerfSettingsLevelEXT value) {
   switch (value) {
@@ -1838,11 +1937,14 @@ to_string_literal(PerfSettingsLevelEXT value) {
   }
 }
 
+//! Free function for retrieving the string name of a PerfSettingsLevelEXT value
+//! as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(PerfSettingsLevelEXT value) {
   return {to_string_literal(value)};
 }
 
+//! Enum class associated with XrPerfSettingsNotificationLevelEXT
 enum class PerfSettingsNotificationLevelEXT : uint32_t {
 
   XrPerfSettingsNotifLevelNormal = XR_PERF_SETTINGS_NOTIF_LEVEL_NORMAL_EXT,
@@ -1853,11 +1955,15 @@ enum class PerfSettingsNotificationLevelEXT : uint32_t {
 
 };
 
+//! Free function for retrieving the raw XrPerfSettingsNotificationLevelEXT
+//! value from a PerfSettingsNotificationLevelEXT
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrPerfSettingsNotificationLevelEXT
 get(PerfSettingsNotificationLevelEXT const &v) {
   return static_cast<XrPerfSettingsNotificationLevelEXT>(v);
 }
 
+//! Free function for retrieving the string name of a
+//! PerfSettingsNotificationLevelEXT value as a const char *
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(PerfSettingsNotificationLevelEXT value) {
   switch (value) {
@@ -1876,6 +1982,8 @@ to_string_literal(PerfSettingsNotificationLevelEXT value) {
   }
 }
 
+//! Free function for retrieving the string name of a
+//! PerfSettingsNotificationLevelEXT value as a std::string
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(PerfSettingsNotificationLevelEXT value) {
   return {to_string_literal(value)};
@@ -1991,7 +2099,6 @@ public:
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
 #undef noexcept
 #endif
-} // namespace impl
 
 OPENXR_HPP_INLINE const std::error_category &errorCategory() {
   static impl::ErrorCategoryImpl instance;
@@ -2009,7 +2116,11 @@ OPENXR_HPP_INLINE std::error_condition make_error_condition(Result e) {
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
 #define noexcept _NOEXCEPT
 #endif
+} // namespace impl
 
+//! Base class for all OpenXR exceptions.
+//!
+//! Only used for catching all OpenXR exceptions.
 class Error {
 public:
   virtual ~Error() = default;
@@ -2017,6 +2128,9 @@ public:
   virtual const char *what() const noexcept = 0;
 };
 
+//! OpenXR logic error base exception class.
+//!
+//! Derives from both Error and std::logic_error for flexibility in catching.
 class LogicError : public Error, public std::logic_error {
 public:
   explicit LogicError(const std::string &what)
@@ -2027,6 +2141,10 @@ public:
   virtual const char *what() const noexcept { return std::logic_error::what(); }
 };
 
+//! OpenXR system error exception class - may be derived from or thrown
+//! directly.
+//!
+//! Derives from both Error and std::system_error for flexibility in catching.
 class SystemError : public Error, public std::system_error {
 public:
   SystemError(std::error_code ec) : Error(), std::system_error(ec) {}
@@ -2051,529 +2169,688 @@ public:
 #undef noexcept
 #endif
 
+//! Exception class associated with the Result::ErrorValidationFailure aka
+//! XR_ERROR_VALIDATION_FAILURE result code.
 class ValidationFailureError : public SystemError {
 public:
   ValidationFailureError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorValidationFailure), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorValidationFailure),
+                    message) {}
 
   ValidationFailureError(char const *message)
-      : SystemError(make_error_code(Result::ErrorValidationFailure), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorValidationFailure),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorRuntimeFailure aka
+//! XR_ERROR_RUNTIME_FAILURE result code.
 class RuntimeFailureError : public SystemError {
 public:
   RuntimeFailureError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorRuntimeFailure), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorRuntimeFailure),
+                    message) {}
 
   RuntimeFailureError(char const *message)
-      : SystemError(make_error_code(Result::ErrorRuntimeFailure), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorRuntimeFailure),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorOutOfMemory aka
+//! XR_ERROR_OUT_OF_MEMORY result code.
 class OutOfMemoryError : public SystemError {
 public:
   OutOfMemoryError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorOutOfMemory), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorOutOfMemory), message) {}
 
   OutOfMemoryError(char const *message)
-      : SystemError(make_error_code(Result::ErrorOutOfMemory), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorOutOfMemory), message) {}
 };
 
+//! Exception class associated with the Result::ErrorApiVersionUnsupported aka
+//! XR_ERROR_API_VERSION_UNSUPPORTED result code.
 class ApiVersionUnsupportedError : public SystemError {
 public:
   ApiVersionUnsupportedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorApiVersionUnsupported),
+      : SystemError(impl::make_error_code(Result::ErrorApiVersionUnsupported),
                     message) {}
 
   ApiVersionUnsupportedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorApiVersionUnsupported),
+      : SystemError(impl::make_error_code(Result::ErrorApiVersionUnsupported),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorInitializationFailed aka
+//! XR_ERROR_INITIALIZATION_FAILED result code.
 class InitializationFailedError : public SystemError {
 public:
   InitializationFailedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorInitializationFailed),
+      : SystemError(impl::make_error_code(Result::ErrorInitializationFailed),
                     message) {}
 
   InitializationFailedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorInitializationFailed),
+      : SystemError(impl::make_error_code(Result::ErrorInitializationFailed),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorFunctionUnsupported aka
+//! XR_ERROR_FUNCTION_UNSUPPORTED result code.
 class FunctionUnsupportedError : public SystemError {
 public:
   FunctionUnsupportedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorFunctionUnsupported),
+      : SystemError(impl::make_error_code(Result::ErrorFunctionUnsupported),
                     message) {}
 
   FunctionUnsupportedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorFunctionUnsupported),
+      : SystemError(impl::make_error_code(Result::ErrorFunctionUnsupported),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorFeatureUnsupported aka
+//! XR_ERROR_FEATURE_UNSUPPORTED result code.
 class FeatureUnsupportedError : public SystemError {
 public:
   FeatureUnsupportedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorFeatureUnsupported), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorFeatureUnsupported),
+                    message) {}
 
   FeatureUnsupportedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorFeatureUnsupported), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorFeatureUnsupported),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorExtensionNotPresent aka
+//! XR_ERROR_EXTENSION_NOT_PRESENT result code.
 class ExtensionNotPresentError : public SystemError {
 public:
   ExtensionNotPresentError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorExtensionNotPresent),
+      : SystemError(impl::make_error_code(Result::ErrorExtensionNotPresent),
                     message) {}
 
   ExtensionNotPresentError(char const *message)
-      : SystemError(make_error_code(Result::ErrorExtensionNotPresent),
+      : SystemError(impl::make_error_code(Result::ErrorExtensionNotPresent),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorLimitReached aka
+//! XR_ERROR_LIMIT_REACHED result code.
 class LimitReachedError : public SystemError {
 public:
   LimitReachedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorLimitReached), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorLimitReached), message) {
+  }
 
   LimitReachedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorLimitReached), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorLimitReached), message) {
+  }
 };
 
+//! Exception class associated with the Result::ErrorSizeInsufficient aka
+//! XR_ERROR_SIZE_INSUFFICIENT result code.
 class SizeInsufficientError : public SystemError {
 public:
   SizeInsufficientError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSizeInsufficient), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSizeInsufficient),
+                    message) {}
 
   SizeInsufficientError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSizeInsufficient), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSizeInsufficient),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorHandleInvalid aka
+//! XR_ERROR_HANDLE_INVALID result code.
 class HandleInvalidError : public SystemError {
 public:
   HandleInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorHandleInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorHandleInvalid),
+                    message) {}
 
   HandleInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorHandleInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorHandleInvalid),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorInstanceLost aka
+//! XR_ERROR_INSTANCE_LOST result code.
 class InstanceLostError : public SystemError {
 public:
   InstanceLostError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorInstanceLost), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorInstanceLost), message) {
+  }
 
   InstanceLostError(char const *message)
-      : SystemError(make_error_code(Result::ErrorInstanceLost), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorInstanceLost), message) {
+  }
 };
 
+//! Exception class associated with the Result::ErrorSessionRunning aka
+//! XR_ERROR_SESSION_RUNNING result code.
 class SessionRunningError : public SystemError {
 public:
   SessionRunningError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSessionRunning), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSessionRunning),
+                    message) {}
 
   SessionRunningError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSessionRunning), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSessionRunning),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorSessionNotRunning aka
+//! XR_ERROR_SESSION_NOT_RUNNING result code.
 class SessionNotRunningError : public SystemError {
 public:
   SessionNotRunningError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSessionNotRunning), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSessionNotRunning),
+                    message) {}
 
   SessionNotRunningError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSessionNotRunning), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSessionNotRunning),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorSessionLost aka
+//! XR_ERROR_SESSION_LOST result code.
 class SessionLostError : public SystemError {
 public:
   SessionLostError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSessionLost), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSessionLost), message) {}
 
   SessionLostError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSessionLost), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSessionLost), message) {}
 };
 
+//! Exception class associated with the Result::ErrorSystemInvalid aka
+//! XR_ERROR_SYSTEM_INVALID result code.
 class SystemInvalidError : public SystemError {
 public:
   SystemInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSystemInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSystemInvalid),
+                    message) {}
 
   SystemInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSystemInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSystemInvalid),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorPathInvalid aka
+//! XR_ERROR_PATH_INVALID result code.
 class PathInvalidError : public SystemError {
 public:
   PathInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorPathInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPathInvalid), message) {}
 
   PathInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorPathInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPathInvalid), message) {}
 };
 
+//! Exception class associated with the Result::ErrorPathCountExceeded aka
+//! XR_ERROR_PATH_COUNT_EXCEEDED result code.
 class PathCountExceededError : public SystemError {
 public:
   PathCountExceededError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorPathCountExceeded), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPathCountExceeded),
+                    message) {}
 
   PathCountExceededError(char const *message)
-      : SystemError(make_error_code(Result::ErrorPathCountExceeded), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPathCountExceeded),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorPathFormatInvalid aka
+//! XR_ERROR_PATH_FORMAT_INVALID result code.
 class PathFormatInvalidError : public SystemError {
 public:
   PathFormatInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorPathFormatInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPathFormatInvalid),
+                    message) {}
 
   PathFormatInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorPathFormatInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPathFormatInvalid),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorPathUnsupported aka
+//! XR_ERROR_PATH_UNSUPPORTED result code.
 class PathUnsupportedError : public SystemError {
 public:
   PathUnsupportedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorPathUnsupported), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPathUnsupported),
+                    message) {}
 
   PathUnsupportedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorPathUnsupported), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPathUnsupported),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorLayerInvalid aka
+//! XR_ERROR_LAYER_INVALID result code.
 class LayerInvalidError : public SystemError {
 public:
   LayerInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorLayerInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorLayerInvalid), message) {
+  }
 
   LayerInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorLayerInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorLayerInvalid), message) {
+  }
 };
 
+//! Exception class associated with the Result::ErrorLayerLimitExceeded aka
+//! XR_ERROR_LAYER_LIMIT_EXCEEDED result code.
 class LayerLimitExceededError : public SystemError {
 public:
   LayerLimitExceededError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorLayerLimitExceeded), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorLayerLimitExceeded),
+                    message) {}
 
   LayerLimitExceededError(char const *message)
-      : SystemError(make_error_code(Result::ErrorLayerLimitExceeded), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorLayerLimitExceeded),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorSwapchainRectInvalid aka
+//! XR_ERROR_SWAPCHAIN_RECT_INVALID result code.
 class SwapchainRectInvalidError : public SystemError {
 public:
   SwapchainRectInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSwapchainRectInvalid),
+      : SystemError(impl::make_error_code(Result::ErrorSwapchainRectInvalid),
                     message) {}
 
   SwapchainRectInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSwapchainRectInvalid),
+      : SystemError(impl::make_error_code(Result::ErrorSwapchainRectInvalid),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorSwapchainFormatUnsupported
+//! aka XR_ERROR_SWAPCHAIN_FORMAT_UNSUPPORTED result code.
 class SwapchainFormatUnsupportedError : public SystemError {
 public:
   SwapchainFormatUnsupportedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSwapchainFormatUnsupported),
-                    message) {}
+      : SystemError(
+            impl::make_error_code(Result::ErrorSwapchainFormatUnsupported),
+            message) {}
 
   SwapchainFormatUnsupportedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSwapchainFormatUnsupported),
-                    message) {}
+      : SystemError(
+            impl::make_error_code(Result::ErrorSwapchainFormatUnsupported),
+            message) {}
 };
 
+//! Exception class associated with the Result::ErrorActionTypeMismatch aka
+//! XR_ERROR_ACTION_TYPE_MISMATCH result code.
 class ActionTypeMismatchError : public SystemError {
 public:
   ActionTypeMismatchError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorActionTypeMismatch), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorActionTypeMismatch),
+                    message) {}
 
   ActionTypeMismatchError(char const *message)
-      : SystemError(make_error_code(Result::ErrorActionTypeMismatch), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorActionTypeMismatch),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorSessionNotReady aka
+//! XR_ERROR_SESSION_NOT_READY result code.
 class SessionNotReadyError : public SystemError {
 public:
   SessionNotReadyError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSessionNotReady), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSessionNotReady),
+                    message) {}
 
   SessionNotReadyError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSessionNotReady), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorSessionNotReady),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorSessionNotStopping aka
+//! XR_ERROR_SESSION_NOT_STOPPING result code.
 class SessionNotStoppingError : public SystemError {
 public:
   SessionNotStoppingError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorSessionNotStopping), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorSessionNotStopping),
+                    message) {}
 
   SessionNotStoppingError(char const *message)
-      : SystemError(make_error_code(Result::ErrorSessionNotStopping), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorSessionNotStopping),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorTimeInvalid aka
+//! XR_ERROR_TIME_INVALID result code.
 class TimeInvalidError : public SystemError {
 public:
   TimeInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorTimeInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorTimeInvalid), message) {}
 
   TimeInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorTimeInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorTimeInvalid), message) {}
 };
 
+//! Exception class associated with the Result::ErrorReferenceSpaceUnsupported
+//! aka XR_ERROR_REFERENCE_SPACE_UNSUPPORTED result code.
 class ReferenceSpaceUnsupportedError : public SystemError {
 public:
   ReferenceSpaceUnsupportedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorReferenceSpaceUnsupported),
-                    message) {}
+      : SystemError(
+            impl::make_error_code(Result::ErrorReferenceSpaceUnsupported),
+            message) {}
 
   ReferenceSpaceUnsupportedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorReferenceSpaceUnsupported),
-                    message) {}
+      : SystemError(
+            impl::make_error_code(Result::ErrorReferenceSpaceUnsupported),
+            message) {}
 };
 
+//! Exception class associated with the Result::ErrorFileAccessError aka
+//! XR_ERROR_FILE_ACCESS_ERROR result code.
 class FileAccessError : public SystemError {
 public:
   FileAccessError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorFileAccessError), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorFileAccessError),
+                    message) {}
 
   FileAccessError(char const *message)
-      : SystemError(make_error_code(Result::ErrorFileAccessError), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorFileAccessError),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorFileContentsInvalid aka
+//! XR_ERROR_FILE_CONTENTS_INVALID result code.
 class FileContentsInvalidError : public SystemError {
 public:
   FileContentsInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorFileContentsInvalid),
+      : SystemError(impl::make_error_code(Result::ErrorFileContentsInvalid),
                     message) {}
 
   FileContentsInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorFileContentsInvalid),
+      : SystemError(impl::make_error_code(Result::ErrorFileContentsInvalid),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorFormFactorUnsupported aka
+//! XR_ERROR_FORM_FACTOR_UNSUPPORTED result code.
 class FormFactorUnsupportedError : public SystemError {
 public:
   FormFactorUnsupportedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorFormFactorUnsupported),
+      : SystemError(impl::make_error_code(Result::ErrorFormFactorUnsupported),
                     message) {}
 
   FormFactorUnsupportedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorFormFactorUnsupported),
+      : SystemError(impl::make_error_code(Result::ErrorFormFactorUnsupported),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorFormFactorUnavailable aka
+//! XR_ERROR_FORM_FACTOR_UNAVAILABLE result code.
 class FormFactorUnavailableError : public SystemError {
 public:
   FormFactorUnavailableError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorFormFactorUnavailable),
+      : SystemError(impl::make_error_code(Result::ErrorFormFactorUnavailable),
                     message) {}
 
   FormFactorUnavailableError(char const *message)
-      : SystemError(make_error_code(Result::ErrorFormFactorUnavailable),
+      : SystemError(impl::make_error_code(Result::ErrorFormFactorUnavailable),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorApiLayerNotPresent aka
+//! XR_ERROR_API_LAYER_NOT_PRESENT result code.
 class ApiLayerNotPresentError : public SystemError {
 public:
   ApiLayerNotPresentError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorApiLayerNotPresent), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorApiLayerNotPresent),
+                    message) {}
 
   ApiLayerNotPresentError(char const *message)
-      : SystemError(make_error_code(Result::ErrorApiLayerNotPresent), message) {
-  }
+      : SystemError(impl::make_error_code(Result::ErrorApiLayerNotPresent),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorCallOrderInvalid aka
+//! XR_ERROR_CALL_ORDER_INVALID result code.
 class CallOrderInvalidError : public SystemError {
 public:
   CallOrderInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorCallOrderInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorCallOrderInvalid),
+                    message) {}
 
   CallOrderInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorCallOrderInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorCallOrderInvalid),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorGraphicsDeviceInvalid aka
+//! XR_ERROR_GRAPHICS_DEVICE_INVALID result code.
 class GraphicsDeviceInvalidError : public SystemError {
 public:
   GraphicsDeviceInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorGraphicsDeviceInvalid),
+      : SystemError(impl::make_error_code(Result::ErrorGraphicsDeviceInvalid),
                     message) {}
 
   GraphicsDeviceInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorGraphicsDeviceInvalid),
+      : SystemError(impl::make_error_code(Result::ErrorGraphicsDeviceInvalid),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorPoseInvalid aka
+//! XR_ERROR_POSE_INVALID result code.
 class PoseInvalidError : public SystemError {
 public:
   PoseInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorPoseInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPoseInvalid), message) {}
 
   PoseInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorPoseInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorPoseInvalid), message) {}
 };
 
+//! Exception class associated with the Result::ErrorIndexOutOfRange aka
+//! XR_ERROR_INDEX_OUT_OF_RANGE result code.
 class IndexOutOfRangeError : public SystemError {
 public:
   IndexOutOfRangeError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorIndexOutOfRange), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorIndexOutOfRange),
+                    message) {}
 
   IndexOutOfRangeError(char const *message)
-      : SystemError(make_error_code(Result::ErrorIndexOutOfRange), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorIndexOutOfRange),
+                    message) {}
 };
 
+//! Exception class associated with the
+//! Result::ErrorViewConfigurationTypeUnsupported aka
+//! XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED result code.
 class ViewConfigurationTypeUnsupportedError : public SystemError {
 public:
   ViewConfigurationTypeUnsupportedError(std::string const &message)
-      : SystemError(
-            make_error_code(Result::ErrorViewConfigurationTypeUnsupported),
-            message) {}
+      : SystemError(impl::make_error_code(
+                        Result::ErrorViewConfigurationTypeUnsupported),
+                    message) {}
 
   ViewConfigurationTypeUnsupportedError(char const *message)
-      : SystemError(
-            make_error_code(Result::ErrorViewConfigurationTypeUnsupported),
-            message) {}
+      : SystemError(impl::make_error_code(
+                        Result::ErrorViewConfigurationTypeUnsupported),
+                    message) {}
 };
 
+//! Exception class associated with the
+//! Result::ErrorEnvironmentBlendModeUnsupported aka
+//! XR_ERROR_ENVIRONMENT_BLEND_MODE_UNSUPPORTED result code.
 class EnvironmentBlendModeUnsupportedError : public SystemError {
 public:
   EnvironmentBlendModeUnsupportedError(std::string const &message)
       : SystemError(
-            make_error_code(Result::ErrorEnvironmentBlendModeUnsupported),
+            impl::make_error_code(Result::ErrorEnvironmentBlendModeUnsupported),
             message) {}
 
   EnvironmentBlendModeUnsupportedError(char const *message)
       : SystemError(
-            make_error_code(Result::ErrorEnvironmentBlendModeUnsupported),
+            impl::make_error_code(Result::ErrorEnvironmentBlendModeUnsupported),
             message) {}
 };
 
+//! Exception class associated with the Result::ErrorNameDuplicated aka
+//! XR_ERROR_NAME_DUPLICATED result code.
 class NameDuplicatedError : public SystemError {
 public:
   NameDuplicatedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorNameDuplicated), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorNameDuplicated),
+                    message) {}
 
   NameDuplicatedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorNameDuplicated), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorNameDuplicated),
+                    message) {}
 };
 
+//! Exception class associated with the Result::ErrorNameInvalid aka
+//! XR_ERROR_NAME_INVALID result code.
 class NameInvalidError : public SystemError {
 public:
   NameInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorNameInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorNameInvalid), message) {}
 
   NameInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorNameInvalid), message) {}
+      : SystemError(impl::make_error_code(Result::ErrorNameInvalid), message) {}
 };
 
+//! Exception class associated with the Result::ErrorActionsetNotAttached aka
+//! XR_ERROR_ACTIONSET_NOT_ATTACHED result code.
 class ActionsetNotAttachedError : public SystemError {
 public:
   ActionsetNotAttachedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorActionsetNotAttached),
+      : SystemError(impl::make_error_code(Result::ErrorActionsetNotAttached),
                     message) {}
 
   ActionsetNotAttachedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorActionsetNotAttached),
+      : SystemError(impl::make_error_code(Result::ErrorActionsetNotAttached),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorActionsetsAlreadyAttached
+//! aka XR_ERROR_ACTIONSETS_ALREADY_ATTACHED result code.
 class ActionsetsAlreadyAttachedError : public SystemError {
 public:
   ActionsetsAlreadyAttachedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorActionsetsAlreadyAttached),
-                    message) {}
+      : SystemError(
+            impl::make_error_code(Result::ErrorActionsetsAlreadyAttached),
+            message) {}
 
   ActionsetsAlreadyAttachedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorActionsetsAlreadyAttached),
-                    message) {}
+      : SystemError(
+            impl::make_error_code(Result::ErrorActionsetsAlreadyAttached),
+            message) {}
 };
 
+//! Exception class associated with the Result::ErrorLocalizedNameDuplicated aka
+//! XR_ERROR_LOCALIZED_NAME_DUPLICATED result code.
 class LocalizedNameDuplicatedError : public SystemError {
 public:
   LocalizedNameDuplicatedError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorLocalizedNameDuplicated),
+      : SystemError(impl::make_error_code(Result::ErrorLocalizedNameDuplicated),
                     message) {}
 
   LocalizedNameDuplicatedError(char const *message)
-      : SystemError(make_error_code(Result::ErrorLocalizedNameDuplicated),
+      : SystemError(impl::make_error_code(Result::ErrorLocalizedNameDuplicated),
                     message) {}
 };
 
+//! Exception class associated with the Result::ErrorLocalizedNameInvalid aka
+//! XR_ERROR_LOCALIZED_NAME_INVALID result code.
 class LocalizedNameInvalidError : public SystemError {
 public:
   LocalizedNameInvalidError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorLocalizedNameInvalid),
+      : SystemError(impl::make_error_code(Result::ErrorLocalizedNameInvalid),
                     message) {}
 
   LocalizedNameInvalidError(char const *message)
-      : SystemError(make_error_code(Result::ErrorLocalizedNameInvalid),
+      : SystemError(impl::make_error_code(Result::ErrorLocalizedNameInvalid),
                     message) {}
 };
 
+//! Exception class associated with the
+//! Result::ErrorAndroidThreadSettingsIdInvalidKHR aka
+//! XR_ERROR_ANDROID_THREAD_SETTINGS_ID_INVALID_KHR result code.
 class AndroidThreadSettingsIdInvalidKHRError : public SystemError {
 public:
   AndroidThreadSettingsIdInvalidKHRError(std::string const &message)
-      : SystemError(
-            make_error_code(Result::ErrorAndroidThreadSettingsIdInvalidKHR),
-            message) {}
+      : SystemError(impl::make_error_code(
+                        Result::ErrorAndroidThreadSettingsIdInvalidKHR),
+                    message) {}
 
   AndroidThreadSettingsIdInvalidKHRError(char const *message)
-      : SystemError(
-            make_error_code(Result::ErrorAndroidThreadSettingsIdInvalidKHR),
-            message) {}
+      : SystemError(impl::make_error_code(
+                        Result::ErrorAndroidThreadSettingsIdInvalidKHR),
+                    message) {}
 };
 
+//! Exception class associated with the
+//! Result::ErrorAndroidThreadSettingsFailureKHR aka
+//! XR_ERROR_ANDROID_THREAD_SETTINGS_FAILURE_KHR result code.
 class AndroidThreadSettingsFailureKHRError : public SystemError {
 public:
   AndroidThreadSettingsFailureKHRError(std::string const &message)
       : SystemError(
-            make_error_code(Result::ErrorAndroidThreadSettingsFailureKHR),
+            impl::make_error_code(Result::ErrorAndroidThreadSettingsFailureKHR),
             message) {}
 
   AndroidThreadSettingsFailureKHRError(char const *message)
       : SystemError(
-            make_error_code(Result::ErrorAndroidThreadSettingsFailureKHR),
+            impl::make_error_code(Result::ErrorAndroidThreadSettingsFailureKHR),
             message) {}
 };
 
+//! Exception class associated with the
+//! Result::ErrorCreateSpatialAnchorFailedMSFT aka
+//! XR_ERROR_CREATE_SPATIAL_ANCHOR_FAILED_MSFT result code.
 class CreateSpatialAnchorFailedMSFTError : public SystemError {
 public:
   CreateSpatialAnchorFailedMSFTError(std::string const &message)
-      : SystemError(make_error_code(Result::ErrorCreateSpatialAnchorFailedMSFT),
-                    message) {}
+      : SystemError(
+            impl::make_error_code(Result::ErrorCreateSpatialAnchorFailedMSFT),
+            message) {}
 
   CreateSpatialAnchorFailedMSFTError(char const *message)
-      : SystemError(make_error_code(Result::ErrorCreateSpatialAnchorFailedMSFT),
-                    message) {}
+      : SystemError(
+            impl::make_error_code(Result::ErrorCreateSpatialAnchorFailedMSFT),
+            message) {}
 };
 
+/*!
+ * Takes a result code and a message (usually the method triggering the
+ * exception) and throws the most-specific exception available for that result
+ * code. As a fallback, it will throw a SystemError directly.
+ */
 OPENXR_HPP_INLINE void throwResultException(Result result,
                                             char const *message) {
   switch (result) {
 
   case Result::Success:
-    throw SystemError(make_error_code(result));
+    // Not actually an error!
+    throw SystemError(impl::make_error_code(result));
 
   case Result::TimeoutExpired:
-    throw SystemError(make_error_code(result));
+    // Not actually an error!
+    throw SystemError(impl::make_error_code(result));
 
   case Result::SessionLossPending:
-    throw SystemError(make_error_code(result));
+    // Not actually an error!
+    throw SystemError(impl::make_error_code(result));
 
   case Result::EventUnavailable:
-    throw SystemError(make_error_code(result));
+    // Not actually an error!
+    throw SystemError(impl::make_error_code(result));
 
   case Result::SpaceBoundsUnavailable:
-    throw SystemError(make_error_code(result));
+    // Not actually an error!
+    throw SystemError(impl::make_error_code(result));
 
   case Result::SessionNotFocused:
-    throw SystemError(make_error_code(result));
+    // Not actually an error!
+    throw SystemError(impl::make_error_code(result));
 
   case Result::FrameDiscarded:
-    throw SystemError(make_error_code(result));
+    // Not actually an error!
+    throw SystemError(impl::make_error_code(result));
 
   case Result::ErrorValidationFailure:
     throw ValidationFailureError(message);
@@ -2723,7 +3000,7 @@ OPENXR_HPP_INLINE void throwResultException(Result result,
     throw CreateSpatialAnchorFailedMSFTError(message);
 
   default:
-    throw SystemError(make_error_code(result));
+    throw SystemError(impl::make_error_code(result));
   }
 }
 } // namespace OPENXR_HPP_NAMESPACE
@@ -3429,6 +3706,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetOpenGLGraphicsRequirementsKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getOpenGLGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3437,6 +3716,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetOpenGLGraphicsRequirementsKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type getOpenGLGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3451,6 +3732,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetOpenGLESGraphicsRequirementsKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getOpenGLESGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3459,6 +3742,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetOpenGLESGraphicsRequirementsKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type getOpenGLESGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3472,6 +3757,8 @@ public:
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
   //! xrGetVulkanInstanceExtensionsKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getVulkanInstanceExtensionsKHR(XrSystemId systemId,
                                         uint32_t bufferCapacityInput,
@@ -3480,13 +3767,16 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
   getVulkanInstanceExtensionsKHR(XrSystemId systemId, Dispatch &&d) const;
 
   //! xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode, stateful
-  //! allocator for two-call result
+  //! allocator for two-call result No default dispatch is provided as this is a
+  //! non-core function, and thus requires some dynamic dispatch class.
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
@@ -3501,6 +3791,8 @@ public:
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
   //! xrGetVulkanDeviceExtensionsKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getVulkanDeviceExtensionsKHR(XrSystemId systemId,
                                       uint32_t bufferCapacityInput,
@@ -3509,13 +3801,16 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
   getVulkanDeviceExtensionsKHR(XrSystemId systemId, Dispatch &&d) const;
 
   //! xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode, stateful allocator
-  //! for two-call result
+  //! for two-call result No default dispatch is provided as this is a non-core
+  //! function, and thus requires some dynamic dispatch class.
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
@@ -3531,6 +3826,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVulkanGraphicsDeviceKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getVulkanGraphicsDeviceKHR(XrSystemId systemId, VkInstance vkInstance,
                                     VkPhysicalDevice *vkPhysicalDevice,
@@ -3538,6 +3835,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetVulkanGraphicsDeviceKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type
   getVulkanGraphicsDeviceKHR(XrSystemId systemId, VkInstance vkInstance,
@@ -3552,6 +3851,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVulkanGraphicsRequirementsKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getVulkanGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3560,6 +3861,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetVulkanGraphicsRequirementsKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type getVulkanGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3574,6 +3877,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetD3D11GraphicsRequirementsKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getD3D11GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D11KHR *graphicsRequirements,
@@ -3581,6 +3886,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetD3D11GraphicsRequirementsKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type getD3D11GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D11KHR *graphicsRequirements,
@@ -3594,6 +3901,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetD3D12GraphicsRequirementsKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getD3D12GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D12KHR *graphicsRequirements,
@@ -3601,6 +3910,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetD3D12GraphicsRequirementsKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type getD3D12GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D12KHR *graphicsRequirements,
@@ -3614,6 +3925,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrConvertWin32PerformanceCounterToTimeKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result convertWin32PerformanceCounterToTimeKHR(
       const LARGE_INTEGER *performanceCounter, XrTime *time,
@@ -3621,6 +3934,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrConvertWin32PerformanceCounterToTimeKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type convertWin32PerformanceCounterToTimeKHR(
       const LARGE_INTEGER *performanceCounter, XrTime *time,
@@ -3634,12 +3949,16 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrConvertTimeToWin32PerformanceCounterKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result convertTimeToWin32PerformanceCounterKHR(
       XrTime time, LARGE_INTEGER *performanceCounter, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrConvertTimeToWin32PerformanceCounterKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type convertTimeToWin32PerformanceCounterKHR(
       XrTime time, LARGE_INTEGER *performanceCounter, Dispatch &&d) const;
@@ -3652,12 +3971,16 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrConvertTimespecTimeToTimeKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result convertTimespecTimeToTimeKHR(const struct timespec *timespecTime,
                                       XrTime *time, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrConvertTimespecTimeToTimeKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type
   convertTimespecTimeToTimeKHR(const struct timespec *timespecTime,
@@ -3671,6 +3994,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrConvertTimeToTimespecTimeKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result convertTimeToTimespecTimeKHR(XrTime time,
                                       struct timespec *timespecTime,
@@ -3678,6 +4003,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrConvertTimeToTimespecTimeKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type
   convertTimeToTimespecTimeKHR(XrTime time, struct timespec *timespecTime,
@@ -3689,6 +4016,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSetDebugUtilsObjectNameEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result
   setDebugUtilsObjectNameEXT(const XrDebugUtilsObjectNameInfoEXT *nameInfo,
@@ -3696,6 +4025,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSetDebugUtilsObjectNameEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type
   setDebugUtilsObjectNameEXT(const XrDebugUtilsObjectNameInfoEXT *nameInfo,
@@ -3704,6 +4035,8 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateDebugUtilsMessengerEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result createDebugUtilsMessengerEXT(
       const XrDebugUtilsMessengerCreateInfoEXT *createInfo,
@@ -3711,6 +4044,8 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateDebugUtilsMessengerEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   typename ResultValueType<DebugUtilsMessengerEXT>::type
   createDebugUtilsMessengerEXT(
@@ -3719,6 +4054,8 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateDebugUtilsMessengerEXT wrapper returning a smart handle
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   typename ResultValueType<UniqueHandle<DebugUtilsMessengerEXT,
                                         impl::RemoveRefConst<Dispatch>>>::type
@@ -3729,6 +4066,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSubmitDebugUtilsMessageEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result submitDebugUtilsMessageEXT(
       XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
@@ -3738,6 +4077,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSubmitDebugUtilsMessageEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type submitDebugUtilsMessageEXT(
       XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
@@ -4443,12 +4784,16 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSetAndroidApplicationThreadKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result setAndroidApplicationThreadKHR(AndroidThreadTypeKHR threadType,
                                         uint32_t threadId, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSetAndroidApplicationThreadKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result setAndroidApplicationThreadKHR(AndroidThreadTypeKHR threadType,
                                         uint32_t threadId, Dispatch &&d) const;
@@ -4460,6 +4805,8 @@ public:
 #if defined(XR_USE_PLATFORM_ANDROID)
 
   //! xrCreateSwapchainAndroidSurfaceKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result createSwapchainAndroidSurfaceKHR(const XrSwapchainCreateInfo *info,
                                           Swapchain &swapchain,
@@ -4467,6 +4814,8 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateSwapchainAndroidSurfaceKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValue<jobject>
   createSwapchainAndroidSurfaceKHR(const XrSwapchainCreateInfo *info,
@@ -4475,6 +4824,8 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateSwapchainAndroidSurfaceKHR wrapper returning a smart handle
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValue<UniqueHandle<jobject, impl::RemoveRefConst<Dispatch>>>
   createSwapchainAndroidSurfaceUniqueKHR(const XrSwapchainCreateInfo *info,
@@ -4487,6 +4838,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVisibilityMaskKHR wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getVisibilityMaskKHR(ViewConfigurationType viewConfigurationType,
                               uint32_t viewIndex,
@@ -4496,6 +4849,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetVisibilityMaskKHR wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result getVisibilityMaskKHR(ViewConfigurationType viewConfigurationType,
                               uint32_t viewIndex,
@@ -4507,6 +4862,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrPerfSettingsSetPerformanceLevelEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result perfSettingsSetPerformanceLevelEXT(PerfSettingsDomainEXT domain,
                                             PerfSettingsLevelEXT level,
@@ -4514,6 +4871,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrPerfSettingsSetPerformanceLevelEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result perfSettingsSetPerformanceLevelEXT(PerfSettingsDomainEXT domain,
                                             PerfSettingsLevelEXT level,
@@ -4523,6 +4882,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrThermalGetTemperatureTrendEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result thermalGetTemperatureTrendEXT(
       PerfSettingsDomainEXT domain,
@@ -4531,6 +4892,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrThermalGetTemperatureTrendEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result thermalGetTemperatureTrendEXT(
       PerfSettingsDomainEXT domain,
@@ -4541,6 +4904,8 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSessionBeginDebugUtilsLabelRegionEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result
   sessionBeginDebugUtilsLabelRegionEXT(const XrDebugUtilsLabelEXT *labelInfo,
@@ -4548,6 +4913,8 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSessionBeginDebugUtilsLabelRegionEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result
   sessionBeginDebugUtilsLabelRegionEXT(const XrDebugUtilsLabelEXT *labelInfo,
@@ -4557,11 +4924,15 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSessionEndDebugUtilsLabelRegionEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result sessionEndDebugUtilsLabelRegionEXT(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSessionEndDebugUtilsLabelRegionEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result sessionEndDebugUtilsLabelRegionEXT(Dispatch &&d) const;
 
@@ -4569,12 +4940,16 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSessionInsertDebugUtilsLabelEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result sessionInsertDebugUtilsLabelEXT(const XrDebugUtilsLabelEXT *labelInfo,
                                          Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSessionInsertDebugUtilsLabelEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result sessionInsertDebugUtilsLabelEXT(const XrDebugUtilsLabelEXT *labelInfo,
                                          Dispatch &&d) const;
@@ -4582,6 +4957,8 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateSpatialAnchorMSFT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result
   createSpatialAnchorMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
@@ -4589,6 +4966,8 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateSpatialAnchorMSFT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValue<SpatialAnchorMSFT>
   createSpatialAnchorMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
@@ -4597,6 +4976,8 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateSpatialAnchorMSFT wrapper returning a smart handle
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValue<UniqueHandle<SpatialAnchorMSFT, impl::RemoveRefConst<Dispatch>>>
   createSpatialAnchorUniqueMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
@@ -4605,6 +4986,8 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateSpatialAnchorSpaceMSFT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   Result createSpatialAnchorSpaceMSFT(
       const XrSpatialAnchorSpaceCreateInfoMSFT *createInfo, Space &space,
@@ -4612,6 +4995,8 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateSpatialAnchorSpaceMSFT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValue<Space> createSpatialAnchorSpaceMSFT(
       const XrSpatialAnchorSpaceCreateInfoMSFT *createInfo, Dispatch &&d) const;
@@ -4619,6 +5004,8 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateSpatialAnchorSpaceMSFT wrapper returning a smart handle
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createSpatialAnchorSpaceUniqueMSFT(
@@ -6037,10 +6424,14 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroyDebugUtilsMessengerEXT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch> Result destroy(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroyDebugUtilsMessengerEXT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type destroy(Dispatch &&d) const;
 
@@ -6332,10 +6723,14 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroySpatialAnchorMSFT wrapper
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch> Result destroy(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroySpatialAnchorMSFT wrapper - enhanced mode
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
   ResultValueType<void>::type destroy(Dispatch &&d) const;
 
@@ -8974,6 +9369,12 @@ private:
 };
 
 } // namespace OPENXR_HPP_NAMESPACE
+
+/*
+ * Inline implementations of all trampoline methods and free functions follow.
+ * Prototypes may be found above, either in the associated handle class, or
+ * immediately following the section of handle classes.
+ */
 
 namespace OPENXR_HPP_NAMESPACE {
 
