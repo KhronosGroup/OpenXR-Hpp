@@ -4,6 +4,8 @@ namespace OPENXR_HPP_NAMESPACE {
 //#     set projected_type = project_type_name(enum.name)
 /*{ protect_begin(enum) }*/
 //! Enum class associated with /*{enum.name}*/
+//!
+//! See the related specification text at /*{ make_spec_url(enum.name) }*/
 enum class /*{projected_type -}*/ : /*{ 'int32_t' if enum.name == 'XrResult' else 'uint32_t' }*/ {
     //# for val in enum.values
     /*{ protect_begin(val, enum) }*/

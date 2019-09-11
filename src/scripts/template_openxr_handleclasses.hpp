@@ -25,7 +25,10 @@ class /*{ project_type_name(handle.name) }*/;
 //# endif
 
 //! /*{cur_cmd.name}*/ wrapper
+//!
+//! See the related specification text at /*{ make_spec_url(cur_cmd.name) }*/
 //# if not method.is_core
+//!
 //! No default dispatch is provided as this is a non-core function,
 //! and thus requires some dynamic dispatch class.
 //# endif
@@ -40,7 +43,10 @@ template </*{ method.template_decls }*/>
 //# endif
 
     //! /*{cur_cmd.name}*/ wrapper - enhanced mode
+    //!
+    //! See the related specification text at /*{ make_spec_url(cur_cmd.name) }*/
     //# if not enhanced.is_core
+    //!
     //! No default dispatch is provided as this is a non-core function,
     //! and thus requires some dynamic dispatch class.
     //# endif
@@ -50,7 +56,10 @@ template </*{ method.template_decls }*/>
 
 //# if enhanced.is_two_call
     //! /*{cur_cmd.name}*/ wrapper - enhanced mode, stateful allocator for two-call result
+    //!
+    //! See the related specification text at /*{ make_spec_url(cur_cmd.name) }*/
     //# if not enhanced.is_core
+    //!
     //! No default dispatch is provided as this is a non-core function,
     //! and thus requires some dynamic dispatch class.
     //# endif
@@ -64,7 +73,10 @@ template </*{ method.template_decls }*/>
 
     //#     set uniq = unique_cmds[cur_cmd.name]
     //! /*{cur_cmd.name}*/ wrapper returning a smart handle
+    //!
+    //! See the related specification text at /*{ make_spec_url(cur_cmd.name) }*/
     //# if not uniq.is_core
+    //!
     //! No default dispatch is provided as this is a non-core function,
     //! and thus requires some dynamic dispatch class.
     //# endif
@@ -79,6 +91,10 @@ template </*{ method.template_decls }*/>
 /*{ discouraged_end(cur_cmd) }*/ 
 /*{ protect_end(cur_cmd, context) }*/
 //# endmacro
+
+/*
+ * Handle types and their method declarations.
+ */
 
 //# for handle in gen.api_handles
 //# set shortname = project_type_name(handle.name)
@@ -101,6 +117,8 @@ using /*{'UniqueDynamic' + shortname}*/ = UniqueHandle</*{shortname}*/, Dispatch
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping /*{handle.name}*/
+//!
+//! See the related specification text at /*{ make_spec_url(handle.name) }*/
 class /*{shortname}*/ {
    public:
     using Type = /*{ shortname }*/;
@@ -233,9 +251,12 @@ struct cpp_type<ObjectType::/*{shortname}*/> {
 //# endfor
 
 //## Generate free-function prototypes
+/*
+ * Forward declarations of wrappers for spec-defined "free functions"
+ */
 
-    //# for cur_cmd in sorted_cmds if not cur_cmd.handle
+//# for cur_cmd in sorted_cmds if not cur_cmd.handle
 /*{ method_prototypes(cur_cmd, none) }*/
-    //# endfor
+//# endfor
 
 }  // namespace OPENXR_HPP_NAMESPACE

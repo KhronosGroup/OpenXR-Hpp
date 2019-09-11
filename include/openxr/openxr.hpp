@@ -519,6 +519,9 @@ private:
 namespace OPENXR_HPP_NAMESPACE {
 
 //! Enum class associated with XrResult
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrResult>
 enum class Result : int32_t {
 
   Success = XR_SUCCESS,
@@ -832,6 +835,9 @@ to_string(Result value) {
 }
 
 //! Enum class associated with XrStructureType
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrStructureType>
 enum class StructureType : uint32_t {
 
   Unknown = XR_TYPE_UNKNOWN,
@@ -1288,6 +1294,9 @@ to_string(StructureType value) {
 }
 
 //! Enum class associated with XrFormFactor
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrFormFactor>
 enum class FormFactor : uint32_t {
 
   HeadMountedDisplay = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY,
@@ -1326,6 +1335,9 @@ to_string(FormFactor value) {
 }
 
 //! Enum class associated with XrViewConfigurationType
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrViewConfigurationType>
 enum class ViewConfigurationType : uint32_t {
 
   PrimaryMono = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO,
@@ -1371,6 +1383,9 @@ to_string(ViewConfigurationType value) {
 }
 
 //! Enum class associated with XrEnvironmentBlendMode
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrEnvironmentBlendMode>
 enum class EnvironmentBlendMode : uint32_t {
 
   Opaque = XR_ENVIRONMENT_BLEND_MODE_OPAQUE,
@@ -1416,6 +1431,9 @@ to_string(EnvironmentBlendMode value) {
 }
 
 //! Enum class associated with XrReferenceSpaceType
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrReferenceSpaceType>
 enum class ReferenceSpaceType : uint32_t {
 
   View = XR_REFERENCE_SPACE_TYPE_VIEW,
@@ -1466,6 +1484,9 @@ to_string(ReferenceSpaceType value) {
 }
 
 //! Enum class associated with XrActionType
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrActionType>
 enum class ActionType : uint32_t {
 
   BooleanInput = XR_ACTION_TYPE_BOOLEAN_INPUT,
@@ -1519,6 +1540,9 @@ to_string(ActionType value) {
 }
 
 //! Enum class associated with XrEyeVisibility
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrEyeVisibility>
 enum class EyeVisibility : uint32_t {
 
   Both = XR_EYE_VISIBILITY_BOTH,
@@ -1564,6 +1588,9 @@ to_string(EyeVisibility value) {
 }
 
 //! Enum class associated with XrSessionState
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSessionState>
 enum class SessionState : uint32_t {
 
   Unknown = XR_SESSION_STATE_UNKNOWN,
@@ -1639,6 +1666,9 @@ to_string(SessionState value) {
 }
 
 //! Enum class associated with XrObjectType
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrObjectType>
 enum class ObjectType : uint32_t {
 
   Unknown = XR_OBJECT_TYPE_UNKNOWN,
@@ -1713,6 +1743,9 @@ to_string(ObjectType value) {
 
 #if defined(XR_USE_PLATFORM_ANDROID)
 //! Enum class associated with XrAndroidThreadTypeKHR
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrAndroidThreadTypeKHR>
 enum class AndroidThreadTypeKHR : uint32_t {
 
   ApplicationMain = XR_ANDROID_THREAD_TYPE_APPLICATION_MAIN_KHR,
@@ -1765,6 +1798,9 @@ to_string(AndroidThreadTypeKHR value) {
 #endif // defined(XR_USE_PLATFORM_ANDROID)
 
 //! Enum class associated with XrVisibilityMaskTypeKHR
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrVisibilityMaskTypeKHR>
 enum class VisibilityMaskTypeKHR : uint32_t {
 
   HiddenTriangleMesh = XR_VISIBILITY_MASK_TYPE_HIDDEN_TRIANGLE_MESH_KHR,
@@ -1810,6 +1846,9 @@ to_string(VisibilityMaskTypeKHR value) {
 }
 
 //! Enum class associated with XrPerfSettingsDomainEXT
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrPerfSettingsDomainEXT>
 enum class PerfSettingsDomainEXT : uint32_t {
 
   Cpu = XR_PERF_SETTINGS_DOMAIN_CPU_EXT,
@@ -1850,6 +1889,9 @@ to_string(PerfSettingsDomainEXT value) {
 }
 
 //! Enum class associated with XrPerfSettingsSubDomainEXT
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrPerfSettingsSubDomainEXT>
 enum class PerfSettingsSubDomainEXT : uint32_t {
 
   Compositing = XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT,
@@ -1895,6 +1937,9 @@ to_string(PerfSettingsSubDomainEXT value) {
 }
 
 //! Enum class associated with XrPerfSettingsLevelEXT
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrPerfSettingsLevelEXT>
 enum class PerfSettingsLevelEXT : uint32_t {
 
   PowerSavings = XR_PERF_SETTINGS_LEVEL_POWER_SAVINGS_EXT,
@@ -1945,6 +1990,9 @@ to_string(PerfSettingsLevelEXT value) {
 }
 
 //! Enum class associated with XrPerfSettingsNotificationLevelEXT
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrPerfSettingsNotificationLevelEXT>
 enum class PerfSettingsNotificationLevelEXT : uint32_t {
 
   XrPerfSettingsNotifLevelNormal = XR_PERF_SETTINGS_NOTIF_LEVEL_NORMAL_EXT,
@@ -3283,6 +3331,9 @@ class Swapchain;
 class ActionSet;
 class DebugUtilsMessengerEXT;
 class SpatialAnchorMSFT;
+/*
+ * Handle types and their method declarations.
+ */
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -3300,6 +3351,9 @@ using UniqueDynamicInstance = UniqueHandle<Instance, DispatchLoaderDynamic>;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping XrInstance
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrInstance>
 class Instance {
 public:
   using Type = Instance;
@@ -3382,12 +3436,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetInstanceProcAddr wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProcAddr>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getInstanceProcAddr(const char *name, PFN_xrVoidFunction *function,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetInstanceProcAddr wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProcAddr>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getInstanceProcAddr(const char *name, PFN_xrVoidFunction *function,
@@ -3397,11 +3457,17 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroyInstance wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyInstance>
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroyInstance wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyInstance>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
@@ -3409,12 +3475,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetInstanceProperties wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProperties>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getInstanceProperties(XrInstanceProperties *instanceProperties,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetInstanceProperties wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProperties>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getInstanceProperties(XrInstanceProperties *instanceProperties,
@@ -3424,12 +3496,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrPollEvent wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPollEvent>
   template <typename Dispatch = DispatchLoaderStatic>
   Result pollEvent(XrEventDataBuffer *eventData,
                    Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrPollEvent wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPollEvent>
   template <typename Dispatch = DispatchLoaderStatic>
   Result pollEvent(XrEventDataBuffer *eventData,
                    Dispatch &&d = Dispatch{}) const;
@@ -3440,12 +3518,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrResultToString wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrResultToString>
   template <typename Dispatch = DispatchLoaderStatic>
   Result resultToString(Result value, char buffer[XR_MAX_RESULT_STRING_SIZE],
                         Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrResultToString wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrResultToString>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   resultToString(Result value, char buffer[XR_MAX_RESULT_STRING_SIZE],
@@ -3459,6 +3543,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrStructureTypeToString wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStructureTypeToString>
   template <typename Dispatch = DispatchLoaderStatic>
   Result structureTypeToString(StructureType value,
                                char buffer[XR_MAX_STRUCTURE_NAME_SIZE],
@@ -3466,6 +3553,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrStructureTypeToString wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStructureTypeToString>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   structureTypeToString(StructureType value,
@@ -3478,12 +3568,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetSystem wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystem>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getSystem(const XrSystemGetInfo *getInfo, XrSystemId *systemId,
                    Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetSystem wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystem>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type getSystem(const XrSystemGetInfo *getInfo,
                                         XrSystemId *systemId,
@@ -3493,6 +3589,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetSystemProperties wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystemProperties>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getSystemProperties(XrSystemId systemId,
                              XrSystemProperties *properties,
@@ -3500,6 +3599,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetSystemProperties wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystemProperties>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getSystemProperties(XrSystemId systemId, XrSystemProperties *properties,
@@ -3509,6 +3611,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEnumerateEnvironmentBlendModes wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateEnvironmentBlendModes>
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   enumerateEnvironmentBlendModes(XrSystemId systemId,
@@ -3520,6 +3625,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrEnumerateEnvironmentBlendModes wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateEnvironmentBlendModes>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   enumerateEnvironmentBlendModes(XrSystemId systemId,
@@ -3532,12 +3640,18 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateSession wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
   template <typename Dispatch = DispatchLoaderStatic>
   Result createSession(const XrSessionCreateInfo *createInfo, Session &session,
                        Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateSession wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<Session>::type
   createSession(const XrSessionCreateInfo *createInfo,
@@ -3546,6 +3660,9 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateSession wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<Session, impl::RemoveRefConst<Dispatch>>>::type
@@ -3556,6 +3673,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEnumerateViewConfigurations wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurations>
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   enumerateViewConfigurations(XrSystemId systemId,
@@ -3566,6 +3686,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrEnumerateViewConfigurations wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurations>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   enumerateViewConfigurations(XrSystemId systemId,
@@ -3578,6 +3701,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetViewConfigurationProperties wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetViewConfigurationProperties>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getViewConfigurationProperties(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3586,6 +3712,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetViewConfigurationProperties wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetViewConfigurationProperties>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type getViewConfigurationProperties(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3595,6 +3724,9 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrEnumerateViewConfigurationViews wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateViewConfigurationViews(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3603,6 +3735,9 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEnumerateViewConfigurationViews wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
   template <typename Allocator = ::std::allocator<XrViewConfigurationView>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
@@ -3613,6 +3748,9 @@ public:
 
   //! xrEnumerateViewConfigurationViews wrapper - enhanced mode, stateful
   //! allocator for two-call result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
   template <typename Allocator = ::std::allocator<XrViewConfigurationView>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
@@ -3626,12 +3764,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrStringToPath wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStringToPath>
   template <typename Dispatch = DispatchLoaderStatic>
   Result stringToPath(const char *pathString, XrPath *path,
                       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrStringToPath wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStringToPath>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type stringToPath(const char *pathString, XrPath *path,
                                            Dispatch &&d = Dispatch{}) const;
@@ -3639,6 +3783,9 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrPathToString wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
   template <typename Dispatch = DispatchLoaderStatic>
   Result pathToString(XrPath path, uint32_t bufferCapacityInput,
                       uint32_t *bufferCountOutput, char *buffer,
@@ -3646,6 +3793,9 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrPathToString wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
   template <typename Allocator = ::std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
@@ -3654,6 +3804,9 @@ public:
 
   //! xrPathToString wrapper - enhanced mode, stateful allocator for two-call
   //! result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
   template <typename Allocator = ::std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
@@ -3664,12 +3817,18 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateActionSet wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
   template <typename Dispatch = DispatchLoaderStatic>
   Result createActionSet(const XrActionSetCreateInfo *createInfo,
                          ActionSet &actionSet, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateActionSet wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<ActionSet>::type
   createActionSet(const XrActionSetCreateInfo *createInfo,
@@ -3678,6 +3837,9 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateActionSet wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<ActionSet, impl::RemoveRefConst<Dispatch>>>::type
@@ -3688,6 +3850,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSuggestInteractionProfileBindings wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSuggestInteractionProfileBindings>
   template <typename Dispatch = DispatchLoaderStatic>
   Result suggestInteractionProfileBindings(
       const XrInteractionProfileSuggestedBinding *suggestedBindings,
@@ -3695,6 +3860,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSuggestInteractionProfileBindings wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSuggestInteractionProfileBindings>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type suggestInteractionProfileBindings(
       const XrInteractionProfileSuggestedBinding *suggestedBindings,
@@ -3706,6 +3874,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetOpenGLGraphicsRequirementsKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLGraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3716,6 +3888,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetOpenGLGraphicsRequirementsKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLGraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3732,6 +3908,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetOpenGLESGraphicsRequirementsKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLESGraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3742,6 +3922,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetOpenGLESGraphicsRequirementsKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLESGraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3757,6 +3941,10 @@ public:
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
   //! xrGetVulkanInstanceExtensionsKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3767,6 +3955,10 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
@@ -3775,8 +3967,13 @@ public:
   getVulkanInstanceExtensionsKHR(XrSystemId systemId, Dispatch &&d) const;
 
   //! xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode, stateful
-  //! allocator for two-call result No default dispatch is provided as this is a
-  //! non-core function, and thus requires some dynamic dispatch class.
+  //! allocator for two-call result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
+  //!
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
@@ -3791,6 +3988,10 @@ public:
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
   //! xrGetVulkanDeviceExtensionsKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3801,6 +4002,10 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
@@ -3809,8 +4014,13 @@ public:
   getVulkanDeviceExtensionsKHR(XrSystemId systemId, Dispatch &&d) const;
 
   //! xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode, stateful allocator
-  //! for two-call result No default dispatch is provided as this is a non-core
-  //! function, and thus requires some dynamic dispatch class.
+  //! for two-call result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
+  //!
+  //! No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class.
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
@@ -3826,6 +4036,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVulkanGraphicsDeviceKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsDeviceKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3835,6 +4049,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetVulkanGraphicsDeviceKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsDeviceKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3851,6 +4069,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVulkanGraphicsRequirementsKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3861,6 +4083,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetVulkanGraphicsRequirementsKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3877,6 +4103,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetD3D11GraphicsRequirementsKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D11GraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3886,6 +4116,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetD3D11GraphicsRequirementsKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D11GraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3901,6 +4135,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetD3D12GraphicsRequirementsKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D12GraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3910,6 +4148,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetD3D12GraphicsRequirementsKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D12GraphicsRequirementsKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3925,6 +4167,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrConvertWin32PerformanceCounterToTimeKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertWin32PerformanceCounterToTimeKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3934,6 +4180,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrConvertWin32PerformanceCounterToTimeKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertWin32PerformanceCounterToTimeKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3949,6 +4199,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrConvertTimeToWin32PerformanceCounterKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToWin32PerformanceCounterKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3957,6 +4211,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrConvertTimeToWin32PerformanceCounterKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToWin32PerformanceCounterKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3971,6 +4229,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrConvertTimespecTimeToTimeKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimespecTimeToTimeKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3979,6 +4241,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrConvertTimespecTimeToTimeKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimespecTimeToTimeKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -3994,6 +4260,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrConvertTimeToTimespecTimeKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToTimespecTimeKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4003,6 +4273,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrConvertTimeToTimespecTimeKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToTimespecTimeKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4016,6 +4290,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSetDebugUtilsObjectNameEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetDebugUtilsObjectNameEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4025,6 +4303,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSetDebugUtilsObjectNameEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetDebugUtilsObjectNameEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4035,6 +4317,10 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateDebugUtilsMessengerEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4044,6 +4330,10 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateDebugUtilsMessengerEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4054,6 +4344,10 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateDebugUtilsMessengerEXT wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4066,6 +4360,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSubmitDebugUtilsMessageEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSubmitDebugUtilsMessageEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4077,6 +4375,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSubmitDebugUtilsMessageEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSubmitDebugUtilsMessageEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4259,6 +4561,9 @@ using UniqueDynamicSession = UniqueHandle<Session, DispatchLoaderDynamic>;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping XrSession
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSession>
 class Session {
 public:
   using Type = Session;
@@ -4341,17 +4646,26 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroySession wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySession>
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroySession wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySession>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrEnumerateReferenceSpaces wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateReferenceSpaces(uint32_t spaceCapacityInput,
                                   uint32_t *spaceCountOutput,
@@ -4360,6 +4674,9 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEnumerateReferenceSpaces wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
   template <typename Allocator = ::std::allocator<ReferenceSpaceType>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<ReferenceSpaceType, Allocator>>
@@ -4367,6 +4684,9 @@ public:
 
   //! xrEnumerateReferenceSpaces wrapper - enhanced mode, stateful allocator for
   //! two-call result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
   template <typename Allocator = ::std::allocator<ReferenceSpaceType>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<ReferenceSpaceType, Allocator>>
@@ -4376,12 +4696,18 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateReferenceSpace wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
   template <typename Dispatch = DispatchLoaderStatic>
   Result createReferenceSpace(const XrReferenceSpaceCreateInfo *createInfo,
                               Space &space, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateReferenceSpace wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Space>
   createReferenceSpace(const XrReferenceSpaceCreateInfo *createInfo,
@@ -4390,6 +4716,9 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateReferenceSpace wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createReferenceSpaceUnique(const XrReferenceSpaceCreateInfo *createInfo,
@@ -4399,6 +4728,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetReferenceSpaceBoundsRect wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetReferenceSpaceBoundsRect>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getReferenceSpaceBoundsRect(ReferenceSpaceType referenceSpaceType,
                                      XrExtent2Df *bounds,
@@ -4406,6 +4738,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetReferenceSpaceBoundsRect wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetReferenceSpaceBoundsRect>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getReferenceSpaceBoundsRect(ReferenceSpaceType referenceSpaceType,
                                      XrExtent2Df *bounds,
@@ -4414,12 +4749,18 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateActionSpace wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
   template <typename Dispatch = DispatchLoaderStatic>
   Result createActionSpace(const XrActionSpaceCreateInfo *createInfo,
                            Space &space, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateActionSpace wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Space>
   createActionSpace(const XrActionSpaceCreateInfo *createInfo,
@@ -4428,6 +4769,9 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateActionSpace wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createActionSpaceUnique(const XrActionSpaceCreateInfo *createInfo,
@@ -4436,6 +4780,9 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrEnumerateSwapchainFormats wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainFormats(uint32_t formatCapacityInput,
                                    uint32_t *formatCountOutput,
@@ -4444,6 +4791,9 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEnumerateSwapchainFormats wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
   template <typename Allocator = ::std::allocator<int64_t>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<int64_t, Allocator>>
@@ -4451,6 +4801,9 @@ public:
 
   //! xrEnumerateSwapchainFormats wrapper - enhanced mode, stateful allocator
   //! for two-call result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
   template <typename Allocator = ::std::allocator<int64_t>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<int64_t, Allocator>>
@@ -4460,12 +4813,18 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateSwapchain wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
   template <typename Dispatch = DispatchLoaderStatic>
   Result createSwapchain(const XrSwapchainCreateInfo *createInfo,
                          Swapchain &swapchain, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateSwapchain wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Swapchain>
   createSwapchain(const XrSwapchainCreateInfo *createInfo,
@@ -4474,6 +4833,9 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateSwapchain wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Swapchain, impl::RemoveRefConst<Dispatch>>>
   createSwapchainUnique(const XrSwapchainCreateInfo *createInfo,
@@ -4483,12 +4845,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrBeginSession wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginSession>
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginSession(const XrSessionBeginInfo *beginInfo,
                       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrBeginSession wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginSession>
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginSession(const XrSessionBeginInfo *beginInfo,
                       Dispatch &&d = Dispatch{}) const;
@@ -4497,11 +4865,17 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEndSession wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndSession>
   template <typename Dispatch = DispatchLoaderStatic>
   Result endSession(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrEndSession wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndSession>
   template <typename Dispatch = DispatchLoaderStatic>
   Result endSession(Dispatch &&d = Dispatch{}) const;
 
@@ -4509,11 +4883,17 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrRequestExitSession wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrRequestExitSession>
   template <typename Dispatch = DispatchLoaderStatic>
   Result requestExitSession(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrRequestExitSession wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrRequestExitSession>
   template <typename Dispatch = DispatchLoaderStatic>
   Result requestExitSession(Dispatch &&d = Dispatch{}) const;
 
@@ -4521,12 +4901,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrWaitFrame wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitFrame>
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitFrame(const XrFrameWaitInfo *frameWaitInfo,
                    XrFrameState *frameState, Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrWaitFrame wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitFrame>
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitFrame(const XrFrameWaitInfo *frameWaitInfo,
                    XrFrameState *frameState, Dispatch &&d = Dispatch{}) const;
@@ -4535,12 +4921,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrBeginFrame wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginFrame>
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginFrame(const XrFrameBeginInfo *frameBeginInfo,
                     Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrBeginFrame wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginFrame>
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginFrame(const XrFrameBeginInfo *frameBeginInfo,
                     Dispatch &&d = Dispatch{}) const;
@@ -4549,12 +4941,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEndFrame wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndFrame>
   template <typename Dispatch = DispatchLoaderStatic>
   Result endFrame(const XrFrameEndInfo *frameEndInfo,
                   Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrEndFrame wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndFrame>
   template <typename Dispatch = DispatchLoaderStatic>
   Result endFrame(const XrFrameEndInfo *frameEndInfo,
                   Dispatch &&d = Dispatch{}) const;
@@ -4562,6 +4960,9 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrLocateViews wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateViews(const XrViewLocateInfo *viewLocateInfo,
                      XrViewState *viewState, uint32_t viewCapacityInput,
@@ -4570,6 +4971,9 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrLocateViews wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
   template <typename Allocator = ::std::allocator<XrView>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<XrView, Allocator>>
@@ -4578,6 +4982,9 @@ public:
 
   //! xrLocateViews wrapper - enhanced mode, stateful allocator for two-call
   //! result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
   template <typename Allocator = ::std::allocator<XrView>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<XrView, Allocator>>
@@ -4588,6 +4995,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrAttachSessionActionSets wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAttachSessionActionSets>
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   attachSessionActionSets(const XrSessionActionSetsAttachInfo *attachInfo,
@@ -4595,6 +5005,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrAttachSessionActionSets wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAttachSessionActionSets>
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   attachSessionActionSets(const XrSessionActionSetsAttachInfo *attachInfo,
@@ -4604,6 +5017,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetCurrentInteractionProfile wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetCurrentInteractionProfile>
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getCurrentInteractionProfile(XrPath topLevelUserPath,
@@ -4612,6 +5028,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetCurrentInteractionProfile wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetCurrentInteractionProfile>
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getCurrentInteractionProfile(XrPath topLevelUserPath,
@@ -4622,6 +5041,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetActionStateBoolean wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateBoolean>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateBoolean(const XrActionStateGetInfo *getInfo,
                                XrActionStateBoolean *state,
@@ -4629,6 +5051,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetActionStateBoolean wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateBoolean>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateBoolean(const XrActionStateGetInfo *getInfo,
                                XrActionStateBoolean *state,
@@ -4638,6 +5063,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetActionStateFloat wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateFloat>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateFloat(const XrActionStateGetInfo *getInfo,
                              XrActionStateFloat *state,
@@ -4645,6 +5073,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetActionStateFloat wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateFloat>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateFloat(const XrActionStateGetInfo *getInfo,
                              XrActionStateFloat *state,
@@ -4654,6 +5085,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetActionStateVector2f wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateVector2f>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateVector2f(const XrActionStateGetInfo *getInfo,
                                 XrActionStateVector2f *state,
@@ -4661,6 +5095,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetActionStateVector2f wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateVector2f>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateVector2f(const XrActionStateGetInfo *getInfo,
                                 XrActionStateVector2f *state,
@@ -4670,6 +5107,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetActionStatePose wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStatePose>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStatePose(const XrActionStateGetInfo *getInfo,
                             XrActionStatePose *state,
@@ -4677,6 +5117,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetActionStatePose wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStatePose>
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStatePose(const XrActionStateGetInfo *getInfo,
                             XrActionStatePose *state,
@@ -4686,12 +5129,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSyncActions wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSyncActions>
   template <typename Dispatch = DispatchLoaderStatic>
   Result syncActions(const XrActionsSyncInfo *syncInfo,
                      Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSyncActions wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSyncActions>
   template <typename Dispatch = DispatchLoaderStatic>
   Result syncActions(const XrActionsSyncInfo *syncInfo,
                      Dispatch &&d = Dispatch{}) const;
@@ -4699,6 +5148,9 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrEnumerateBoundSourcesForAction wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateBoundSourcesForAction(
       const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
@@ -4707,6 +5159,9 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEnumerateBoundSourcesForAction wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
   template <typename Allocator = ::std::allocator<XrPath>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<XrPath, Allocator>> enumerateBoundSourcesForAction(
@@ -4715,6 +5170,9 @@ public:
 
   //! xrEnumerateBoundSourcesForAction wrapper - enhanced mode, stateful
   //! allocator for two-call result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
   template <typename Allocator = ::std::allocator<XrPath>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<XrPath, Allocator>> enumerateBoundSourcesForAction(
@@ -4724,6 +5182,9 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrGetInputSourceLocalizedName wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getInputSourceLocalizedName(const XrInputSourceLocalizedNameGetInfo *getInfo,
@@ -4733,6 +5194,9 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetInputSourceLocalizedName wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
   template <typename Allocator = ::std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::basic_string<char, ::std::char_traits<char>, Allocator>>
@@ -4741,6 +5205,9 @@ public:
 
   //! xrGetInputSourceLocalizedName wrapper - enhanced mode, stateful allocator
   //! for two-call result
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
   template <typename Allocator = ::std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::basic_string<char, ::std::char_traits<char>, Allocator>>
@@ -4752,6 +5219,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrApplyHapticFeedback wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrApplyHapticFeedback>
   template <typename Dispatch = DispatchLoaderStatic>
   Result applyHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                              const XrHapticBaseHeader *hapticFeedback,
@@ -4759,6 +5229,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrApplyHapticFeedback wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrApplyHapticFeedback>
   template <typename Dispatch = DispatchLoaderStatic>
   Result applyHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                              const XrHapticBaseHeader *hapticFeedback,
@@ -4768,12 +5241,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrStopHapticFeedback wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStopHapticFeedback>
   template <typename Dispatch = DispatchLoaderStatic>
   Result stopHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                             Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrStopHapticFeedback wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStopHapticFeedback>
   template <typename Dispatch = DispatchLoaderStatic>
   Result stopHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                             Dispatch &&d = Dispatch{}) const;
@@ -4784,6 +5263,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSetAndroidApplicationThreadKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetAndroidApplicationThreadKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4792,6 +5275,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSetAndroidApplicationThreadKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetAndroidApplicationThreadKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4805,6 +5292,10 @@ public:
 #if defined(XR_USE_PLATFORM_ANDROID)
 
   //! xrCreateSwapchainAndroidSurfaceKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4814,6 +5305,10 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateSwapchainAndroidSurfaceKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4824,6 +5319,10 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateSwapchainAndroidSurfaceKHR wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4838,6 +5337,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrGetVisibilityMaskKHR wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVisibilityMaskKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4849,6 +5352,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrGetVisibilityMaskKHR wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVisibilityMaskKHR>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4862,6 +5369,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrPerfSettingsSetPerformanceLevelEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPerfSettingsSetPerformanceLevelEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4871,6 +5382,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrPerfSettingsSetPerformanceLevelEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPerfSettingsSetPerformanceLevelEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4882,6 +5397,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrThermalGetTemperatureTrendEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrThermalGetTemperatureTrendEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4892,6 +5411,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrThermalGetTemperatureTrendEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrThermalGetTemperatureTrendEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4904,6 +5427,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSessionBeginDebugUtilsLabelRegionEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionBeginDebugUtilsLabelRegionEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4913,6 +5440,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSessionBeginDebugUtilsLabelRegionEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionBeginDebugUtilsLabelRegionEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4924,6 +5455,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSessionEndDebugUtilsLabelRegionEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionEndDebugUtilsLabelRegionEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4931,6 +5466,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSessionEndDebugUtilsLabelRegionEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionEndDebugUtilsLabelRegionEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4940,6 +5479,10 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrSessionInsertDebugUtilsLabelEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionInsertDebugUtilsLabelEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4948,6 +5491,10 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrSessionInsertDebugUtilsLabelEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionInsertDebugUtilsLabelEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4957,6 +5504,10 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateSpatialAnchorMSFT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4966,6 +5517,10 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateSpatialAnchorMSFT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4976,6 +5531,10 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateSpatialAnchorMSFT wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4986,6 +5545,10 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateSpatialAnchorSpaceMSFT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -4995,6 +5558,10 @@ public:
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateSpatialAnchorSpaceMSFT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -5004,6 +5571,10 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateSpatialAnchorSpaceMSFT wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -5182,6 +5753,9 @@ using UniqueDynamicSpace = UniqueHandle<Space, DispatchLoaderDynamic>;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping XrSpace
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSpace>
 class Space {
 public:
   using Type = Space;
@@ -5264,12 +5838,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrLocateSpace wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateSpace>
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateSpace(Space baseSpace, XrTime time, XrSpaceLocation *location,
                      Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrLocateSpace wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateSpace>
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateSpace(Space baseSpace, XrTime time, XrSpaceLocation *location,
                      Dispatch &&d = Dispatch{}) const;
@@ -5278,11 +5858,17 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroySpace wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpace>
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroySpace wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpace>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
@@ -5457,6 +6043,9 @@ using UniqueDynamicAction = UniqueHandle<Action, DispatchLoaderDynamic>;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping XrAction
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrAction>
 class Action {
 public:
   using Type = Action;
@@ -5539,11 +6128,17 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroyAction wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyAction>
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroyAction wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyAction>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
@@ -5720,6 +6315,9 @@ using UniqueDynamicSwapchain = UniqueHandle<Swapchain, DispatchLoaderDynamic>;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping XrSwapchain
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSwapchain>
 class Swapchain {
 public:
   using Type = Swapchain;
@@ -5803,11 +6401,17 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroySwapchain wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySwapchain>
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroySwapchain wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySwapchain>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
@@ -5815,6 +6419,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrEnumerateSwapchainImages wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainImages>
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainImages(uint32_t imageCapacityInput,
                                   uint32_t *imageCountOutput,
@@ -5823,6 +6430,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrEnumerateSwapchainImages wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainImages>
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainImages(uint32_t imageCapacityInput,
                                   uint32_t *imageCountOutput,
@@ -5833,6 +6443,9 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrAcquireSwapchainImage wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAcquireSwapchainImage>
   template <typename Dispatch = DispatchLoaderStatic>
   Result acquireSwapchainImage(const XrSwapchainImageAcquireInfo *acquireInfo,
                                uint32_t *index,
@@ -5840,6 +6453,9 @@ public:
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrAcquireSwapchainImage wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAcquireSwapchainImage>
   template <typename Dispatch = DispatchLoaderStatic>
   Result acquireSwapchainImage(const XrSwapchainImageAcquireInfo *acquireInfo,
                                uint32_t *index,
@@ -5849,12 +6465,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrWaitSwapchainImage wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitSwapchainImage>
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitSwapchainImage(const XrSwapchainImageWaitInfo *waitInfo,
                             Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrWaitSwapchainImage wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitSwapchainImage>
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitSwapchainImage(const XrSwapchainImageWaitInfo *waitInfo,
                             Dispatch &&d = Dispatch{}) const;
@@ -5863,12 +6485,18 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrReleaseSwapchainImage wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrReleaseSwapchainImage>
   template <typename Dispatch = DispatchLoaderStatic>
   Result releaseSwapchainImage(const XrSwapchainImageReleaseInfo *releaseInfo,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrReleaseSwapchainImage wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrReleaseSwapchainImage>
   template <typename Dispatch = DispatchLoaderStatic>
   Result releaseSwapchainImage(const XrSwapchainImageReleaseInfo *releaseInfo,
                                Dispatch &&d = Dispatch{}) const;
@@ -6048,6 +6676,9 @@ using UniqueDynamicActionSet = UniqueHandle<ActionSet, DispatchLoaderDynamic>;
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping XrActionSet
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrActionSet>
 class ActionSet {
 public:
   using Type = ActionSet;
@@ -6131,23 +6762,35 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroyActionSet wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyActionSet>
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroyActionSet wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyActionSet>
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
   //! xrCreateAction wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
   template <typename Dispatch = DispatchLoaderStatic>
   Result createAction(const XrActionCreateInfo *createInfo, Action &action,
                       Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrCreateAction wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<Action>::type
   createAction(const XrActionCreateInfo *createInfo,
@@ -6156,6 +6799,9 @@ public:
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
   //! xrCreateAction wrapper returning a smart handle
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<Action, impl::RemoveRefConst<Dispatch>>>::type
@@ -6341,6 +6987,9 @@ using UniqueDynamicDebugUtilsMessengerEXT =
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping XrDebugUtilsMessengerEXT
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrDebugUtilsMessengerEXT>
 class DebugUtilsMessengerEXT {
 public:
   using Type = DebugUtilsMessengerEXT;
@@ -6424,12 +7073,20 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroyDebugUtilsMessengerEXT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyDebugUtilsMessengerEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch> Result destroy(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroyDebugUtilsMessengerEXT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyDebugUtilsMessengerEXT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -6640,6 +7297,9 @@ using UniqueDynamicSpatialAnchorMSFT =
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 //! Handle class - wrapping XrSpatialAnchorMSFT
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSpatialAnchorMSFT>
 class SpatialAnchorMSFT {
 public:
   using Type = SpatialAnchorMSFT;
@@ -6723,12 +7383,20 @@ public:
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
   //! xrDestroySpatialAnchorMSFT wrapper
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpatialAnchorMSFT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch> Result destroy(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
   //! xrDestroySpatialAnchorMSFT wrapper - enhanced mode
+  //!
+  //! See the related specification text at
+  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpatialAnchorMSFT>
+  //!
   //! No default dispatch is provided as this is a non-core function,
   //! and thus requires some dynamic dispatch class.
   template <typename Dispatch>
@@ -6900,7 +7568,14 @@ template <> struct cpp_type<ObjectType::SpatialAnchorMSFT> {
   using type = SpatialAnchorMSFT;
 };
 
+/*
+ * Forward declarations of wrappers for spec-defined "free functions"
+ */
+
 //! xrEnumerateApiLayerProperties wrapper
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
 template <typename Dispatch = DispatchLoaderStatic>
 Result enumerateApiLayerProperties(uint32_t propertyCapacityInput,
                                    uint32_t *propertyCountOutput,
@@ -6909,6 +7584,9 @@ Result enumerateApiLayerProperties(uint32_t propertyCapacityInput,
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 //! xrEnumerateApiLayerProperties wrapper - enhanced mode
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
 template <typename Allocator = ::std::allocator<XrApiLayerProperties>,
           typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<::std::vector<XrApiLayerProperties, Allocator>>::type
@@ -6916,6 +7594,9 @@ enumerateApiLayerProperties(Dispatch &&d = Dispatch{});
 
 //! xrEnumerateApiLayerProperties wrapper - enhanced mode, stateful allocator
 //! for two-call result
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
 template <typename Allocator = ::std::allocator<XrApiLayerProperties>,
           typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<::std::vector<XrApiLayerProperties, Allocator>>::type
@@ -6924,6 +7605,9 @@ enumerateApiLayerProperties(Allocator const &vectorAllocator, Dispatch &&d);
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 //! xrEnumerateInstanceExtensionProperties wrapper
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
 template <typename Dispatch = DispatchLoaderStatic>
 Result enumerateInstanceExtensionProperties(const char *layerName,
                                             uint32_t propertyCapacityInput,
@@ -6933,6 +7617,9 @@ Result enumerateInstanceExtensionProperties(const char *layerName,
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 //! xrEnumerateInstanceExtensionProperties wrapper - enhanced mode
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
 template <typename Allocator = ::std::allocator<XrExtensionProperties>,
           typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<::std::vector<XrExtensionProperties, Allocator>>::type
@@ -6941,6 +7628,9 @@ enumerateInstanceExtensionProperties(const char *layerName,
 
 //! xrEnumerateInstanceExtensionProperties wrapper - enhanced mode, stateful
 //! allocator for two-call result
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
 template <typename Allocator = ::std::allocator<XrExtensionProperties>,
           typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<::std::vector<XrExtensionProperties, Allocator>>::type
@@ -6951,12 +7641,18 @@ enumerateInstanceExtensionProperties(const char *layerName,
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 //! xrCreateInstance wrapper
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
 template <typename Dispatch = DispatchLoaderStatic>
 Result createInstance(const XrInstanceCreateInfo *createInfo,
                       Instance &instance, Dispatch &&d = Dispatch{});
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 //! xrCreateInstance wrapper - enhanced mode
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
 template <typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<Instance>::type
 createInstance(const XrInstanceCreateInfo *createInfo,
@@ -6965,6 +7661,9 @@ createInstance(const XrInstanceCreateInfo *createInfo,
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
 //! xrCreateInstance wrapper returning a smart handle
+//!
+//! See the related specification text at
+//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
 template <typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<
     UniqueHandle<Instance, impl::RemoveRefConst<Dispatch>>>::type
