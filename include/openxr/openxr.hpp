@@ -2164,68 +2164,86 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool unqualifiedSuccess(Result v) {
 }
 //! @}
 
-//! < comparison between Result and integer, for compatibility with the XR_
-//! function-type macros and XrResult.
+//! @brief `<` comparison between Result and integer, for compatibility with the
+//! XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Result lhs, int rhs) {
   return get(lhs) < rhs;
 }
-//! < comparison between integer and Result, for compatibility with the XR_
-//! function-type macros and XrResult.
+
+//! @brief `<` comparison between integer and Result, for compatibility with the
+//! XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(int lhs, Result rhs) {
   return lhs < get(rhs);
 }
 
-//! > comparison between Result and integer, for compatibility with the XR_
-//! function-type macros and XrResult.
+//! @brief `>` comparison between Result and integer, for compatibility with the
+//! XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Result lhs, int rhs) {
   return get(lhs) > rhs;
 }
-//! > comparison between integer and Result, for compatibility with the XR_
-//! function-type macros and XrResult.
+
+//! @brief `>` comparison between integer and Result, for compatibility with the
+//! XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(int lhs, Result rhs) {
   return lhs > get(rhs);
 }
 
-//! <= comparison between Result and integer, for compatibility with the XR_
-//! function-type macros and XrResult.
+//! @brief `<=` comparison between Result and integer, for compatibility with
+//! the XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Result lhs, int rhs) {
   return get(lhs) <= rhs;
 }
-//! <= comparison between integer and Result, for compatibility with the XR_
-//! function-type macros and XrResult.
+
+//! @brief `<=` comparison between integer and Result, for compatibility with
+//! the XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(int lhs, Result rhs) {
   return lhs <= get(rhs);
 }
 
-//! >= comparison between Result and integer, for compatibility with the XR_
-//! function-type macros and XrResult.
+//! @brief `>=` comparison between Result and integer, for compatibility with
+//! the XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Result lhs, int rhs) {
   return get(lhs) >= rhs;
 }
-//! >= comparison between integer and Result, for compatibility with the XR_
-//! function-type macros and XrResult.
+
+//! @brief `>=` comparison between integer and Result, for compatibility with
+//! the XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(int lhs, Result rhs) {
   return lhs >= get(rhs);
 }
 
-//! == comparison between Result and integer, for compatibility with the XR_
-//! function-type macros and XrResult.
+//! @brief `==` comparison between Result and integer, for compatibility with
+//! the XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Result lhs, int rhs) {
   return get(lhs) == rhs;
 }
-//! == comparison between integer and Result, for compatibility with the XR_
-//! function-type macros and XrResult.
+
+//! @brief `==` comparison between integer and Result, for compatibility with
+//! the XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(int lhs, Result rhs) {
   return lhs == get(rhs);
 }
 
-//! != comparison between Result and integer, for compatibility with the XR_
-//! function-type macros and XrResult.
+//! @brief `!=` comparison between Result and integer, for compatibility with
+//! the XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Result lhs, int rhs) {
   return get(lhs) != rhs;
 }
-//! != comparison between integer and Result, for compatibility with the XR_
-//! function-type macros and XrResult.
+
+//! @brief `!=` comparison between integer and Result, for compatibility with
+//! the XR_ function-type macros and XrResult.
+//! @relates Result
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(int lhs, Result rhs) {
   return lhs != get(rhs);
 }
