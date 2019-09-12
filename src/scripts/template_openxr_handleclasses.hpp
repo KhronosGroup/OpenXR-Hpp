@@ -20,7 +20,8 @@ class /*{ project_type_name(handle.name) }*/;
 //!
 //! @note No default dispatch is provided as this is a non-core function,
 //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
-/*%- endif %*/ /*%- endmacro %*/
+/*%- endif -%*/
+/*%- endmacro -%*/
 
 //# macro method_prototypes(cur_cmd, context)
 
@@ -281,6 +282,7 @@ OPENXR_HPP_INLINE /*{handle.name}*/ *put(/*{shortname}*/ &h) { return h.put(); }
 OPENXR_HPP_INLINE /*{handle.name}*/ *put(/*{shortname}*/ *h) { return h->put(); }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for /*{shortname}*/
 template <>
 struct cpp_type<ObjectType::/*{shortname}*/> {
     using type = /*{shortname}*/;
@@ -293,7 +295,11 @@ struct cpp_type<ObjectType::/*{shortname}*/> {
 
 //## Generate free-function prototypes
 /*!
- * @name OpenXR API calls that act as "free functions"
+ * @defgroup api_free_functions OpenXR API free functions
+ * 
+ * Equivalent to the method wrappers in the handle classes,
+ * but for the few functions that don't take (or don't require)
+ * a handle as their first argument.
  * @{
  */
 // Forward declarations - implementations at the bottom of the file

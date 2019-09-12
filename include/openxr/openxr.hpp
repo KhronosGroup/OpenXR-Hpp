@@ -105,9 +105,16 @@
 #define OPENXR_HPP_STRINGIFY(text) OPENXR_HPP_STRINGIFY2(text)
 #define OPENXR_HPP_NAMESPACE_STRING OPENXR_HPP_STRINGIFY(OPENXR_HPP_NAMESPACE)
 
+/*!
+ * @brief Namespace containing all openxr.hpp entities.
+ *
+ * If the default namespace `xr` isn't suitable, you can define
+ * OPENXR_HPP_NAMESPACE to a different name before including this header.
+ */
 namespace OPENXR_HPP_NAMESPACE {
 // Forward declaration
 class DispatchLoaderDynamic;
+
 /*!
  * @defgroup dispatch Dispatch classes
  * @brief Classes providing a method or function pointer member for OpenXR APIs.
@@ -116,6 +123,7 @@ class DispatchLoaderDynamic;
  * take a dispatch class are templated to be able to accept any class that meets
  * the requirements.
  */
+
 /*!
  * @brief Dispatch class for OpenXR core functions that uses exported,
  * statically-available symbols.
@@ -3214,10 +3222,12 @@ OPENXR_HPP_INLINE void throwResultException(Result result,
 } // namespace exceptions
 } // namespace OPENXR_HPP_NAMESPACE
 
+#if !defined(OPENXR_HPP_DOXYGEN)
 namespace std {
 template <>
 struct is_error_code_enum<OPENXR_HPP_NAMESPACE::Result> : public true_type {};
 } // namespace std
+#endif // !defined(OPENXR_HPP_DOXYGEN)
 #endif // !defined(OPENXR_HPP_NO_EXCEPTIONS)
 
 namespace OPENXR_HPP_NAMESPACE {
@@ -3508,7 +3518,6 @@ class Swapchain;
 class ActionSet;
 class DebugUtilsMessengerEXT;
 class SpatialAnchorMSFT;
-
 /*!
  * @defgroup handles Handle types
  * @brief Wrappers for OpenXR handle types, with associated functions mapped as
@@ -4849,6 +4858,7 @@ OPENXR_HPP_INLINE XrInstance *put(Instance &h) { return h.put(); }
 OPENXR_HPP_INLINE XrInstance *put(Instance *h) { return h->put(); }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for Instance
 template <> struct cpp_type<ObjectType::Instance> { using type = Instance; };
 } // namespace traits
 
@@ -6183,6 +6193,7 @@ OPENXR_HPP_INLINE XrSession *put(Session &h) { return h.put(); }
 OPENXR_HPP_INLINE XrSession *put(Session *h) { return h->put(); }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for Session
 template <> struct cpp_type<ObjectType::Session> { using type = Session; };
 } // namespace traits
 
@@ -6538,6 +6549,7 @@ OPENXR_HPP_INLINE XrSpace *put(Space &h) { return h.put(); }
 OPENXR_HPP_INLINE XrSpace *put(Space *h) { return h->put(); }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for Space
 template <> struct cpp_type<ObjectType::Space> { using type = Space; };
 } // namespace traits
 
@@ -6870,6 +6882,7 @@ OPENXR_HPP_INLINE XrAction *put(Action &h) { return h.put(); }
 OPENXR_HPP_INLINE XrAction *put(Action *h) { return h->put(); }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for Action
 template <> struct cpp_type<ObjectType::Action> { using type = Action; };
 } // namespace traits
 
@@ -7303,6 +7316,7 @@ OPENXR_HPP_INLINE XrSwapchain *put(Swapchain &h) { return h.put(); }
 OPENXR_HPP_INLINE XrSwapchain *put(Swapchain *h) { return h->put(); }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for Swapchain
 template <> struct cpp_type<ObjectType::Swapchain> { using type = Swapchain; };
 } // namespace traits
 
@@ -7673,6 +7687,7 @@ OPENXR_HPP_INLINE XrActionSet *put(ActionSet &h) { return h.put(); }
 OPENXR_HPP_INLINE XrActionSet *put(ActionSet *h) { return h->put(); }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for ActionSet
 template <> struct cpp_type<ObjectType::ActionSet> { using type = ActionSet; };
 } // namespace traits
 
@@ -8040,6 +8055,7 @@ OPENXR_HPP_INLINE XrDebugUtilsMessengerEXT *put(DebugUtilsMessengerEXT *h) {
 }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for DebugUtilsMessengerEXT
 template <> struct cpp_type<ObjectType::DebugUtilsMessengerEXT> {
   using type = DebugUtilsMessengerEXT;
 };
@@ -8389,13 +8405,18 @@ OPENXR_HPP_INLINE XrSpatialAnchorMSFT *put(SpatialAnchorMSFT *h) {
 }
 
 namespace traits {
+//! @brief Explicit specialization of cpp_type for SpatialAnchorMSFT
 template <> struct cpp_type<ObjectType::SpatialAnchorMSFT> {
   using type = SpatialAnchorMSFT;
 };
 } // namespace traits
 
 /*!
- * @name OpenXR API calls that act as "free functions"
+ * @defgroup api_free_functions OpenXR API free functions
+ *
+ * Equivalent to the method wrappers in the handle classes,
+ * but for the few functions that don't take (or don't require)
+ * a handle as their first argument.
  * @{
  */
 // Forward declarations - implementations at the bottom of the file

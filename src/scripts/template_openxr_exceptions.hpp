@@ -179,10 +179,12 @@ OPENXR_HPP_INLINE void throwResultException(Result result, char const* message) 
 }  // namespace exceptions
 }  // namespace OPENXR_HPP_NAMESPACE
 
+#if !defined(OPENXR_HPP_DOXYGEN)
 namespace std {
 template <>
 struct is_error_code_enum<OPENXR_HPP_NAMESPACE::Result> : public true_type {};
 }  // namespace std
+#endif  // !defined(OPENXR_HPP_DOXYGEN)
 #endif  // !defined(OPENXR_HPP_NO_EXCEPTIONS)
 
 namespace OPENXR_HPP_NAMESPACE {

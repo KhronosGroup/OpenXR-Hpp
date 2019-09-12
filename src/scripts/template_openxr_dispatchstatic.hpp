@@ -1,7 +1,14 @@
 
+/*!
+ * @brief Namespace containing all openxr.hpp entities.
+ *
+ * If the default namespace `xr` isn't suitable, you can define OPENXR_HPP_NAMESPACE to a different name before including this
+ * header.
+ */
 namespace OPENXR_HPP_NAMESPACE {
 // Forward declaration
 class DispatchLoaderDynamic;
+
 /*!
  * @defgroup dispatch Dispatch classes
  * @brief Classes providing a method or function pointer member for OpenXR APIs.
@@ -9,6 +16,7 @@ class DispatchLoaderDynamic;
  * The classes provided here are useful basic classes, but all places that can take a dispatch class are templated to be able to
  * accept any class that meets the requirements.
  */
+
 /*!
  * @brief Dispatch class for OpenXR core functions that uses exported, statically-available symbols.
  *
