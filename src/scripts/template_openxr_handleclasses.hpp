@@ -240,16 +240,16 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{handle.name}
 
 //! @brief Equality comparison between /*{shortname}*/ and nullptr: true if the handle is null.
 //! @relates /*{shortname}*/
-OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() == XR_NULL_HANDLE; }
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() == XR_NULL_HANDLE; }
 //! @brief Equality comparison between nullptr and /*{shortname}*/: true if the handle is null.
 //! @relates /*{shortname}*/
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() == XR_NULL_HANDLE; }
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() == XR_NULL_HANDLE; }
 //! @brief Inequality comparison between /*{shortname}*/ and nullptr: true if the handle is not null.
 //! @relates /*{shortname}*/
-OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() != XR_NULL_HANDLE; }
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) { return lhs.get() != XR_NULL_HANDLE; }
 //! @brief Inequality comparison between nullptr and /*{shortname}*/: true if the handle is not null.
 //! @relates /*{shortname}*/
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() != XR_NULL_HANDLE; }
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) { return rhs.get() != XR_NULL_HANDLE; }
 
 //! @brief Free function accessor for the raw /*{handle.name}*/ handle in a /*{shortname}*/
 //! @relates /*{shortname}*/

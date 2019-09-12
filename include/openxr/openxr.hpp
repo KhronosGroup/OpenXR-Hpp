@@ -4799,29 +4799,29 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrInstance lhs,
 //! @brief Equality comparison between Instance and nullptr: true if the handle
 //! is null.
 //! @relates Instance
-OPENXR_HPP_INLINE bool operator==(Instance const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(Instance const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and Instance: true if the handle
 //! is null.
 //! @relates Instance
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
-                                  Instance const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(std::nullptr_t /* unused */, Instance const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between Instance and nullptr: true if the
 //! handle is not null.
 //! @relates Instance
-OPENXR_HPP_INLINE bool operator!=(Instance const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(Instance const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and Instance: true if the
 //! handle is not null.
 //! @relates Instance
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
-                                  Instance const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(std::nullptr_t /* unused */, Instance const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
@@ -6134,29 +6134,29 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrSession lhs,
 //! @brief Equality comparison between Session and nullptr: true if the handle
 //! is null.
 //! @relates Session
-OPENXR_HPP_INLINE bool operator==(Session const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(Session const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and Session: true if the handle
 //! is null.
 //! @relates Session
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
-                                  Session const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(std::nullptr_t /* unused */, Session const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between Session and nullptr: true if the handle
 //! is not null.
 //! @relates Session
-OPENXR_HPP_INLINE bool operator!=(Session const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(Session const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and Session: true if the handle
 //! is not null.
 //! @relates Session
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
-                                  Session const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(std::nullptr_t /* unused */, Session const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
@@ -6490,29 +6490,29 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrSpace lhs,
 //! @brief Equality comparison between Space and nullptr: true if the handle is
 //! null.
 //! @relates Space
-OPENXR_HPP_INLINE bool operator==(Space const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(Space const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and Space: true if the handle is
 //! null.
 //! @relates Space
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
-                                  Space const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(std::nullptr_t /* unused */, Space const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between Space and nullptr: true if the handle
 //! is not null.
 //! @relates Space
-OPENXR_HPP_INLINE bool operator!=(Space const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(Space const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and Space: true if the handle
 //! is not null.
 //! @relates Space
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
-                                  Space const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(std::nullptr_t /* unused */, Space const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
@@ -6823,29 +6823,29 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrAction lhs,
 //! @brief Equality comparison between Action and nullptr: true if the handle is
 //! null.
 //! @relates Action
-OPENXR_HPP_INLINE bool operator==(Action const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(Action const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and Action: true if the handle is
 //! null.
 //! @relates Action
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
-                                  Action const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(std::nullptr_t /* unused */, Action const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between Action and nullptr: true if the handle
 //! is not null.
 //! @relates Action
-OPENXR_HPP_INLINE bool operator!=(Action const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(Action const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and Action: true if the handle
 //! is not null.
 //! @relates Action
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
-                                  Action const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(std::nullptr_t /* unused */, Action const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
@@ -7257,29 +7257,29 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrSwapchain lhs,
 //! @brief Equality comparison between Swapchain and nullptr: true if the handle
 //! is null.
 //! @relates Swapchain
-OPENXR_HPP_INLINE bool operator==(Swapchain const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(Swapchain const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and Swapchain: true if the handle
 //! is null.
 //! @relates Swapchain
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
-                                  Swapchain const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(std::nullptr_t /* unused */, Swapchain const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between Swapchain and nullptr: true if the
 //! handle is not null.
 //! @relates Swapchain
-OPENXR_HPP_INLINE bool operator!=(Swapchain const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(Swapchain const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and Swapchain: true if the
 //! handle is not null.
 //! @relates Swapchain
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
-                                  Swapchain const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(std::nullptr_t /* unused */, Swapchain const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
@@ -7628,29 +7628,29 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrActionSet lhs,
 //! @brief Equality comparison between ActionSet and nullptr: true if the handle
 //! is null.
 //! @relates ActionSet
-OPENXR_HPP_INLINE bool operator==(ActionSet const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(ActionSet const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and ActionSet: true if the handle
 //! is null.
 //! @relates ActionSet
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
-                                  ActionSet const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(std::nullptr_t /* unused */, ActionSet const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between ActionSet and nullptr: true if the
 //! handle is not null.
 //! @relates ActionSet
-OPENXR_HPP_INLINE bool operator!=(ActionSet const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(ActionSet const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and ActionSet: true if the
 //! handle is not null.
 //! @relates ActionSet
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
-                                  ActionSet const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(std::nullptr_t /* unused */, ActionSet const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
@@ -7990,29 +7990,29 @@ operator!=(XrDebugUtilsMessengerEXT lhs, DebugUtilsMessengerEXT const &rhs) {
 //! @brief Equality comparison between DebugUtilsMessengerEXT and nullptr: true
 //! if the handle is null.
 //! @relates DebugUtilsMessengerEXT
-OPENXR_HPP_INLINE bool operator==(DebugUtilsMessengerEXT const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(DebugUtilsMessengerEXT const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and DebugUtilsMessengerEXT: true
 //! if the handle is null.
 //! @relates DebugUtilsMessengerEXT
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
-                                  DebugUtilsMessengerEXT const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(std::nullptr_t /* unused */, DebugUtilsMessengerEXT const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between DebugUtilsMessengerEXT and nullptr:
 //! true if the handle is not null.
 //! @relates DebugUtilsMessengerEXT
-OPENXR_HPP_INLINE bool operator!=(DebugUtilsMessengerEXT const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(DebugUtilsMessengerEXT const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and DebugUtilsMessengerEXT:
 //! true if the handle is not null.
 //! @relates DebugUtilsMessengerEXT
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
-                                  DebugUtilsMessengerEXT const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(std::nullptr_t /* unused */, DebugUtilsMessengerEXT const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
@@ -8340,29 +8340,29 @@ operator!=(XrSpatialAnchorMSFT lhs, SpatialAnchorMSFT const &rhs) {
 //! @brief Equality comparison between SpatialAnchorMSFT and nullptr: true if
 //! the handle is null.
 //! @relates SpatialAnchorMSFT
-OPENXR_HPP_INLINE bool operator==(SpatialAnchorMSFT const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(SpatialAnchorMSFT const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and SpatialAnchorMSFT: true if
 //! the handle is null.
 //! @relates SpatialAnchorMSFT
-OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
-                                  SpatialAnchorMSFT const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator==(std::nullptr_t /* unused */, SpatialAnchorMSFT const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between SpatialAnchorMSFT and nullptr: true if
 //! the handle is not null.
 //! @relates SpatialAnchorMSFT
-OPENXR_HPP_INLINE bool operator!=(SpatialAnchorMSFT const &lhs,
-                                  std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(SpatialAnchorMSFT const &lhs, std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and SpatialAnchorMSFT: true if
 //! the handle is not null.
 //! @relates SpatialAnchorMSFT
-OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
-                                  SpatialAnchorMSFT const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
+operator!=(std::nullptr_t /* unused */, SpatialAnchorMSFT const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
