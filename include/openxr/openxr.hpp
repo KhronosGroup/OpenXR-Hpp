@@ -108,15 +108,32 @@
 namespace OPENXR_HPP_NAMESPACE {
 // Forward declaration
 class DispatchLoaderDynamic;
-
 /*!
- * Dispatch class for OpenXR core functions that uses exported,
+ * @defgroup dispatch Dispatch classes
+ * @brief Classes providing a method or function pointer member for OpenXR APIs.
+ *
+ * The classes provided here are useful basic classes, but all places that can
+ * take a dispatch class are templated to be able to accept any class that meets
+ * the requirements.
+ */
+/*!
+ * @brief Dispatch class for OpenXR core functions that uses exported,
  * statically-available symbols.
+ *
+ * Not for use in game engines or other multi-module software where different
+ * modules might want newer OpenXR APIs. If this is used, all parts of an
+ * application must build against and use the same loader library.
+ *
+ * Does not provide extension functions because those are not exported from the
+ * loader library.
+ *
+ * @ingroup dispatch
  */
 class DispatchLoaderStatic {
 public:
-  /*
-   * Core Commands
+  /*!
+   * @name Core Commands
+   * @{
    */
 
   XrResult xrGetInstanceProcAddr(XrInstance instance, const char *name,
@@ -402,6 +419,7 @@ public:
                        const XrHapticActionInfo *hapticActionInfo) const {
     return ::xrStopHapticFeedback(session, hapticActionInfo);
   }
+  //! @}
 };
 
 } // namespace OPENXR_HPP_NAMESPACE
@@ -409,6 +427,12 @@ public:
 namespace OPENXR_HPP_NAMESPACE {
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
+
+namespace traits {
+
+template <typename Type, typename Dispatch> class UniqueHandleTraits;
+
+} // namespace traits
 
 namespace impl {
 
@@ -418,12 +442,19 @@ using RemoveRefConst =
     typename std::remove_const<typename std::remove_reference<T>::type>::type;
 } // namespace impl
 
-template <typename Type, typename Dispatch> class UniqueHandleTraits;
-
+/*!
+ * Template class for holding a handle with unique ownership, much like
+ * unique_ptr.
+ *
+ * Note that this does not keep track of children or parents, though OpenXR
+ * specifies that destruction of a handle also destroys its children
+ * automatically.
+ */
 template <typename Type, typename Dispatch>
-class UniqueHandle : public UniqueHandleTraits<Type, Dispatch>::deleter {
+class UniqueHandle
+    : public traits::UniqueHandleTraits<Type, Dispatch>::deleter {
 private:
-  using Deleter = typename UniqueHandleTraits<Type, Dispatch>::deleter;
+  using Deleter = typename traits::UniqueHandleTraits<Type, Dispatch>::deleter;
 
 public:
   explicit UniqueHandle(Type const &value = Type(),
@@ -496,6 +527,8 @@ class UniqueHandle<Type, Dispatch &> : public UniqueHandle<Type, Dispatch> {};
 template <typename Type, typename Dispatch>
 class UniqueHandle<Type, Dispatch const> : public UniqueHandle<Type, Dispatch> {
 };
+
+//! @relates UniqueHandle
 template <typename Type, typename Dispatch>
 OPENXR_HPP_INLINE void swap(UniqueHandle<Type, Dispatch> &lhs,
                             UniqueHandle<Type, Dispatch> &rhs) {
@@ -517,8 +550,21 @@ private:
 } // namespace OPENXR_HPP_NAMESPACE
 
 namespace OPENXR_HPP_NAMESPACE {
+/*!
+ * @defgroup enums Enumerations
+ * @brief C++ enum classes corresponding to OpenXR C enumerations, plus
+ * associated utility functions.
+ *
+ * All enumerations have three utility functions defined:
+ *
+ * - get() - returns the raw C enum value
+ * - to_string_literal() - returns a const char* containing the C++ name
+ * - to_string() - wraps to_string_literal(), returning a std::string
+ *
+ * @{
+ */
 
-//! Enum class associated with XrResult
+//! @brief Enum class associated with XrResult
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrResult>
@@ -643,13 +689,15 @@ enum class Result : int32_t {
 
 };
 
-//! Free function for retrieving the raw XrResult value from a Result
+//! @brief Free function for retrieving the raw XrResult value from a Result
+//! @relates Result
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrResult get(Result const &v) {
   return static_cast<XrResult>(v);
 }
 
-//! Free function for retrieving the string name of a Result value as a const
-//! char *
+//! @brief Free function for retrieving the string name of a Result value as a
+//! const char *
+//! @relates Result
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(Result value) {
   switch (value) {
@@ -827,14 +875,15 @@ to_string_literal(Result value) {
   }
 }
 
-//! Free function for retrieving the string name of a Result value as a
+//! @brief Free function for retrieving the string name of a Result value as a
 //! std::string
+//! @relates Result
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(Result value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrStructureType
+//! @brief Enum class associated with XrStructureType
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrStructureType>
@@ -1019,15 +1068,17 @@ enum class StructureType : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrStructureType value from a
+//! @brief Free function for retrieving the raw XrStructureType value from a
 //! StructureType
+//! @relates StructureType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrStructureType
 get(StructureType const &v) {
   return static_cast<XrStructureType>(v);
 }
 
-//! Free function for retrieving the string name of a StructureType value as a
-//! const char *
+//! @brief Free function for retrieving the string name of a StructureType value
+//! as a const char *
+//! @relates StructureType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(StructureType value) {
   switch (value) {
@@ -1286,14 +1337,15 @@ to_string_literal(StructureType value) {
   }
 }
 
-//! Free function for retrieving the string name of a StructureType value as a
-//! std::string
+//! @brief Free function for retrieving the string name of a StructureType value
+//! as a std::string
+//! @relates StructureType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(StructureType value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrFormFactor
+//! @brief Enum class associated with XrFormFactor
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrFormFactor>
@@ -1305,13 +1357,16 @@ enum class FormFactor : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrFormFactor value from a FormFactor
+//! @brief Free function for retrieving the raw XrFormFactor value from a
+//! FormFactor
+//! @relates FormFactor
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrFormFactor get(FormFactor const &v) {
   return static_cast<XrFormFactor>(v);
 }
 
-//! Free function for retrieving the string name of a FormFactor value as a
-//! const char *
+//! @brief Free function for retrieving the string name of a FormFactor value as
+//! a const char *
+//! @relates FormFactor
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(FormFactor value) {
   switch (value) {
@@ -1327,14 +1382,15 @@ to_string_literal(FormFactor value) {
   }
 }
 
-//! Free function for retrieving the string name of a FormFactor value as a
-//! std::string
+//! @brief Free function for retrieving the string name of a FormFactor value as
+//! a std::string
+//! @relates FormFactor
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(FormFactor value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrViewConfigurationType
+//! @brief Enum class associated with XrViewConfigurationType
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrViewConfigurationType>
@@ -1348,15 +1404,17 @@ enum class ViewConfigurationType : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrViewConfigurationType value from a
-//! ViewConfigurationType
+//! @brief Free function for retrieving the raw XrViewConfigurationType value
+//! from a ViewConfigurationType
+//! @relates ViewConfigurationType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrViewConfigurationType
 get(ViewConfigurationType const &v) {
   return static_cast<XrViewConfigurationType>(v);
 }
 
-//! Free function for retrieving the string name of a ViewConfigurationType
-//! value as a const char *
+//! @brief Free function for retrieving the string name of a
+//! ViewConfigurationType value as a const char *
+//! @relates ViewConfigurationType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(ViewConfigurationType value) {
   switch (value) {
@@ -1375,14 +1433,15 @@ to_string_literal(ViewConfigurationType value) {
   }
 }
 
-//! Free function for retrieving the string name of a ViewConfigurationType
-//! value as a std::string
+//! @brief Free function for retrieving the string name of a
+//! ViewConfigurationType value as a std::string
+//! @relates ViewConfigurationType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(ViewConfigurationType value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrEnvironmentBlendMode
+//! @brief Enum class associated with XrEnvironmentBlendMode
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrEnvironmentBlendMode>
@@ -1396,15 +1455,17 @@ enum class EnvironmentBlendMode : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrEnvironmentBlendMode value from a
-//! EnvironmentBlendMode
+//! @brief Free function for retrieving the raw XrEnvironmentBlendMode value
+//! from a EnvironmentBlendMode
+//! @relates EnvironmentBlendMode
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrEnvironmentBlendMode
 get(EnvironmentBlendMode const &v) {
   return static_cast<XrEnvironmentBlendMode>(v);
 }
 
-//! Free function for retrieving the string name of a EnvironmentBlendMode value
-//! as a const char *
+//! @brief Free function for retrieving the string name of a
+//! EnvironmentBlendMode value as a const char *
+//! @relates EnvironmentBlendMode
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(EnvironmentBlendMode value) {
   switch (value) {
@@ -1423,14 +1484,15 @@ to_string_literal(EnvironmentBlendMode value) {
   }
 }
 
-//! Free function for retrieving the string name of a EnvironmentBlendMode value
-//! as a std::string
+//! @brief Free function for retrieving the string name of a
+//! EnvironmentBlendMode value as a std::string
+//! @relates EnvironmentBlendMode
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(EnvironmentBlendMode value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrReferenceSpaceType
+//! @brief Enum class associated with XrReferenceSpaceType
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrReferenceSpaceType>
@@ -1446,15 +1508,17 @@ enum class ReferenceSpaceType : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrReferenceSpaceType value from a
-//! ReferenceSpaceType
+//! @brief Free function for retrieving the raw XrReferenceSpaceType value from
+//! a ReferenceSpaceType
+//! @relates ReferenceSpaceType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrReferenceSpaceType
 get(ReferenceSpaceType const &v) {
   return static_cast<XrReferenceSpaceType>(v);
 }
 
-//! Free function for retrieving the string name of a ReferenceSpaceType value
-//! as a const char *
+//! @brief Free function for retrieving the string name of a ReferenceSpaceType
+//! value as a const char *
+//! @relates ReferenceSpaceType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(ReferenceSpaceType value) {
   switch (value) {
@@ -1476,14 +1540,15 @@ to_string_literal(ReferenceSpaceType value) {
   }
 }
 
-//! Free function for retrieving the string name of a ReferenceSpaceType value
-//! as a std::string
+//! @brief Free function for retrieving the string name of a ReferenceSpaceType
+//! value as a std::string
+//! @relates ReferenceSpaceType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(ReferenceSpaceType value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrActionType
+//! @brief Enum class associated with XrActionType
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrActionType>
@@ -1501,13 +1566,16 @@ enum class ActionType : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrActionType value from a ActionType
+//! @brief Free function for retrieving the raw XrActionType value from a
+//! ActionType
+//! @relates ActionType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrActionType get(ActionType const &v) {
   return static_cast<XrActionType>(v);
 }
 
-//! Free function for retrieving the string name of a ActionType value as a
-//! const char *
+//! @brief Free function for retrieving the string name of a ActionType value as
+//! a const char *
+//! @relates ActionType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(ActionType value) {
   switch (value) {
@@ -1532,14 +1600,15 @@ to_string_literal(ActionType value) {
   }
 }
 
-//! Free function for retrieving the string name of a ActionType value as a
-//! std::string
+//! @brief Free function for retrieving the string name of a ActionType value as
+//! a std::string
+//! @relates ActionType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(ActionType value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrEyeVisibility
+//! @brief Enum class associated with XrEyeVisibility
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrEyeVisibility>
@@ -1553,15 +1622,17 @@ enum class EyeVisibility : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrEyeVisibility value from a
+//! @brief Free function for retrieving the raw XrEyeVisibility value from a
 //! EyeVisibility
+//! @relates EyeVisibility
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrEyeVisibility
 get(EyeVisibility const &v) {
   return static_cast<XrEyeVisibility>(v);
 }
 
-//! Free function for retrieving the string name of a EyeVisibility value as a
-//! const char *
+//! @brief Free function for retrieving the string name of a EyeVisibility value
+//! as a const char *
+//! @relates EyeVisibility
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(EyeVisibility value) {
   switch (value) {
@@ -1580,14 +1651,15 @@ to_string_literal(EyeVisibility value) {
   }
 }
 
-//! Free function for retrieving the string name of a EyeVisibility value as a
-//! std::string
+//! @brief Free function for retrieving the string name of a EyeVisibility value
+//! as a std::string
+//! @relates EyeVisibility
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(EyeVisibility value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrSessionState
+//! @brief Enum class associated with XrSessionState
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSessionState>
@@ -1613,15 +1685,17 @@ enum class SessionState : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrSessionState value from a
+//! @brief Free function for retrieving the raw XrSessionState value from a
 //! SessionState
+//! @relates SessionState
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrSessionState
 get(SessionState const &v) {
   return static_cast<XrSessionState>(v);
 }
 
-//! Free function for retrieving the string name of a SessionState value as a
-//! const char *
+//! @brief Free function for retrieving the string name of a SessionState value
+//! as a const char *
+//! @relates SessionState
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(SessionState value) {
   switch (value) {
@@ -1658,14 +1732,15 @@ to_string_literal(SessionState value) {
   }
 }
 
-//! Free function for retrieving the string name of a SessionState value as a
-//! std::string
+//! @brief Free function for retrieving the string name of a SessionState value
+//! as a std::string
+//! @relates SessionState
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(SessionState value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrObjectType
+//! @brief Enum class associated with XrObjectType
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrObjectType>
@@ -1691,13 +1766,16 @@ enum class ObjectType : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrObjectType value from a ObjectType
+//! @brief Free function for retrieving the raw XrObjectType value from a
+//! ObjectType
+//! @relates ObjectType
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrObjectType get(ObjectType const &v) {
   return static_cast<XrObjectType>(v);
 }
 
-//! Free function for retrieving the string name of a ObjectType value as a
-//! const char *
+//! @brief Free function for retrieving the string name of a ObjectType value as
+//! a const char *
+//! @relates ObjectType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(ObjectType value) {
   switch (value) {
@@ -1734,15 +1812,16 @@ to_string_literal(ObjectType value) {
   }
 }
 
-//! Free function for retrieving the string name of a ObjectType value as a
-//! std::string
+//! @brief Free function for retrieving the string name of a ObjectType value as
+//! a std::string
+//! @relates ObjectType
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(ObjectType value) {
   return {to_string_literal(value)};
 }
 
 #if defined(XR_USE_PLATFORM_ANDROID)
-//! Enum class associated with XrAndroidThreadTypeKHR
+//! @brief Enum class associated with XrAndroidThreadTypeKHR
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrAndroidThreadTypeKHR>
@@ -1758,15 +1837,17 @@ enum class AndroidThreadTypeKHR : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrAndroidThreadTypeKHR value from a
-//! AndroidThreadTypeKHR
+//! @brief Free function for retrieving the raw XrAndroidThreadTypeKHR value
+//! from a AndroidThreadTypeKHR
+//! @relates AndroidThreadTypeKHR
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrAndroidThreadTypeKHR
 get(AndroidThreadTypeKHR const &v) {
   return static_cast<XrAndroidThreadTypeKHR>(v);
 }
 
-//! Free function for retrieving the string name of a AndroidThreadTypeKHR value
-//! as a const char *
+//! @brief Free function for retrieving the string name of a
+//! AndroidThreadTypeKHR value as a const char *
+//! @relates AndroidThreadTypeKHR
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(AndroidThreadTypeKHR value) {
   switch (value) {
@@ -1788,8 +1869,9 @@ to_string_literal(AndroidThreadTypeKHR value) {
   }
 }
 
-//! Free function for retrieving the string name of a AndroidThreadTypeKHR value
-//! as a std::string
+//! @brief Free function for retrieving the string name of a
+//! AndroidThreadTypeKHR value as a std::string
+//! @relates AndroidThreadTypeKHR
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(AndroidThreadTypeKHR value) {
   return {to_string_literal(value)};
@@ -1797,7 +1879,7 @@ to_string(AndroidThreadTypeKHR value) {
 
 #endif // defined(XR_USE_PLATFORM_ANDROID)
 
-//! Enum class associated with XrVisibilityMaskTypeKHR
+//! @brief Enum class associated with XrVisibilityMaskTypeKHR
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrVisibilityMaskTypeKHR>
@@ -1811,15 +1893,17 @@ enum class VisibilityMaskTypeKHR : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrVisibilityMaskTypeKHR value from a
-//! VisibilityMaskTypeKHR
+//! @brief Free function for retrieving the raw XrVisibilityMaskTypeKHR value
+//! from a VisibilityMaskTypeKHR
+//! @relates VisibilityMaskTypeKHR
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrVisibilityMaskTypeKHR
 get(VisibilityMaskTypeKHR const &v) {
   return static_cast<XrVisibilityMaskTypeKHR>(v);
 }
 
-//! Free function for retrieving the string name of a VisibilityMaskTypeKHR
-//! value as a const char *
+//! @brief Free function for retrieving the string name of a
+//! VisibilityMaskTypeKHR value as a const char *
+//! @relates VisibilityMaskTypeKHR
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(VisibilityMaskTypeKHR value) {
   switch (value) {
@@ -1838,14 +1922,15 @@ to_string_literal(VisibilityMaskTypeKHR value) {
   }
 }
 
-//! Free function for retrieving the string name of a VisibilityMaskTypeKHR
-//! value as a std::string
+//! @brief Free function for retrieving the string name of a
+//! VisibilityMaskTypeKHR value as a std::string
+//! @relates VisibilityMaskTypeKHR
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(VisibilityMaskTypeKHR value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrPerfSettingsDomainEXT
+//! @brief Enum class associated with XrPerfSettingsDomainEXT
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrPerfSettingsDomainEXT>
@@ -1857,15 +1942,17 @@ enum class PerfSettingsDomainEXT : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrPerfSettingsDomainEXT value from a
-//! PerfSettingsDomainEXT
+//! @brief Free function for retrieving the raw XrPerfSettingsDomainEXT value
+//! from a PerfSettingsDomainEXT
+//! @relates PerfSettingsDomainEXT
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrPerfSettingsDomainEXT
 get(PerfSettingsDomainEXT const &v) {
   return static_cast<XrPerfSettingsDomainEXT>(v);
 }
 
-//! Free function for retrieving the string name of a PerfSettingsDomainEXT
-//! value as a const char *
+//! @brief Free function for retrieving the string name of a
+//! PerfSettingsDomainEXT value as a const char *
+//! @relates PerfSettingsDomainEXT
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(PerfSettingsDomainEXT value) {
   switch (value) {
@@ -1881,14 +1968,15 @@ to_string_literal(PerfSettingsDomainEXT value) {
   }
 }
 
-//! Free function for retrieving the string name of a PerfSettingsDomainEXT
-//! value as a std::string
+//! @brief Free function for retrieving the string name of a
+//! PerfSettingsDomainEXT value as a std::string
+//! @relates PerfSettingsDomainEXT
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(PerfSettingsDomainEXT value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrPerfSettingsSubDomainEXT
+//! @brief Enum class associated with XrPerfSettingsSubDomainEXT
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrPerfSettingsSubDomainEXT>
@@ -1902,15 +1990,17 @@ enum class PerfSettingsSubDomainEXT : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrPerfSettingsSubDomainEXT value from a
-//! PerfSettingsSubDomainEXT
+//! @brief Free function for retrieving the raw XrPerfSettingsSubDomainEXT value
+//! from a PerfSettingsSubDomainEXT
+//! @relates PerfSettingsSubDomainEXT
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrPerfSettingsSubDomainEXT
 get(PerfSettingsSubDomainEXT const &v) {
   return static_cast<XrPerfSettingsSubDomainEXT>(v);
 }
 
-//! Free function for retrieving the string name of a PerfSettingsSubDomainEXT
-//! value as a const char *
+//! @brief Free function for retrieving the string name of a
+//! PerfSettingsSubDomainEXT value as a const char *
+//! @relates PerfSettingsSubDomainEXT
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(PerfSettingsSubDomainEXT value) {
   switch (value) {
@@ -1929,14 +2019,15 @@ to_string_literal(PerfSettingsSubDomainEXT value) {
   }
 }
 
-//! Free function for retrieving the string name of a PerfSettingsSubDomainEXT
-//! value as a std::string
+//! @brief Free function for retrieving the string name of a
+//! PerfSettingsSubDomainEXT value as a std::string
+//! @relates PerfSettingsSubDomainEXT
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(PerfSettingsSubDomainEXT value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrPerfSettingsLevelEXT
+//! @brief Enum class associated with XrPerfSettingsLevelEXT
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrPerfSettingsLevelEXT>
@@ -1952,15 +2043,17 @@ enum class PerfSettingsLevelEXT : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrPerfSettingsLevelEXT value from a
-//! PerfSettingsLevelEXT
+//! @brief Free function for retrieving the raw XrPerfSettingsLevelEXT value
+//! from a PerfSettingsLevelEXT
+//! @relates PerfSettingsLevelEXT
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrPerfSettingsLevelEXT
 get(PerfSettingsLevelEXT const &v) {
   return static_cast<XrPerfSettingsLevelEXT>(v);
 }
 
-//! Free function for retrieving the string name of a PerfSettingsLevelEXT value
-//! as a const char *
+//! @brief Free function for retrieving the string name of a
+//! PerfSettingsLevelEXT value as a const char *
+//! @relates PerfSettingsLevelEXT
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(PerfSettingsLevelEXT value) {
   switch (value) {
@@ -1982,14 +2075,15 @@ to_string_literal(PerfSettingsLevelEXT value) {
   }
 }
 
-//! Free function for retrieving the string name of a PerfSettingsLevelEXT value
-//! as a std::string
+//! @brief Free function for retrieving the string name of a
+//! PerfSettingsLevelEXT value as a std::string
+//! @relates PerfSettingsLevelEXT
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(PerfSettingsLevelEXT value) {
   return {to_string_literal(value)};
 }
 
-//! Enum class associated with XrPerfSettingsNotificationLevelEXT
+//! @brief Enum class associated with XrPerfSettingsNotificationLevelEXT
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrPerfSettingsNotificationLevelEXT>
@@ -2003,15 +2097,18 @@ enum class PerfSettingsNotificationLevelEXT : uint32_t {
 
 };
 
-//! Free function for retrieving the raw XrPerfSettingsNotificationLevelEXT
-//! value from a PerfSettingsNotificationLevelEXT
+//! @brief Free function for retrieving the raw
+//! XrPerfSettingsNotificationLevelEXT value from a
+//! PerfSettingsNotificationLevelEXT
+//! @relates PerfSettingsNotificationLevelEXT
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR XrPerfSettingsNotificationLevelEXT
 get(PerfSettingsNotificationLevelEXT const &v) {
   return static_cast<XrPerfSettingsNotificationLevelEXT>(v);
 }
 
-//! Free function for retrieving the string name of a
+//! @brief Free function for retrieving the string name of a
 //! PerfSettingsNotificationLevelEXT value as a const char *
+//! @relates PerfSettingsNotificationLevelEXT
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char *
 to_string_literal(PerfSettingsNotificationLevelEXT value) {
   switch (value) {
@@ -2030,32 +2127,42 @@ to_string_literal(PerfSettingsNotificationLevelEXT value) {
   }
 }
 
-//! Free function for retrieving the string name of a
+//! @brief Free function for retrieving the string name of a
 //! PerfSettingsNotificationLevelEXT value as a std::string
+//! @relates PerfSettingsNotificationLevelEXT
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string
 to_string(PerfSettingsNotificationLevelEXT value) {
   return {to_string_literal(value)};
 }
 
+//! @}
+
 } // namespace OPENXR_HPP_NAMESPACE
 
 namespace OPENXR_HPP_NAMESPACE {
 
-//! Return true if the Result is negative, indicating a failure.
+/*!
+ * @defgroup result_helpers Result helper free functions
+ * @{
+ */
+//! @brief Return true if the Result is negative, indicating a failure.
 //! Equivalent of XR_FAILED()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) {
   return static_cast<int>(v) < 0;
 }
-//! Return true if the result is non-negative, indicating a success or non-error
-//! result. Equivalent of XR_SUCCEEDED()
+
+//! @brief Return true if the result is non-negative, indicating a success or
+//! non-error result. Equivalent of XR_SUCCEEDED()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool succeeded(Result v) {
   return static_cast<int>(v) >= 0;
 }
-//! Return true if the result is exactly equal to Success.
+
+//! @brief Return true if the result is exactly equal to Result::Success.
 //! Equivalent of XR_UNQUALIFIED_SUCCESS()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool unqualifiedSuccess(Result v) {
   return v == Result::Success;
 }
+//! @}
 
 //! < comparison between Result and integer, for compatibility with the XR_
 //! function-type macros and XrResult.
@@ -2129,6 +2236,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(int lhs, Result rhs) {
 
 namespace OPENXR_HPP_NAMESPACE {
 
+//! Implementation details
 namespace impl {
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
 #define noexcept _NOEXCEPT
@@ -2166,7 +2274,18 @@ OPENXR_HPP_INLINE std::error_condition make_error_condition(Result e) {
 #endif
 } // namespace impl
 
-//! Base class for all OpenXR exceptions.
+//! OpenXR exceptions
+namespace exceptions {
+/*!
+ * @defgroup exceptions Exceptions
+ *
+ * @{
+ */
+/*!
+ * @defgroup base_exceptions Exception base classes
+ * @{
+ */
+//! @brief Base class for all OpenXR exceptions.
 //!
 //! Only used for catching all OpenXR exceptions.
 class Error {
@@ -2176,7 +2295,7 @@ public:
   virtual const char *what() const noexcept = 0;
 };
 
-//! OpenXR logic error base exception class.
+//! @brief OpenXR logic error base exception class.
 //!
 //! Derives from both Error and std::logic_error for flexibility in catching.
 class LogicError : public Error, public std::logic_error {
@@ -2189,7 +2308,7 @@ public:
   virtual const char *what() const noexcept { return std::logic_error::what(); }
 };
 
-//! OpenXR system error exception class - may be derived from or thrown
+//! @brief OpenXR system error exception class - may be derived from or thrown
 //! directly.
 //!
 //! Derives from both Error and std::system_error for flexibility in catching.
@@ -2213,12 +2332,21 @@ public:
   }
 };
 
+// end of base_exceptions
+//! @}
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
 #undef noexcept
 #endif
 
-//! Exception class associated with the Result::ErrorValidationFailure aka
-//! XR_ERROR_VALIDATION_FAILURE result code.
+/*!
+ * @defgroup result_exceptions Result-specific exceptions
+ * @{
+ */
+//! @todo identify which errors would be considered LogicError and subclass that
+//! instead. Add to XML?
+
+//! @brief Exception class associated with the Result::ErrorValidationFailure
+//! aka XR_ERROR_VALIDATION_FAILURE result code.
 class ValidationFailureError : public SystemError {
 public:
   ValidationFailureError(std::string const &message)
@@ -2230,7 +2358,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorRuntimeFailure aka
+//! @brief Exception class associated with the Result::ErrorRuntimeFailure aka
 //! XR_ERROR_RUNTIME_FAILURE result code.
 class RuntimeFailureError : public SystemError {
 public:
@@ -2243,7 +2371,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorOutOfMemory aka
+//! @brief Exception class associated with the Result::ErrorOutOfMemory aka
 //! XR_ERROR_OUT_OF_MEMORY result code.
 class OutOfMemoryError : public SystemError {
 public:
@@ -2254,8 +2382,9 @@ public:
       : SystemError(impl::make_error_code(Result::ErrorOutOfMemory), message) {}
 };
 
-//! Exception class associated with the Result::ErrorApiVersionUnsupported aka
-//! XR_ERROR_API_VERSION_UNSUPPORTED result code.
+//! @brief Exception class associated with the
+//! Result::ErrorApiVersionUnsupported aka XR_ERROR_API_VERSION_UNSUPPORTED
+//! result code.
 class ApiVersionUnsupportedError : public SystemError {
 public:
   ApiVersionUnsupportedError(std::string const &message)
@@ -2267,8 +2396,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorInitializationFailed aka
-//! XR_ERROR_INITIALIZATION_FAILED result code.
+//! @brief Exception class associated with the Result::ErrorInitializationFailed
+//! aka XR_ERROR_INITIALIZATION_FAILED result code.
 class InitializationFailedError : public SystemError {
 public:
   InitializationFailedError(std::string const &message)
@@ -2280,8 +2409,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorFunctionUnsupported aka
-//! XR_ERROR_FUNCTION_UNSUPPORTED result code.
+//! @brief Exception class associated with the Result::ErrorFunctionUnsupported
+//! aka XR_ERROR_FUNCTION_UNSUPPORTED result code.
 class FunctionUnsupportedError : public SystemError {
 public:
   FunctionUnsupportedError(std::string const &message)
@@ -2293,8 +2422,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorFeatureUnsupported aka
-//! XR_ERROR_FEATURE_UNSUPPORTED result code.
+//! @brief Exception class associated with the Result::ErrorFeatureUnsupported
+//! aka XR_ERROR_FEATURE_UNSUPPORTED result code.
 class FeatureUnsupportedError : public SystemError {
 public:
   FeatureUnsupportedError(std::string const &message)
@@ -2306,8 +2435,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorExtensionNotPresent aka
-//! XR_ERROR_EXTENSION_NOT_PRESENT result code.
+//! @brief Exception class associated with the Result::ErrorExtensionNotPresent
+//! aka XR_ERROR_EXTENSION_NOT_PRESENT result code.
 class ExtensionNotPresentError : public SystemError {
 public:
   ExtensionNotPresentError(std::string const &message)
@@ -2319,7 +2448,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorLimitReached aka
+//! @brief Exception class associated with the Result::ErrorLimitReached aka
 //! XR_ERROR_LIMIT_REACHED result code.
 class LimitReachedError : public SystemError {
 public:
@@ -2332,7 +2461,7 @@ public:
   }
 };
 
-//! Exception class associated with the Result::ErrorSizeInsufficient aka
+//! @brief Exception class associated with the Result::ErrorSizeInsufficient aka
 //! XR_ERROR_SIZE_INSUFFICIENT result code.
 class SizeInsufficientError : public SystemError {
 public:
@@ -2345,7 +2474,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorHandleInvalid aka
+//! @brief Exception class associated with the Result::ErrorHandleInvalid aka
 //! XR_ERROR_HANDLE_INVALID result code.
 class HandleInvalidError : public SystemError {
 public:
@@ -2358,7 +2487,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorInstanceLost aka
+//! @brief Exception class associated with the Result::ErrorInstanceLost aka
 //! XR_ERROR_INSTANCE_LOST result code.
 class InstanceLostError : public SystemError {
 public:
@@ -2371,7 +2500,7 @@ public:
   }
 };
 
-//! Exception class associated with the Result::ErrorSessionRunning aka
+//! @brief Exception class associated with the Result::ErrorSessionRunning aka
 //! XR_ERROR_SESSION_RUNNING result code.
 class SessionRunningError : public SystemError {
 public:
@@ -2384,8 +2513,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorSessionNotRunning aka
-//! XR_ERROR_SESSION_NOT_RUNNING result code.
+//! @brief Exception class associated with the Result::ErrorSessionNotRunning
+//! aka XR_ERROR_SESSION_NOT_RUNNING result code.
 class SessionNotRunningError : public SystemError {
 public:
   SessionNotRunningError(std::string const &message)
@@ -2397,7 +2526,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorSessionLost aka
+//! @brief Exception class associated with the Result::ErrorSessionLost aka
 //! XR_ERROR_SESSION_LOST result code.
 class SessionLostError : public SystemError {
 public:
@@ -2408,7 +2537,7 @@ public:
       : SystemError(impl::make_error_code(Result::ErrorSessionLost), message) {}
 };
 
-//! Exception class associated with the Result::ErrorSystemInvalid aka
+//! @brief Exception class associated with the Result::ErrorSystemInvalid aka
 //! XR_ERROR_SYSTEM_INVALID result code.
 class SystemInvalidError : public SystemError {
 public:
@@ -2421,7 +2550,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorPathInvalid aka
+//! @brief Exception class associated with the Result::ErrorPathInvalid aka
 //! XR_ERROR_PATH_INVALID result code.
 class PathInvalidError : public SystemError {
 public:
@@ -2432,8 +2561,8 @@ public:
       : SystemError(impl::make_error_code(Result::ErrorPathInvalid), message) {}
 };
 
-//! Exception class associated with the Result::ErrorPathCountExceeded aka
-//! XR_ERROR_PATH_COUNT_EXCEEDED result code.
+//! @brief Exception class associated with the Result::ErrorPathCountExceeded
+//! aka XR_ERROR_PATH_COUNT_EXCEEDED result code.
 class PathCountExceededError : public SystemError {
 public:
   PathCountExceededError(std::string const &message)
@@ -2445,8 +2574,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorPathFormatInvalid aka
-//! XR_ERROR_PATH_FORMAT_INVALID result code.
+//! @brief Exception class associated with the Result::ErrorPathFormatInvalid
+//! aka XR_ERROR_PATH_FORMAT_INVALID result code.
 class PathFormatInvalidError : public SystemError {
 public:
   PathFormatInvalidError(std::string const &message)
@@ -2458,7 +2587,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorPathUnsupported aka
+//! @brief Exception class associated with the Result::ErrorPathUnsupported aka
 //! XR_ERROR_PATH_UNSUPPORTED result code.
 class PathUnsupportedError : public SystemError {
 public:
@@ -2471,7 +2600,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorLayerInvalid aka
+//! @brief Exception class associated with the Result::ErrorLayerInvalid aka
 //! XR_ERROR_LAYER_INVALID result code.
 class LayerInvalidError : public SystemError {
 public:
@@ -2484,8 +2613,8 @@ public:
   }
 };
 
-//! Exception class associated with the Result::ErrorLayerLimitExceeded aka
-//! XR_ERROR_LAYER_LIMIT_EXCEEDED result code.
+//! @brief Exception class associated with the Result::ErrorLayerLimitExceeded
+//! aka XR_ERROR_LAYER_LIMIT_EXCEEDED result code.
 class LayerLimitExceededError : public SystemError {
 public:
   LayerLimitExceededError(std::string const &message)
@@ -2497,8 +2626,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorSwapchainRectInvalid aka
-//! XR_ERROR_SWAPCHAIN_RECT_INVALID result code.
+//! @brief Exception class associated with the Result::ErrorSwapchainRectInvalid
+//! aka XR_ERROR_SWAPCHAIN_RECT_INVALID result code.
 class SwapchainRectInvalidError : public SystemError {
 public:
   SwapchainRectInvalidError(std::string const &message)
@@ -2510,8 +2639,9 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorSwapchainFormatUnsupported
-//! aka XR_ERROR_SWAPCHAIN_FORMAT_UNSUPPORTED result code.
+//! @brief Exception class associated with the
+//! Result::ErrorSwapchainFormatUnsupported aka
+//! XR_ERROR_SWAPCHAIN_FORMAT_UNSUPPORTED result code.
 class SwapchainFormatUnsupportedError : public SystemError {
 public:
   SwapchainFormatUnsupportedError(std::string const &message)
@@ -2525,8 +2655,8 @@ public:
             message) {}
 };
 
-//! Exception class associated with the Result::ErrorActionTypeMismatch aka
-//! XR_ERROR_ACTION_TYPE_MISMATCH result code.
+//! @brief Exception class associated with the Result::ErrorActionTypeMismatch
+//! aka XR_ERROR_ACTION_TYPE_MISMATCH result code.
 class ActionTypeMismatchError : public SystemError {
 public:
   ActionTypeMismatchError(std::string const &message)
@@ -2538,7 +2668,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorSessionNotReady aka
+//! @brief Exception class associated with the Result::ErrorSessionNotReady aka
 //! XR_ERROR_SESSION_NOT_READY result code.
 class SessionNotReadyError : public SystemError {
 public:
@@ -2551,8 +2681,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorSessionNotStopping aka
-//! XR_ERROR_SESSION_NOT_STOPPING result code.
+//! @brief Exception class associated with the Result::ErrorSessionNotStopping
+//! aka XR_ERROR_SESSION_NOT_STOPPING result code.
 class SessionNotStoppingError : public SystemError {
 public:
   SessionNotStoppingError(std::string const &message)
@@ -2564,7 +2694,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorTimeInvalid aka
+//! @brief Exception class associated with the Result::ErrorTimeInvalid aka
 //! XR_ERROR_TIME_INVALID result code.
 class TimeInvalidError : public SystemError {
 public:
@@ -2575,8 +2705,9 @@ public:
       : SystemError(impl::make_error_code(Result::ErrorTimeInvalid), message) {}
 };
 
-//! Exception class associated with the Result::ErrorReferenceSpaceUnsupported
-//! aka XR_ERROR_REFERENCE_SPACE_UNSUPPORTED result code.
+//! @brief Exception class associated with the
+//! Result::ErrorReferenceSpaceUnsupported aka
+//! XR_ERROR_REFERENCE_SPACE_UNSUPPORTED result code.
 class ReferenceSpaceUnsupportedError : public SystemError {
 public:
   ReferenceSpaceUnsupportedError(std::string const &message)
@@ -2590,7 +2721,7 @@ public:
             message) {}
 };
 
-//! Exception class associated with the Result::ErrorFileAccessError aka
+//! @brief Exception class associated with the Result::ErrorFileAccessError aka
 //! XR_ERROR_FILE_ACCESS_ERROR result code.
 class FileAccessError : public SystemError {
 public:
@@ -2603,8 +2734,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorFileContentsInvalid aka
-//! XR_ERROR_FILE_CONTENTS_INVALID result code.
+//! @brief Exception class associated with the Result::ErrorFileContentsInvalid
+//! aka XR_ERROR_FILE_CONTENTS_INVALID result code.
 class FileContentsInvalidError : public SystemError {
 public:
   FileContentsInvalidError(std::string const &message)
@@ -2616,8 +2747,9 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorFormFactorUnsupported aka
-//! XR_ERROR_FORM_FACTOR_UNSUPPORTED result code.
+//! @brief Exception class associated with the
+//! Result::ErrorFormFactorUnsupported aka XR_ERROR_FORM_FACTOR_UNSUPPORTED
+//! result code.
 class FormFactorUnsupportedError : public SystemError {
 public:
   FormFactorUnsupportedError(std::string const &message)
@@ -2629,8 +2761,9 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorFormFactorUnavailable aka
-//! XR_ERROR_FORM_FACTOR_UNAVAILABLE result code.
+//! @brief Exception class associated with the
+//! Result::ErrorFormFactorUnavailable aka XR_ERROR_FORM_FACTOR_UNAVAILABLE
+//! result code.
 class FormFactorUnavailableError : public SystemError {
 public:
   FormFactorUnavailableError(std::string const &message)
@@ -2642,8 +2775,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorApiLayerNotPresent aka
-//! XR_ERROR_API_LAYER_NOT_PRESENT result code.
+//! @brief Exception class associated with the Result::ErrorApiLayerNotPresent
+//! aka XR_ERROR_API_LAYER_NOT_PRESENT result code.
 class ApiLayerNotPresentError : public SystemError {
 public:
   ApiLayerNotPresentError(std::string const &message)
@@ -2655,7 +2788,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorCallOrderInvalid aka
+//! @brief Exception class associated with the Result::ErrorCallOrderInvalid aka
 //! XR_ERROR_CALL_ORDER_INVALID result code.
 class CallOrderInvalidError : public SystemError {
 public:
@@ -2668,8 +2801,9 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorGraphicsDeviceInvalid aka
-//! XR_ERROR_GRAPHICS_DEVICE_INVALID result code.
+//! @brief Exception class associated with the
+//! Result::ErrorGraphicsDeviceInvalid aka XR_ERROR_GRAPHICS_DEVICE_INVALID
+//! result code.
 class GraphicsDeviceInvalidError : public SystemError {
 public:
   GraphicsDeviceInvalidError(std::string const &message)
@@ -2681,7 +2815,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorPoseInvalid aka
+//! @brief Exception class associated with the Result::ErrorPoseInvalid aka
 //! XR_ERROR_POSE_INVALID result code.
 class PoseInvalidError : public SystemError {
 public:
@@ -2692,7 +2826,7 @@ public:
       : SystemError(impl::make_error_code(Result::ErrorPoseInvalid), message) {}
 };
 
-//! Exception class associated with the Result::ErrorIndexOutOfRange aka
+//! @brief Exception class associated with the Result::ErrorIndexOutOfRange aka
 //! XR_ERROR_INDEX_OUT_OF_RANGE result code.
 class IndexOutOfRangeError : public SystemError {
 public:
@@ -2705,7 +2839,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the
+//! @brief Exception class associated with the
 //! Result::ErrorViewConfigurationTypeUnsupported aka
 //! XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED result code.
 class ViewConfigurationTypeUnsupportedError : public SystemError {
@@ -2721,7 +2855,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the
+//! @brief Exception class associated with the
 //! Result::ErrorEnvironmentBlendModeUnsupported aka
 //! XR_ERROR_ENVIRONMENT_BLEND_MODE_UNSUPPORTED result code.
 class EnvironmentBlendModeUnsupportedError : public SystemError {
@@ -2737,7 +2871,7 @@ public:
             message) {}
 };
 
-//! Exception class associated with the Result::ErrorNameDuplicated aka
+//! @brief Exception class associated with the Result::ErrorNameDuplicated aka
 //! XR_ERROR_NAME_DUPLICATED result code.
 class NameDuplicatedError : public SystemError {
 public:
@@ -2750,7 +2884,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorNameInvalid aka
+//! @brief Exception class associated with the Result::ErrorNameInvalid aka
 //! XR_ERROR_NAME_INVALID result code.
 class NameInvalidError : public SystemError {
 public:
@@ -2761,8 +2895,8 @@ public:
       : SystemError(impl::make_error_code(Result::ErrorNameInvalid), message) {}
 };
 
-//! Exception class associated with the Result::ErrorActionsetNotAttached aka
-//! XR_ERROR_ACTIONSET_NOT_ATTACHED result code.
+//! @brief Exception class associated with the Result::ErrorActionsetNotAttached
+//! aka XR_ERROR_ACTIONSET_NOT_ATTACHED result code.
 class ActionsetNotAttachedError : public SystemError {
 public:
   ActionsetNotAttachedError(std::string const &message)
@@ -2774,8 +2908,9 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorActionsetsAlreadyAttached
-//! aka XR_ERROR_ACTIONSETS_ALREADY_ATTACHED result code.
+//! @brief Exception class associated with the
+//! Result::ErrorActionsetsAlreadyAttached aka
+//! XR_ERROR_ACTIONSETS_ALREADY_ATTACHED result code.
 class ActionsetsAlreadyAttachedError : public SystemError {
 public:
   ActionsetsAlreadyAttachedError(std::string const &message)
@@ -2789,8 +2924,9 @@ public:
             message) {}
 };
 
-//! Exception class associated with the Result::ErrorLocalizedNameDuplicated aka
-//! XR_ERROR_LOCALIZED_NAME_DUPLICATED result code.
+//! @brief Exception class associated with the
+//! Result::ErrorLocalizedNameDuplicated aka XR_ERROR_LOCALIZED_NAME_DUPLICATED
+//! result code.
 class LocalizedNameDuplicatedError : public SystemError {
 public:
   LocalizedNameDuplicatedError(std::string const &message)
@@ -2802,8 +2938,8 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the Result::ErrorLocalizedNameInvalid aka
-//! XR_ERROR_LOCALIZED_NAME_INVALID result code.
+//! @brief Exception class associated with the Result::ErrorLocalizedNameInvalid
+//! aka XR_ERROR_LOCALIZED_NAME_INVALID result code.
 class LocalizedNameInvalidError : public SystemError {
 public:
   LocalizedNameInvalidError(std::string const &message)
@@ -2815,7 +2951,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the
+//! @brief Exception class associated with the
 //! Result::ErrorAndroidThreadSettingsIdInvalidKHR aka
 //! XR_ERROR_ANDROID_THREAD_SETTINGS_ID_INVALID_KHR result code.
 class AndroidThreadSettingsIdInvalidKHRError : public SystemError {
@@ -2831,7 +2967,7 @@ public:
                     message) {}
 };
 
-//! Exception class associated with the
+//! @brief Exception class associated with the
 //! Result::ErrorAndroidThreadSettingsFailureKHR aka
 //! XR_ERROR_ANDROID_THREAD_SETTINGS_FAILURE_KHR result code.
 class AndroidThreadSettingsFailureKHRError : public SystemError {
@@ -2847,7 +2983,7 @@ public:
             message) {}
 };
 
-//! Exception class associated with the
+//! @brief Exception class associated with the
 //! Result::ErrorCreateSpatialAnchorFailedMSFT aka
 //! XR_ERROR_CREATE_SPATIAL_ANCHOR_FAILED_MSFT result code.
 class CreateSpatialAnchorFailedMSFTError : public SystemError {
@@ -2863,7 +2999,12 @@ public:
             message) {}
 };
 
+// end of result_exceptions
+//! @}
+
 /*!
+ * @brief Throws the best exception for a result code.
+ *
  * Takes a result code and a message (usually the method triggering the
  * exception) and throws the most-specific exception available for that result
  * code. As a fallback, it will throw a SystemError directly.
@@ -3051,6 +3192,8 @@ OPENXR_HPP_INLINE void throwResultException(Result result,
     throw SystemError(impl::make_error_code(result));
   }
 }
+//! @}
+} // namespace exceptions
 } // namespace OPENXR_HPP_NAMESPACE
 
 namespace std {
@@ -3062,10 +3205,21 @@ struct is_error_code_enum<OPENXR_HPP_NAMESPACE::Result> : public true_type {};
 namespace OPENXR_HPP_NAMESPACE {
 
 /*!
- * Contains a Result enumerant and a returned value.
+ * @defgroup return_results Returning results
+ * @brief Types and functions used by API call wrappers to return output in a
+ * friendly, C++ manner.
+ *
+ * A user of openxr.hpp will not typically call the functions here directly,
+ * but knowing how they work could be useful.
+ * @{
+ */
+/*!
+ * @brief Contains a Result enumerant and a returned value.
  *
  * Implicitly convertible to std::tuple<> so you can do `std::tie(result, value)
  * = callThatReturnsResultValue()`
+ *
+ * @ingroup utilities
  */
 template <typename T> struct ResultValue {
   ResultValue(Result r, T const &v) : result(r), value(v) {}
@@ -3080,7 +3234,8 @@ template <typename T> struct ResultValue {
   }
 };
 
-/*! Computes the return type of a function (in enhanced mode) with no
+/*!
+ * @brief Computes the return type of a function (in enhanced mode) with no
  * non-Result::Success success codes and potentially an output value of type T.
  *
  * The behavior differs based on whether or not you have
@@ -3099,10 +3254,8 @@ template <typename T> struct ResultValueType { typedef T type; };
 template <> struct ResultValueType<void> { typedef void type; };
 #endif
 
-template <typename T> OPENXR_HPP_INLINE void ignore(T const &) {}
-
 /*!
- * Returned by enhanced-mode functions with no output value and no
+ * @brief Returned by enhanced-mode functions with no output value and no
  * non-Result::Success success codes.
  *
  * On failure:
@@ -3120,18 +3273,18 @@ template <typename T> OPENXR_HPP_INLINE void ignore(T const &) {}
 OPENXR_HPP_INLINE ResultValueType<void>::type
 createResultValue(Result result, char const *message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-  ignore(message);
+  (void)message;
   OPENXR_HPP_ASSERT(result == Result::Success);
   return result;
 #else
   if (failed(result)) {
-    throwResultException(result, message);
+    exceptions::throwResultException(result, message);
   }
 #endif
 }
 
 /*!
- * Returned by enhanced-mode functions with output value of type T and no
+ * @brief Returned by enhanced-mode functions with output value of type T and no
  * non-Result::Success success codes.
  *
  * On failure:
@@ -3151,20 +3304,20 @@ template <typename T>
 OPENXR_HPP_INLINE typename ResultValueType<T>::type
 createResultValue(Result result, T &data, char const *message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-  ignore(message);
+  (void)message;
   OPENXR_HPP_ASSERT(result == Result::Success);
   return ResultValue<T>(result, std::move(data));
 #else
   if (failed(result)) {
-    throwResultException(result, message);
+    exceptions::throwResultException(result, message);
   }
   return std::move(data);
 #endif
 }
 
 /*!
- * Returned by enhanced-mode functions with no output value and at least one
- * success code specified that is not Result::Success.
+ * @brief Returned by enhanced-mode functions with no output value and at least
+ * one success code specified that is not Result::Success.
  *
  * Return type is always Result.
  *
@@ -3184,21 +3337,21 @@ OPENXR_HPP_INLINE Result
 createResultValue(Result result, char const *message,
                   std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-  ignore(message);
+  (void)message;
   OPENXR_HPP_ASSERT(std::find(successCodes.begin(), successCodes.end(),
                               result) != successCodes.end());
 #else
   if (std::find(successCodes.begin(), successCodes.end(), result) ==
       successCodes.end()) {
-    throwResultException(result, message);
+    exceptions::throwResultException(result, message);
   }
 #endif
   return result;
 }
 
 /*!
- * Returned by enhanced-mode functions with an output value of type T and at
- * least one success code specified that is not Result::Success.
+ * @brief Returned by enhanced-mode functions with an output value of type T and
+ * at least one success code specified that is not Result::Success.
  *
  * Return type is always ResultValue<T>, containing both a Result and the output
  * of type T.
@@ -3222,13 +3375,13 @@ OPENXR_HPP_INLINE ResultValue<T>
 createResultValue(Result result, T &data, char const *message,
                   std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-  ignore(message);
+  (void)message;
   OPENXR_HPP_ASSERT(std::find(successCodes.begin(), successCodes.end(),
                               result) != successCodes.end());
 #else
   if (std::find(successCodes.begin(), successCodes.end(), result) ==
       successCodes.end()) {
-    throwResultException(result, message);
+    exceptions::throwResultException(result, message);
   }
 #endif
   return ResultValue<T>(result, data);
@@ -3236,7 +3389,7 @@ createResultValue(Result result, T &data, char const *message,
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 /*!
- * Returned by enhanced-mode functions that create a UniqueHandle<T, D>
+ * @brief Returned by enhanced-mode functions that create a UniqueHandle<T, D>
  * (a handle of type T, with deleter using dispatch type D) and
  * no non-Result::Success success codes.
  *
@@ -3255,24 +3408,25 @@ createResultValue(Result result, T &data, char const *message,
  */
 template <typename T, typename D>
 OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle<T, D>>::type
-createResultValue(Result result, T &data,
-                  typename UniqueHandleTraits<T, D>::deleter const &deleter,
-                  char const *message) {
+createResultValue(
+    Result result, T &data,
+    typename traits::UniqueHandleTraits<T, D>::deleter const &deleter,
+    char const *message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-  ignore(message);
+  (void)message;
   OPENXR_HPP_ASSERT(result == Result::Success);
   return ResultValue<UniqueHandle<T, D>>(
       result, UniqueHandle<T, D>(std::move(data), deleter));
 #else
   if (failed(result)) {
-    throwResultException(result, message);
+    exceptions::throwResultException(result, message);
   }
   return UniqueHandle<T, D>(data, deleter);
 #endif
 }
 
 /*!
- * Returned by enhanced-mode functions that create a UniqueHandle<T, D>
+ * @brief Returned by enhanced-mode functions that create a UniqueHandle<T, D>
  * (a handle of type T, with deleter using dispatch type D) and
  * at least one success code specified that is not Result::Success.
  *
@@ -3294,13 +3448,12 @@ createResultValue(Result result, T &data,
  * UniqueHandle<T, D>.
  */
 template <typename T, typename D>
-OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>>
-createResultValue(Result result, T &data,
-                  typename UniqueHandleTraits<T, D>::deleter const &deleter,
-                  char const *message,
-                  std::initializer_list<Result> successCodes) {
+OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>> createResultValue(
+    Result result, T &data,
+    typename traits::UniqueHandleTraits<T, D>::deleter const &deleter,
+    char const *message, std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-  ignore(message);
+  (void)message;
   OPENXR_HPP_ASSERT(std::find(successCodes.begin(), successCodes.end(),
                               result) != successCodes.end());
   return ResultValue<UniqueHandle<T, D>>(
@@ -3308,20 +3461,26 @@ createResultValue(Result result, T &data,
 #else
   if (std::find(successCodes.begin(), successCodes.end(), result) ==
       successCodes.end()) {
-    throwResultException(result, message);
+    exceptions::throwResultException(result, message);
   }
   return ResultValue<UniqueHandle<T, D>>(result,
                                          UniqueHandle<T, D>{data, deleter});
 #endif
 }
 #endif
+
+//! @}
+
 } // namespace OPENXR_HPP_NAMESPACE
 namespace OPENXR_HPP_NAMESPACE {
 
-// forward declarations
-
+//! Type traits
+namespace traits {
 //! Type trait associating an ObjectType enum value with its C++ type.
 template <ObjectType o> struct cpp_type;
+} // namespace traits
+
+// forward declarations
 
 class Instance;
 class Session;
@@ -3331,34 +3490,54 @@ class Swapchain;
 class ActionSet;
 class DebugUtilsMessengerEXT;
 class SpatialAnchorMSFT;
-/*
- * Handle types and their method declarations.
+
+/*!
+ * @defgroup handles Handle types
+ * @brief Wrappers for OpenXR handle types, with associated functions mapped as
+ * methods.
+ * @{
  */
+/*!
+ * @defgroup unique_handle_aliases Aliases for UniqueHandle types
+ * @brief Convenience names for specializations of UniqueHandle<>
+ */
+//! @}
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
 //! Traits associating a deleter type with handles of type Instance
 template <typename Dispatch> class UniqueHandleTraits<Instance, Dispatch> {
 public:
   using deleter = ObjectDestroy<Dispatch>;
 };
+} // namespace traits
+
+//! @addtogroup unique_handle_aliases
+//! @{
 
 //! Shorthand name for unique handles of type Instance, using a static dispatch.
 using UniqueInstance = UniqueHandle<Instance, DispatchLoaderStatic>;
 //! Shorthand name for unique handles of type Instance, using a dynamic
 //! dispatch.
 using UniqueDynamicInstance = UniqueHandle<Instance, DispatchLoaderDynamic>;
+//! @}
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
-//! Handle class - wrapping XrInstance
+//! @brief Handle class - wrapping XrInstance
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrInstance>
+//! @ingroup handles
 class Instance {
 public:
   using Type = Instance;
   using RawHandleType = XrInstance;
 
+  /*!
+   * @name Constructors, assignment, and conversions
+   * @{
+   */
   //! Default (empty/null) constructor
   OPENXR_HPP_CONSTEXPR Instance() : m_raw(XR_NULL_HANDLE) {}
 
@@ -3366,14 +3545,14 @@ public:
   OPENXR_HPP_CONSTEXPR Instance(std::nullptr_t /* unused */)
       : m_raw(XR_NULL_HANDLE) {}
 
-  //! Conversion constructor from the raw XrInstance type
+  //! @brief Conversion constructor from the raw XrInstance type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
   OPENXR_HPP_TYPESAFE_EXPLICIT Instance(RawHandleType handle) : m_raw(handle) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-  //! Assignment operator from the raw XrInstance
+  //! @brief Assignment operator from the raw XrInstance
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -3386,7 +3565,7 @@ public:
   }
 #endif
 
-  //! Assignment operator from nullptr - assigns to empty/null handle.
+  //! @brief Assignment operator from nullptr - assigns to empty/null handle.
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -3395,7 +3574,7 @@ public:
     return *this;
   }
 
-  //! Conversion operator to the raw XrInstance type
+  //! @brief Conversion operator to the raw XrInstance type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -3404,6 +3583,12 @@ public:
     return m_raw;
   }
 
+  //! @}
+
+  /*!
+   * @name Validity checking
+   * @{
+   */
   //! Returns true in conditionals if this handle is non-null
   OPENXR_HPP_CONSTEXPR explicit operator bool() const {
     return m_raw != XR_NULL_HANDLE;
@@ -3413,9 +3598,14 @@ public:
   OPENXR_HPP_CONSTEXPR bool operator!() const {
     return m_raw == XR_NULL_HANDLE;
   }
+  //! @}
 
-  //! "Put" function for assigning as null then getting the address of the raw
-  //! pointer to pass to creation functions.
+  /*!
+   * @name Raw handle manipulation
+   * @{
+   */
+  //! @brief "Put" function for assigning as null then getting the address of
+  //! the raw pointer to pass to creation functions.
   //!
   //! e.g.
   //! ```
@@ -3429,25 +3619,35 @@ public:
     return &m_raw;
   }
 
-  //! Gets the raw handle type.
+  //! @brief Gets the raw handle type.
   //!
   //! See also OPENXR_HPP_NAMESPACE::get()
   OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
+  //! @}
+
+  /*!
+   * @name OpenXR API calls as member functions
+   * @{
+   */
+
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetInstanceProcAddr wrapper
+  //! @brief xrGetInstanceProcAddr wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProcAddr>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getInstanceProcAddr(const char *name, PFN_xrVoidFunction *function,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetInstanceProcAddr wrapper - enhanced mode
+  //! @brief xrGetInstanceProcAddr wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProcAddr>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getInstanceProcAddr(const char *name, PFN_xrVoidFunction *function,
@@ -3456,37 +3656,43 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrDestroyInstance wrapper
+  //! @brief xrDestroyInstance wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyInstance>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrDestroyInstance wrapper - enhanced mode
+  //! @brief xrDestroyInstance wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyInstance>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetInstanceProperties wrapper
+  //! @brief xrGetInstanceProperties wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProperties>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getInstanceProperties(XrInstanceProperties *instanceProperties,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetInstanceProperties wrapper - enhanced mode
+  //! @brief xrGetInstanceProperties wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProperties>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getInstanceProperties(XrInstanceProperties *instanceProperties,
@@ -3495,19 +3701,22 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrPollEvent wrapper
+  //! @brief xrPollEvent wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPollEvent>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result pollEvent(XrEventDataBuffer *eventData,
                    Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrPollEvent wrapper - enhanced mode
+  //! @brief xrPollEvent wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPollEvent>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result pollEvent(XrEventDataBuffer *eventData,
                    Dispatch &&d = Dispatch{}) const;
@@ -3517,19 +3726,22 @@ public:
 #ifdef OPENXR_HPP_PROVIDE_DISCOURAGED_FUNCTIONS
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrResultToString wrapper
+  //! @brief xrResultToString wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrResultToString>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result resultToString(Result value, char buffer[XR_MAX_RESULT_STRING_SIZE],
                         Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrResultToString wrapper - enhanced mode
+  //! @brief xrResultToString wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrResultToString>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   resultToString(Result value, char buffer[XR_MAX_RESULT_STRING_SIZE],
@@ -3542,20 +3754,23 @@ public:
 #ifdef OPENXR_HPP_PROVIDE_DISCOURAGED_FUNCTIONS
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrStructureTypeToString wrapper
+  //! @brief xrStructureTypeToString wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStructureTypeToString>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result structureTypeToString(StructureType value,
                                char buffer[XR_MAX_STRUCTURE_NAME_SIZE],
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrStructureTypeToString wrapper - enhanced mode
+  //! @brief xrStructureTypeToString wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStructureTypeToString>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   structureTypeToString(StructureType value,
@@ -3567,19 +3782,22 @@ public:
 #endif //  OPENXR_HPP_PROVIDE_DISCOURAGED_FUNCTIONS
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetSystem wrapper
+  //! @brief xrGetSystem wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystem>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getSystem(const XrSystemGetInfo *getInfo, XrSystemId *systemId,
                    Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetSystem wrapper - enhanced mode
+  //! @brief xrGetSystem wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystem>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type getSystem(const XrSystemGetInfo *getInfo,
                                         XrSystemId *systemId,
@@ -3588,20 +3806,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetSystemProperties wrapper
+  //! @brief xrGetSystemProperties wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystemProperties>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getSystemProperties(XrSystemId systemId,
                              XrSystemProperties *properties,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetSystemProperties wrapper - enhanced mode
+  //! @brief xrGetSystemProperties wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystemProperties>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getSystemProperties(XrSystemId systemId, XrSystemProperties *properties,
@@ -3610,10 +3831,11 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEnumerateEnvironmentBlendModes wrapper
+  //! @brief xrEnumerateEnvironmentBlendModes wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateEnvironmentBlendModes>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   enumerateEnvironmentBlendModes(XrSystemId systemId,
@@ -3624,10 +3846,12 @@ public:
                                  Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrEnumerateEnvironmentBlendModes wrapper - enhanced mode
+  //! @brief xrEnumerateEnvironmentBlendModes wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateEnvironmentBlendModes>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   enumerateEnvironmentBlendModes(XrSystemId systemId,
@@ -3639,19 +3863,21 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateSession wrapper
+  //! @brief xrCreateSession wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result createSession(const XrSessionCreateInfo *createInfo, Session &session,
                        Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateSession wrapper - enhanced mode
+  //! @brief xrCreateSession wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<Session>::type
   createSession(const XrSessionCreateInfo *createInfo,
@@ -3659,10 +3885,11 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateSession wrapper returning a smart handle
+  //! @brief xrCreateSession wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<Session, impl::RemoveRefConst<Dispatch>>>::type
@@ -3672,10 +3899,11 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEnumerateViewConfigurations wrapper
+  //! @brief xrEnumerateViewConfigurations wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurations>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   enumerateViewConfigurations(XrSystemId systemId,
@@ -3685,10 +3913,12 @@ public:
                               Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrEnumerateViewConfigurations wrapper - enhanced mode
+  //! @brief xrEnumerateViewConfigurations wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurations>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   enumerateViewConfigurations(XrSystemId systemId,
@@ -3700,10 +3930,11 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetViewConfigurationProperties wrapper
+  //! @brief xrGetViewConfigurationProperties wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetViewConfigurationProperties>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getViewConfigurationProperties(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3711,10 +3942,12 @@ public:
       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetViewConfigurationProperties wrapper - enhanced mode
+  //! @brief xrGetViewConfigurationProperties wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetViewConfigurationProperties>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type getViewConfigurationProperties(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3723,10 +3956,11 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrEnumerateViewConfigurationViews wrapper
+  //! @brief xrEnumerateViewConfigurationViews wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateViewConfigurationViews(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3734,10 +3968,11 @@ public:
       XrViewConfigurationView *views, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEnumerateViewConfigurationViews wrapper - enhanced mode
+  //! @brief xrEnumerateViewConfigurationViews wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
+
   template <typename Allocator = ::std::allocator<XrViewConfigurationView>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
@@ -3746,11 +3981,12 @@ public:
                                   ViewConfigurationType viewConfigurationType,
                                   Dispatch &&d = Dispatch{}) const;
 
-  //! xrEnumerateViewConfigurationViews wrapper - enhanced mode, stateful
-  //! allocator for two-call result
+  //! @brief xrEnumerateViewConfigurationViews wrapper - enhanced mode, stateful
+  //! allocator for two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
+
   template <typename Allocator = ::std::allocator<XrViewConfigurationView>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
@@ -3763,50 +3999,56 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrStringToPath wrapper
+  //! @brief xrStringToPath wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStringToPath>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result stringToPath(const char *pathString, XrPath *path,
                       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrStringToPath wrapper - enhanced mode
+  //! @brief xrStringToPath wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStringToPath>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type stringToPath(const char *pathString, XrPath *path,
                                            Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrPathToString wrapper
+  //! @brief xrPathToString wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result pathToString(XrPath path, uint32_t bufferCapacityInput,
                       uint32_t *bufferCountOutput, char *buffer,
                       Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrPathToString wrapper - enhanced mode
+  //! @brief xrPathToString wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
+
   template <typename Allocator = ::std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
   pathToString(XrPath path, Dispatch &&d = Dispatch{}) const;
 
-  //! xrPathToString wrapper - enhanced mode, stateful allocator for two-call
-  //! result
+  //! @brief xrPathToString wrapper - enhanced mode, stateful allocator for
+  //! two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
+
   template <typename Allocator = ::std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
@@ -3816,19 +4058,21 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateActionSet wrapper
+  //! @brief xrCreateActionSet wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result createActionSet(const XrActionSetCreateInfo *createInfo,
                          ActionSet &actionSet, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateActionSet wrapper - enhanced mode
+  //! @brief xrCreateActionSet wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
+
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<ActionSet>::type
   createActionSet(const XrActionSetCreateInfo *createInfo,
@@ -3836,10 +4080,11 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateActionSet wrapper returning a smart handle
+  //! @brief xrCreateActionSet wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
+
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<ActionSet, impl::RemoveRefConst<Dispatch>>>::type
@@ -3849,20 +4094,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrSuggestInteractionProfileBindings wrapper
+  //! @brief xrSuggestInteractionProfileBindings wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSuggestInteractionProfileBindings>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result suggestInteractionProfileBindings(
       const XrInteractionProfileSuggestedBinding *suggestedBindings,
       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrSuggestInteractionProfileBindings wrapper - enhanced mode
+  //! @brief xrSuggestInteractionProfileBindings wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSuggestInteractionProfileBindings>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type suggestInteractionProfileBindings(
       const XrInteractionProfileSuggestedBinding *suggestedBindings,
@@ -3873,13 +4121,13 @@ public:
 #if defined(XR_USE_GRAPHICS_API_OPENGL)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetOpenGLGraphicsRequirementsKHR wrapper
+  //! @brief xrGetOpenGLGraphicsRequirementsKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLGraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getOpenGLGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3887,13 +4135,14 @@ public:
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetOpenGLGraphicsRequirementsKHR wrapper - enhanced mode
+  //! @brief xrGetOpenGLGraphicsRequirementsKHR wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLGraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type getOpenGLGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3907,13 +4156,13 @@ public:
 #if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetOpenGLESGraphicsRequirementsKHR wrapper
+  //! @brief xrGetOpenGLESGraphicsRequirementsKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLESGraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getOpenGLESGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3921,13 +4170,14 @@ public:
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetOpenGLESGraphicsRequirementsKHR wrapper - enhanced mode
+  //! @brief xrGetOpenGLESGraphicsRequirementsKHR wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLESGraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type getOpenGLESGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -3940,13 +4190,13 @@ public:
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
-  //! xrGetVulkanInstanceExtensionsKHR wrapper
+  //! @brief xrGetVulkanInstanceExtensionsKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getVulkanInstanceExtensionsKHR(XrSystemId systemId,
                                         uint32_t bufferCapacityInput,
@@ -3954,26 +4204,26 @@ public:
                                         char *buffer, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode
+  //! @brief xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
   getVulkanInstanceExtensionsKHR(XrSystemId systemId, Dispatch &&d) const;
 
-  //! xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode, stateful
-  //! allocator for two-call result
+  //! @brief xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode, stateful
+  //! allocator for two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
@@ -3987,13 +4237,13 @@ public:
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
-  //! xrGetVulkanDeviceExtensionsKHR wrapper
+  //! @brief xrGetVulkanDeviceExtensionsKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getVulkanDeviceExtensionsKHR(XrSystemId systemId,
                                       uint32_t bufferCapacityInput,
@@ -4001,26 +4251,26 @@ public:
                                       Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode
+  //! @brief xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
   getVulkanDeviceExtensionsKHR(XrSystemId systemId, Dispatch &&d) const;
 
-  //! xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode, stateful allocator
-  //! for two-call result
+  //! @brief xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode, stateful
+  //! allocator for two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Allocator = ::std::allocator<char>, typename Dispatch>
   typename ResultValueType<
       ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
@@ -4035,26 +4285,27 @@ public:
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetVulkanGraphicsDeviceKHR wrapper
+  //! @brief xrGetVulkanGraphicsDeviceKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsDeviceKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getVulkanGraphicsDeviceKHR(XrSystemId systemId, VkInstance vkInstance,
                                     VkPhysicalDevice *vkPhysicalDevice,
                                     Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetVulkanGraphicsDeviceKHR wrapper - enhanced mode
+  //! @brief xrGetVulkanGraphicsDeviceKHR wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsDeviceKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type
   getVulkanGraphicsDeviceKHR(XrSystemId systemId, VkInstance vkInstance,
@@ -4068,13 +4319,13 @@ public:
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetVulkanGraphicsRequirementsKHR wrapper
+  //! @brief xrGetVulkanGraphicsRequirementsKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getVulkanGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -4082,13 +4333,14 @@ public:
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetVulkanGraphicsRequirementsKHR wrapper - enhanced mode
+  //! @brief xrGetVulkanGraphicsRequirementsKHR wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type getVulkanGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -4102,26 +4354,27 @@ public:
 #if defined(XR_USE_GRAPHICS_API_D3D11)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetD3D11GraphicsRequirementsKHR wrapper
+  //! @brief xrGetD3D11GraphicsRequirementsKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D11GraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getD3D11GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D11KHR *graphicsRequirements,
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetD3D11GraphicsRequirementsKHR wrapper - enhanced mode
+  //! @brief xrGetD3D11GraphicsRequirementsKHR wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D11GraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type getD3D11GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D11KHR *graphicsRequirements,
@@ -4134,26 +4387,27 @@ public:
 #if defined(XR_USE_GRAPHICS_API_D3D12)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetD3D12GraphicsRequirementsKHR wrapper
+  //! @brief xrGetD3D12GraphicsRequirementsKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D12GraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getD3D12GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D12KHR *graphicsRequirements,
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetD3D12GraphicsRequirementsKHR wrapper - enhanced mode
+  //! @brief xrGetD3D12GraphicsRequirementsKHR wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D12GraphicsRequirementsKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type getD3D12GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D12KHR *graphicsRequirements,
@@ -4166,26 +4420,27 @@ public:
 #if defined(XR_USE_PLATFORM_WIN32)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrConvertWin32PerformanceCounterToTimeKHR wrapper
+  //! @brief xrConvertWin32PerformanceCounterToTimeKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertWin32PerformanceCounterToTimeKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result convertWin32PerformanceCounterToTimeKHR(
       const LARGE_INTEGER *performanceCounter, XrTime *time,
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrConvertWin32PerformanceCounterToTimeKHR wrapper - enhanced mode
+  //! @brief xrConvertWin32PerformanceCounterToTimeKHR wrapper - enhanced mode
+  //! (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertWin32PerformanceCounterToTimeKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type convertWin32PerformanceCounterToTimeKHR(
       const LARGE_INTEGER *performanceCounter, XrTime *time,
@@ -4198,25 +4453,26 @@ public:
 #if defined(XR_USE_PLATFORM_WIN32)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrConvertTimeToWin32PerformanceCounterKHR wrapper
+  //! @brief xrConvertTimeToWin32PerformanceCounterKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToWin32PerformanceCounterKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result convertTimeToWin32PerformanceCounterKHR(
       XrTime time, LARGE_INTEGER *performanceCounter, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrConvertTimeToWin32PerformanceCounterKHR wrapper - enhanced mode
+  //! @brief xrConvertTimeToWin32PerformanceCounterKHR wrapper - enhanced mode
+  //! (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToWin32PerformanceCounterKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type convertTimeToWin32PerformanceCounterKHR(
       XrTime time, LARGE_INTEGER *performanceCounter, Dispatch &&d) const;
@@ -4228,25 +4484,26 @@ public:
 #if defined(XR_USE_TIMESPEC)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrConvertTimespecTimeToTimeKHR wrapper
+  //! @brief xrConvertTimespecTimeToTimeKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimespecTimeToTimeKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result convertTimespecTimeToTimeKHR(const struct timespec *timespecTime,
                                       XrTime *time, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrConvertTimespecTimeToTimeKHR wrapper - enhanced mode
+  //! @brief xrConvertTimespecTimeToTimeKHR wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimespecTimeToTimeKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type
   convertTimespecTimeToTimeKHR(const struct timespec *timespecTime,
@@ -4259,26 +4516,27 @@ public:
 #if defined(XR_USE_TIMESPEC)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrConvertTimeToTimespecTimeKHR wrapper
+  //! @brief xrConvertTimeToTimespecTimeKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToTimespecTimeKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result convertTimeToTimespecTimeKHR(XrTime time,
                                       struct timespec *timespecTime,
                                       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrConvertTimeToTimespecTimeKHR wrapper - enhanced mode
+  //! @brief xrConvertTimeToTimespecTimeKHR wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToTimespecTimeKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type
   convertTimeToTimespecTimeKHR(XrTime time, struct timespec *timespecTime,
@@ -4289,26 +4547,27 @@ public:
 #endif // defined(XR_USE_TIMESPEC)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrSetDebugUtilsObjectNameEXT wrapper
+  //! @brief xrSetDebugUtilsObjectNameEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetDebugUtilsObjectNameEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result
   setDebugUtilsObjectNameEXT(const XrDebugUtilsObjectNameInfoEXT *nameInfo,
                              Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrSetDebugUtilsObjectNameEXT wrapper - enhanced mode
+  //! @brief xrSetDebugUtilsObjectNameEXT wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetDebugUtilsObjectNameEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type
   setDebugUtilsObjectNameEXT(const XrDebugUtilsObjectNameInfoEXT *nameInfo,
@@ -4316,26 +4575,26 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateDebugUtilsMessengerEXT wrapper
+  //! @brief xrCreateDebugUtilsMessengerEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result createDebugUtilsMessengerEXT(
       const XrDebugUtilsMessengerCreateInfoEXT *createInfo,
       DebugUtilsMessengerEXT &messenger, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateDebugUtilsMessengerEXT wrapper - enhanced mode
+  //! @brief xrCreateDebugUtilsMessengerEXT wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   typename ResultValueType<DebugUtilsMessengerEXT>::type
   createDebugUtilsMessengerEXT(
@@ -4343,13 +4602,13 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateDebugUtilsMessengerEXT wrapper returning a smart handle
+  //! @brief xrCreateDebugUtilsMessengerEXT wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   typename ResultValueType<UniqueHandle<DebugUtilsMessengerEXT,
                                         impl::RemoveRefConst<Dispatch>>>::type
@@ -4359,13 +4618,13 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrSubmitDebugUtilsMessageEXT wrapper
+  //! @brief xrSubmitDebugUtilsMessageEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSubmitDebugUtilsMessageEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result submitDebugUtilsMessageEXT(
       XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
@@ -4374,13 +4633,14 @@ public:
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrSubmitDebugUtilsMessageEXT wrapper - enhanced mode
+  //! @brief xrSubmitDebugUtilsMessageEXT wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSubmitDebugUtilsMessageEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type submitDebugUtilsMessageEXT(
       XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
@@ -4390,134 +4650,158 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+  //! @}
 private:
   RawHandleType m_raw;
 };
 static_assert(sizeof(Instance) == sizeof(XrInstance),
               "handle and wrapper have different size!");
 
-//! < comparison between Instance.
+//! @brief < comparison between Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Instance const &lhs,
                                                       Instance const &rhs) {
   return lhs.get() < rhs.get();
 }
-//! < comparison between Instance and raw XrInstance.
+//! @brief < comparison between Instance and raw XrInstance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Instance const &lhs,
                                                       XrInstance rhs) {
   return lhs.get() < rhs;
 }
-//! < comparison between raw XrInstance and Instance.
+//! @brief < comparison between raw XrInstance and Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(XrInstance lhs,
                                                       Instance const &rhs) {
   return lhs < rhs.get();
 }
-//! > comparison between Instance.
+//! @brief > comparison between Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Instance const &lhs,
                                                       Instance const &rhs) {
   return lhs.get() > rhs.get();
 }
-//! > comparison between Instance and raw XrInstance.
+//! @brief > comparison between Instance and raw XrInstance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Instance const &lhs,
                                                       XrInstance rhs) {
   return lhs.get() > rhs;
 }
-//! > comparison between raw XrInstance and Instance.
+//! @brief > comparison between raw XrInstance and Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(XrInstance lhs,
                                                       Instance const &rhs) {
   return lhs > rhs.get();
 }
-//! <= comparison between Instance.
+//! @brief <= comparison between Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Instance const &lhs,
                                                        Instance const &rhs) {
   return lhs.get() <= rhs.get();
 }
-//! <= comparison between Instance and raw XrInstance.
+//! @brief <= comparison between Instance and raw XrInstance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Instance const &lhs,
                                                        XrInstance rhs) {
   return lhs.get() <= rhs;
 }
-//! <= comparison between raw XrInstance and Instance.
+//! @brief <= comparison between raw XrInstance and Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(XrInstance lhs,
                                                        Instance const &rhs) {
   return lhs <= rhs.get();
 }
-//! >= comparison between Instance.
+//! @brief >= comparison between Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Instance const &lhs,
                                                        Instance const &rhs) {
   return lhs.get() >= rhs.get();
 }
-//! >= comparison between Instance and raw XrInstance.
+//! @brief >= comparison between Instance and raw XrInstance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Instance const &lhs,
                                                        XrInstance rhs) {
   return lhs.get() >= rhs;
 }
-//! >= comparison between raw XrInstance and Instance.
+//! @brief >= comparison between raw XrInstance and Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(XrInstance lhs,
                                                        Instance const &rhs) {
   return lhs >= rhs.get();
 }
-//! == comparison between Instance.
+//! @brief == comparison between Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Instance const &lhs,
                                                        Instance const &rhs) {
   return lhs.get() == rhs.get();
 }
-//! == comparison between Instance and raw XrInstance.
+//! @brief == comparison between Instance and raw XrInstance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Instance const &lhs,
                                                        XrInstance rhs) {
   return lhs.get() == rhs;
 }
-//! == comparison between raw XrInstance and Instance.
+//! @brief == comparison between raw XrInstance and Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(XrInstance lhs,
                                                        Instance const &rhs) {
   return lhs == rhs.get();
 }
-//! != comparison between Instance.
+//! @brief != comparison between Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Instance const &lhs,
                                                        Instance const &rhs) {
   return lhs.get() != rhs.get();
 }
-//! != comparison between Instance and raw XrInstance.
+//! @brief != comparison between Instance and raw XrInstance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Instance const &lhs,
                                                        XrInstance rhs) {
   return lhs.get() != rhs;
 }
-//! != comparison between raw XrInstance and Instance.
+//! @brief != comparison between raw XrInstance and Instance.
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrInstance lhs,
                                                        Instance const &rhs) {
   return lhs != rhs.get();
 }
-//! Equality comparison between Instance and nullptr: true if the handle is
-//! null.
+//! @brief Equality comparison between Instance and nullptr: true if the handle
+//! is null.
+//! @relates Instance
 OPENXR_HPP_INLINE bool operator==(Instance const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
-//! Equality comparison between nullptr and Instance: true if the handle is
-//! null.
+//! @brief Equality comparison between nullptr and Instance: true if the handle
+//! is null.
+//! @relates Instance
 OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
                                   Instance const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
-//! Inequality comparison between Instance and nullptr: true if the handle is
-//! not null.
+//! @brief Inequality comparison between Instance and nullptr: true if the
+//! handle is not null.
+//! @relates Instance
 OPENXR_HPP_INLINE bool operator!=(Instance const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
-//! Inequality comparison between nullptr and Instance: true if the handle is
-//! not null.
+//! @brief Inequality comparison between nullptr and Instance: true if the
+//! handle is not null.
+//! @relates Instance
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
                                   Instance const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
-//! Free function accessor for the raw XrInstance handle in a Instance
+//! @brief Free function accessor for the raw XrInstance handle in a Instance
+//! @relates Instance
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrInstance get(Instance const &h) {
   return h.get();
 }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrInstance handle in a Instance (by reference)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrInstance handle in a Instance (by reference).
 //!
 //! e.g.
 //! ```
@@ -4527,10 +4811,11 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrInstance get(Instance const &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Instance
 OPENXR_HPP_INLINE XrInstance *put(Instance &h) { return h.put(); }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrInstance handle in a Instance (by pointer)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrInstance handle in a Instance (by pointer).
 //!
 //! e.g.
 //! ```
@@ -4542,33 +4827,47 @@ OPENXR_HPP_INLINE XrInstance *put(Instance &h) { return h.put(); }
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Instance
 OPENXR_HPP_INLINE XrInstance *put(Instance *h) { return h->put(); }
 
+namespace traits {
 template <> struct cpp_type<ObjectType::Instance> { using type = Instance; };
+} // namespace traits
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
 //! Traits associating a deleter type with handles of type Session
 template <typename Dispatch> class UniqueHandleTraits<Session, Dispatch> {
 public:
   using deleter = ObjectDestroy<Dispatch>;
 };
+} // namespace traits
+
+//! @addtogroup unique_handle_aliases
+//! @{
 
 //! Shorthand name for unique handles of type Session, using a static dispatch.
 using UniqueSession = UniqueHandle<Session, DispatchLoaderStatic>;
 //! Shorthand name for unique handles of type Session, using a dynamic dispatch.
 using UniqueDynamicSession = UniqueHandle<Session, DispatchLoaderDynamic>;
+//! @}
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
-//! Handle class - wrapping XrSession
+//! @brief Handle class - wrapping XrSession
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSession>
+//! @ingroup handles
 class Session {
 public:
   using Type = Session;
   using RawHandleType = XrSession;
 
+  /*!
+   * @name Constructors, assignment, and conversions
+   * @{
+   */
   //! Default (empty/null) constructor
   OPENXR_HPP_CONSTEXPR Session() : m_raw(XR_NULL_HANDLE) {}
 
@@ -4576,14 +4875,14 @@ public:
   OPENXR_HPP_CONSTEXPR Session(std::nullptr_t /* unused */)
       : m_raw(XR_NULL_HANDLE) {}
 
-  //! Conversion constructor from the raw XrSession type
+  //! @brief Conversion constructor from the raw XrSession type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
   OPENXR_HPP_TYPESAFE_EXPLICIT Session(RawHandleType handle) : m_raw(handle) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-  //! Assignment operator from the raw XrSession
+  //! @brief Assignment operator from the raw XrSession
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -4596,7 +4895,7 @@ public:
   }
 #endif
 
-  //! Assignment operator from nullptr - assigns to empty/null handle.
+  //! @brief Assignment operator from nullptr - assigns to empty/null handle.
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -4605,7 +4904,7 @@ public:
     return *this;
   }
 
-  //! Conversion operator to the raw XrSession type
+  //! @brief Conversion operator to the raw XrSession type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -4614,6 +4913,12 @@ public:
     return m_raw;
   }
 
+  //! @}
+
+  /*!
+   * @name Validity checking
+   * @{
+   */
   //! Returns true in conditionals if this handle is non-null
   OPENXR_HPP_CONSTEXPR explicit operator bool() const {
     return m_raw != XR_NULL_HANDLE;
@@ -4623,9 +4928,14 @@ public:
   OPENXR_HPP_CONSTEXPR bool operator!() const {
     return m_raw == XR_NULL_HANDLE;
   }
+  //! @}
 
-  //! "Put" function for assigning as null then getting the address of the raw
-  //! pointer to pass to creation functions.
+  /*!
+   * @name Raw handle manipulation
+   * @{
+   */
+  //! @brief "Put" function for assigning as null then getting the address of
+  //! the raw pointer to pass to creation functions.
   //!
   //! e.g.
   //! ```
@@ -4639,33 +4949,44 @@ public:
     return &m_raw;
   }
 
-  //! Gets the raw handle type.
+  //! @brief Gets the raw handle type.
   //!
   //! See also OPENXR_HPP_NAMESPACE::get()
   OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
+  //! @}
+
+  /*!
+   * @name OpenXR API calls as member functions
+   * @{
+   */
+
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrDestroySession wrapper
+  //! @brief xrDestroySession wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrDestroySession wrapper - enhanced mode
+  //! @brief xrDestroySession wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrEnumerateReferenceSpaces wrapper
+  //! @brief xrEnumerateReferenceSpaces wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateReferenceSpaces(uint32_t spaceCapacityInput,
                                   uint32_t *spaceCountOutput,
@@ -4673,20 +4994,22 @@ public:
                                   Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEnumerateReferenceSpaces wrapper - enhanced mode
+  //! @brief xrEnumerateReferenceSpaces wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
+
   template <typename Allocator = ::std::allocator<ReferenceSpaceType>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<ReferenceSpaceType, Allocator>>
   enumerateReferenceSpaces(Dispatch &&d = Dispatch{}) const;
 
-  //! xrEnumerateReferenceSpaces wrapper - enhanced mode, stateful allocator for
-  //! two-call result
+  //! @brief xrEnumerateReferenceSpaces wrapper - enhanced mode, stateful
+  //! allocator for two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
+
   template <typename Allocator = ::std::allocator<ReferenceSpaceType>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<ReferenceSpaceType, Allocator>>
@@ -4695,19 +5018,21 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateReferenceSpace wrapper
+  //! @brief xrCreateReferenceSpace wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result createReferenceSpace(const XrReferenceSpaceCreateInfo *createInfo,
                               Space &space, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateReferenceSpace wrapper - enhanced mode
+  //! @brief xrCreateReferenceSpace wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Space>
   createReferenceSpace(const XrReferenceSpaceCreateInfo *createInfo,
@@ -4715,10 +5040,11 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateReferenceSpace wrapper returning a smart handle
+  //! @brief xrCreateReferenceSpace wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createReferenceSpaceUnique(const XrReferenceSpaceCreateInfo *createInfo,
@@ -4727,20 +5053,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetReferenceSpaceBoundsRect wrapper
+  //! @brief xrGetReferenceSpaceBoundsRect wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetReferenceSpaceBoundsRect>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getReferenceSpaceBoundsRect(ReferenceSpaceType referenceSpaceType,
                                      XrExtent2Df *bounds,
                                      Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetReferenceSpaceBoundsRect wrapper - enhanced mode
+  //! @brief xrGetReferenceSpaceBoundsRect wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetReferenceSpaceBoundsRect>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getReferenceSpaceBoundsRect(ReferenceSpaceType referenceSpaceType,
                                      XrExtent2Df *bounds,
@@ -4748,19 +5077,21 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateActionSpace wrapper
+  //! @brief xrCreateActionSpace wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result createActionSpace(const XrActionSpaceCreateInfo *createInfo,
                            Space &space, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateActionSpace wrapper - enhanced mode
+  //! @brief xrCreateActionSpace wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Space>
   createActionSpace(const XrActionSpaceCreateInfo *createInfo,
@@ -4768,10 +5099,11 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateActionSpace wrapper returning a smart handle
+  //! @brief xrCreateActionSpace wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createActionSpaceUnique(const XrActionSpaceCreateInfo *createInfo,
@@ -4779,10 +5111,11 @@ public:
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrEnumerateSwapchainFormats wrapper
+  //! @brief xrEnumerateSwapchainFormats wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainFormats(uint32_t formatCapacityInput,
                                    uint32_t *formatCountOutput,
@@ -4790,20 +5123,22 @@ public:
                                    Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEnumerateSwapchainFormats wrapper - enhanced mode
+  //! @brief xrEnumerateSwapchainFormats wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
+
   template <typename Allocator = ::std::allocator<int64_t>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<int64_t, Allocator>>
   enumerateSwapchainFormats(Dispatch &&d = Dispatch{}) const;
 
-  //! xrEnumerateSwapchainFormats wrapper - enhanced mode, stateful allocator
-  //! for two-call result
+  //! @brief xrEnumerateSwapchainFormats wrapper - enhanced mode, stateful
+  //! allocator for two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
+
   template <typename Allocator = ::std::allocator<int64_t>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<int64_t, Allocator>>
@@ -4812,19 +5147,21 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateSwapchain wrapper
+  //! @brief xrCreateSwapchain wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result createSwapchain(const XrSwapchainCreateInfo *createInfo,
                          Swapchain &swapchain, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateSwapchain wrapper - enhanced mode
+  //! @brief xrCreateSwapchain wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Swapchain>
   createSwapchain(const XrSwapchainCreateInfo *createInfo,
@@ -4832,10 +5169,11 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateSwapchain wrapper returning a smart handle
+  //! @brief xrCreateSwapchain wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Swapchain, impl::RemoveRefConst<Dispatch>>>
   createSwapchainUnique(const XrSwapchainCreateInfo *createInfo,
@@ -4844,19 +5182,22 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrBeginSession wrapper
+  //! @brief xrBeginSession wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginSession(const XrSessionBeginInfo *beginInfo,
                       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrBeginSession wrapper - enhanced mode
+  //! @brief xrBeginSession wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginSession(const XrSessionBeginInfo *beginInfo,
                       Dispatch &&d = Dispatch{}) const;
@@ -4864,55 +5205,64 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEndSession wrapper
+  //! @brief xrEndSession wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result endSession(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrEndSession wrapper - enhanced mode
+  //! @brief xrEndSession wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result endSession(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrRequestExitSession wrapper
+  //! @brief xrRequestExitSession wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrRequestExitSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result requestExitSession(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrRequestExitSession wrapper - enhanced mode
+  //! @brief xrRequestExitSession wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrRequestExitSession>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result requestExitSession(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrWaitFrame wrapper
+  //! @brief xrWaitFrame wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitFrame>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitFrame(const XrFrameWaitInfo *frameWaitInfo,
                    XrFrameState *frameState, Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrWaitFrame wrapper - enhanced mode
+  //! @brief xrWaitFrame wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitFrame>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitFrame(const XrFrameWaitInfo *frameWaitInfo,
                    XrFrameState *frameState, Dispatch &&d = Dispatch{}) const;
@@ -4920,19 +5270,22 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrBeginFrame wrapper
+  //! @brief xrBeginFrame wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginFrame>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginFrame(const XrFrameBeginInfo *frameBeginInfo,
                     Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrBeginFrame wrapper - enhanced mode
+  //! @brief xrBeginFrame wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginFrame>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginFrame(const XrFrameBeginInfo *frameBeginInfo,
                     Dispatch &&d = Dispatch{}) const;
@@ -4940,29 +5293,33 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEndFrame wrapper
+  //! @brief xrEndFrame wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndFrame>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result endFrame(const XrFrameEndInfo *frameEndInfo,
                   Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrEndFrame wrapper - enhanced mode
+  //! @brief xrEndFrame wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndFrame>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result endFrame(const XrFrameEndInfo *frameEndInfo,
                   Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrLocateViews wrapper
+  //! @brief xrLocateViews wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateViews(const XrViewLocateInfo *viewLocateInfo,
                      XrViewState *viewState, uint32_t viewCapacityInput,
@@ -4970,21 +5327,23 @@ public:
                      Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrLocateViews wrapper - enhanced mode
+  //! @brief xrLocateViews wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
+
   template <typename Allocator = ::std::allocator<XrView>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<XrView, Allocator>>
   locateViews(const XrViewLocateInfo *viewLocateInfo, XrViewState *viewState,
               Dispatch &&d = Dispatch{}) const;
 
-  //! xrLocateViews wrapper - enhanced mode, stateful allocator for two-call
-  //! result
+  //! @brief xrLocateViews wrapper - enhanced mode, stateful allocator for
+  //! two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
+
   template <typename Allocator = ::std::allocator<XrView>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<XrView, Allocator>>
@@ -4994,20 +5353,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrAttachSessionActionSets wrapper
+  //! @brief xrAttachSessionActionSets wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAttachSessionActionSets>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   attachSessionActionSets(const XrSessionActionSetsAttachInfo *attachInfo,
                           Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrAttachSessionActionSets wrapper - enhanced mode
+  //! @brief xrAttachSessionActionSets wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAttachSessionActionSets>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   attachSessionActionSets(const XrSessionActionSetsAttachInfo *attachInfo,
@@ -5016,10 +5378,11 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetCurrentInteractionProfile wrapper
+  //! @brief xrGetCurrentInteractionProfile wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetCurrentInteractionProfile>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getCurrentInteractionProfile(XrPath topLevelUserPath,
@@ -5027,10 +5390,12 @@ public:
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetCurrentInteractionProfile wrapper - enhanced mode
+  //! @brief xrGetCurrentInteractionProfile wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetCurrentInteractionProfile>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getCurrentInteractionProfile(XrPath topLevelUserPath,
@@ -5040,20 +5405,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetActionStateBoolean wrapper
+  //! @brief xrGetActionStateBoolean wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateBoolean>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateBoolean(const XrActionStateGetInfo *getInfo,
                                XrActionStateBoolean *state,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetActionStateBoolean wrapper - enhanced mode
+  //! @brief xrGetActionStateBoolean wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateBoolean>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateBoolean(const XrActionStateGetInfo *getInfo,
                                XrActionStateBoolean *state,
@@ -5062,20 +5430,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetActionStateFloat wrapper
+  //! @brief xrGetActionStateFloat wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateFloat>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateFloat(const XrActionStateGetInfo *getInfo,
                              XrActionStateFloat *state,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetActionStateFloat wrapper - enhanced mode
+  //! @brief xrGetActionStateFloat wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateFloat>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateFloat(const XrActionStateGetInfo *getInfo,
                              XrActionStateFloat *state,
@@ -5084,20 +5455,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetActionStateVector2f wrapper
+  //! @brief xrGetActionStateVector2f wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateVector2f>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateVector2f(const XrActionStateGetInfo *getInfo,
                                 XrActionStateVector2f *state,
                                 Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetActionStateVector2f wrapper - enhanced mode
+  //! @brief xrGetActionStateVector2f wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateVector2f>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateVector2f(const XrActionStateGetInfo *getInfo,
                                 XrActionStateVector2f *state,
@@ -5106,20 +5480,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetActionStatePose wrapper
+  //! @brief xrGetActionStatePose wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStatePose>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStatePose(const XrActionStateGetInfo *getInfo,
                             XrActionStatePose *state,
                             Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetActionStatePose wrapper - enhanced mode
+  //! @brief xrGetActionStatePose wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStatePose>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStatePose(const XrActionStateGetInfo *getInfo,
                             XrActionStatePose *state,
@@ -5128,29 +5505,33 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrSyncActions wrapper
+  //! @brief xrSyncActions wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSyncActions>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result syncActions(const XrActionsSyncInfo *syncInfo,
                      Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrSyncActions wrapper - enhanced mode
+  //! @brief xrSyncActions wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSyncActions>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result syncActions(const XrActionsSyncInfo *syncInfo,
                      Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrEnumerateBoundSourcesForAction wrapper
+  //! @brief xrEnumerateBoundSourcesForAction wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateBoundSourcesForAction(
       const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
@@ -5158,21 +5539,23 @@ public:
       XrPath *sources, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEnumerateBoundSourcesForAction wrapper - enhanced mode
+  //! @brief xrEnumerateBoundSourcesForAction wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
+
   template <typename Allocator = ::std::allocator<XrPath>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<XrPath, Allocator>> enumerateBoundSourcesForAction(
       const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
       Dispatch &&d = Dispatch{}) const;
 
-  //! xrEnumerateBoundSourcesForAction wrapper - enhanced mode, stateful
-  //! allocator for two-call result
+  //! @brief xrEnumerateBoundSourcesForAction wrapper - enhanced mode, stateful
+  //! allocator for two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
+
   template <typename Allocator = ::std::allocator<XrPath>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::vector<XrPath, Allocator>> enumerateBoundSourcesForAction(
@@ -5181,10 +5564,11 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrGetInputSourceLocalizedName wrapper
+  //! @brief xrGetInputSourceLocalizedName wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getInputSourceLocalizedName(const XrInputSourceLocalizedNameGetInfo *getInfo,
@@ -5193,21 +5577,23 @@ public:
                               Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetInputSourceLocalizedName wrapper - enhanced mode
+  //! @brief xrGetInputSourceLocalizedName wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
+
   template <typename Allocator = ::std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::basic_string<char, ::std::char_traits<char>, Allocator>>
   getInputSourceLocalizedName(const XrInputSourceLocalizedNameGetInfo *getInfo,
                               Dispatch &&d = Dispatch{}) const;
 
-  //! xrGetInputSourceLocalizedName wrapper - enhanced mode, stateful allocator
-  //! for two-call result
+  //! @brief xrGetInputSourceLocalizedName wrapper - enhanced mode, stateful
+  //! allocator for two-call result.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
+
   template <typename Allocator = ::std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
   ResultValue<::std::basic_string<char, ::std::char_traits<char>, Allocator>>
@@ -5218,20 +5604,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrApplyHapticFeedback wrapper
+  //! @brief xrApplyHapticFeedback wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrApplyHapticFeedback>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result applyHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                              const XrHapticBaseHeader *hapticFeedback,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrApplyHapticFeedback wrapper - enhanced mode
+  //! @brief xrApplyHapticFeedback wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrApplyHapticFeedback>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result applyHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                              const XrHapticBaseHeader *hapticFeedback,
@@ -5240,19 +5629,22 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrStopHapticFeedback wrapper
+  //! @brief xrStopHapticFeedback wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStopHapticFeedback>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result stopHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                             Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrStopHapticFeedback wrapper - enhanced mode
+  //! @brief xrStopHapticFeedback wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStopHapticFeedback>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result stopHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                             Dispatch &&d = Dispatch{}) const;
@@ -5262,25 +5654,26 @@ public:
 #if defined(XR_USE_PLATFORM_ANDROID)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrSetAndroidApplicationThreadKHR wrapper
+  //! @brief xrSetAndroidApplicationThreadKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetAndroidApplicationThreadKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result setAndroidApplicationThreadKHR(AndroidThreadTypeKHR threadType,
                                         uint32_t threadId, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrSetAndroidApplicationThreadKHR wrapper - enhanced mode
+  //! @brief xrSetAndroidApplicationThreadKHR wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetAndroidApplicationThreadKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result setAndroidApplicationThreadKHR(AndroidThreadTypeKHR threadType,
                                         uint32_t threadId, Dispatch &&d) const;
@@ -5291,26 +5684,26 @@ public:
 
 #if defined(XR_USE_PLATFORM_ANDROID)
 
-  //! xrCreateSwapchainAndroidSurfaceKHR wrapper
+  //! @brief xrCreateSwapchainAndroidSurfaceKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result createSwapchainAndroidSurfaceKHR(const XrSwapchainCreateInfo *info,
                                           Swapchain &swapchain,
                                           jobject *surface, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateSwapchainAndroidSurfaceKHR wrapper - enhanced mode
+  //! @brief xrCreateSwapchainAndroidSurfaceKHR wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValue<jobject>
   createSwapchainAndroidSurfaceKHR(const XrSwapchainCreateInfo *info,
@@ -5318,13 +5711,14 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateSwapchainAndroidSurfaceKHR wrapper returning a smart handle
+  //! @brief xrCreateSwapchainAndroidSurfaceKHR wrapper returning a smart
+  //! handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValue<UniqueHandle<jobject, impl::RemoveRefConst<Dispatch>>>
   createSwapchainAndroidSurfaceUniqueKHR(const XrSwapchainCreateInfo *info,
@@ -5336,13 +5730,13 @@ public:
 #endif // defined(XR_USE_PLATFORM_ANDROID)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrGetVisibilityMaskKHR wrapper
+  //! @brief xrGetVisibilityMaskKHR wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVisibilityMaskKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getVisibilityMaskKHR(ViewConfigurationType viewConfigurationType,
                               uint32_t viewIndex,
@@ -5351,13 +5745,14 @@ public:
                               Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrGetVisibilityMaskKHR wrapper - enhanced mode
+  //! @brief xrGetVisibilityMaskKHR wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVisibilityMaskKHR>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result getVisibilityMaskKHR(ViewConfigurationType viewConfigurationType,
                               uint32_t viewIndex,
@@ -5368,26 +5763,27 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrPerfSettingsSetPerformanceLevelEXT wrapper
+  //! @brief xrPerfSettingsSetPerformanceLevelEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPerfSettingsSetPerformanceLevelEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result perfSettingsSetPerformanceLevelEXT(PerfSettingsDomainEXT domain,
                                             PerfSettingsLevelEXT level,
                                             Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrPerfSettingsSetPerformanceLevelEXT wrapper - enhanced mode
+  //! @brief xrPerfSettingsSetPerformanceLevelEXT wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPerfSettingsSetPerformanceLevelEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result perfSettingsSetPerformanceLevelEXT(PerfSettingsDomainEXT domain,
                                             PerfSettingsLevelEXT level,
@@ -5396,13 +5792,13 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrThermalGetTemperatureTrendEXT wrapper
+  //! @brief xrThermalGetTemperatureTrendEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrThermalGetTemperatureTrendEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result thermalGetTemperatureTrendEXT(
       PerfSettingsDomainEXT domain,
@@ -5410,13 +5806,14 @@ public:
       float *tempSlope, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrThermalGetTemperatureTrendEXT wrapper - enhanced mode
+  //! @brief xrThermalGetTemperatureTrendEXT wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrThermalGetTemperatureTrendEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result thermalGetTemperatureTrendEXT(
       PerfSettingsDomainEXT domain,
@@ -5426,26 +5823,27 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrSessionBeginDebugUtilsLabelRegionEXT wrapper
+  //! @brief xrSessionBeginDebugUtilsLabelRegionEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionBeginDebugUtilsLabelRegionEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result
   sessionBeginDebugUtilsLabelRegionEXT(const XrDebugUtilsLabelEXT *labelInfo,
                                        Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrSessionBeginDebugUtilsLabelRegionEXT wrapper - enhanced mode
+  //! @brief xrSessionBeginDebugUtilsLabelRegionEXT wrapper - enhanced mode
+  //! (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionBeginDebugUtilsLabelRegionEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result
   sessionBeginDebugUtilsLabelRegionEXT(const XrDebugUtilsLabelEXT *labelInfo,
@@ -5454,75 +5852,77 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrSessionEndDebugUtilsLabelRegionEXT wrapper
+  //! @brief xrSessionEndDebugUtilsLabelRegionEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionEndDebugUtilsLabelRegionEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result sessionEndDebugUtilsLabelRegionEXT(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrSessionEndDebugUtilsLabelRegionEXT wrapper - enhanced mode
+  //! @brief xrSessionEndDebugUtilsLabelRegionEXT wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionEndDebugUtilsLabelRegionEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result sessionEndDebugUtilsLabelRegionEXT(Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrSessionInsertDebugUtilsLabelEXT wrapper
+  //! @brief xrSessionInsertDebugUtilsLabelEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionInsertDebugUtilsLabelEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result sessionInsertDebugUtilsLabelEXT(const XrDebugUtilsLabelEXT *labelInfo,
                                          Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrSessionInsertDebugUtilsLabelEXT wrapper - enhanced mode
+  //! @brief xrSessionInsertDebugUtilsLabelEXT wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionInsertDebugUtilsLabelEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result sessionInsertDebugUtilsLabelEXT(const XrDebugUtilsLabelEXT *labelInfo,
                                          Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateSpatialAnchorMSFT wrapper
+  //! @brief xrCreateSpatialAnchorMSFT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result
   createSpatialAnchorMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
                           SpatialAnchorMSFT &anchor, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateSpatialAnchorMSFT wrapper - enhanced mode
+  //! @brief xrCreateSpatialAnchorMSFT wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValue<SpatialAnchorMSFT>
   createSpatialAnchorMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
@@ -5530,13 +5930,13 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateSpatialAnchorMSFT wrapper returning a smart handle
+  //! @brief xrCreateSpatialAnchorMSFT wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValue<UniqueHandle<SpatialAnchorMSFT, impl::RemoveRefConst<Dispatch>>>
   createSpatialAnchorUniqueMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
@@ -5544,39 +5944,39 @@ public:
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateSpatialAnchorSpaceMSFT wrapper
+  //! @brief xrCreateSpatialAnchorSpaceMSFT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   Result createSpatialAnchorSpaceMSFT(
       const XrSpatialAnchorSpaceCreateInfoMSFT *createInfo, Space &space,
       Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateSpatialAnchorSpaceMSFT wrapper - enhanced mode
+  //! @brief xrCreateSpatialAnchorSpaceMSFT wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValue<Space> createSpatialAnchorSpaceMSFT(
       const XrSpatialAnchorSpaceCreateInfoMSFT *createInfo, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateSpatialAnchorSpaceMSFT wrapper returning a smart handle
+  //! @brief xrCreateSpatialAnchorSpaceMSFT wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createSpatialAnchorSpaceUniqueMSFT(
@@ -5584,132 +5984,158 @@ public:
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+  //! @}
 private:
   RawHandleType m_raw;
 };
 static_assert(sizeof(Session) == sizeof(XrSession),
               "handle and wrapper have different size!");
 
-//! < comparison between Session.
+//! @brief < comparison between Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Session const &lhs,
                                                       Session const &rhs) {
   return lhs.get() < rhs.get();
 }
-//! < comparison between Session and raw XrSession.
+//! @brief < comparison between Session and raw XrSession.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Session const &lhs,
                                                       XrSession rhs) {
   return lhs.get() < rhs;
 }
-//! < comparison between raw XrSession and Session.
+//! @brief < comparison between raw XrSession and Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(XrSession lhs,
                                                       Session const &rhs) {
   return lhs < rhs.get();
 }
-//! > comparison between Session.
+//! @brief > comparison between Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Session const &lhs,
                                                       Session const &rhs) {
   return lhs.get() > rhs.get();
 }
-//! > comparison between Session and raw XrSession.
+//! @brief > comparison between Session and raw XrSession.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Session const &lhs,
                                                       XrSession rhs) {
   return lhs.get() > rhs;
 }
-//! > comparison between raw XrSession and Session.
+//! @brief > comparison between raw XrSession and Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(XrSession lhs,
                                                       Session const &rhs) {
   return lhs > rhs.get();
 }
-//! <= comparison between Session.
+//! @brief <= comparison between Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Session const &lhs,
                                                        Session const &rhs) {
   return lhs.get() <= rhs.get();
 }
-//! <= comparison between Session and raw XrSession.
+//! @brief <= comparison between Session and raw XrSession.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Session const &lhs,
                                                        XrSession rhs) {
   return lhs.get() <= rhs;
 }
-//! <= comparison between raw XrSession and Session.
+//! @brief <= comparison between raw XrSession and Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(XrSession lhs,
                                                        Session const &rhs) {
   return lhs <= rhs.get();
 }
-//! >= comparison between Session.
+//! @brief >= comparison between Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Session const &lhs,
                                                        Session const &rhs) {
   return lhs.get() >= rhs.get();
 }
-//! >= comparison between Session and raw XrSession.
+//! @brief >= comparison between Session and raw XrSession.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Session const &lhs,
                                                        XrSession rhs) {
   return lhs.get() >= rhs;
 }
-//! >= comparison between raw XrSession and Session.
+//! @brief >= comparison between raw XrSession and Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(XrSession lhs,
                                                        Session const &rhs) {
   return lhs >= rhs.get();
 }
-//! == comparison between Session.
+//! @brief == comparison between Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Session const &lhs,
                                                        Session const &rhs) {
   return lhs.get() == rhs.get();
 }
-//! == comparison between Session and raw XrSession.
+//! @brief == comparison between Session and raw XrSession.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Session const &lhs,
                                                        XrSession rhs) {
   return lhs.get() == rhs;
 }
-//! == comparison between raw XrSession and Session.
+//! @brief == comparison between raw XrSession and Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(XrSession lhs,
                                                        Session const &rhs) {
   return lhs == rhs.get();
 }
-//! != comparison between Session.
+//! @brief != comparison between Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Session const &lhs,
                                                        Session const &rhs) {
   return lhs.get() != rhs.get();
 }
-//! != comparison between Session and raw XrSession.
+//! @brief != comparison between Session and raw XrSession.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Session const &lhs,
                                                        XrSession rhs) {
   return lhs.get() != rhs;
 }
-//! != comparison between raw XrSession and Session.
+//! @brief != comparison between raw XrSession and Session.
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrSession lhs,
                                                        Session const &rhs) {
   return lhs != rhs.get();
 }
-//! Equality comparison between Session and nullptr: true if the handle is null.
+//! @brief Equality comparison between Session and nullptr: true if the handle
+//! is null.
+//! @relates Session
 OPENXR_HPP_INLINE bool operator==(Session const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
-//! Equality comparison between nullptr and Session: true if the handle is null.
+//! @brief Equality comparison between nullptr and Session: true if the handle
+//! is null.
+//! @relates Session
 OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
                                   Session const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
-//! Inequality comparison between Session and nullptr: true if the handle is not
-//! null.
+//! @brief Inequality comparison between Session and nullptr: true if the handle
+//! is not null.
+//! @relates Session
 OPENXR_HPP_INLINE bool operator!=(Session const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
-//! Inequality comparison between nullptr and Session: true if the handle is not
-//! null.
+//! @brief Inequality comparison between nullptr and Session: true if the handle
+//! is not null.
+//! @relates Session
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
                                   Session const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
-//! Free function accessor for the raw XrSession handle in a Session
+//! @brief Free function accessor for the raw XrSession handle in a Session
+//! @relates Session
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrSession get(Session const &h) {
   return h.get();
 }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrSession handle in a Session (by reference)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrSession handle in a Session (by reference).
 //!
 //! e.g.
 //! ```
@@ -5719,10 +6145,11 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrSession get(Session const &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Session
 OPENXR_HPP_INLINE XrSession *put(Session &h) { return h.put(); }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrSession handle in a Session (by pointer)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrSession handle in a Session (by pointer).
 //!
 //! e.g.
 //! ```
@@ -5734,33 +6161,47 @@ OPENXR_HPP_INLINE XrSession *put(Session &h) { return h.put(); }
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Session
 OPENXR_HPP_INLINE XrSession *put(Session *h) { return h->put(); }
 
+namespace traits {
 template <> struct cpp_type<ObjectType::Session> { using type = Session; };
+} // namespace traits
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
 //! Traits associating a deleter type with handles of type Space
 template <typename Dispatch> class UniqueHandleTraits<Space, Dispatch> {
 public:
   using deleter = ObjectDestroy<Dispatch>;
 };
+} // namespace traits
+
+//! @addtogroup unique_handle_aliases
+//! @{
 
 //! Shorthand name for unique handles of type Space, using a static dispatch.
 using UniqueSpace = UniqueHandle<Space, DispatchLoaderStatic>;
 //! Shorthand name for unique handles of type Space, using a dynamic dispatch.
 using UniqueDynamicSpace = UniqueHandle<Space, DispatchLoaderDynamic>;
+//! @}
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
-//! Handle class - wrapping XrSpace
+//! @brief Handle class - wrapping XrSpace
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSpace>
+//! @ingroup handles
 class Space {
 public:
   using Type = Space;
   using RawHandleType = XrSpace;
 
+  /*!
+   * @name Constructors, assignment, and conversions
+   * @{
+   */
   //! Default (empty/null) constructor
   OPENXR_HPP_CONSTEXPR Space() : m_raw(XR_NULL_HANDLE) {}
 
@@ -5768,14 +6209,14 @@ public:
   OPENXR_HPP_CONSTEXPR Space(std::nullptr_t /* unused */)
       : m_raw(XR_NULL_HANDLE) {}
 
-  //! Conversion constructor from the raw XrSpace type
+  //! @brief Conversion constructor from the raw XrSpace type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
   OPENXR_HPP_TYPESAFE_EXPLICIT Space(RawHandleType handle) : m_raw(handle) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-  //! Assignment operator from the raw XrSpace
+  //! @brief Assignment operator from the raw XrSpace
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -5788,7 +6229,7 @@ public:
   }
 #endif
 
-  //! Assignment operator from nullptr - assigns to empty/null handle.
+  //! @brief Assignment operator from nullptr - assigns to empty/null handle.
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -5797,7 +6238,7 @@ public:
     return *this;
   }
 
-  //! Conversion operator to the raw XrSpace type
+  //! @brief Conversion operator to the raw XrSpace type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -5806,6 +6247,12 @@ public:
     return m_raw;
   }
 
+  //! @}
+
+  /*!
+   * @name Validity checking
+   * @{
+   */
   //! Returns true in conditionals if this handle is non-null
   OPENXR_HPP_CONSTEXPR explicit operator bool() const {
     return m_raw != XR_NULL_HANDLE;
@@ -5815,9 +6262,14 @@ public:
   OPENXR_HPP_CONSTEXPR bool operator!() const {
     return m_raw == XR_NULL_HANDLE;
   }
+  //! @}
 
-  //! "Put" function for assigning as null then getting the address of the raw
-  //! pointer to pass to creation functions.
+  /*!
+   * @name Raw handle manipulation
+   * @{
+   */
+  //! @brief "Put" function for assigning as null then getting the address of
+  //! the raw pointer to pass to creation functions.
   //!
   //! e.g.
   //! ```
@@ -5831,25 +6283,35 @@ public:
     return &m_raw;
   }
 
-  //! Gets the raw handle type.
+  //! @brief Gets the raw handle type.
   //!
   //! See also OPENXR_HPP_NAMESPACE::get()
   OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
+  //! @}
+
+  /*!
+   * @name OpenXR API calls as member functions
+   * @{
+   */
+
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrLocateSpace wrapper
+  //! @brief xrLocateSpace wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateSpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateSpace(Space baseSpace, XrTime time, XrSpaceLocation *location,
                      Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrLocateSpace wrapper - enhanced mode
+  //! @brief xrLocateSpace wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateSpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateSpace(Space baseSpace, XrTime time, XrSpaceLocation *location,
                      Dispatch &&d = Dispatch{}) const;
@@ -5857,149 +6319,178 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrDestroySpace wrapper
+  //! @brief xrDestroySpace wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrDestroySpace wrapper - enhanced mode
+  //! @brief xrDestroySpace wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpace>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+  //! @}
 private:
   RawHandleType m_raw;
 };
 static_assert(sizeof(Space) == sizeof(XrSpace),
               "handle and wrapper have different size!");
 
-//! < comparison between Space.
+//! @brief < comparison between Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Space const &lhs,
                                                       Space const &rhs) {
   return lhs.get() < rhs.get();
 }
-//! < comparison between Space and raw XrSpace.
+//! @brief < comparison between Space and raw XrSpace.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Space const &lhs,
                                                       XrSpace rhs) {
   return lhs.get() < rhs;
 }
-//! < comparison between raw XrSpace and Space.
+//! @brief < comparison between raw XrSpace and Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(XrSpace lhs,
                                                       Space const &rhs) {
   return lhs < rhs.get();
 }
-//! > comparison between Space.
+//! @brief > comparison between Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Space const &lhs,
                                                       Space const &rhs) {
   return lhs.get() > rhs.get();
 }
-//! > comparison between Space and raw XrSpace.
+//! @brief > comparison between Space and raw XrSpace.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Space const &lhs,
                                                       XrSpace rhs) {
   return lhs.get() > rhs;
 }
-//! > comparison between raw XrSpace and Space.
+//! @brief > comparison between raw XrSpace and Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(XrSpace lhs,
                                                       Space const &rhs) {
   return lhs > rhs.get();
 }
-//! <= comparison between Space.
+//! @brief <= comparison between Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Space const &lhs,
                                                        Space const &rhs) {
   return lhs.get() <= rhs.get();
 }
-//! <= comparison between Space and raw XrSpace.
+//! @brief <= comparison between Space and raw XrSpace.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Space const &lhs,
                                                        XrSpace rhs) {
   return lhs.get() <= rhs;
 }
-//! <= comparison between raw XrSpace and Space.
+//! @brief <= comparison between raw XrSpace and Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(XrSpace lhs,
                                                        Space const &rhs) {
   return lhs <= rhs.get();
 }
-//! >= comparison between Space.
+//! @brief >= comparison between Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Space const &lhs,
                                                        Space const &rhs) {
   return lhs.get() >= rhs.get();
 }
-//! >= comparison between Space and raw XrSpace.
+//! @brief >= comparison between Space and raw XrSpace.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Space const &lhs,
                                                        XrSpace rhs) {
   return lhs.get() >= rhs;
 }
-//! >= comparison between raw XrSpace and Space.
+//! @brief >= comparison between raw XrSpace and Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(XrSpace lhs,
                                                        Space const &rhs) {
   return lhs >= rhs.get();
 }
-//! == comparison between Space.
+//! @brief == comparison between Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Space const &lhs,
                                                        Space const &rhs) {
   return lhs.get() == rhs.get();
 }
-//! == comparison between Space and raw XrSpace.
+//! @brief == comparison between Space and raw XrSpace.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Space const &lhs,
                                                        XrSpace rhs) {
   return lhs.get() == rhs;
 }
-//! == comparison between raw XrSpace and Space.
+//! @brief == comparison between raw XrSpace and Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(XrSpace lhs,
                                                        Space const &rhs) {
   return lhs == rhs.get();
 }
-//! != comparison between Space.
+//! @brief != comparison between Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Space const &lhs,
                                                        Space const &rhs) {
   return lhs.get() != rhs.get();
 }
-//! != comparison between Space and raw XrSpace.
+//! @brief != comparison between Space and raw XrSpace.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Space const &lhs,
                                                        XrSpace rhs) {
   return lhs.get() != rhs;
 }
-//! != comparison between raw XrSpace and Space.
+//! @brief != comparison between raw XrSpace and Space.
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrSpace lhs,
                                                        Space const &rhs) {
   return lhs != rhs.get();
 }
-//! Equality comparison between Space and nullptr: true if the handle is null.
+//! @brief Equality comparison between Space and nullptr: true if the handle is
+//! null.
+//! @relates Space
 OPENXR_HPP_INLINE bool operator==(Space const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
-//! Equality comparison between nullptr and Space: true if the handle is null.
+//! @brief Equality comparison between nullptr and Space: true if the handle is
+//! null.
+//! @relates Space
 OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
                                   Space const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
-//! Inequality comparison between Space and nullptr: true if the handle is not
-//! null.
+//! @brief Inequality comparison between Space and nullptr: true if the handle
+//! is not null.
+//! @relates Space
 OPENXR_HPP_INLINE bool operator!=(Space const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
-//! Inequality comparison between nullptr and Space: true if the handle is not
-//! null.
+//! @brief Inequality comparison between nullptr and Space: true if the handle
+//! is not null.
+//! @relates Space
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
                                   Space const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
-//! Free function accessor for the raw XrSpace handle in a Space
+//! @brief Free function accessor for the raw XrSpace handle in a Space
+//! @relates Space
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrSpace get(Space const &h) {
   return h.get();
 }
 
-//! Free "put" function for clearing and getting the address of the raw XrSpace
-//! handle in a Space (by reference)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrSpace handle in a Space (by reference).
 //!
 //! e.g.
 //! ```
@@ -6009,10 +6500,11 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrSpace get(Space const &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Space
 OPENXR_HPP_INLINE XrSpace *put(Space &h) { return h.put(); }
 
-//! Free "put" function for clearing and getting the address of the raw XrSpace
-//! handle in a Space (by pointer)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrSpace handle in a Space (by pointer).
 //!
 //! e.g.
 //! ```
@@ -6024,33 +6516,47 @@ OPENXR_HPP_INLINE XrSpace *put(Space &h) { return h.put(); }
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Space
 OPENXR_HPP_INLINE XrSpace *put(Space *h) { return h->put(); }
 
+namespace traits {
 template <> struct cpp_type<ObjectType::Space> { using type = Space; };
+} // namespace traits
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
 //! Traits associating a deleter type with handles of type Action
 template <typename Dispatch> class UniqueHandleTraits<Action, Dispatch> {
 public:
   using deleter = ObjectDestroy<Dispatch>;
 };
+} // namespace traits
+
+//! @addtogroup unique_handle_aliases
+//! @{
 
 //! Shorthand name for unique handles of type Action, using a static dispatch.
 using UniqueAction = UniqueHandle<Action, DispatchLoaderStatic>;
 //! Shorthand name for unique handles of type Action, using a dynamic dispatch.
 using UniqueDynamicAction = UniqueHandle<Action, DispatchLoaderDynamic>;
+//! @}
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
-//! Handle class - wrapping XrAction
+//! @brief Handle class - wrapping XrAction
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrAction>
+//! @ingroup handles
 class Action {
 public:
   using Type = Action;
   using RawHandleType = XrAction;
 
+  /*!
+   * @name Constructors, assignment, and conversions
+   * @{
+   */
   //! Default (empty/null) constructor
   OPENXR_HPP_CONSTEXPR Action() : m_raw(XR_NULL_HANDLE) {}
 
@@ -6058,14 +6564,14 @@ public:
   OPENXR_HPP_CONSTEXPR Action(std::nullptr_t /* unused */)
       : m_raw(XR_NULL_HANDLE) {}
 
-  //! Conversion constructor from the raw XrAction type
+  //! @brief Conversion constructor from the raw XrAction type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
   OPENXR_HPP_TYPESAFE_EXPLICIT Action(RawHandleType handle) : m_raw(handle) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-  //! Assignment operator from the raw XrAction
+  //! @brief Assignment operator from the raw XrAction
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -6078,7 +6584,7 @@ public:
   }
 #endif
 
-  //! Assignment operator from nullptr - assigns to empty/null handle.
+  //! @brief Assignment operator from nullptr - assigns to empty/null handle.
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -6087,7 +6593,7 @@ public:
     return *this;
   }
 
-  //! Conversion operator to the raw XrAction type
+  //! @brief Conversion operator to the raw XrAction type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -6096,6 +6602,12 @@ public:
     return m_raw;
   }
 
+  //! @}
+
+  /*!
+   * @name Validity checking
+   * @{
+   */
   //! Returns true in conditionals if this handle is non-null
   OPENXR_HPP_CONSTEXPR explicit operator bool() const {
     return m_raw != XR_NULL_HANDLE;
@@ -6105,9 +6617,14 @@ public:
   OPENXR_HPP_CONSTEXPR bool operator!() const {
     return m_raw == XR_NULL_HANDLE;
   }
+  //! @}
 
-  //! "Put" function for assigning as null then getting the address of the raw
-  //! pointer to pass to creation functions.
+  /*!
+   * @name Raw handle manipulation
+   * @{
+   */
+  //! @brief "Put" function for assigning as null then getting the address of
+  //! the raw pointer to pass to creation functions.
   //!
   //! e.g.
   //! ```
@@ -6121,155 +6638,191 @@ public:
     return &m_raw;
   }
 
-  //! Gets the raw handle type.
+  //! @brief Gets the raw handle type.
   //!
   //! See also OPENXR_HPP_NAMESPACE::get()
   OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
+  //! @}
+
+  /*!
+   * @name OpenXR API calls as member functions
+   * @{
+   */
+
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrDestroyAction wrapper
+  //! @brief xrDestroyAction wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyAction>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrDestroyAction wrapper - enhanced mode
+  //! @brief xrDestroyAction wrapper - enhanced mode (hides basic wrapper unless
+  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyAction>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+  //! @}
 private:
   RawHandleType m_raw;
 };
 static_assert(sizeof(Action) == sizeof(XrAction),
               "handle and wrapper have different size!");
 
-//! < comparison between Action.
+//! @brief < comparison between Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Action const &lhs,
                                                       Action const &rhs) {
   return lhs.get() < rhs.get();
 }
-//! < comparison between Action and raw XrAction.
+//! @brief < comparison between Action and raw XrAction.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Action const &lhs,
                                                       XrAction rhs) {
   return lhs.get() < rhs;
 }
-//! < comparison between raw XrAction and Action.
+//! @brief < comparison between raw XrAction and Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(XrAction lhs,
                                                       Action const &rhs) {
   return lhs < rhs.get();
 }
-//! > comparison between Action.
+//! @brief > comparison between Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Action const &lhs,
                                                       Action const &rhs) {
   return lhs.get() > rhs.get();
 }
-//! > comparison between Action and raw XrAction.
+//! @brief > comparison between Action and raw XrAction.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Action const &lhs,
                                                       XrAction rhs) {
   return lhs.get() > rhs;
 }
-//! > comparison between raw XrAction and Action.
+//! @brief > comparison between raw XrAction and Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(XrAction lhs,
                                                       Action const &rhs) {
   return lhs > rhs.get();
 }
-//! <= comparison between Action.
+//! @brief <= comparison between Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Action const &lhs,
                                                        Action const &rhs) {
   return lhs.get() <= rhs.get();
 }
-//! <= comparison between Action and raw XrAction.
+//! @brief <= comparison between Action and raw XrAction.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Action const &lhs,
                                                        XrAction rhs) {
   return lhs.get() <= rhs;
 }
-//! <= comparison between raw XrAction and Action.
+//! @brief <= comparison between raw XrAction and Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(XrAction lhs,
                                                        Action const &rhs) {
   return lhs <= rhs.get();
 }
-//! >= comparison between Action.
+//! @brief >= comparison between Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Action const &lhs,
                                                        Action const &rhs) {
   return lhs.get() >= rhs.get();
 }
-//! >= comparison between Action and raw XrAction.
+//! @brief >= comparison between Action and raw XrAction.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Action const &lhs,
                                                        XrAction rhs) {
   return lhs.get() >= rhs;
 }
-//! >= comparison between raw XrAction and Action.
+//! @brief >= comparison between raw XrAction and Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(XrAction lhs,
                                                        Action const &rhs) {
   return lhs >= rhs.get();
 }
-//! == comparison between Action.
+//! @brief == comparison between Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Action const &lhs,
                                                        Action const &rhs) {
   return lhs.get() == rhs.get();
 }
-//! == comparison between Action and raw XrAction.
+//! @brief == comparison between Action and raw XrAction.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Action const &lhs,
                                                        XrAction rhs) {
   return lhs.get() == rhs;
 }
-//! == comparison between raw XrAction and Action.
+//! @brief == comparison between raw XrAction and Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(XrAction lhs,
                                                        Action const &rhs) {
   return lhs == rhs.get();
 }
-//! != comparison between Action.
+//! @brief != comparison between Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Action const &lhs,
                                                        Action const &rhs) {
   return lhs.get() != rhs.get();
 }
-//! != comparison between Action and raw XrAction.
+//! @brief != comparison between Action and raw XrAction.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Action const &lhs,
                                                        XrAction rhs) {
   return lhs.get() != rhs;
 }
-//! != comparison between raw XrAction and Action.
+//! @brief != comparison between raw XrAction and Action.
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrAction lhs,
                                                        Action const &rhs) {
   return lhs != rhs.get();
 }
-//! Equality comparison between Action and nullptr: true if the handle is null.
+//! @brief Equality comparison between Action and nullptr: true if the handle is
+//! null.
+//! @relates Action
 OPENXR_HPP_INLINE bool operator==(Action const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
-//! Equality comparison between nullptr and Action: true if the handle is null.
+//! @brief Equality comparison between nullptr and Action: true if the handle is
+//! null.
+//! @relates Action
 OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
                                   Action const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
-//! Inequality comparison between Action and nullptr: true if the handle is not
-//! null.
+//! @brief Inequality comparison between Action and nullptr: true if the handle
+//! is not null.
+//! @relates Action
 OPENXR_HPP_INLINE bool operator!=(Action const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
-//! Inequality comparison between nullptr and Action: true if the handle is not
-//! null.
+//! @brief Inequality comparison between nullptr and Action: true if the handle
+//! is not null.
+//! @relates Action
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
                                   Action const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
-//! Free function accessor for the raw XrAction handle in a Action
+//! @brief Free function accessor for the raw XrAction handle in a Action
+//! @relates Action
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrAction get(Action const &h) {
   return h.get();
 }
 
-//! Free "put" function for clearing and getting the address of the raw XrAction
-//! handle in a Action (by reference)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrAction handle in a Action (by reference).
 //!
 //! e.g.
 //! ```
@@ -6279,10 +6832,11 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrAction get(Action const &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Action
 OPENXR_HPP_INLINE XrAction *put(Action &h) { return h.put(); }
 
-//! Free "put" function for clearing and getting the address of the raw XrAction
-//! handle in a Action (by pointer)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrAction handle in a Action (by pointer).
 //!
 //! e.g.
 //! ```
@@ -6294,17 +6848,25 @@ OPENXR_HPP_INLINE XrAction *put(Action &h) { return h.put(); }
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Action
 OPENXR_HPP_INLINE XrAction *put(Action *h) { return h->put(); }
 
+namespace traits {
 template <> struct cpp_type<ObjectType::Action> { using type = Action; };
+} // namespace traits
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
 //! Traits associating a deleter type with handles of type Swapchain
 template <typename Dispatch> class UniqueHandleTraits<Swapchain, Dispatch> {
 public:
   using deleter = ObjectDestroy<Dispatch>;
 };
+} // namespace traits
+
+//! @addtogroup unique_handle_aliases
+//! @{
 
 //! Shorthand name for unique handles of type Swapchain, using a static
 //! dispatch.
@@ -6312,17 +6874,23 @@ using UniqueSwapchain = UniqueHandle<Swapchain, DispatchLoaderStatic>;
 //! Shorthand name for unique handles of type Swapchain, using a dynamic
 //! dispatch.
 using UniqueDynamicSwapchain = UniqueHandle<Swapchain, DispatchLoaderDynamic>;
+//! @}
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
-//! Handle class - wrapping XrSwapchain
+//! @brief Handle class - wrapping XrSwapchain
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSwapchain>
+//! @ingroup handles
 class Swapchain {
 public:
   using Type = Swapchain;
   using RawHandleType = XrSwapchain;
 
+  /*!
+   * @name Constructors, assignment, and conversions
+   * @{
+   */
   //! Default (empty/null) constructor
   OPENXR_HPP_CONSTEXPR Swapchain() : m_raw(XR_NULL_HANDLE) {}
 
@@ -6330,7 +6898,7 @@ public:
   OPENXR_HPP_CONSTEXPR Swapchain(std::nullptr_t /* unused */)
       : m_raw(XR_NULL_HANDLE) {}
 
-  //! Conversion constructor from the raw XrSwapchain type
+  //! @brief Conversion constructor from the raw XrSwapchain type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -6338,7 +6906,7 @@ public:
       : m_raw(handle) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-  //! Assignment operator from the raw XrSwapchain
+  //! @brief Assignment operator from the raw XrSwapchain
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -6351,7 +6919,7 @@ public:
   }
 #endif
 
-  //! Assignment operator from nullptr - assigns to empty/null handle.
+  //! @brief Assignment operator from nullptr - assigns to empty/null handle.
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -6360,7 +6928,7 @@ public:
     return *this;
   }
 
-  //! Conversion operator to the raw XrSwapchain type
+  //! @brief Conversion operator to the raw XrSwapchain type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -6369,6 +6937,12 @@ public:
     return m_raw;
   }
 
+  //! @}
+
+  /*!
+   * @name Validity checking
+   * @{
+   */
   //! Returns true in conditionals if this handle is non-null
   OPENXR_HPP_CONSTEXPR explicit operator bool() const {
     return m_raw != XR_NULL_HANDLE;
@@ -6378,9 +6952,14 @@ public:
   OPENXR_HPP_CONSTEXPR bool operator!() const {
     return m_raw == XR_NULL_HANDLE;
   }
+  //! @}
 
-  //! "Put" function for assigning as null then getting the address of the raw
-  //! pointer to pass to creation functions.
+  /*!
+   * @name Raw handle manipulation
+   * @{
+   */
+  //! @brief "Put" function for assigning as null then getting the address of
+  //! the raw pointer to pass to creation functions.
   //!
   //! e.g.
   //! ```
@@ -6394,34 +6973,45 @@ public:
     return &m_raw;
   }
 
-  //! Gets the raw handle type.
+  //! @brief Gets the raw handle type.
   //!
   //! See also OPENXR_HPP_NAMESPACE::get()
   OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
+  //! @}
+
+  /*!
+   * @name OpenXR API calls as member functions
+   * @{
+   */
+
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrDestroySwapchain wrapper
+  //! @brief xrDestroySwapchain wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySwapchain>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrDestroySwapchain wrapper - enhanced mode
+  //! @brief xrDestroySwapchain wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySwapchain>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrEnumerateSwapchainImages wrapper
+  //! @brief xrEnumerateSwapchainImages wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainImages>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainImages(uint32_t imageCapacityInput,
                                   uint32_t *imageCountOutput,
@@ -6429,10 +7019,12 @@ public:
                                   Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrEnumerateSwapchainImages wrapper - enhanced mode
+  //! @brief xrEnumerateSwapchainImages wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainImages>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainImages(uint32_t imageCapacityInput,
                                   uint32_t *imageCountOutput,
@@ -6442,20 +7034,23 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrAcquireSwapchainImage wrapper
+  //! @brief xrAcquireSwapchainImage wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAcquireSwapchainImage>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result acquireSwapchainImage(const XrSwapchainImageAcquireInfo *acquireInfo,
                                uint32_t *index,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrAcquireSwapchainImage wrapper - enhanced mode
+  //! @brief xrAcquireSwapchainImage wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAcquireSwapchainImage>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result acquireSwapchainImage(const XrSwapchainImageAcquireInfo *acquireInfo,
                                uint32_t *index,
@@ -6464,19 +7059,22 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrWaitSwapchainImage wrapper
+  //! @brief xrWaitSwapchainImage wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitSwapchainImage>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitSwapchainImage(const XrSwapchainImageWaitInfo *waitInfo,
                             Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrWaitSwapchainImage wrapper - enhanced mode
+  //! @brief xrWaitSwapchainImage wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitSwapchainImage>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitSwapchainImage(const XrSwapchainImageWaitInfo *waitInfo,
                             Dispatch &&d = Dispatch{}) const;
@@ -6484,153 +7082,180 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrReleaseSwapchainImage wrapper
+  //! @brief xrReleaseSwapchainImage wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrReleaseSwapchainImage>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result releaseSwapchainImage(const XrSwapchainImageReleaseInfo *releaseInfo,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrReleaseSwapchainImage wrapper - enhanced mode
+  //! @brief xrReleaseSwapchainImage wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrReleaseSwapchainImage>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result releaseSwapchainImage(const XrSwapchainImageReleaseInfo *releaseInfo,
                                Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+  //! @}
 private:
   RawHandleType m_raw;
 };
 static_assert(sizeof(Swapchain) == sizeof(XrSwapchain),
               "handle and wrapper have different size!");
 
-//! < comparison between Swapchain.
+//! @brief < comparison between Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Swapchain const &lhs,
                                                       Swapchain const &rhs) {
   return lhs.get() < rhs.get();
 }
-//! < comparison between Swapchain and raw XrSwapchain.
+//! @brief < comparison between Swapchain and raw XrSwapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(Swapchain const &lhs,
                                                       XrSwapchain rhs) {
   return lhs.get() < rhs;
 }
-//! < comparison between raw XrSwapchain and Swapchain.
+//! @brief < comparison between raw XrSwapchain and Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(XrSwapchain lhs,
                                                       Swapchain const &rhs) {
   return lhs < rhs.get();
 }
-//! > comparison between Swapchain.
+//! @brief > comparison between Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Swapchain const &lhs,
                                                       Swapchain const &rhs) {
   return lhs.get() > rhs.get();
 }
-//! > comparison between Swapchain and raw XrSwapchain.
+//! @brief > comparison between Swapchain and raw XrSwapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(Swapchain const &lhs,
                                                       XrSwapchain rhs) {
   return lhs.get() > rhs;
 }
-//! > comparison between raw XrSwapchain and Swapchain.
+//! @brief > comparison between raw XrSwapchain and Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(XrSwapchain lhs,
                                                       Swapchain const &rhs) {
   return lhs > rhs.get();
 }
-//! <= comparison between Swapchain.
+//! @brief <= comparison between Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Swapchain const &lhs,
                                                        Swapchain const &rhs) {
   return lhs.get() <= rhs.get();
 }
-//! <= comparison between Swapchain and raw XrSwapchain.
+//! @brief <= comparison between Swapchain and raw XrSwapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(Swapchain const &lhs,
                                                        XrSwapchain rhs) {
   return lhs.get() <= rhs;
 }
-//! <= comparison between raw XrSwapchain and Swapchain.
+//! @brief <= comparison between raw XrSwapchain and Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(XrSwapchain lhs,
                                                        Swapchain const &rhs) {
   return lhs <= rhs.get();
 }
-//! >= comparison between Swapchain.
+//! @brief >= comparison between Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Swapchain const &lhs,
                                                        Swapchain const &rhs) {
   return lhs.get() >= rhs.get();
 }
-//! >= comparison between Swapchain and raw XrSwapchain.
+//! @brief >= comparison between Swapchain and raw XrSwapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(Swapchain const &lhs,
                                                        XrSwapchain rhs) {
   return lhs.get() >= rhs;
 }
-//! >= comparison between raw XrSwapchain and Swapchain.
+//! @brief >= comparison between raw XrSwapchain and Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(XrSwapchain lhs,
                                                        Swapchain const &rhs) {
   return lhs >= rhs.get();
 }
-//! == comparison between Swapchain.
+//! @brief == comparison between Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Swapchain const &lhs,
                                                        Swapchain const &rhs) {
   return lhs.get() == rhs.get();
 }
-//! == comparison between Swapchain and raw XrSwapchain.
+//! @brief == comparison between Swapchain and raw XrSwapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(Swapchain const &lhs,
                                                        XrSwapchain rhs) {
   return lhs.get() == rhs;
 }
-//! == comparison between raw XrSwapchain and Swapchain.
+//! @brief == comparison between raw XrSwapchain and Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(XrSwapchain lhs,
                                                        Swapchain const &rhs) {
   return lhs == rhs.get();
 }
-//! != comparison between Swapchain.
+//! @brief != comparison between Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Swapchain const &lhs,
                                                        Swapchain const &rhs) {
   return lhs.get() != rhs.get();
 }
-//! != comparison between Swapchain and raw XrSwapchain.
+//! @brief != comparison between Swapchain and raw XrSwapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(Swapchain const &lhs,
                                                        XrSwapchain rhs) {
   return lhs.get() != rhs;
 }
-//! != comparison between raw XrSwapchain and Swapchain.
+//! @brief != comparison between raw XrSwapchain and Swapchain.
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrSwapchain lhs,
                                                        Swapchain const &rhs) {
   return lhs != rhs.get();
 }
-//! Equality comparison between Swapchain and nullptr: true if the handle is
-//! null.
+//! @brief Equality comparison between Swapchain and nullptr: true if the handle
+//! is null.
+//! @relates Swapchain
 OPENXR_HPP_INLINE bool operator==(Swapchain const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
-//! Equality comparison between nullptr and Swapchain: true if the handle is
-//! null.
+//! @brief Equality comparison between nullptr and Swapchain: true if the handle
+//! is null.
+//! @relates Swapchain
 OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
                                   Swapchain const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
-//! Inequality comparison between Swapchain and nullptr: true if the handle is
-//! not null.
+//! @brief Inequality comparison between Swapchain and nullptr: true if the
+//! handle is not null.
+//! @relates Swapchain
 OPENXR_HPP_INLINE bool operator!=(Swapchain const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
-//! Inequality comparison between nullptr and Swapchain: true if the handle is
-//! not null.
+//! @brief Inequality comparison between nullptr and Swapchain: true if the
+//! handle is not null.
+//! @relates Swapchain
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
                                   Swapchain const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
-//! Free function accessor for the raw XrSwapchain handle in a Swapchain
+//! @brief Free function accessor for the raw XrSwapchain handle in a Swapchain
+//! @relates Swapchain
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrSwapchain get(Swapchain const &h) {
   return h.get();
 }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrSwapchain handle in a Swapchain (by reference)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrSwapchain handle in a Swapchain (by reference).
 //!
 //! e.g.
 //! ```
@@ -6640,10 +7265,11 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrSwapchain get(Swapchain const &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Swapchain
 OPENXR_HPP_INLINE XrSwapchain *put(Swapchain &h) { return h.put(); }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrSwapchain handle in a Swapchain (by pointer)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrSwapchain handle in a Swapchain (by pointer).
 //!
 //! e.g.
 //! ```
@@ -6655,17 +7281,25 @@ OPENXR_HPP_INLINE XrSwapchain *put(Swapchain &h) { return h.put(); }
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates Swapchain
 OPENXR_HPP_INLINE XrSwapchain *put(Swapchain *h) { return h->put(); }
 
+namespace traits {
 template <> struct cpp_type<ObjectType::Swapchain> { using type = Swapchain; };
+} // namespace traits
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
 //! Traits associating a deleter type with handles of type ActionSet
 template <typename Dispatch> class UniqueHandleTraits<ActionSet, Dispatch> {
 public:
   using deleter = ObjectDestroy<Dispatch>;
 };
+} // namespace traits
+
+//! @addtogroup unique_handle_aliases
+//! @{
 
 //! Shorthand name for unique handles of type ActionSet, using a static
 //! dispatch.
@@ -6673,17 +7307,23 @@ using UniqueActionSet = UniqueHandle<ActionSet, DispatchLoaderStatic>;
 //! Shorthand name for unique handles of type ActionSet, using a dynamic
 //! dispatch.
 using UniqueDynamicActionSet = UniqueHandle<ActionSet, DispatchLoaderDynamic>;
+//! @}
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
-//! Handle class - wrapping XrActionSet
+//! @brief Handle class - wrapping XrActionSet
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrActionSet>
+//! @ingroup handles
 class ActionSet {
 public:
   using Type = ActionSet;
   using RawHandleType = XrActionSet;
 
+  /*!
+   * @name Constructors, assignment, and conversions
+   * @{
+   */
   //! Default (empty/null) constructor
   OPENXR_HPP_CONSTEXPR ActionSet() : m_raw(XR_NULL_HANDLE) {}
 
@@ -6691,7 +7331,7 @@ public:
   OPENXR_HPP_CONSTEXPR ActionSet(std::nullptr_t /* unused */)
       : m_raw(XR_NULL_HANDLE) {}
 
-  //! Conversion constructor from the raw XrActionSet type
+  //! @brief Conversion constructor from the raw XrActionSet type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -6699,7 +7339,7 @@ public:
       : m_raw(handle) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-  //! Assignment operator from the raw XrActionSet
+  //! @brief Assignment operator from the raw XrActionSet
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -6712,7 +7352,7 @@ public:
   }
 #endif
 
-  //! Assignment operator from nullptr - assigns to empty/null handle.
+  //! @brief Assignment operator from nullptr - assigns to empty/null handle.
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -6721,7 +7361,7 @@ public:
     return *this;
   }
 
-  //! Conversion operator to the raw XrActionSet type
+  //! @brief Conversion operator to the raw XrActionSet type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -6730,6 +7370,12 @@ public:
     return m_raw;
   }
 
+  //! @}
+
+  /*!
+   * @name Validity checking
+   * @{
+   */
   //! Returns true in conditionals if this handle is non-null
   OPENXR_HPP_CONSTEXPR explicit operator bool() const {
     return m_raw != XR_NULL_HANDLE;
@@ -6739,9 +7385,14 @@ public:
   OPENXR_HPP_CONSTEXPR bool operator!() const {
     return m_raw == XR_NULL_HANDLE;
   }
+  //! @}
 
-  //! "Put" function for assigning as null then getting the address of the raw
-  //! pointer to pass to creation functions.
+  /*!
+   * @name Raw handle manipulation
+   * @{
+   */
+  //! @brief "Put" function for assigning as null then getting the address of
+  //! the raw pointer to pass to creation functions.
   //!
   //! e.g.
   //! ```
@@ -6755,42 +7406,54 @@ public:
     return &m_raw;
   }
 
-  //! Gets the raw handle type.
+  //! @brief Gets the raw handle type.
   //!
   //! See also OPENXR_HPP_NAMESPACE::get()
   OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
+  //! @}
+
+  /*!
+   * @name OpenXR API calls as member functions
+   * @{
+   */
+
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrDestroyActionSet wrapper
+  //! @brief xrDestroyActionSet wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyActionSet>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrDestroyActionSet wrapper - enhanced mode
+  //! @brief xrDestroyActionSet wrapper - enhanced mode (hides basic wrapper
+  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyActionSet>
+
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! xrCreateAction wrapper
+  //! @brief xrCreateAction wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
+
   template <typename Dispatch = DispatchLoaderStatic>
   Result createAction(const XrActionCreateInfo *createInfo, Action &action,
                       Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrCreateAction wrapper - enhanced mode
+  //! @brief xrCreateAction wrapper - enhanced mode.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
+
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<Action>::type
   createAction(const XrActionCreateInfo *createInfo,
@@ -6798,10 +7461,11 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! xrCreateAction wrapper returning a smart handle
+  //! @brief xrCreateAction wrapper returning a smart handle.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
+
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<Action, impl::RemoveRefConst<Dispatch>>>::type
@@ -6810,134 +7474,158 @@ public:
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+  //! @}
 private:
   RawHandleType m_raw;
 };
 static_assert(sizeof(ActionSet) == sizeof(XrActionSet),
               "handle and wrapper have different size!");
 
-//! < comparison between ActionSet.
+//! @brief < comparison between ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(ActionSet const &lhs,
                                                       ActionSet const &rhs) {
   return lhs.get() < rhs.get();
 }
-//! < comparison between ActionSet and raw XrActionSet.
+//! @brief < comparison between ActionSet and raw XrActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(ActionSet const &lhs,
                                                       XrActionSet rhs) {
   return lhs.get() < rhs;
 }
-//! < comparison between raw XrActionSet and ActionSet.
+//! @brief < comparison between raw XrActionSet and ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<(XrActionSet lhs,
                                                       ActionSet const &rhs) {
   return lhs < rhs.get();
 }
-//! > comparison between ActionSet.
+//! @brief > comparison between ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(ActionSet const &lhs,
                                                       ActionSet const &rhs) {
   return lhs.get() > rhs.get();
 }
-//! > comparison between ActionSet and raw XrActionSet.
+//! @brief > comparison between ActionSet and raw XrActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(ActionSet const &lhs,
                                                       XrActionSet rhs) {
   return lhs.get() > rhs;
 }
-//! > comparison between raw XrActionSet and ActionSet.
+//! @brief > comparison between raw XrActionSet and ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>(XrActionSet lhs,
                                                       ActionSet const &rhs) {
   return lhs > rhs.get();
 }
-//! <= comparison between ActionSet.
+//! @brief <= comparison between ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(ActionSet const &lhs,
                                                        ActionSet const &rhs) {
   return lhs.get() <= rhs.get();
 }
-//! <= comparison between ActionSet and raw XrActionSet.
+//! @brief <= comparison between ActionSet and raw XrActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(ActionSet const &lhs,
                                                        XrActionSet rhs) {
   return lhs.get() <= rhs;
 }
-//! <= comparison between raw XrActionSet and ActionSet.
+//! @brief <= comparison between raw XrActionSet and ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator<=(XrActionSet lhs,
                                                        ActionSet const &rhs) {
   return lhs <= rhs.get();
 }
-//! >= comparison between ActionSet.
+//! @brief >= comparison between ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(ActionSet const &lhs,
                                                        ActionSet const &rhs) {
   return lhs.get() >= rhs.get();
 }
-//! >= comparison between ActionSet and raw XrActionSet.
+//! @brief >= comparison between ActionSet and raw XrActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(ActionSet const &lhs,
                                                        XrActionSet rhs) {
   return lhs.get() >= rhs;
 }
-//! >= comparison between raw XrActionSet and ActionSet.
+//! @brief >= comparison between raw XrActionSet and ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator>=(XrActionSet lhs,
                                                        ActionSet const &rhs) {
   return lhs >= rhs.get();
 }
-//! == comparison between ActionSet.
+//! @brief == comparison between ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(ActionSet const &lhs,
                                                        ActionSet const &rhs) {
   return lhs.get() == rhs.get();
 }
-//! == comparison between ActionSet and raw XrActionSet.
+//! @brief == comparison between ActionSet and raw XrActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(ActionSet const &lhs,
                                                        XrActionSet rhs) {
   return lhs.get() == rhs;
 }
-//! == comparison between raw XrActionSet and ActionSet.
+//! @brief == comparison between raw XrActionSet and ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(XrActionSet lhs,
                                                        ActionSet const &rhs) {
   return lhs == rhs.get();
 }
-//! != comparison between ActionSet.
+//! @brief != comparison between ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(ActionSet const &lhs,
                                                        ActionSet const &rhs) {
   return lhs.get() != rhs.get();
 }
-//! != comparison between ActionSet and raw XrActionSet.
+//! @brief != comparison between ActionSet and raw XrActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(ActionSet const &lhs,
                                                        XrActionSet rhs) {
   return lhs.get() != rhs;
 }
-//! != comparison between raw XrActionSet and ActionSet.
+//! @brief != comparison between raw XrActionSet and ActionSet.
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(XrActionSet lhs,
                                                        ActionSet const &rhs) {
   return lhs != rhs.get();
 }
-//! Equality comparison between ActionSet and nullptr: true if the handle is
-//! null.
+//! @brief Equality comparison between ActionSet and nullptr: true if the handle
+//! is null.
+//! @relates ActionSet
 OPENXR_HPP_INLINE bool operator==(ActionSet const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
-//! Equality comparison between nullptr and ActionSet: true if the handle is
-//! null.
+//! @brief Equality comparison between nullptr and ActionSet: true if the handle
+//! is null.
+//! @relates ActionSet
 OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
                                   ActionSet const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
-//! Inequality comparison between ActionSet and nullptr: true if the handle is
-//! not null.
+//! @brief Inequality comparison between ActionSet and nullptr: true if the
+//! handle is not null.
+//! @relates ActionSet
 OPENXR_HPP_INLINE bool operator!=(ActionSet const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
-//! Inequality comparison between nullptr and ActionSet: true if the handle is
-//! not null.
+//! @brief Inequality comparison between nullptr and ActionSet: true if the
+//! handle is not null.
+//! @relates ActionSet
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
                                   ActionSet const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
-//! Free function accessor for the raw XrActionSet handle in a ActionSet
+//! @brief Free function accessor for the raw XrActionSet handle in a ActionSet
+//! @relates ActionSet
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrActionSet get(ActionSet const &h) {
   return h.get();
 }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrActionSet handle in a ActionSet (by reference)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrActionSet handle in a ActionSet (by reference).
 //!
 //! e.g.
 //! ```
@@ -6947,10 +7635,11 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrActionSet get(ActionSet const &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates ActionSet
 OPENXR_HPP_INLINE XrActionSet *put(ActionSet &h) { return h.put(); }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrActionSet handle in a ActionSet (by pointer)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrActionSet handle in a ActionSet (by pointer).
 //!
 //! e.g.
 //! ```
@@ -6962,12 +7651,16 @@ OPENXR_HPP_INLINE XrActionSet *put(ActionSet &h) { return h.put(); }
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates ActionSet
 OPENXR_HPP_INLINE XrActionSet *put(ActionSet *h) { return h->put(); }
 
+namespace traits {
 template <> struct cpp_type<ObjectType::ActionSet> { using type = ActionSet; };
+} // namespace traits
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
 //! Traits associating a deleter type with handles of type
 //! DebugUtilsMessengerEXT
 template <typename Dispatch>
@@ -6975,6 +7668,10 @@ class UniqueHandleTraits<DebugUtilsMessengerEXT, Dispatch> {
 public:
   using deleter = ObjectDestroy<Dispatch>;
 };
+} // namespace traits
+
+//! @addtogroup unique_handle_aliases
+//! @{
 
 //! Shorthand name for unique handles of type DebugUtilsMessengerEXT, using a
 //! static dispatch.
@@ -6984,17 +7681,23 @@ using UniqueDebugUtilsMessengerEXT =
 //! dynamic dispatch.
 using UniqueDynamicDebugUtilsMessengerEXT =
     UniqueHandle<DebugUtilsMessengerEXT, DispatchLoaderDynamic>;
+//! @}
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
-//! Handle class - wrapping XrDebugUtilsMessengerEXT
+//! @brief Handle class - wrapping XrDebugUtilsMessengerEXT
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrDebugUtilsMessengerEXT>
+//! @ingroup handles
 class DebugUtilsMessengerEXT {
 public:
   using Type = DebugUtilsMessengerEXT;
   using RawHandleType = XrDebugUtilsMessengerEXT;
 
+  /*!
+   * @name Constructors, assignment, and conversions
+   * @{
+   */
   //! Default (empty/null) constructor
   OPENXR_HPP_CONSTEXPR DebugUtilsMessengerEXT() : m_raw(XR_NULL_HANDLE) {}
 
@@ -7002,7 +7705,7 @@ public:
   OPENXR_HPP_CONSTEXPR DebugUtilsMessengerEXT(std::nullptr_t /* unused */)
       : m_raw(XR_NULL_HANDLE) {}
 
-  //! Conversion constructor from the raw XrDebugUtilsMessengerEXT type
+  //! @brief Conversion constructor from the raw XrDebugUtilsMessengerEXT type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -7010,7 +7713,7 @@ public:
       : m_raw(handle) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-  //! Assignment operator from the raw XrDebugUtilsMessengerEXT
+  //! @brief Assignment operator from the raw XrDebugUtilsMessengerEXT
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -7023,7 +7726,7 @@ public:
   }
 #endif
 
-  //! Assignment operator from nullptr - assigns to empty/null handle.
+  //! @brief Assignment operator from nullptr - assigns to empty/null handle.
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -7032,7 +7735,7 @@ public:
     return *this;
   }
 
-  //! Conversion operator to the raw XrDebugUtilsMessengerEXT type
+  //! @brief Conversion operator to the raw XrDebugUtilsMessengerEXT type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -7041,6 +7744,12 @@ public:
     return m_raw;
   }
 
+  //! @}
+
+  /*!
+   * @name Validity checking
+   * @{
+   */
   //! Returns true in conditionals if this handle is non-null
   OPENXR_HPP_CONSTEXPR explicit operator bool() const {
     return m_raw != XR_NULL_HANDLE;
@@ -7050,9 +7759,14 @@ public:
   OPENXR_HPP_CONSTEXPR bool operator!() const {
     return m_raw == XR_NULL_HANDLE;
   }
+  //! @}
 
-  //! "Put" function for assigning as null then getting the address of the raw
-  //! pointer to pass to creation functions.
+  /*!
+   * @name Raw handle manipulation
+   * @{
+   */
+  //! @brief "Put" function for assigning as null then getting the address of
+  //! the raw pointer to pass to creation functions.
   //!
   //! e.g.
   //! ```
@@ -7066,34 +7780,43 @@ public:
     return &m_raw;
   }
 
-  //! Gets the raw handle type.
+  //! @brief Gets the raw handle type.
   //!
   //! See also OPENXR_HPP_NAMESPACE::get()
   OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
+  //! @}
+
+  /*!
+   * @name OpenXR API calls as member functions
+   * @{
+   */
+
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrDestroyDebugUtilsMessengerEXT wrapper
+  //! @brief xrDestroyDebugUtilsMessengerEXT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyDebugUtilsMessengerEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch> Result destroy(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrDestroyDebugUtilsMessengerEXT wrapper - enhanced mode
+  //! @brief xrDestroyDebugUtilsMessengerEXT wrapper - enhanced mode (hides
+  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyDebugUtilsMessengerEXT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type destroy(Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+  //! @}
 private:
   RawHandleType m_raw;
 };
@@ -7101,148 +7824,171 @@ static_assert(sizeof(DebugUtilsMessengerEXT) ==
                   sizeof(XrDebugUtilsMessengerEXT),
               "handle and wrapper have different size!");
 
-//! < comparison between DebugUtilsMessengerEXT.
+//! @brief < comparison between DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<(DebugUtilsMessengerEXT const &lhs,
           DebugUtilsMessengerEXT const &rhs) {
   return lhs.get() < rhs.get();
 }
-//! < comparison between DebugUtilsMessengerEXT and raw
+//! @brief < comparison between DebugUtilsMessengerEXT and raw
 //! XrDebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<(DebugUtilsMessengerEXT const &lhs, XrDebugUtilsMessengerEXT rhs) {
   return lhs.get() < rhs;
 }
-//! < comparison between raw XrDebugUtilsMessengerEXT and
+//! @brief < comparison between raw XrDebugUtilsMessengerEXT and
 //! DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<(XrDebugUtilsMessengerEXT lhs, DebugUtilsMessengerEXT const &rhs) {
   return lhs < rhs.get();
 }
-//! > comparison between DebugUtilsMessengerEXT.
+//! @brief > comparison between DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>(DebugUtilsMessengerEXT const &lhs,
           DebugUtilsMessengerEXT const &rhs) {
   return lhs.get() > rhs.get();
 }
-//! > comparison between DebugUtilsMessengerEXT and raw
+//! @brief > comparison between DebugUtilsMessengerEXT and raw
 //! XrDebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>(DebugUtilsMessengerEXT const &lhs, XrDebugUtilsMessengerEXT rhs) {
   return lhs.get() > rhs;
 }
-//! > comparison between raw XrDebugUtilsMessengerEXT and
+//! @brief > comparison between raw XrDebugUtilsMessengerEXT and
 //! DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>(XrDebugUtilsMessengerEXT lhs, DebugUtilsMessengerEXT const &rhs) {
   return lhs > rhs.get();
 }
-//! <= comparison between DebugUtilsMessengerEXT.
+//! @brief <= comparison between DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<=(DebugUtilsMessengerEXT const &lhs,
            DebugUtilsMessengerEXT const &rhs) {
   return lhs.get() <= rhs.get();
 }
-//! <= comparison between DebugUtilsMessengerEXT and raw
+//! @brief <= comparison between DebugUtilsMessengerEXT and raw
 //! XrDebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<=(DebugUtilsMessengerEXT const &lhs, XrDebugUtilsMessengerEXT rhs) {
   return lhs.get() <= rhs;
 }
-//! <= comparison between raw XrDebugUtilsMessengerEXT and
+//! @brief <= comparison between raw XrDebugUtilsMessengerEXT and
 //! DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<=(XrDebugUtilsMessengerEXT lhs, DebugUtilsMessengerEXT const &rhs) {
   return lhs <= rhs.get();
 }
-//! >= comparison between DebugUtilsMessengerEXT.
+//! @brief >= comparison between DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>=(DebugUtilsMessengerEXT const &lhs,
            DebugUtilsMessengerEXT const &rhs) {
   return lhs.get() >= rhs.get();
 }
-//! >= comparison between DebugUtilsMessengerEXT and raw
+//! @brief >= comparison between DebugUtilsMessengerEXT and raw
 //! XrDebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>=(DebugUtilsMessengerEXT const &lhs, XrDebugUtilsMessengerEXT rhs) {
   return lhs.get() >= rhs;
 }
-//! >= comparison between raw XrDebugUtilsMessengerEXT and
+//! @brief >= comparison between raw XrDebugUtilsMessengerEXT and
 //! DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>=(XrDebugUtilsMessengerEXT lhs, DebugUtilsMessengerEXT const &rhs) {
   return lhs >= rhs.get();
 }
-//! == comparison between DebugUtilsMessengerEXT.
+//! @brief == comparison between DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator==(DebugUtilsMessengerEXT const &lhs,
            DebugUtilsMessengerEXT const &rhs) {
   return lhs.get() == rhs.get();
 }
-//! == comparison between DebugUtilsMessengerEXT and raw
+//! @brief == comparison between DebugUtilsMessengerEXT and raw
 //! XrDebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator==(DebugUtilsMessengerEXT const &lhs, XrDebugUtilsMessengerEXT rhs) {
   return lhs.get() == rhs;
 }
-//! == comparison between raw XrDebugUtilsMessengerEXT and
+//! @brief == comparison between raw XrDebugUtilsMessengerEXT and
 //! DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator==(XrDebugUtilsMessengerEXT lhs, DebugUtilsMessengerEXT const &rhs) {
   return lhs == rhs.get();
 }
-//! != comparison between DebugUtilsMessengerEXT.
+//! @brief != comparison between DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator!=(DebugUtilsMessengerEXT const &lhs,
            DebugUtilsMessengerEXT const &rhs) {
   return lhs.get() != rhs.get();
 }
-//! != comparison between DebugUtilsMessengerEXT and raw
+//! @brief != comparison between DebugUtilsMessengerEXT and raw
 //! XrDebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator!=(DebugUtilsMessengerEXT const &lhs, XrDebugUtilsMessengerEXT rhs) {
   return lhs.get() != rhs;
 }
-//! != comparison between raw XrDebugUtilsMessengerEXT and
+//! @brief != comparison between raw XrDebugUtilsMessengerEXT and
 //! DebugUtilsMessengerEXT.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator!=(XrDebugUtilsMessengerEXT lhs, DebugUtilsMessengerEXT const &rhs) {
   return lhs != rhs.get();
 }
-//! Equality comparison between DebugUtilsMessengerEXT and nullptr: true if the
-//! handle is null.
+//! @brief Equality comparison between DebugUtilsMessengerEXT and nullptr: true
+//! if the handle is null.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_INLINE bool operator==(DebugUtilsMessengerEXT const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
-//! Equality comparison between nullptr and DebugUtilsMessengerEXT: true if the
-//! handle is null.
+//! @brief Equality comparison between nullptr and DebugUtilsMessengerEXT: true
+//! if the handle is null.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
                                   DebugUtilsMessengerEXT const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
-//! Inequality comparison between DebugUtilsMessengerEXT and nullptr: true if
-//! the handle is not null.
+//! @brief Inequality comparison between DebugUtilsMessengerEXT and nullptr:
+//! true if the handle is not null.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_INLINE bool operator!=(DebugUtilsMessengerEXT const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
-//! Inequality comparison between nullptr and DebugUtilsMessengerEXT: true if
-//! the handle is not null.
+//! @brief Inequality comparison between nullptr and DebugUtilsMessengerEXT:
+//! true if the handle is not null.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
                                   DebugUtilsMessengerEXT const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
-//! Free function accessor for the raw XrDebugUtilsMessengerEXT handle in a
-//! DebugUtilsMessengerEXT
+//! @brief Free function accessor for the raw XrDebugUtilsMessengerEXT handle in
+//! a DebugUtilsMessengerEXT
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrDebugUtilsMessengerEXT
 get(DebugUtilsMessengerEXT const &h) {
   return h.get();
 }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrDebugUtilsMessengerEXT handle in a DebugUtilsMessengerEXT (by reference)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrDebugUtilsMessengerEXT handle in a DebugUtilsMessengerEXT (by reference).
 //!
 //! e.g.
 //! ```
@@ -7252,12 +7998,13 @@ get(DebugUtilsMessengerEXT const &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_INLINE XrDebugUtilsMessengerEXT *put(DebugUtilsMessengerEXT &h) {
   return h.put();
 }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrDebugUtilsMessengerEXT handle in a DebugUtilsMessengerEXT (by pointer)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrDebugUtilsMessengerEXT handle in a DebugUtilsMessengerEXT (by pointer).
 //!
 //! e.g.
 //! ```
@@ -7269,22 +8016,30 @@ OPENXR_HPP_INLINE XrDebugUtilsMessengerEXT *put(DebugUtilsMessengerEXT &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates DebugUtilsMessengerEXT
 OPENXR_HPP_INLINE XrDebugUtilsMessengerEXT *put(DebugUtilsMessengerEXT *h) {
   return h->put();
 }
 
+namespace traits {
 template <> struct cpp_type<ObjectType::DebugUtilsMessengerEXT> {
   using type = DebugUtilsMessengerEXT;
 };
+} // namespace traits
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
 //! Traits associating a deleter type with handles of type SpatialAnchorMSFT
 template <typename Dispatch>
 class UniqueHandleTraits<SpatialAnchorMSFT, Dispatch> {
 public:
   using deleter = ObjectDestroy<Dispatch>;
 };
+} // namespace traits
+
+//! @addtogroup unique_handle_aliases
+//! @{
 
 //! Shorthand name for unique handles of type SpatialAnchorMSFT, using a static
 //! dispatch.
@@ -7294,17 +8049,23 @@ using UniqueSpatialAnchorMSFT =
 //! dispatch.
 using UniqueDynamicSpatialAnchorMSFT =
     UniqueHandle<SpatialAnchorMSFT, DispatchLoaderDynamic>;
+//! @}
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
-//! Handle class - wrapping XrSpatialAnchorMSFT
+//! @brief Handle class - wrapping XrSpatialAnchorMSFT
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrSpatialAnchorMSFT>
+//! @ingroup handles
 class SpatialAnchorMSFT {
 public:
   using Type = SpatialAnchorMSFT;
   using RawHandleType = XrSpatialAnchorMSFT;
 
+  /*!
+   * @name Constructors, assignment, and conversions
+   * @{
+   */
   //! Default (empty/null) constructor
   OPENXR_HPP_CONSTEXPR SpatialAnchorMSFT() : m_raw(XR_NULL_HANDLE) {}
 
@@ -7312,7 +8073,7 @@ public:
   OPENXR_HPP_CONSTEXPR SpatialAnchorMSFT(std::nullptr_t /* unused */)
       : m_raw(XR_NULL_HANDLE) {}
 
-  //! Conversion constructor from the raw XrSpatialAnchorMSFT type
+  //! @brief Conversion constructor from the raw XrSpatialAnchorMSFT type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -7320,7 +8081,7 @@ public:
       : m_raw(handle) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-  //! Assignment operator from the raw XrSpatialAnchorMSFT
+  //! @brief Assignment operator from the raw XrSpatialAnchorMSFT
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -7333,7 +8094,7 @@ public:
   }
 #endif
 
-  //! Assignment operator from nullptr - assigns to empty/null handle.
+  //! @brief Assignment operator from nullptr - assigns to empty/null handle.
   //!
   //! Does *not* destroy any contained non-null handle first! For that, see
   //! UniqueHandle<>.
@@ -7342,7 +8103,7 @@ public:
     return *this;
   }
 
-  //! Conversion operator to the raw XrSpatialAnchorMSFT type
+  //! @brief Conversion operator to the raw XrSpatialAnchorMSFT type
   //!
   //! Explicit on 32-bit platforms by default unless
   //! OPENXR_HPP_TYPESAFE_CONVERSION is defined.
@@ -7351,6 +8112,12 @@ public:
     return m_raw;
   }
 
+  //! @}
+
+  /*!
+   * @name Validity checking
+   * @{
+   */
   //! Returns true in conditionals if this handle is non-null
   OPENXR_HPP_CONSTEXPR explicit operator bool() const {
     return m_raw != XR_NULL_HANDLE;
@@ -7360,9 +8127,14 @@ public:
   OPENXR_HPP_CONSTEXPR bool operator!() const {
     return m_raw == XR_NULL_HANDLE;
   }
+  //! @}
 
-  //! "Put" function for assigning as null then getting the address of the raw
-  //! pointer to pass to creation functions.
+  /*!
+   * @name Raw handle manipulation
+   * @{
+   */
+  //! @brief "Put" function for assigning as null then getting the address of
+  //! the raw pointer to pass to creation functions.
   //!
   //! e.g.
   //! ```
@@ -7376,164 +8148,196 @@ public:
     return &m_raw;
   }
 
-  //! Gets the raw handle type.
+  //! @brief Gets the raw handle type.
   //!
   //! See also OPENXR_HPP_NAMESPACE::get()
   OPENXR_HPP_CONSTEXPR RawHandleType get() const { return m_raw; }
 
+  //! @}
+
+  /*!
+   * @name OpenXR API calls as member functions
+   * @{
+   */
+
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! xrDestroySpatialAnchorMSFT wrapper
+  //! @brief xrDestroySpatialAnchorMSFT wrapper.
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpatialAnchorMSFT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch> Result destroy(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! xrDestroySpatialAnchorMSFT wrapper - enhanced mode
+  //! @brief xrDestroySpatialAnchorMSFT wrapper - enhanced mode (hides basic
+  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
   //!
   //! See the related specification text at
   //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpatialAnchorMSFT>
   //!
-  //! No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class.
+  //! @note No default dispatch is provided as this is a non-core function,
+  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
   template <typename Dispatch>
   ResultValueType<void>::type destroy(Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+  //! @}
 private:
   RawHandleType m_raw;
 };
 static_assert(sizeof(SpatialAnchorMSFT) == sizeof(XrSpatialAnchorMSFT),
               "handle and wrapper have different size!");
 
-//! < comparison between SpatialAnchorMSFT.
+//! @brief < comparison between SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<(SpatialAnchorMSFT const &lhs, SpatialAnchorMSFT const &rhs) {
   return lhs.get() < rhs.get();
 }
-//! < comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @brief < comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<(SpatialAnchorMSFT const &lhs, XrSpatialAnchorMSFT rhs) {
   return lhs.get() < rhs;
 }
-//! < comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @brief < comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<(XrSpatialAnchorMSFT lhs, SpatialAnchorMSFT const &rhs) {
   return lhs < rhs.get();
 }
-//! > comparison between SpatialAnchorMSFT.
+//! @brief > comparison between SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>(SpatialAnchorMSFT const &lhs, SpatialAnchorMSFT const &rhs) {
   return lhs.get() > rhs.get();
 }
-//! > comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @brief > comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>(SpatialAnchorMSFT const &lhs, XrSpatialAnchorMSFT rhs) {
   return lhs.get() > rhs;
 }
-//! > comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @brief > comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>(XrSpatialAnchorMSFT lhs, SpatialAnchorMSFT const &rhs) {
   return lhs > rhs.get();
 }
-//! <= comparison between SpatialAnchorMSFT.
+//! @brief <= comparison between SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<=(SpatialAnchorMSFT const &lhs, SpatialAnchorMSFT const &rhs) {
   return lhs.get() <= rhs.get();
 }
-//! <= comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @brief <= comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<=(SpatialAnchorMSFT const &lhs, XrSpatialAnchorMSFT rhs) {
   return lhs.get() <= rhs;
 }
-//! <= comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @brief <= comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator<=(XrSpatialAnchorMSFT lhs, SpatialAnchorMSFT const &rhs) {
   return lhs <= rhs.get();
 }
-//! >= comparison between SpatialAnchorMSFT.
+//! @brief >= comparison between SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>=(SpatialAnchorMSFT const &lhs, SpatialAnchorMSFT const &rhs) {
   return lhs.get() >= rhs.get();
 }
-//! >= comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @brief >= comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>=(SpatialAnchorMSFT const &lhs, XrSpatialAnchorMSFT rhs) {
   return lhs.get() >= rhs;
 }
-//! >= comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @brief >= comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator>=(XrSpatialAnchorMSFT lhs, SpatialAnchorMSFT const &rhs) {
   return lhs >= rhs.get();
 }
-//! == comparison between SpatialAnchorMSFT.
+//! @brief == comparison between SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator==(SpatialAnchorMSFT const &lhs, SpatialAnchorMSFT const &rhs) {
   return lhs.get() == rhs.get();
 }
-//! == comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @brief == comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator==(SpatialAnchorMSFT const &lhs, XrSpatialAnchorMSFT rhs) {
   return lhs.get() == rhs;
 }
-//! == comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @brief == comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator==(XrSpatialAnchorMSFT lhs, SpatialAnchorMSFT const &rhs) {
   return lhs == rhs.get();
 }
-//! != comparison between SpatialAnchorMSFT.
+//! @brief != comparison between SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator!=(SpatialAnchorMSFT const &lhs, SpatialAnchorMSFT const &rhs) {
   return lhs.get() != rhs.get();
 }
-//! != comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @brief != comparison between SpatialAnchorMSFT and raw XrSpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator!=(SpatialAnchorMSFT const &lhs, XrSpatialAnchorMSFT rhs) {
   return lhs.get() != rhs;
 }
-//! != comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @brief != comparison between raw XrSpatialAnchorMSFT and SpatialAnchorMSFT.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool
 operator!=(XrSpatialAnchorMSFT lhs, SpatialAnchorMSFT const &rhs) {
   return lhs != rhs.get();
 }
-//! Equality comparison between SpatialAnchorMSFT and nullptr: true if the
-//! handle is null.
+//! @brief Equality comparison between SpatialAnchorMSFT and nullptr: true if
+//! the handle is null.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_INLINE bool operator==(SpatialAnchorMSFT const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() == XR_NULL_HANDLE;
 }
-//! Equality comparison between nullptr and SpatialAnchorMSFT: true if the
-//! handle is null.
+//! @brief Equality comparison between nullptr and SpatialAnchorMSFT: true if
+//! the handle is null.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
                                   SpatialAnchorMSFT const &rhs) {
   return rhs.get() == XR_NULL_HANDLE;
 }
-//! Inequality comparison between SpatialAnchorMSFT and nullptr: true if the
-//! handle is not null.
+//! @brief Inequality comparison between SpatialAnchorMSFT and nullptr: true if
+//! the handle is not null.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_INLINE bool operator!=(SpatialAnchorMSFT const &lhs,
                                   std::nullptr_t /* unused */) {
   return lhs.get() != XR_NULL_HANDLE;
 }
-//! Inequality comparison between nullptr and SpatialAnchorMSFT: true if the
-//! handle is not null.
+//! @brief Inequality comparison between nullptr and SpatialAnchorMSFT: true if
+//! the handle is not null.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
                                   SpatialAnchorMSFT const &rhs) {
   return rhs.get() != XR_NULL_HANDLE;
 }
 
-//! Free function accessor for the raw XrSpatialAnchorMSFT handle in a
+//! @brief Free function accessor for the raw XrSpatialAnchorMSFT handle in a
 //! SpatialAnchorMSFT
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE XrSpatialAnchorMSFT
 get(SpatialAnchorMSFT const &h) {
   return h.get();
 }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrSpatialAnchorMSFT handle in a SpatialAnchorMSFT (by reference)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrSpatialAnchorMSFT handle in a SpatialAnchorMSFT (by reference).
 //!
 //! e.g.
 //! ```
@@ -7543,12 +8347,13 @@ get(SpatialAnchorMSFT const &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_INLINE XrSpatialAnchorMSFT *put(SpatialAnchorMSFT &h) {
   return h.put();
 }
 
-//! Free "put" function for clearing and getting the address of the raw
-//! XrSpatialAnchorMSFT handle in a SpatialAnchorMSFT (by pointer)
+//! @brief Free "put" function for clearing and getting the address of the raw
+//! XrSpatialAnchorMSFT handle in a SpatialAnchorMSFT (by pointer).
 //!
 //! e.g.
 //! ```
@@ -7560,22 +8365,28 @@ OPENXR_HPP_INLINE XrSpatialAnchorMSFT *put(SpatialAnchorMSFT &h) {
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the
 //! namespace specified.
+//! @relates SpatialAnchorMSFT
 OPENXR_HPP_INLINE XrSpatialAnchorMSFT *put(SpatialAnchorMSFT *h) {
   return h->put();
 }
 
+namespace traits {
 template <> struct cpp_type<ObjectType::SpatialAnchorMSFT> {
   using type = SpatialAnchorMSFT;
 };
+} // namespace traits
 
-/*
- * Forward declarations of wrappers for spec-defined "free functions"
+/*!
+ * @name OpenXR API calls that act as "free functions"
+ * @{
  */
+// Forward declarations - implementations at the bottom of the file
 
-//! xrEnumerateApiLayerProperties wrapper
+//! @brief xrEnumerateApiLayerProperties wrapper.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
+
 template <typename Dispatch = DispatchLoaderStatic>
 Result enumerateApiLayerProperties(uint32_t propertyCapacityInput,
                                    uint32_t *propertyCountOutput,
@@ -7583,20 +8394,22 @@ Result enumerateApiLayerProperties(uint32_t propertyCapacityInput,
                                    Dispatch &&d = Dispatch{});
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//! xrEnumerateApiLayerProperties wrapper - enhanced mode
+//! @brief xrEnumerateApiLayerProperties wrapper - enhanced mode.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
+
 template <typename Allocator = ::std::allocator<XrApiLayerProperties>,
           typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<::std::vector<XrApiLayerProperties, Allocator>>::type
 enumerateApiLayerProperties(Dispatch &&d = Dispatch{});
 
-//! xrEnumerateApiLayerProperties wrapper - enhanced mode, stateful allocator
-//! for two-call result
+//! @brief xrEnumerateApiLayerProperties wrapper - enhanced mode, stateful
+//! allocator for two-call result.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
+
 template <typename Allocator = ::std::allocator<XrApiLayerProperties>,
           typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<::std::vector<XrApiLayerProperties, Allocator>>::type
@@ -7604,10 +8417,11 @@ enumerateApiLayerProperties(Allocator const &vectorAllocator, Dispatch &&d);
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-//! xrEnumerateInstanceExtensionProperties wrapper
+//! @brief xrEnumerateInstanceExtensionProperties wrapper.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
+
 template <typename Dispatch = DispatchLoaderStatic>
 Result enumerateInstanceExtensionProperties(const char *layerName,
                                             uint32_t propertyCapacityInput,
@@ -7616,21 +8430,23 @@ Result enumerateInstanceExtensionProperties(const char *layerName,
                                             Dispatch &&d = Dispatch{});
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//! xrEnumerateInstanceExtensionProperties wrapper - enhanced mode
+//! @brief xrEnumerateInstanceExtensionProperties wrapper - enhanced mode.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
+
 template <typename Allocator = ::std::allocator<XrExtensionProperties>,
           typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<::std::vector<XrExtensionProperties, Allocator>>::type
 enumerateInstanceExtensionProperties(const char *layerName,
                                      Dispatch &&d = Dispatch{});
 
-//! xrEnumerateInstanceExtensionProperties wrapper - enhanced mode, stateful
-//! allocator for two-call result
+//! @brief xrEnumerateInstanceExtensionProperties wrapper - enhanced mode,
+//! stateful allocator for two-call result.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
+
 template <typename Allocator = ::std::allocator<XrExtensionProperties>,
           typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<::std::vector<XrExtensionProperties, Allocator>>::type
@@ -7640,19 +8456,21 @@ enumerateInstanceExtensionProperties(const char *layerName,
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-//! xrCreateInstance wrapper
+//! @brief xrCreateInstance wrapper.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
+
 template <typename Dispatch = DispatchLoaderStatic>
 Result createInstance(const XrInstanceCreateInfo *createInfo,
                       Instance &instance, Dispatch &&d = Dispatch{});
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//! xrCreateInstance wrapper - enhanced mode
+//! @brief xrCreateInstance wrapper - enhanced mode.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
+
 template <typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<Instance>::type
 createInstance(const XrInstanceCreateInfo *createInfo,
@@ -7660,10 +8478,11 @@ createInstance(const XrInstanceCreateInfo *createInfo,
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-//! xrCreateInstance wrapper returning a smart handle
+//! @brief xrCreateInstance wrapper returning a smart handle.
 //!
 //! See the related specification text at
 //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
+
 template <typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<
     UniqueHandle<Instance, impl::RemoveRefConst<Dispatch>>>::type
@@ -7672,13 +8491,15 @@ createInstanceUnique(const XrInstanceCreateInfo *createInfo,
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
+//! @}
+
 } // namespace OPENXR_HPP_NAMESPACE
 
 namespace OPENXR_HPP_NAMESPACE {
 
 /*!
- * Dispatch class for OpenXR that looks up all functions using a provided or
- * statically-available xrGetInstanceProcAddr function and the optional
+ * @brief Dispatch class for OpenXR that looks up all functions using a provided
+ * or statically-available xrGetInstanceProcAddr function and the optional
  * Instance.
  *
  * This is safer to use, especially in large/multi-module applications, than
@@ -7694,11 +8515,17 @@ namespace OPENXR_HPP_NAMESPACE {
  * used across translation units that may not share the same platform defines.
  * Only the member function trampolines containing the casts are conditional on
  * platform defines.
+ *
+ * @ingroup dispatch
  */
 class DispatchLoaderDynamic {
 public:
   /*!
-   * Create a lazy-populating dispatch table.
+   * @name Constuctor/Factory functions
+   * @{
+   */
+  /*!
+   * @brief Create a lazy-populating dispatch table.
    *
    * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr
    * will be used.
@@ -7716,8 +8543,8 @@ public:
   }
 
   /*!
-   * Create a fully-populated dispatch table given a non-null XrInstance and an
-   * optional getInstanceProcAddr.
+   * @brief Create a fully-populated dispatch table given a non-null XrInstance
+   * and an optional getInstanceProcAddr.
    *
    * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr
    * will be used.
@@ -7865,16 +8692,24 @@ public:
     return dispatch;
   }
 
-  /*
-   * Entry points: they populate the function pointer, then cast it and call it.
+  //! @}
+
+  /*!
+   * @name Entry points
+   * @brief These populate the function pointer (if required and non-const),
+   * then cast it and call it.
+   *
    * We store everything as PFN_xrVoidFunction to allow us to have the same
    * representation all over, despite containing function pointers that might
    * not be accessible without some platform defines. Thus, only our accessor
    * methods differ between different includes of this header, not our data
    * members.
+   *
+   * @{
    */
 
-  //! Call xrGetInstanceProcAddr, populating function pointer if required.
+  //! @brief Call xrGetInstanceProcAddr, populating function pointer if
+  //! required.
   XrResult xrGetInstanceProcAddr(XrInstance instance, const char *name,
                                  PFN_xrVoidFunction *function) {
 
@@ -7888,8 +8723,8 @@ public:
         pfnGetInstanceProcAddr))(instance, name, function);
   }
 
-  //! Call xrGetInstanceProcAddr (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrGetInstanceProcAddr (const overload - does not populate
+  //! function pointer)
   XrResult xrGetInstanceProcAddr(XrInstance instance, const char *name,
                                  PFN_xrVoidFunction *function) const {
 
@@ -7897,7 +8732,7 @@ public:
         pfnGetInstanceProcAddr))(instance, name, function);
   }
 
-  //! Call xrEnumerateApiLayerProperties, populating function pointer if
+  //! @brief Call xrEnumerateApiLayerProperties, populating function pointer if
   //! required.
   XrResult xrEnumerateApiLayerProperties(uint32_t propertyCapacityInput,
                                          uint32_t *propertyCountOutput,
@@ -7914,8 +8749,8 @@ public:
                                          propertyCountOutput, properties);
   }
 
-  //! Call xrEnumerateApiLayerProperties (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrEnumerateApiLayerProperties (const overload - does not
+  //! populate function pointer)
   XrResult
   xrEnumerateApiLayerProperties(uint32_t propertyCapacityInput,
                                 uint32_t *propertyCountOutput,
@@ -7926,8 +8761,8 @@ public:
                                          propertyCountOutput, properties);
   }
 
-  //! Call xrEnumerateInstanceExtensionProperties, populating function pointer
-  //! if required.
+  //! @brief Call xrEnumerateInstanceExtensionProperties, populating function
+  //! pointer if required.
   XrResult xrEnumerateInstanceExtensionProperties(
       const char *layerName, uint32_t propertyCapacityInput,
       uint32_t *propertyCountOutput, XrExtensionProperties *properties) {
@@ -7943,8 +8778,8 @@ public:
         layerName, propertyCapacityInput, propertyCountOutput, properties);
   }
 
-  //! Call xrEnumerateInstanceExtensionProperties (const overload - does not
-  //! populate function pointer)
+  //! @brief Call xrEnumerateInstanceExtensionProperties (const overload - does
+  //! not populate function pointer)
   XrResult xrEnumerateInstanceExtensionProperties(
       const char *layerName, uint32_t propertyCapacityInput,
       uint32_t *propertyCountOutput, XrExtensionProperties *properties) const {
@@ -7954,7 +8789,7 @@ public:
         layerName, propertyCapacityInput, propertyCountOutput, properties);
   }
 
-  //! Call xrCreateInstance, populating function pointer if required.
+  //! @brief Call xrCreateInstance, populating function pointer if required.
   XrResult xrCreateInstance(const XrInstanceCreateInfo *createInfo,
                             XrInstance *instance) {
 
@@ -7967,7 +8802,7 @@ public:
         createInfo, instance);
   }
 
-  //! Call xrCreateInstance (const overload - does not populate function
+  //! @brief Call xrCreateInstance (const overload - does not populate function
   //! pointer)
   XrResult xrCreateInstance(const XrInstanceCreateInfo *createInfo,
                             XrInstance *instance) const {
@@ -7976,7 +8811,7 @@ public:
         createInfo, instance);
   }
 
-  //! Call xrDestroyInstance, populating function pointer if required.
+  //! @brief Call xrDestroyInstance, populating function pointer if required.
   XrResult xrDestroyInstance(XrInstance instance) {
 
     XrResult result = populate_("xrDestroyInstance", pfnDestroyInstance);
@@ -7988,7 +8823,7 @@ public:
         instance);
   }
 
-  //! Call xrDestroyInstance (const overload - does not populate function
+  //! @brief Call xrDestroyInstance (const overload - does not populate function
   //! pointer)
   XrResult xrDestroyInstance(XrInstance instance) const {
 
@@ -7996,7 +8831,8 @@ public:
         instance);
   }
 
-  //! Call xrGetInstanceProperties, populating function pointer if required.
+  //! @brief Call xrGetInstanceProperties, populating function pointer if
+  //! required.
   XrResult xrGetInstanceProperties(XrInstance instance,
                                    XrInstanceProperties *instanceProperties) {
 
@@ -8010,8 +8846,8 @@ public:
         pfnGetInstanceProperties))(instance, instanceProperties);
   }
 
-  //! Call xrGetInstanceProperties (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrGetInstanceProperties (const overload - does not populate
+  //! function pointer)
   XrResult
   xrGetInstanceProperties(XrInstance instance,
                           XrInstanceProperties *instanceProperties) const {
@@ -8020,7 +8856,7 @@ public:
         pfnGetInstanceProperties))(instance, instanceProperties);
   }
 
-  //! Call xrPollEvent, populating function pointer if required.
+  //! @brief Call xrPollEvent, populating function pointer if required.
   XrResult xrPollEvent(XrInstance instance, XrEventDataBuffer *eventData) {
 
     XrResult result = populate_("xrPollEvent", pfnPollEvent);
@@ -8032,7 +8868,8 @@ public:
                                                              eventData);
   }
 
-  //! Call xrPollEvent (const overload - does not populate function pointer)
+  //! @brief Call xrPollEvent (const overload - does not populate function
+  //! pointer)
   XrResult xrPollEvent(XrInstance instance,
                        XrEventDataBuffer *eventData) const {
 
@@ -8040,7 +8877,7 @@ public:
                                                              eventData);
   }
 
-  //! Call xrResultToString, populating function pointer if required.
+  //! @brief Call xrResultToString, populating function pointer if required.
   XrResult xrResultToString(XrInstance instance, XrResult value,
                             char buffer[XR_MAX_RESULT_STRING_SIZE]) {
 
@@ -8053,7 +8890,7 @@ public:
         instance, value, buffer);
   }
 
-  //! Call xrResultToString (const overload - does not populate function
+  //! @brief Call xrResultToString (const overload - does not populate function
   //! pointer)
   XrResult xrResultToString(XrInstance instance, XrResult value,
                             char buffer[XR_MAX_RESULT_STRING_SIZE]) const {
@@ -8062,7 +8899,8 @@ public:
         instance, value, buffer);
   }
 
-  //! Call xrStructureTypeToString, populating function pointer if required.
+  //! @brief Call xrStructureTypeToString, populating function pointer if
+  //! required.
   XrResult xrStructureTypeToString(XrInstance instance, XrStructureType value,
                                    char buffer[XR_MAX_STRUCTURE_NAME_SIZE]) {
 
@@ -8076,8 +8914,8 @@ public:
         pfnStructureTypeToString))(instance, value, buffer);
   }
 
-  //! Call xrStructureTypeToString (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrStructureTypeToString (const overload - does not populate
+  //! function pointer)
   XrResult
   xrStructureTypeToString(XrInstance instance, XrStructureType value,
                           char buffer[XR_MAX_STRUCTURE_NAME_SIZE]) const {
@@ -8086,7 +8924,7 @@ public:
         pfnStructureTypeToString))(instance, value, buffer);
   }
 
-  //! Call xrGetSystem, populating function pointer if required.
+  //! @brief Call xrGetSystem, populating function pointer if required.
   XrResult xrGetSystem(XrInstance instance, const XrSystemGetInfo *getInfo,
                        XrSystemId *systemId) {
 
@@ -8099,7 +8937,8 @@ public:
                                                              systemId);
   }
 
-  //! Call xrGetSystem (const overload - does not populate function pointer)
+  //! @brief Call xrGetSystem (const overload - does not populate function
+  //! pointer)
   XrResult xrGetSystem(XrInstance instance, const XrSystemGetInfo *getInfo,
                        XrSystemId *systemId) const {
 
@@ -8107,7 +8946,8 @@ public:
                                                              systemId);
   }
 
-  //! Call xrGetSystemProperties, populating function pointer if required.
+  //! @brief Call xrGetSystemProperties, populating function pointer if
+  //! required.
   XrResult xrGetSystemProperties(XrInstance instance, XrSystemId systemId,
                                  XrSystemProperties *properties) {
 
@@ -8121,8 +8961,8 @@ public:
         pfnGetSystemProperties))(instance, systemId, properties);
   }
 
-  //! Call xrGetSystemProperties (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrGetSystemProperties (const overload - does not populate
+  //! function pointer)
   XrResult xrGetSystemProperties(XrInstance instance, XrSystemId systemId,
                                  XrSystemProperties *properties) const {
 
@@ -8130,8 +8970,8 @@ public:
         pfnGetSystemProperties))(instance, systemId, properties);
   }
 
-  //! Call xrEnumerateEnvironmentBlendModes, populating function pointer if
-  //! required.
+  //! @brief Call xrEnumerateEnvironmentBlendModes, populating function pointer
+  //! if required.
   XrResult xrEnumerateEnvironmentBlendModes(
       XrInstance instance, XrSystemId systemId,
       XrViewConfigurationType viewConfigurationType,
@@ -8152,8 +8992,8 @@ public:
         environmentBlendModes);
   }
 
-  //! Call xrEnumerateEnvironmentBlendModes (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrEnumerateEnvironmentBlendModes (const overload - does not
+  //! populate function pointer)
   XrResult xrEnumerateEnvironmentBlendModes(
       XrInstance instance, XrSystemId systemId,
       XrViewConfigurationType viewConfigurationType,
@@ -8168,7 +9008,7 @@ public:
         environmentBlendModes);
   }
 
-  //! Call xrCreateSession, populating function pointer if required.
+  //! @brief Call xrCreateSession, populating function pointer if required.
   XrResult xrCreateSession(XrInstance instance,
                            const XrSessionCreateInfo *createInfo,
                            XrSession *session) {
@@ -8182,7 +9022,8 @@ public:
         instance, createInfo, session);
   }
 
-  //! Call xrCreateSession (const overload - does not populate function pointer)
+  //! @brief Call xrCreateSession (const overload - does not populate function
+  //! pointer)
   XrResult xrCreateSession(XrInstance instance,
                            const XrSessionCreateInfo *createInfo,
                            XrSession *session) const {
@@ -8191,7 +9032,7 @@ public:
         instance, createInfo, session);
   }
 
-  //! Call xrDestroySession, populating function pointer if required.
+  //! @brief Call xrDestroySession, populating function pointer if required.
   XrResult xrDestroySession(XrSession session) {
 
     XrResult result = populate_("xrDestroySession", pfnDestroySession);
@@ -8202,14 +9043,15 @@ public:
     return (reinterpret_cast<PFN_xrDestroySession>(pfnDestroySession))(session);
   }
 
-  //! Call xrDestroySession (const overload - does not populate function
+  //! @brief Call xrDestroySession (const overload - does not populate function
   //! pointer)
   XrResult xrDestroySession(XrSession session) const {
 
     return (reinterpret_cast<PFN_xrDestroySession>(pfnDestroySession))(session);
   }
 
-  //! Call xrEnumerateReferenceSpaces, populating function pointer if required.
+  //! @brief Call xrEnumerateReferenceSpaces, populating function pointer if
+  //! required.
   XrResult xrEnumerateReferenceSpaces(XrSession session,
                                       uint32_t spaceCapacityInput,
                                       uint32_t *spaceCountOutput,
@@ -8226,7 +9068,7 @@ public:
                                       spaceCountOutput, spaces);
   }
 
-  //! Call xrEnumerateReferenceSpaces (const overload - does not populate
+  //! @brief Call xrEnumerateReferenceSpaces (const overload - does not populate
   //! function pointer)
   XrResult xrEnumerateReferenceSpaces(XrSession session,
                                       uint32_t spaceCapacityInput,
@@ -8238,7 +9080,8 @@ public:
                                       spaceCountOutput, spaces);
   }
 
-  //! Call xrCreateReferenceSpace, populating function pointer if required.
+  //! @brief Call xrCreateReferenceSpace, populating function pointer if
+  //! required.
   XrResult xrCreateReferenceSpace(XrSession session,
                                   const XrReferenceSpaceCreateInfo *createInfo,
                                   XrSpace *space) {
@@ -8253,8 +9096,8 @@ public:
         pfnCreateReferenceSpace))(session, createInfo, space);
   }
 
-  //! Call xrCreateReferenceSpace (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrCreateReferenceSpace (const overload - does not populate
+  //! function pointer)
   XrResult xrCreateReferenceSpace(XrSession session,
                                   const XrReferenceSpaceCreateInfo *createInfo,
                                   XrSpace *space) const {
@@ -8263,7 +9106,7 @@ public:
         pfnCreateReferenceSpace))(session, createInfo, space);
   }
 
-  //! Call xrGetReferenceSpaceBoundsRect, populating function pointer if
+  //! @brief Call xrGetReferenceSpaceBoundsRect, populating function pointer if
   //! required.
   XrResult
   xrGetReferenceSpaceBoundsRect(XrSession session,
@@ -8280,8 +9123,8 @@ public:
         pfnGetReferenceSpaceBoundsRect))(session, referenceSpaceType, bounds);
   }
 
-  //! Call xrGetReferenceSpaceBoundsRect (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetReferenceSpaceBoundsRect (const overload - does not
+  //! populate function pointer)
   XrResult
   xrGetReferenceSpaceBoundsRect(XrSession session,
                                 XrReferenceSpaceType referenceSpaceType,
@@ -8291,7 +9134,7 @@ public:
         pfnGetReferenceSpaceBoundsRect))(session, referenceSpaceType, bounds);
   }
 
-  //! Call xrCreateActionSpace, populating function pointer if required.
+  //! @brief Call xrCreateActionSpace, populating function pointer if required.
   XrResult xrCreateActionSpace(XrSession session,
                                const XrActionSpaceCreateInfo *createInfo,
                                XrSpace *space) {
@@ -8305,8 +9148,8 @@ public:
         session, createInfo, space);
   }
 
-  //! Call xrCreateActionSpace (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrCreateActionSpace (const overload - does not populate
+  //! function pointer)
   XrResult xrCreateActionSpace(XrSession session,
                                const XrActionSpaceCreateInfo *createInfo,
                                XrSpace *space) const {
@@ -8315,7 +9158,7 @@ public:
         session, createInfo, space);
   }
 
-  //! Call xrLocateSpace, populating function pointer if required.
+  //! @brief Call xrLocateSpace, populating function pointer if required.
   XrResult xrLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time,
                          XrSpaceLocation *location) {
 
@@ -8328,7 +9171,8 @@ public:
         space, baseSpace, time, location);
   }
 
-  //! Call xrLocateSpace (const overload - does not populate function pointer)
+  //! @brief Call xrLocateSpace (const overload - does not populate function
+  //! pointer)
   XrResult xrLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time,
                          XrSpaceLocation *location) const {
 
@@ -8336,7 +9180,7 @@ public:
         space, baseSpace, time, location);
   }
 
-  //! Call xrDestroySpace, populating function pointer if required.
+  //! @brief Call xrDestroySpace, populating function pointer if required.
   XrResult xrDestroySpace(XrSpace space) {
 
     XrResult result = populate_("xrDestroySpace", pfnDestroySpace);
@@ -8347,13 +9191,14 @@ public:
     return (reinterpret_cast<PFN_xrDestroySpace>(pfnDestroySpace))(space);
   }
 
-  //! Call xrDestroySpace (const overload - does not populate function pointer)
+  //! @brief Call xrDestroySpace (const overload - does not populate function
+  //! pointer)
   XrResult xrDestroySpace(XrSpace space) const {
 
     return (reinterpret_cast<PFN_xrDestroySpace>(pfnDestroySpace))(space);
   }
 
-  //! Call xrEnumerateViewConfigurations, populating function pointer if
+  //! @brief Call xrEnumerateViewConfigurations, populating function pointer if
   //! required.
   XrResult xrEnumerateViewConfigurations(
       XrInstance instance, XrSystemId systemId,
@@ -8373,8 +9218,8 @@ public:
         viewConfigurationTypeCountOutput, viewConfigurationTypes);
   }
 
-  //! Call xrEnumerateViewConfigurations (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrEnumerateViewConfigurations (const overload - does not
+  //! populate function pointer)
   XrResult xrEnumerateViewConfigurations(
       XrInstance instance, XrSystemId systemId,
       uint32_t viewConfigurationTypeCapacityInput,
@@ -8387,8 +9232,8 @@ public:
         viewConfigurationTypeCountOutput, viewConfigurationTypes);
   }
 
-  //! Call xrGetViewConfigurationProperties, populating function pointer if
-  //! required.
+  //! @brief Call xrGetViewConfigurationProperties, populating function pointer
+  //! if required.
   XrResult xrGetViewConfigurationProperties(
       XrInstance instance, XrSystemId systemId,
       XrViewConfigurationType viewConfigurationType,
@@ -8405,8 +9250,8 @@ public:
         instance, systemId, viewConfigurationType, configurationProperties);
   }
 
-  //! Call xrGetViewConfigurationProperties (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetViewConfigurationProperties (const overload - does not
+  //! populate function pointer)
   XrResult xrGetViewConfigurationProperties(
       XrInstance instance, XrSystemId systemId,
       XrViewConfigurationType viewConfigurationType,
@@ -8417,8 +9262,8 @@ public:
         instance, systemId, viewConfigurationType, configurationProperties);
   }
 
-  //! Call xrEnumerateViewConfigurationViews, populating function pointer if
-  //! required.
+  //! @brief Call xrEnumerateViewConfigurationViews, populating function pointer
+  //! if required.
   XrResult xrEnumerateViewConfigurationViews(
       XrInstance instance, XrSystemId systemId,
       XrViewConfigurationType viewConfigurationType, uint32_t viewCapacityInput,
@@ -8436,8 +9281,8 @@ public:
         viewCountOutput, views);
   }
 
-  //! Call xrEnumerateViewConfigurationViews (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrEnumerateViewConfigurationViews (const overload - does not
+  //! populate function pointer)
   XrResult xrEnumerateViewConfigurationViews(
       XrInstance instance, XrSystemId systemId,
       XrViewConfigurationType viewConfigurationType, uint32_t viewCapacityInput,
@@ -8449,7 +9294,8 @@ public:
         viewCountOutput, views);
   }
 
-  //! Call xrEnumerateSwapchainFormats, populating function pointer if required.
+  //! @brief Call xrEnumerateSwapchainFormats, populating function pointer if
+  //! required.
   XrResult xrEnumerateSwapchainFormats(XrSession session,
                                        uint32_t formatCapacityInput,
                                        uint32_t *formatCountOutput,
@@ -8466,8 +9312,8 @@ public:
                                        formatCountOutput, formats);
   }
 
-  //! Call xrEnumerateSwapchainFormats (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrEnumerateSwapchainFormats (const overload - does not
+  //! populate function pointer)
   XrResult xrEnumerateSwapchainFormats(XrSession session,
                                        uint32_t formatCapacityInput,
                                        uint32_t *formatCountOutput,
@@ -8478,7 +9324,7 @@ public:
                                        formatCountOutput, formats);
   }
 
-  //! Call xrCreateSwapchain, populating function pointer if required.
+  //! @brief Call xrCreateSwapchain, populating function pointer if required.
   XrResult xrCreateSwapchain(XrSession session,
                              const XrSwapchainCreateInfo *createInfo,
                              XrSwapchain *swapchain) {
@@ -8492,7 +9338,7 @@ public:
         session, createInfo, swapchain);
   }
 
-  //! Call xrCreateSwapchain (const overload - does not populate function
+  //! @brief Call xrCreateSwapchain (const overload - does not populate function
   //! pointer)
   XrResult xrCreateSwapchain(XrSession session,
                              const XrSwapchainCreateInfo *createInfo,
@@ -8502,7 +9348,7 @@ public:
         session, createInfo, swapchain);
   }
 
-  //! Call xrDestroySwapchain, populating function pointer if required.
+  //! @brief Call xrDestroySwapchain, populating function pointer if required.
   XrResult xrDestroySwapchain(XrSwapchain swapchain) {
 
     XrResult result = populate_("xrDestroySwapchain", pfnDestroySwapchain);
@@ -8514,15 +9360,16 @@ public:
         swapchain);
   }
 
-  //! Call xrDestroySwapchain (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrDestroySwapchain (const overload - does not populate
+  //! function pointer)
   XrResult xrDestroySwapchain(XrSwapchain swapchain) const {
 
     return (reinterpret_cast<PFN_xrDestroySwapchain>(pfnDestroySwapchain))(
         swapchain);
   }
 
-  //! Call xrEnumerateSwapchainImages, populating function pointer if required.
+  //! @brief Call xrEnumerateSwapchainImages, populating function pointer if
+  //! required.
   XrResult xrEnumerateSwapchainImages(XrSwapchain swapchain,
                                       uint32_t imageCapacityInput,
                                       uint32_t *imageCountOutput,
@@ -8539,7 +9386,7 @@ public:
                                       imageCountOutput, images);
   }
 
-  //! Call xrEnumerateSwapchainImages (const overload - does not populate
+  //! @brief Call xrEnumerateSwapchainImages (const overload - does not populate
   //! function pointer)
   XrResult
   xrEnumerateSwapchainImages(XrSwapchain swapchain, uint32_t imageCapacityInput,
@@ -8551,7 +9398,8 @@ public:
                                       imageCountOutput, images);
   }
 
-  //! Call xrAcquireSwapchainImage, populating function pointer if required.
+  //! @brief Call xrAcquireSwapchainImage, populating function pointer if
+  //! required.
   XrResult
   xrAcquireSwapchainImage(XrSwapchain swapchain,
                           const XrSwapchainImageAcquireInfo *acquireInfo,
@@ -8567,8 +9415,8 @@ public:
         pfnAcquireSwapchainImage))(swapchain, acquireInfo, index);
   }
 
-  //! Call xrAcquireSwapchainImage (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrAcquireSwapchainImage (const overload - does not populate
+  //! function pointer)
   XrResult
   xrAcquireSwapchainImage(XrSwapchain swapchain,
                           const XrSwapchainImageAcquireInfo *acquireInfo,
@@ -8578,7 +9426,7 @@ public:
         pfnAcquireSwapchainImage))(swapchain, acquireInfo, index);
   }
 
-  //! Call xrWaitSwapchainImage, populating function pointer if required.
+  //! @brief Call xrWaitSwapchainImage, populating function pointer if required.
   XrResult xrWaitSwapchainImage(XrSwapchain swapchain,
                                 const XrSwapchainImageWaitInfo *waitInfo) {
 
@@ -8591,8 +9439,8 @@ public:
         swapchain, waitInfo);
   }
 
-  //! Call xrWaitSwapchainImage (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrWaitSwapchainImage (const overload - does not populate
+  //! function pointer)
   XrResult
   xrWaitSwapchainImage(XrSwapchain swapchain,
                        const XrSwapchainImageWaitInfo *waitInfo) const {
@@ -8601,7 +9449,8 @@ public:
         swapchain, waitInfo);
   }
 
-  //! Call xrReleaseSwapchainImage, populating function pointer if required.
+  //! @brief Call xrReleaseSwapchainImage, populating function pointer if
+  //! required.
   XrResult
   xrReleaseSwapchainImage(XrSwapchain swapchain,
                           const XrSwapchainImageReleaseInfo *releaseInfo) {
@@ -8616,8 +9465,8 @@ public:
         pfnReleaseSwapchainImage))(swapchain, releaseInfo);
   }
 
-  //! Call xrReleaseSwapchainImage (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrReleaseSwapchainImage (const overload - does not populate
+  //! function pointer)
   XrResult xrReleaseSwapchainImage(
       XrSwapchain swapchain,
       const XrSwapchainImageReleaseInfo *releaseInfo) const {
@@ -8626,7 +9475,7 @@ public:
         pfnReleaseSwapchainImage))(swapchain, releaseInfo);
   }
 
-  //! Call xrBeginSession, populating function pointer if required.
+  //! @brief Call xrBeginSession, populating function pointer if required.
   XrResult xrBeginSession(XrSession session,
                           const XrSessionBeginInfo *beginInfo) {
 
@@ -8639,7 +9488,8 @@ public:
                                                                    beginInfo);
   }
 
-  //! Call xrBeginSession (const overload - does not populate function pointer)
+  //! @brief Call xrBeginSession (const overload - does not populate function
+  //! pointer)
   XrResult xrBeginSession(XrSession session,
                           const XrSessionBeginInfo *beginInfo) const {
 
@@ -8647,7 +9497,7 @@ public:
                                                                    beginInfo);
   }
 
-  //! Call xrEndSession, populating function pointer if required.
+  //! @brief Call xrEndSession, populating function pointer if required.
   XrResult xrEndSession(XrSession session) {
 
     XrResult result = populate_("xrEndSession", pfnEndSession);
@@ -8658,13 +9508,14 @@ public:
     return (reinterpret_cast<PFN_xrEndSession>(pfnEndSession))(session);
   }
 
-  //! Call xrEndSession (const overload - does not populate function pointer)
+  //! @brief Call xrEndSession (const overload - does not populate function
+  //! pointer)
   XrResult xrEndSession(XrSession session) const {
 
     return (reinterpret_cast<PFN_xrEndSession>(pfnEndSession))(session);
   }
 
-  //! Call xrRequestExitSession, populating function pointer if required.
+  //! @brief Call xrRequestExitSession, populating function pointer if required.
   XrResult xrRequestExitSession(XrSession session) {
 
     XrResult result = populate_("xrRequestExitSession", pfnRequestExitSession);
@@ -8676,15 +9527,15 @@ public:
         session);
   }
 
-  //! Call xrRequestExitSession (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrRequestExitSession (const overload - does not populate
+  //! function pointer)
   XrResult xrRequestExitSession(XrSession session) const {
 
     return (reinterpret_cast<PFN_xrRequestExitSession>(pfnRequestExitSession))(
         session);
   }
 
-  //! Call xrWaitFrame, populating function pointer if required.
+  //! @brief Call xrWaitFrame, populating function pointer if required.
   XrResult xrWaitFrame(XrSession session, const XrFrameWaitInfo *frameWaitInfo,
                        XrFrameState *frameState) {
 
@@ -8697,7 +9548,8 @@ public:
         session, frameWaitInfo, frameState);
   }
 
-  //! Call xrWaitFrame (const overload - does not populate function pointer)
+  //! @brief Call xrWaitFrame (const overload - does not populate function
+  //! pointer)
   XrResult xrWaitFrame(XrSession session, const XrFrameWaitInfo *frameWaitInfo,
                        XrFrameState *frameState) const {
 
@@ -8705,7 +9557,7 @@ public:
         session, frameWaitInfo, frameState);
   }
 
-  //! Call xrBeginFrame, populating function pointer if required.
+  //! @brief Call xrBeginFrame, populating function pointer if required.
   XrResult xrBeginFrame(XrSession session,
                         const XrFrameBeginInfo *frameBeginInfo) {
 
@@ -8718,7 +9570,8 @@ public:
                                                                frameBeginInfo);
   }
 
-  //! Call xrBeginFrame (const overload - does not populate function pointer)
+  //! @brief Call xrBeginFrame (const overload - does not populate function
+  //! pointer)
   XrResult xrBeginFrame(XrSession session,
                         const XrFrameBeginInfo *frameBeginInfo) const {
 
@@ -8726,7 +9579,7 @@ public:
                                                                frameBeginInfo);
   }
 
-  //! Call xrEndFrame, populating function pointer if required.
+  //! @brief Call xrEndFrame, populating function pointer if required.
   XrResult xrEndFrame(XrSession session, const XrFrameEndInfo *frameEndInfo) {
 
     XrResult result = populate_("xrEndFrame", pfnEndFrame);
@@ -8738,7 +9591,8 @@ public:
                                                            frameEndInfo);
   }
 
-  //! Call xrEndFrame (const overload - does not populate function pointer)
+  //! @brief Call xrEndFrame (const overload - does not populate function
+  //! pointer)
   XrResult xrEndFrame(XrSession session,
                       const XrFrameEndInfo *frameEndInfo) const {
 
@@ -8746,7 +9600,7 @@ public:
                                                            frameEndInfo);
   }
 
-  //! Call xrLocateViews, populating function pointer if required.
+  //! @brief Call xrLocateViews, populating function pointer if required.
   XrResult xrLocateViews(XrSession session,
                          const XrViewLocateInfo *viewLocateInfo,
                          XrViewState *viewState, uint32_t viewCapacityInput,
@@ -8762,7 +9616,8 @@ public:
         views);
   }
 
-  //! Call xrLocateViews (const overload - does not populate function pointer)
+  //! @brief Call xrLocateViews (const overload - does not populate function
+  //! pointer)
   XrResult xrLocateViews(XrSession session,
                          const XrViewLocateInfo *viewLocateInfo,
                          XrViewState *viewState, uint32_t viewCapacityInput,
@@ -8773,7 +9628,7 @@ public:
         views);
   }
 
-  //! Call xrStringToPath, populating function pointer if required.
+  //! @brief Call xrStringToPath, populating function pointer if required.
   XrResult xrStringToPath(XrInstance instance, const char *pathString,
                           XrPath *path) {
 
@@ -8786,7 +9641,8 @@ public:
         instance, pathString, path);
   }
 
-  //! Call xrStringToPath (const overload - does not populate function pointer)
+  //! @brief Call xrStringToPath (const overload - does not populate function
+  //! pointer)
   XrResult xrStringToPath(XrInstance instance, const char *pathString,
                           XrPath *path) const {
 
@@ -8794,7 +9650,7 @@ public:
         instance, pathString, path);
   }
 
-  //! Call xrPathToString, populating function pointer if required.
+  //! @brief Call xrPathToString, populating function pointer if required.
   XrResult xrPathToString(XrInstance instance, XrPath path,
                           uint32_t bufferCapacityInput,
                           uint32_t *bufferCountOutput, char *buffer) {
@@ -8808,7 +9664,8 @@ public:
         instance, path, bufferCapacityInput, bufferCountOutput, buffer);
   }
 
-  //! Call xrPathToString (const overload - does not populate function pointer)
+  //! @brief Call xrPathToString (const overload - does not populate function
+  //! pointer)
   XrResult xrPathToString(XrInstance instance, XrPath path,
                           uint32_t bufferCapacityInput,
                           uint32_t *bufferCountOutput, char *buffer) const {
@@ -8817,7 +9674,7 @@ public:
         instance, path, bufferCapacityInput, bufferCountOutput, buffer);
   }
 
-  //! Call xrCreateActionSet, populating function pointer if required.
+  //! @brief Call xrCreateActionSet, populating function pointer if required.
   XrResult xrCreateActionSet(XrInstance instance,
                              const XrActionSetCreateInfo *createInfo,
                              XrActionSet *actionSet) {
@@ -8831,7 +9688,7 @@ public:
         instance, createInfo, actionSet);
   }
 
-  //! Call xrCreateActionSet (const overload - does not populate function
+  //! @brief Call xrCreateActionSet (const overload - does not populate function
   //! pointer)
   XrResult xrCreateActionSet(XrInstance instance,
                              const XrActionSetCreateInfo *createInfo,
@@ -8841,7 +9698,7 @@ public:
         instance, createInfo, actionSet);
   }
 
-  //! Call xrDestroyActionSet, populating function pointer if required.
+  //! @brief Call xrDestroyActionSet, populating function pointer if required.
   XrResult xrDestroyActionSet(XrActionSet actionSet) {
 
     XrResult result = populate_("xrDestroyActionSet", pfnDestroyActionSet);
@@ -8853,15 +9710,15 @@ public:
         actionSet);
   }
 
-  //! Call xrDestroyActionSet (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrDestroyActionSet (const overload - does not populate
+  //! function pointer)
   XrResult xrDestroyActionSet(XrActionSet actionSet) const {
 
     return (reinterpret_cast<PFN_xrDestroyActionSet>(pfnDestroyActionSet))(
         actionSet);
   }
 
-  //! Call xrCreateAction, populating function pointer if required.
+  //! @brief Call xrCreateAction, populating function pointer if required.
   XrResult xrCreateAction(XrActionSet actionSet,
                           const XrActionCreateInfo *createInfo,
                           XrAction *action) {
@@ -8875,7 +9732,8 @@ public:
         actionSet, createInfo, action);
   }
 
-  //! Call xrCreateAction (const overload - does not populate function pointer)
+  //! @brief Call xrCreateAction (const overload - does not populate function
+  //! pointer)
   XrResult xrCreateAction(XrActionSet actionSet,
                           const XrActionCreateInfo *createInfo,
                           XrAction *action) const {
@@ -8884,7 +9742,7 @@ public:
         actionSet, createInfo, action);
   }
 
-  //! Call xrDestroyAction, populating function pointer if required.
+  //! @brief Call xrDestroyAction, populating function pointer if required.
   XrResult xrDestroyAction(XrAction action) {
 
     XrResult result = populate_("xrDestroyAction", pfnDestroyAction);
@@ -8895,14 +9753,15 @@ public:
     return (reinterpret_cast<PFN_xrDestroyAction>(pfnDestroyAction))(action);
   }
 
-  //! Call xrDestroyAction (const overload - does not populate function pointer)
+  //! @brief Call xrDestroyAction (const overload - does not populate function
+  //! pointer)
   XrResult xrDestroyAction(XrAction action) const {
 
     return (reinterpret_cast<PFN_xrDestroyAction>(pfnDestroyAction))(action);
   }
 
-  //! Call xrSuggestInteractionProfileBindings, populating function pointer if
-  //! required.
+  //! @brief Call xrSuggestInteractionProfileBindings, populating function
+  //! pointer if required.
   XrResult xrSuggestInteractionProfileBindings(
       XrInstance instance,
       const XrInteractionProfileSuggestedBinding *suggestedBindings) {
@@ -8917,7 +9776,7 @@ public:
         pfnSuggestInteractionProfileBindings))(instance, suggestedBindings);
   }
 
-  //! Call xrSuggestInteractionProfileBindings (const overload - does not
+  //! @brief Call xrSuggestInteractionProfileBindings (const overload - does not
   //! populate function pointer)
   XrResult xrSuggestInteractionProfileBindings(
       XrInstance instance,
@@ -8927,7 +9786,8 @@ public:
         pfnSuggestInteractionProfileBindings))(instance, suggestedBindings);
   }
 
-  //! Call xrAttachSessionActionSets, populating function pointer if required.
+  //! @brief Call xrAttachSessionActionSets, populating function pointer if
+  //! required.
   XrResult
   xrAttachSessionActionSets(XrSession session,
                             const XrSessionActionSetsAttachInfo *attachInfo) {
@@ -8942,7 +9802,7 @@ public:
         pfnAttachSessionActionSets))(session, attachInfo);
   }
 
-  //! Call xrAttachSessionActionSets (const overload - does not populate
+  //! @brief Call xrAttachSessionActionSets (const overload - does not populate
   //! function pointer)
   XrResult xrAttachSessionActionSets(
       XrSession session,
@@ -8952,7 +9812,7 @@ public:
         pfnAttachSessionActionSets))(session, attachInfo);
   }
 
-  //! Call xrGetCurrentInteractionProfile, populating function pointer if
+  //! @brief Call xrGetCurrentInteractionProfile, populating function pointer if
   //! required.
   XrResult xrGetCurrentInteractionProfile(
       XrSession session, XrPath topLevelUserPath,
@@ -8969,8 +9829,8 @@ public:
                                           interactionProfile);
   }
 
-  //! Call xrGetCurrentInteractionProfile (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetCurrentInteractionProfile (const overload - does not
+  //! populate function pointer)
   XrResult xrGetCurrentInteractionProfile(
       XrSession session, XrPath topLevelUserPath,
       XrInteractionProfileState *interactionProfile) const {
@@ -8980,7 +9840,8 @@ public:
                                           interactionProfile);
   }
 
-  //! Call xrGetActionStateBoolean, populating function pointer if required.
+  //! @brief Call xrGetActionStateBoolean, populating function pointer if
+  //! required.
   XrResult xrGetActionStateBoolean(XrSession session,
                                    const XrActionStateGetInfo *getInfo,
                                    XrActionStateBoolean *state) {
@@ -8995,8 +9856,8 @@ public:
         pfnGetActionStateBoolean))(session, getInfo, state);
   }
 
-  //! Call xrGetActionStateBoolean (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrGetActionStateBoolean (const overload - does not populate
+  //! function pointer)
   XrResult xrGetActionStateBoolean(XrSession session,
                                    const XrActionStateGetInfo *getInfo,
                                    XrActionStateBoolean *state) const {
@@ -9005,7 +9866,8 @@ public:
         pfnGetActionStateBoolean))(session, getInfo, state);
   }
 
-  //! Call xrGetActionStateFloat, populating function pointer if required.
+  //! @brief Call xrGetActionStateFloat, populating function pointer if
+  //! required.
   XrResult xrGetActionStateFloat(XrSession session,
                                  const XrActionStateGetInfo *getInfo,
                                  XrActionStateFloat *state) {
@@ -9020,8 +9882,8 @@ public:
         pfnGetActionStateFloat))(session, getInfo, state);
   }
 
-  //! Call xrGetActionStateFloat (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrGetActionStateFloat (const overload - does not populate
+  //! function pointer)
   XrResult xrGetActionStateFloat(XrSession session,
                                  const XrActionStateGetInfo *getInfo,
                                  XrActionStateFloat *state) const {
@@ -9030,7 +9892,8 @@ public:
         pfnGetActionStateFloat))(session, getInfo, state);
   }
 
-  //! Call xrGetActionStateVector2f, populating function pointer if required.
+  //! @brief Call xrGetActionStateVector2f, populating function pointer if
+  //! required.
   XrResult xrGetActionStateVector2f(XrSession session,
                                     const XrActionStateGetInfo *getInfo,
                                     XrActionStateVector2f *state) {
@@ -9045,8 +9908,8 @@ public:
         pfnGetActionStateVector2f))(session, getInfo, state);
   }
 
-  //! Call xrGetActionStateVector2f (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrGetActionStateVector2f (const overload - does not populate
+  //! function pointer)
   XrResult xrGetActionStateVector2f(XrSession session,
                                     const XrActionStateGetInfo *getInfo,
                                     XrActionStateVector2f *state) const {
@@ -9055,7 +9918,7 @@ public:
         pfnGetActionStateVector2f))(session, getInfo, state);
   }
 
-  //! Call xrGetActionStatePose, populating function pointer if required.
+  //! @brief Call xrGetActionStatePose, populating function pointer if required.
   XrResult xrGetActionStatePose(XrSession session,
                                 const XrActionStateGetInfo *getInfo,
                                 XrActionStatePose *state) {
@@ -9069,8 +9932,8 @@ public:
         session, getInfo, state);
   }
 
-  //! Call xrGetActionStatePose (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrGetActionStatePose (const overload - does not populate
+  //! function pointer)
   XrResult xrGetActionStatePose(XrSession session,
                                 const XrActionStateGetInfo *getInfo,
                                 XrActionStatePose *state) const {
@@ -9079,7 +9942,7 @@ public:
         session, getInfo, state);
   }
 
-  //! Call xrSyncActions, populating function pointer if required.
+  //! @brief Call xrSyncActions, populating function pointer if required.
   XrResult xrSyncActions(XrSession session, const XrActionsSyncInfo *syncInfo) {
 
     XrResult result = populate_("xrSyncActions", pfnSyncActions);
@@ -9091,7 +9954,8 @@ public:
                                                                  syncInfo);
   }
 
-  //! Call xrSyncActions (const overload - does not populate function pointer)
+  //! @brief Call xrSyncActions (const overload - does not populate function
+  //! pointer)
   XrResult xrSyncActions(XrSession session,
                          const XrActionsSyncInfo *syncInfo) const {
 
@@ -9099,8 +9963,8 @@ public:
                                                                  syncInfo);
   }
 
-  //! Call xrEnumerateBoundSourcesForAction, populating function pointer if
-  //! required.
+  //! @brief Call xrEnumerateBoundSourcesForAction, populating function pointer
+  //! if required.
   XrResult xrEnumerateBoundSourcesForAction(
       XrSession session,
       const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
@@ -9119,8 +9983,8 @@ public:
                                             sourceCountOutput, sources);
   }
 
-  //! Call xrEnumerateBoundSourcesForAction (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrEnumerateBoundSourcesForAction (const overload - does not
+  //! populate function pointer)
   XrResult xrEnumerateBoundSourcesForAction(
       XrSession session,
       const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
@@ -9133,7 +9997,7 @@ public:
                                             sourceCountOutput, sources);
   }
 
-  //! Call xrGetInputSourceLocalizedName, populating function pointer if
+  //! @brief Call xrGetInputSourceLocalizedName, populating function pointer if
   //! required.
   XrResult xrGetInputSourceLocalizedName(
       XrSession session, const XrInputSourceLocalizedNameGetInfo *getInfo,
@@ -9150,8 +10014,8 @@ public:
                                          bufferCountOutput, buffer);
   }
 
-  //! Call xrGetInputSourceLocalizedName (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetInputSourceLocalizedName (const overload - does not
+  //! populate function pointer)
   XrResult xrGetInputSourceLocalizedName(
       XrSession session, const XrInputSourceLocalizedNameGetInfo *getInfo,
       uint32_t bufferCapacityInput, uint32_t *bufferCountOutput,
@@ -9162,7 +10026,8 @@ public:
                                          bufferCountOutput, buffer);
   }
 
-  //! Call xrApplyHapticFeedback, populating function pointer if required.
+  //! @brief Call xrApplyHapticFeedback, populating function pointer if
+  //! required.
   XrResult xrApplyHapticFeedback(XrSession session,
                                  const XrHapticActionInfo *hapticActionInfo,
                                  const XrHapticBaseHeader *hapticFeedback) {
@@ -9177,8 +10042,8 @@ public:
         pfnApplyHapticFeedback))(session, hapticActionInfo, hapticFeedback);
   }
 
-  //! Call xrApplyHapticFeedback (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrApplyHapticFeedback (const overload - does not populate
+  //! function pointer)
   XrResult
   xrApplyHapticFeedback(XrSession session,
                         const XrHapticActionInfo *hapticActionInfo,
@@ -9188,7 +10053,7 @@ public:
         pfnApplyHapticFeedback))(session, hapticActionInfo, hapticFeedback);
   }
 
-  //! Call xrStopHapticFeedback, populating function pointer if required.
+  //! @brief Call xrStopHapticFeedback, populating function pointer if required.
   XrResult xrStopHapticFeedback(XrSession session,
                                 const XrHapticActionInfo *hapticActionInfo) {
 
@@ -9201,8 +10066,8 @@ public:
         session, hapticActionInfo);
   }
 
-  //! Call xrStopHapticFeedback (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrStopHapticFeedback (const overload - does not populate
+  //! function pointer)
   XrResult
   xrStopHapticFeedback(XrSession session,
                        const XrHapticActionInfo *hapticActionInfo) const {
@@ -9212,8 +10077,8 @@ public:
   }
 
 #if defined(XR_USE_PLATFORM_ANDROID)
-  //! Call xrSetAndroidApplicationThreadKHR, populating function pointer if
-  //! required.
+  //! @brief Call xrSetAndroidApplicationThreadKHR, populating function pointer
+  //! if required.
   XrResult xrSetAndroidApplicationThreadKHR(XrSession session,
                                             XrAndroidThreadTypeKHR threadType,
                                             uint32_t threadId) {
@@ -9228,8 +10093,8 @@ public:
         pfnSetAndroidApplicationThreadKHR))(session, threadType, threadId);
   }
 
-  //! Call xrSetAndroidApplicationThreadKHR (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrSetAndroidApplicationThreadKHR (const overload - does not
+  //! populate function pointer)
   XrResult xrSetAndroidApplicationThreadKHR(XrSession session,
                                             XrAndroidThreadTypeKHR threadType,
                                             uint32_t threadId) const {
@@ -9240,8 +10105,8 @@ public:
 #endif // defined(XR_USE_PLATFORM_ANDROID)
 
 #if defined(XR_USE_PLATFORM_ANDROID)
-  //! Call xrCreateSwapchainAndroidSurfaceKHR, populating function pointer if
-  //! required.
+  //! @brief Call xrCreateSwapchainAndroidSurfaceKHR, populating function
+  //! pointer if required.
   XrResult xrCreateSwapchainAndroidSurfaceKHR(XrSession session,
                                               const XrSwapchainCreateInfo *info,
                                               XrSwapchain *swapchain,
@@ -9258,7 +10123,7 @@ public:
                                               surface);
   }
 
-  //! Call xrCreateSwapchainAndroidSurfaceKHR (const overload - does not
+  //! @brief Call xrCreateSwapchainAndroidSurfaceKHR (const overload - does not
   //! populate function pointer)
   XrResult xrCreateSwapchainAndroidSurfaceKHR(XrSession session,
                                               const XrSwapchainCreateInfo *info,
@@ -9272,8 +10137,8 @@ public:
 #endif // defined(XR_USE_PLATFORM_ANDROID)
 
 #if defined(XR_USE_GRAPHICS_API_OPENGL)
-  //! Call xrGetOpenGLGraphicsRequirementsKHR, populating function pointer if
-  //! required.
+  //! @brief Call xrGetOpenGLGraphicsRequirementsKHR, populating function
+  //! pointer if required.
   XrResult xrGetOpenGLGraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
       XrGraphicsRequirementsOpenGLKHR *graphicsRequirements) {
@@ -9289,7 +10154,7 @@ public:
                                               graphicsRequirements);
   }
 
-  //! Call xrGetOpenGLGraphicsRequirementsKHR (const overload - does not
+  //! @brief Call xrGetOpenGLGraphicsRequirementsKHR (const overload - does not
   //! populate function pointer)
   XrResult xrGetOpenGLGraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
@@ -9302,8 +10167,8 @@ public:
 #endif // defined(XR_USE_GRAPHICS_API_OPENGL)
 
 #if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
-  //! Call xrGetOpenGLESGraphicsRequirementsKHR, populating function pointer if
-  //! required.
+  //! @brief Call xrGetOpenGLESGraphicsRequirementsKHR, populating function
+  //! pointer if required.
   XrResult xrGetOpenGLESGraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
       XrGraphicsRequirementsOpenGLESKHR *graphicsRequirements) {
@@ -9319,8 +10184,8 @@ public:
                                                 graphicsRequirements);
   }
 
-  //! Call xrGetOpenGLESGraphicsRequirementsKHR (const overload - does not
-  //! populate function pointer)
+  //! @brief Call xrGetOpenGLESGraphicsRequirementsKHR (const overload - does
+  //! not populate function pointer)
   XrResult xrGetOpenGLESGraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
       XrGraphicsRequirementsOpenGLESKHR *graphicsRequirements) const {
@@ -9332,8 +10197,8 @@ public:
 #endif // defined(XR_USE_GRAPHICS_API_OPENGL_ES)
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
-  //! Call xrGetVulkanInstanceExtensionsKHR, populating function pointer if
-  //! required.
+  //! @brief Call xrGetVulkanInstanceExtensionsKHR, populating function pointer
+  //! if required.
   XrResult xrGetVulkanInstanceExtensionsKHR(XrInstance instance,
                                             XrSystemId systemId,
                                             uint32_t bufferCapacityInput,
@@ -9351,8 +10216,8 @@ public:
         instance, systemId, bufferCapacityInput, bufferCountOutput, buffer);
   }
 
-  //! Call xrGetVulkanInstanceExtensionsKHR (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetVulkanInstanceExtensionsKHR (const overload - does not
+  //! populate function pointer)
   XrResult xrGetVulkanInstanceExtensionsKHR(XrInstance instance,
                                             XrSystemId systemId,
                                             uint32_t bufferCapacityInput,
@@ -9366,7 +10231,7 @@ public:
 #endif // defined(XR_USE_GRAPHICS_API_VULKAN)
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
-  //! Call xrGetVulkanDeviceExtensionsKHR, populating function pointer if
+  //! @brief Call xrGetVulkanDeviceExtensionsKHR, populating function pointer if
   //! required.
   XrResult xrGetVulkanDeviceExtensionsKHR(XrInstance instance,
                                           XrSystemId systemId,
@@ -9385,8 +10250,8 @@ public:
         instance, systemId, bufferCapacityInput, bufferCountOutput, buffer);
   }
 
-  //! Call xrGetVulkanDeviceExtensionsKHR (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetVulkanDeviceExtensionsKHR (const overload - does not
+  //! populate function pointer)
   XrResult xrGetVulkanDeviceExtensionsKHR(XrInstance instance,
                                           XrSystemId systemId,
                                           uint32_t bufferCapacityInput,
@@ -9400,7 +10265,7 @@ public:
 #endif // defined(XR_USE_GRAPHICS_API_VULKAN)
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
-  //! Call xrGetVulkanGraphicsDeviceKHR, populating function pointer if
+  //! @brief Call xrGetVulkanGraphicsDeviceKHR, populating function pointer if
   //! required.
   XrResult xrGetVulkanGraphicsDeviceKHR(XrInstance instance,
                                         XrSystemId systemId,
@@ -9418,8 +10283,8 @@ public:
                                         vkPhysicalDevice);
   }
 
-  //! Call xrGetVulkanGraphicsDeviceKHR (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetVulkanGraphicsDeviceKHR (const overload - does not
+  //! populate function pointer)
   XrResult
   xrGetVulkanGraphicsDeviceKHR(XrInstance instance, XrSystemId systemId,
                                VkInstance vkInstance,
@@ -9432,8 +10297,8 @@ public:
 #endif // defined(XR_USE_GRAPHICS_API_VULKAN)
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
-  //! Call xrGetVulkanGraphicsRequirementsKHR, populating function pointer if
-  //! required.
+  //! @brief Call xrGetVulkanGraphicsRequirementsKHR, populating function
+  //! pointer if required.
   XrResult xrGetVulkanGraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
       XrGraphicsRequirementsVulkanKHR *graphicsRequirements) {
@@ -9449,7 +10314,7 @@ public:
                                               graphicsRequirements);
   }
 
-  //! Call xrGetVulkanGraphicsRequirementsKHR (const overload - does not
+  //! @brief Call xrGetVulkanGraphicsRequirementsKHR (const overload - does not
   //! populate function pointer)
   XrResult xrGetVulkanGraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
@@ -9462,8 +10327,8 @@ public:
 #endif // defined(XR_USE_GRAPHICS_API_VULKAN)
 
 #if defined(XR_USE_GRAPHICS_API_D3D11)
-  //! Call xrGetD3D11GraphicsRequirementsKHR, populating function pointer if
-  //! required.
+  //! @brief Call xrGetD3D11GraphicsRequirementsKHR, populating function pointer
+  //! if required.
   XrResult xrGetD3D11GraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
       XrGraphicsRequirementsD3D11KHR *graphicsRequirements) {
@@ -9479,8 +10344,8 @@ public:
                                              graphicsRequirements);
   }
 
-  //! Call xrGetD3D11GraphicsRequirementsKHR (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetD3D11GraphicsRequirementsKHR (const overload - does not
+  //! populate function pointer)
   XrResult xrGetD3D11GraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
       XrGraphicsRequirementsD3D11KHR *graphicsRequirements) const {
@@ -9492,8 +10357,8 @@ public:
 #endif // defined(XR_USE_GRAPHICS_API_D3D11)
 
 #if defined(XR_USE_GRAPHICS_API_D3D12)
-  //! Call xrGetD3D12GraphicsRequirementsKHR, populating function pointer if
-  //! required.
+  //! @brief Call xrGetD3D12GraphicsRequirementsKHR, populating function pointer
+  //! if required.
   XrResult xrGetD3D12GraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
       XrGraphicsRequirementsD3D12KHR *graphicsRequirements) {
@@ -9509,8 +10374,8 @@ public:
                                              graphicsRequirements);
   }
 
-  //! Call xrGetD3D12GraphicsRequirementsKHR (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrGetD3D12GraphicsRequirementsKHR (const overload - does not
+  //! populate function pointer)
   XrResult xrGetD3D12GraphicsRequirementsKHR(
       XrInstance instance, XrSystemId systemId,
       XrGraphicsRequirementsD3D12KHR *graphicsRequirements) const {
@@ -9521,7 +10386,8 @@ public:
   }
 #endif // defined(XR_USE_GRAPHICS_API_D3D12)
 
-  //! Call xrGetVisibilityMaskKHR, populating function pointer if required.
+  //! @brief Call xrGetVisibilityMaskKHR, populating function pointer if
+  //! required.
   XrResult xrGetVisibilityMaskKHR(XrSession session,
                                   XrViewConfigurationType viewConfigurationType,
                                   uint32_t viewIndex,
@@ -9539,8 +10405,8 @@ public:
                                   visibilityMaskType, visibilityMask);
   }
 
-  //! Call xrGetVisibilityMaskKHR (const overload - does not populate function
-  //! pointer)
+  //! @brief Call xrGetVisibilityMaskKHR (const overload - does not populate
+  //! function pointer)
   XrResult xrGetVisibilityMaskKHR(XrSession session,
                                   XrViewConfigurationType viewConfigurationType,
                                   uint32_t viewIndex,
@@ -9553,7 +10419,7 @@ public:
   }
 
 #if defined(XR_USE_PLATFORM_WIN32)
-  //! Call xrConvertWin32PerformanceCounterToTimeKHR, populating function
+  //! @brief Call xrConvertWin32PerformanceCounterToTimeKHR, populating function
   //! pointer if required.
   XrResult xrConvertWin32PerformanceCounterToTimeKHR(
       XrInstance instance, const LARGE_INTEGER *performanceCounter,
@@ -9570,8 +10436,8 @@ public:
                                                      performanceCounter, time);
   }
 
-  //! Call xrConvertWin32PerformanceCounterToTimeKHR (const overload - does not
-  //! populate function pointer)
+  //! @brief Call xrConvertWin32PerformanceCounterToTimeKHR (const overload -
+  //! does not populate function pointer)
   XrResult xrConvertWin32PerformanceCounterToTimeKHR(
       XrInstance instance, const LARGE_INTEGER *performanceCounter,
       XrTime *time) const {
@@ -9583,7 +10449,7 @@ public:
 #endif // defined(XR_USE_PLATFORM_WIN32)
 
 #if defined(XR_USE_PLATFORM_WIN32)
-  //! Call xrConvertTimeToWin32PerformanceCounterKHR, populating function
+  //! @brief Call xrConvertTimeToWin32PerformanceCounterKHR, populating function
   //! pointer if required.
   XrResult
   xrConvertTimeToWin32PerformanceCounterKHR(XrInstance instance, XrTime time,
@@ -9600,8 +10466,8 @@ public:
                                                      performanceCounter);
   }
 
-  //! Call xrConvertTimeToWin32PerformanceCounterKHR (const overload - does not
-  //! populate function pointer)
+  //! @brief Call xrConvertTimeToWin32PerformanceCounterKHR (const overload -
+  //! does not populate function pointer)
   XrResult xrConvertTimeToWin32PerformanceCounterKHR(
       XrInstance instance, XrTime time,
       LARGE_INTEGER *performanceCounter) const {
@@ -9613,7 +10479,7 @@ public:
 #endif // defined(XR_USE_PLATFORM_WIN32)
 
 #if defined(XR_USE_TIMESPEC)
-  //! Call xrConvertTimespecTimeToTimeKHR, populating function pointer if
+  //! @brief Call xrConvertTimespecTimeToTimeKHR, populating function pointer if
   //! required.
   XrResult xrConvertTimespecTimeToTimeKHR(XrInstance instance,
                                           const struct timespec *timespecTime,
@@ -9629,8 +10495,8 @@ public:
         pfnConvertTimespecTimeToTimeKHR))(instance, timespecTime, time);
   }
 
-  //! Call xrConvertTimespecTimeToTimeKHR (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrConvertTimespecTimeToTimeKHR (const overload - does not
+  //! populate function pointer)
   XrResult xrConvertTimespecTimeToTimeKHR(XrInstance instance,
                                           const struct timespec *timespecTime,
                                           XrTime *time) const {
@@ -9641,7 +10507,7 @@ public:
 #endif // defined(XR_USE_TIMESPEC)
 
 #if defined(XR_USE_TIMESPEC)
-  //! Call xrConvertTimeToTimespecTimeKHR, populating function pointer if
+  //! @brief Call xrConvertTimeToTimespecTimeKHR, populating function pointer if
   //! required.
   XrResult xrConvertTimeToTimespecTimeKHR(XrInstance instance, XrTime time,
                                           struct timespec *timespecTime) {
@@ -9656,8 +10522,8 @@ public:
         pfnConvertTimeToTimespecTimeKHR))(instance, time, timespecTime);
   }
 
-  //! Call xrConvertTimeToTimespecTimeKHR (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrConvertTimeToTimespecTimeKHR (const overload - does not
+  //! populate function pointer)
   XrResult xrConvertTimeToTimespecTimeKHR(XrInstance instance, XrTime time,
                                           struct timespec *timespecTime) const {
 
@@ -9666,8 +10532,8 @@ public:
   }
 #endif // defined(XR_USE_TIMESPEC)
 
-  //! Call xrPerfSettingsSetPerformanceLevelEXT, populating function pointer if
-  //! required.
+  //! @brief Call xrPerfSettingsSetPerformanceLevelEXT, populating function
+  //! pointer if required.
   XrResult xrPerfSettingsSetPerformanceLevelEXT(XrSession session,
                                                 XrPerfSettingsDomainEXT domain,
                                                 XrPerfSettingsLevelEXT level) {
@@ -9682,8 +10548,8 @@ public:
         pfnPerfSettingsSetPerformanceLevelEXT))(session, domain, level);
   }
 
-  //! Call xrPerfSettingsSetPerformanceLevelEXT (const overload - does not
-  //! populate function pointer)
+  //! @brief Call xrPerfSettingsSetPerformanceLevelEXT (const overload - does
+  //! not populate function pointer)
   XrResult
   xrPerfSettingsSetPerformanceLevelEXT(XrSession session,
                                        XrPerfSettingsDomainEXT domain,
@@ -9693,8 +10559,8 @@ public:
         pfnPerfSettingsSetPerformanceLevelEXT))(session, domain, level);
   }
 
-  //! Call xrThermalGetTemperatureTrendEXT, populating function pointer if
-  //! required.
+  //! @brief Call xrThermalGetTemperatureTrendEXT, populating function pointer
+  //! if required.
   XrResult xrThermalGetTemperatureTrendEXT(
       XrSession session, XrPerfSettingsDomainEXT domain,
       XrPerfSettingsNotificationLevelEXT *notificationLevel,
@@ -9711,8 +10577,8 @@ public:
                                            tempHeadroom, tempSlope);
   }
 
-  //! Call xrThermalGetTemperatureTrendEXT (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrThermalGetTemperatureTrendEXT (const overload - does not
+  //! populate function pointer)
   XrResult xrThermalGetTemperatureTrendEXT(
       XrSession session, XrPerfSettingsDomainEXT domain,
       XrPerfSettingsNotificationLevelEXT *notificationLevel,
@@ -9723,7 +10589,7 @@ public:
                                            tempHeadroom, tempSlope);
   }
 
-  //! Call xrSetDebugUtilsObjectNameEXT, populating function pointer if
+  //! @brief Call xrSetDebugUtilsObjectNameEXT, populating function pointer if
   //! required.
   XrResult
   xrSetDebugUtilsObjectNameEXT(XrInstance instance,
@@ -9739,8 +10605,8 @@ public:
         pfnSetDebugUtilsObjectNameEXT))(instance, nameInfo);
   }
 
-  //! Call xrSetDebugUtilsObjectNameEXT (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrSetDebugUtilsObjectNameEXT (const overload - does not
+  //! populate function pointer)
   XrResult xrSetDebugUtilsObjectNameEXT(
       XrInstance instance,
       const XrDebugUtilsObjectNameInfoEXT *nameInfo) const {
@@ -9749,7 +10615,7 @@ public:
         pfnSetDebugUtilsObjectNameEXT))(instance, nameInfo);
   }
 
-  //! Call xrCreateDebugUtilsMessengerEXT, populating function pointer if
+  //! @brief Call xrCreateDebugUtilsMessengerEXT, populating function pointer if
   //! required.
   XrResult xrCreateDebugUtilsMessengerEXT(
       XrInstance instance, const XrDebugUtilsMessengerCreateInfoEXT *createInfo,
@@ -9765,8 +10631,8 @@ public:
         pfnCreateDebugUtilsMessengerEXT))(instance, createInfo, messenger);
   }
 
-  //! Call xrCreateDebugUtilsMessengerEXT (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrCreateDebugUtilsMessengerEXT (const overload - does not
+  //! populate function pointer)
   XrResult xrCreateDebugUtilsMessengerEXT(
       XrInstance instance, const XrDebugUtilsMessengerCreateInfoEXT *createInfo,
       XrDebugUtilsMessengerEXT *messenger) const {
@@ -9775,8 +10641,8 @@ public:
         pfnCreateDebugUtilsMessengerEXT))(instance, createInfo, messenger);
   }
 
-  //! Call xrDestroyDebugUtilsMessengerEXT, populating function pointer if
-  //! required.
+  //! @brief Call xrDestroyDebugUtilsMessengerEXT, populating function pointer
+  //! if required.
   XrResult xrDestroyDebugUtilsMessengerEXT(XrDebugUtilsMessengerEXT messenger) {
 
     XrResult result = populate_("xrDestroyDebugUtilsMessengerEXT",
@@ -9789,8 +10655,8 @@ public:
         pfnDestroyDebugUtilsMessengerEXT))(messenger);
   }
 
-  //! Call xrDestroyDebugUtilsMessengerEXT (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrDestroyDebugUtilsMessengerEXT (const overload - does not
+  //! populate function pointer)
   XrResult
   xrDestroyDebugUtilsMessengerEXT(XrDebugUtilsMessengerEXT messenger) const {
 
@@ -9798,7 +10664,7 @@ public:
         pfnDestroyDebugUtilsMessengerEXT))(messenger);
   }
 
-  //! Call xrSubmitDebugUtilsMessageEXT, populating function pointer if
+  //! @brief Call xrSubmitDebugUtilsMessageEXT, populating function pointer if
   //! required.
   XrResult xrSubmitDebugUtilsMessageEXT(
       XrInstance instance, XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
@@ -9816,8 +10682,8 @@ public:
                                         callbackData);
   }
 
-  //! Call xrSubmitDebugUtilsMessageEXT (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrSubmitDebugUtilsMessageEXT (const overload - does not
+  //! populate function pointer)
   XrResult xrSubmitDebugUtilsMessageEXT(
       XrInstance instance, XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
       XrDebugUtilsMessageTypeFlagsEXT messageTypes,
@@ -9828,8 +10694,8 @@ public:
                                         callbackData);
   }
 
-  //! Call xrSessionBeginDebugUtilsLabelRegionEXT, populating function pointer
-  //! if required.
+  //! @brief Call xrSessionBeginDebugUtilsLabelRegionEXT, populating function
+  //! pointer if required.
   XrResult xrSessionBeginDebugUtilsLabelRegionEXT(
       XrSession session, const XrDebugUtilsLabelEXT *labelInfo) {
 
@@ -9843,8 +10709,8 @@ public:
         pfnSessionBeginDebugUtilsLabelRegionEXT))(session, labelInfo);
   }
 
-  //! Call xrSessionBeginDebugUtilsLabelRegionEXT (const overload - does not
-  //! populate function pointer)
+  //! @brief Call xrSessionBeginDebugUtilsLabelRegionEXT (const overload - does
+  //! not populate function pointer)
   XrResult xrSessionBeginDebugUtilsLabelRegionEXT(
       XrSession session, const XrDebugUtilsLabelEXT *labelInfo) const {
 
@@ -9852,8 +10718,8 @@ public:
         pfnSessionBeginDebugUtilsLabelRegionEXT))(session, labelInfo);
   }
 
-  //! Call xrSessionEndDebugUtilsLabelRegionEXT, populating function pointer if
-  //! required.
+  //! @brief Call xrSessionEndDebugUtilsLabelRegionEXT, populating function
+  //! pointer if required.
   XrResult xrSessionEndDebugUtilsLabelRegionEXT(XrSession session) {
 
     XrResult result = populate_("xrSessionEndDebugUtilsLabelRegionEXT",
@@ -9866,16 +10732,16 @@ public:
         pfnSessionEndDebugUtilsLabelRegionEXT))(session);
   }
 
-  //! Call xrSessionEndDebugUtilsLabelRegionEXT (const overload - does not
-  //! populate function pointer)
+  //! @brief Call xrSessionEndDebugUtilsLabelRegionEXT (const overload - does
+  //! not populate function pointer)
   XrResult xrSessionEndDebugUtilsLabelRegionEXT(XrSession session) const {
 
     return (reinterpret_cast<PFN_xrSessionEndDebugUtilsLabelRegionEXT>(
         pfnSessionEndDebugUtilsLabelRegionEXT))(session);
   }
 
-  //! Call xrSessionInsertDebugUtilsLabelEXT, populating function pointer if
-  //! required.
+  //! @brief Call xrSessionInsertDebugUtilsLabelEXT, populating function pointer
+  //! if required.
   XrResult
   xrSessionInsertDebugUtilsLabelEXT(XrSession session,
                                     const XrDebugUtilsLabelEXT *labelInfo) {
@@ -9890,8 +10756,8 @@ public:
         pfnSessionInsertDebugUtilsLabelEXT))(session, labelInfo);
   }
 
-  //! Call xrSessionInsertDebugUtilsLabelEXT (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrSessionInsertDebugUtilsLabelEXT (const overload - does not
+  //! populate function pointer)
   XrResult xrSessionInsertDebugUtilsLabelEXT(
       XrSession session, const XrDebugUtilsLabelEXT *labelInfo) const {
 
@@ -9899,7 +10765,8 @@ public:
         pfnSessionInsertDebugUtilsLabelEXT))(session, labelInfo);
   }
 
-  //! Call xrCreateSpatialAnchorMSFT, populating function pointer if required.
+  //! @brief Call xrCreateSpatialAnchorMSFT, populating function pointer if
+  //! required.
   XrResult
   xrCreateSpatialAnchorMSFT(XrSession session,
                             const XrSpatialAnchorCreateInfoMSFT *createInfo,
@@ -9915,7 +10782,7 @@ public:
         pfnCreateSpatialAnchorMSFT))(session, createInfo, anchor);
   }
 
-  //! Call xrCreateSpatialAnchorMSFT (const overload - does not populate
+  //! @brief Call xrCreateSpatialAnchorMSFT (const overload - does not populate
   //! function pointer)
   XrResult
   xrCreateSpatialAnchorMSFT(XrSession session,
@@ -9926,7 +10793,7 @@ public:
         pfnCreateSpatialAnchorMSFT))(session, createInfo, anchor);
   }
 
-  //! Call xrCreateSpatialAnchorSpaceMSFT, populating function pointer if
+  //! @brief Call xrCreateSpatialAnchorSpaceMSFT, populating function pointer if
   //! required.
   XrResult xrCreateSpatialAnchorSpaceMSFT(
       XrSession session, const XrSpatialAnchorSpaceCreateInfoMSFT *createInfo,
@@ -9942,8 +10809,8 @@ public:
         pfnCreateSpatialAnchorSpaceMSFT))(session, createInfo, space);
   }
 
-  //! Call xrCreateSpatialAnchorSpaceMSFT (const overload - does not populate
-  //! function pointer)
+  //! @brief Call xrCreateSpatialAnchorSpaceMSFT (const overload - does not
+  //! populate function pointer)
   XrResult xrCreateSpatialAnchorSpaceMSFT(
       XrSession session, const XrSpatialAnchorSpaceCreateInfoMSFT *createInfo,
       XrSpace *space) const {
@@ -9952,7 +10819,8 @@ public:
         pfnCreateSpatialAnchorSpaceMSFT))(session, createInfo, space);
   }
 
-  //! Call xrDestroySpatialAnchorMSFT, populating function pointer if required.
+  //! @brief Call xrDestroySpatialAnchorMSFT, populating function pointer if
+  //! required.
   XrResult xrDestroySpatialAnchorMSFT(XrSpatialAnchorMSFT anchor) {
 
     XrResult result =
@@ -9965,7 +10833,7 @@ public:
         pfnDestroySpatialAnchorMSFT))(anchor);
   }
 
-  //! Call xrDestroySpatialAnchorMSFT (const overload - does not populate
+  //! @brief Call xrDestroySpatialAnchorMSFT (const overload - does not populate
   //! function pointer)
   XrResult xrDestroySpatialAnchorMSFT(XrSpatialAnchorMSFT anchor) const {
 
@@ -9973,8 +10841,10 @@ public:
         pfnDestroySpatialAnchorMSFT))(anchor);
   }
 
+  //! @}
 private:
-  //! Internal utility function to populate a function pointer if it is nullptr.
+  //! @brief Internal utility function to populate a function pointer if it is
+  //! nullptr.
   XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
     if (pfn == nullptr) {
       return reinterpret_cast<PFN_xrGetInstanceProcAddr>(

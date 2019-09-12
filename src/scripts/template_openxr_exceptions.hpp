@@ -1,15 +1,22 @@
 
 namespace OPENXR_HPP_NAMESPACE {
 
-//! Return true if the Result is negative, indicating a failure.
+/*!
+ * @defgroup result_helpers Result helper free functions
+ * @{
+ */
+//! @brief Return true if the Result is negative, indicating a failure.
 //! Equivalent of XR_FAILED()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) { return static_cast<int>(v) < 0; }
-//! Return true if the result is non-negative, indicating a success or non-error result.
+
+//! @brief Return true if the result is non-negative, indicating a success or non-error result.
 //! Equivalent of XR_SUCCEEDED()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool succeeded(Result v) { return static_cast<int>(v) >= 0; }
-//! Return true if the result is exactly equal to Success.
+
+//! @brief Return true if the result is exactly equal to Result::Success.
 //! Equivalent of XR_UNQUALIFIED_SUCCESS()
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool unqualifiedSuccess(Result v) { return v == Result::Success; }
+//! @}
 
 /*% macro resultOperators(op) %*/
 //! /*{op}*/ comparison between Result and integer, for compatibility with the XR_ function-type macros and XrResult.
@@ -31,6 +38,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(int lhs, Result
 
 namespace OPENXR_HPP_NAMESPACE {
 
+//! Implementation details
 namespace impl {
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
 #define noexcept _NOEXCEPT
@@ -62,7 +70,18 @@ OPENXR_HPP_INLINE std::error_condition make_error_condition(Result e) {
 #endif
 }  // namespace impl
 
-//! Base class for all OpenXR exceptions.
+//! OpenXR exceptions
+namespace exceptions {
+/*!
+ * @defgroup exceptions Exceptions
+ *
+ * @{
+ */
+/*!
+ * @defgroup base_exceptions Exception base classes
+ * @{
+ */
+//! @brief Base class for all OpenXR exceptions.
 //!
 //! Only used for catching all OpenXR exceptions.
 class Error {
@@ -72,7 +91,7 @@ class Error {
     virtual const char* what() const noexcept = 0;
 };
 
-//! OpenXR logic error base exception class.
+//! @brief OpenXR logic error base exception class.
 //!
 //! Derives from both Error and std::logic_error for flexibility in catching.
 class LogicError : public Error, public std::logic_error {
@@ -84,7 +103,7 @@ class LogicError : public Error, public std::logic_error {
     virtual const char* what() const noexcept { return std::logic_error::what(); }
 };
 
-//! OpenXR system error exception class - may be derived from or thrown directly.
+//! @brief OpenXR system error exception class - may be derived from or thrown directly.
 //!
 //! Derives from both Error and std::system_error for flexibility in catching.
 class SystemError : public Error, public std::system_error {
@@ -100,17 +119,23 @@ class SystemError : public Error, public std::system_error {
     virtual const char* what() const noexcept { return std::system_error::what(); }
 };
 
+// end of base_exceptions
+//! @}
 #if defined(_MSC_VER) && (_MSC_VER == 1800)
 #undef noexcept
 #endif
 
+/*!
+ * @defgroup result_exceptions Result-specific exceptions
+ * @{
+ */
+//! @todo identify which errors would be considered LogicError and subclass that instead. Add to XML?
 //# for val in result_enum.values
 //# if "XR_ERROR" in val.name
 /*{ protect_begin(val, enum) }*/
 //#     set valname = create_enum_value(val.name, 'XrResult')
 //#    set classname = create_enum_exception(val.name)
-//## TODO identify which errors would be considered LogicError and subclass that instead. Add to XML?
-//! Exception class associated with the Result::/*{valname}*/ aka /*{val.name}*/ result code.
+//! @brief Exception class associated with the Result::/*{valname}*/ aka /*{val.name}*/ result code.
 class /*{classname}*/ : public SystemError {
    public:
     /*{classname}*/ (std::string const& message)
@@ -123,7 +148,12 @@ class /*{classname}*/ : public SystemError {
 //# endif
 //# endfor
 
+// end of result_exceptions
+//! @}
+
 /*!
+ * @brief Throws the best exception for a result code.
+ *
  * Takes a result code and a message (usually the method triggering the exception) and throws the most-specific exception available
  * for that result code. As a fallback, it will throw a SystemError directly.
  */
@@ -148,6 +178,8 @@ OPENXR_HPP_INLINE void throwResultException(Result result, char const* message) 
             throw SystemError(impl::make_error_code(result));
     }
 }
+//! @}
+}  // namespace exceptions
 }  // namespace OPENXR_HPP_NAMESPACE
 
 namespace std {
@@ -159,10 +191,20 @@ struct is_error_code_enum<OPENXR_HPP_NAMESPACE::Result> : public true_type {};
 namespace OPENXR_HPP_NAMESPACE {
 
 /*!
- * Contains a Result enumerant and a returned value.
+ * @defgroup return_results Returning results
+ * @brief Types and functions used by API call wrappers to return output in a friendly, C++ manner.
+ *
+ * A user of openxr.hpp will not typically call the functions here directly,
+ * but knowing how they work could be useful.
+ * @{
+ */
+/*!
+ * @brief Contains a Result enumerant and a returned value.
  *
  * Implicitly convertible to std::tuple<> so you can do `std::tie(result, value)
  * = callThatReturnsResultValue()`
+ *
+ * @ingroup utilities
  */
 template <typename T>
 struct ResultValue {
@@ -176,7 +218,8 @@ struct ResultValue {
     operator std::tuple<Result&, T&>() { return std::tuple<Result&, T&>(result, value); }
 };
 
-/*! Computes the return type of a function (in enhanced mode) with no
+/*!
+ * @brief Computes the return type of a function (in enhanced mode) with no
  * non-Result::Success success codes and potentially an output value of type T.
  *
  * The behavior differs based on whether or not you have
@@ -208,11 +251,8 @@ struct ResultValueType<void> {
 };
 #endif
 
-template <typename T>
-OPENXR_HPP_INLINE void ignore(T const&) {}
-
 /*!
- * Returned by enhanced-mode functions with no output value and no
+ * @brief Returned by enhanced-mode functions with no output value and no
  * non-Result::Success success codes.
  *
  * On failure:
@@ -229,18 +269,18 @@ OPENXR_HPP_INLINE void ignore(T const&) {}
  */
 OPENXR_HPP_INLINE ResultValueType<void>::type createResultValue(Result result, char const* message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-    ignore(message);
+    (void)message;
     OPENXR_HPP_ASSERT(result == Result::Success);
     return result;
 #else
     if (failed(result)) {
-        throwResultException(result, message);
+        exceptions::throwResultException(result, message);
     }
 #endif
 }
 
 /*!
- * Returned by enhanced-mode functions with output value of type T and no
+ * @brief Returned by enhanced-mode functions with output value of type T and no
  * non-Result::Success success codes.
  *
  * On failure:
@@ -259,19 +299,19 @@ OPENXR_HPP_INLINE ResultValueType<void>::type createResultValue(Result result, c
 template <typename T>
 OPENXR_HPP_INLINE typename ResultValueType<T>::type createResultValue(Result result, T& data, char const* message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-    ignore(message);
+    (void)message;
     OPENXR_HPP_ASSERT(result == Result::Success);
     return ResultValue<T>(result, std::move(data));
 #else
     if (failed(result)) {
-        throwResultException(result, message);
+        exceptions::throwResultException(result, message);
     }
     return std::move(data);
 #endif
 }
 
 /*!
- * Returned by enhanced-mode functions with no output value and at least one
+ * @brief Returned by enhanced-mode functions with no output value and at least one
  * success code specified that is not Result::Success.
  *
  * Return type is always Result.
@@ -290,18 +330,18 @@ OPENXR_HPP_INLINE typename ResultValueType<T>::type createResultValue(Result res
  */
 OPENXR_HPP_INLINE Result createResultValue(Result result, char const* message, std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-    ignore(message);
+    (void)message;
     OPENXR_HPP_ASSERT(std::find(successCodes.begin(), successCodes.end(), result) != successCodes.end());
 #else
     if (std::find(successCodes.begin(), successCodes.end(), result) == successCodes.end()) {
-        throwResultException(result, message);
+        exceptions::throwResultException(result, message);
     }
 #endif
     return result;
 }
 
 /*!
- * Returned by enhanced-mode functions with an output value of type T and at
+ * @brief Returned by enhanced-mode functions with an output value of type T and at
  * least one success code specified that is not Result::Success.
  *
  * Return type is always ResultValue<T>, containing both a Result and the output
@@ -325,11 +365,11 @@ template <typename T>
 OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char const* message,
                                                    std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-    ignore(message);
+    (void)message;
     OPENXR_HPP_ASSERT(std::find(successCodes.begin(), successCodes.end(), result) != successCodes.end());
 #else
     if (std::find(successCodes.begin(), successCodes.end(), result) == successCodes.end()) {
-        throwResultException(result, message);
+        exceptions::throwResultException(result, message);
     }
 #endif
     return ResultValue<T>(result, data);
@@ -337,7 +377,7 @@ OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char 
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 /*!
- * Returned by enhanced-mode functions that create a UniqueHandle<T, D>
+ * @brief Returned by enhanced-mode functions that create a UniqueHandle<T, D>
  * (a handle of type T, with deleter using dispatch type D) and
  * no non-Result::Success success codes.
  *
@@ -355,21 +395,21 @@ OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char 
  */
 template <typename T, typename D>
 OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle<T, D>>::type createResultValue(
-    Result result, T& data, typename UniqueHandleTraits<T, D>::deleter const& deleter, char const* message) {
+    Result result, T& data, typename traits::UniqueHandleTraits<T, D>::deleter const& deleter, char const* message) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-    ignore(message);
+    (void)message;
     OPENXR_HPP_ASSERT(result == Result::Success);
     return ResultValue<UniqueHandle<T, D>>(result, UniqueHandle<T, D>(std::move(data), deleter));
 #else
     if (failed(result)) {
-        throwResultException(result, message);
+        exceptions::throwResultException(result, message);
     }
     return UniqueHandle<T, D>(data, deleter);
 #endif
 }
 
 /*!
- * Returned by enhanced-mode functions that create a UniqueHandle<T, D>
+ * @brief Returned by enhanced-mode functions that create a UniqueHandle<T, D>
  * (a handle of type T, with deleter using dispatch type D) and
  * at least one success code specified that is not Result::Success.
  *
@@ -389,20 +429,22 @@ OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle<T, D>>::type createResul
  * Result::Success, or a non-Result::Success success code) and the UniqueHandle<T, D>.
  */
 template <typename T, typename D>
-OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>> createResultValue(Result result, T& data,
-                                                                    typename UniqueHandleTraits<T, D>::deleter const& deleter,
-                                                                    char const* message,
-                                                                    std::initializer_list<Result> successCodes) {
+OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>> createResultValue(
+    Result result, T& data, typename traits::UniqueHandleTraits<T, D>::deleter const& deleter, char const* message,
+    std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-    ignore(message);
+    (void)message;
     OPENXR_HPP_ASSERT(std::find(successCodes.begin(), successCodes.end(), result) != successCodes.end());
     return ResultValue<UniqueHandle<T, D>>(result, UniqueHandle<T, D>(std::move(data), deleter));
 #else
     if (std::find(successCodes.begin(), successCodes.end(), result) == successCodes.end()) {
-        throwResultException(result, message);
+        exceptions::throwResultException(result, message);
     }
     return ResultValue<UniqueHandle<T, D>>(result, UniqueHandle<T, D>{data, deleter});
 #endif
 }
 #endif
+
+//! @}
+
 }  // namespace OPENXR_HPP_NAMESPACE

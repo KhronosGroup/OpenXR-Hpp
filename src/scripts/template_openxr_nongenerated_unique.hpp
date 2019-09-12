@@ -3,6 +3,13 @@ namespace OPENXR_HPP_NAMESPACE {
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
+namespace traits {
+
+template <typename Type, typename Dispatch>
+class UniqueHandleTraits;
+
+}  // namespace traits
+
 namespace impl {
 
 // Used when returning unique handles.
@@ -10,13 +17,16 @@ template <typename T>
 using RemoveRefConst = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 }  // namespace impl
 
+/*!
+ * Template class for holding a handle with unique ownership, much like unique_ptr.
+ *
+ * Note that this does not keep track of children or parents, though OpenXR specifies that destruction of a handle also destroys its
+ * children automatically.
+ */
 template <typename Type, typename Dispatch>
-class UniqueHandleTraits;
-
-template <typename Type, typename Dispatch>
-class UniqueHandle : public UniqueHandleTraits<Type, Dispatch>::deleter {
+class UniqueHandle : public traits::UniqueHandleTraits<Type, Dispatch>::deleter {
    private:
-    using Deleter = typename UniqueHandleTraits<Type, Dispatch>::deleter;
+    using Deleter = typename traits::UniqueHandleTraits<Type, Dispatch>::deleter;
 
    public:
     explicit UniqueHandle(Type const &value = Type(), Deleter const &deleter = Deleter()) : Deleter(deleter), m_value(value) {}
@@ -82,6 +92,8 @@ class UniqueHandle<Type, Dispatch &> : public UniqueHandle<Type, Dispatch> {};
 
 template <typename Type, typename Dispatch>
 class UniqueHandle<Type, Dispatch const> : public UniqueHandle<Type, Dispatch> {};
+
+//! @relates UniqueHandle
 template <typename Type, typename Dispatch>
 OPENXR_HPP_INLINE void swap(UniqueHandle<Type, Dispatch> &lhs, UniqueHandle<Type, Dispatch> &rhs) {
     lhs.swap(rhs);
