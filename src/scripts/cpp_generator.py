@@ -330,7 +330,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             tmpl = "<{}>".format(",".join(method.return_template_params))
         else:
             tmpl = ""
-        method.return_statement = 'return createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
+        method.return_statement = 'return impl::createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
             tmpl=tmpl,
             rets=",".join(method.returns),
             name=method.qualified_name, successes=method.successes_arg)

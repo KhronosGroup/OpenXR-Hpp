@@ -3241,6 +3241,7 @@ namespace OPENXR_HPP_NAMESPACE {
  * but knowing how they work could be useful.
  * @{
  */
+
 /*!
  * @brief Contains a Result enumerant and a returned value.
  *
@@ -3282,6 +3283,7 @@ template <typename T> struct ResultValueType { typedef T type; };
 template <> struct ResultValueType<void> { typedef void type; };
 #endif
 
+namespace impl {
 /*!
  * @brief Returned by enhanced-mode functions with no output value and no
  * non-Result::Success success codes.
@@ -3496,6 +3498,8 @@ OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>> createResultValue(
 #endif
 }
 #endif
+
+} // namespace impl
 
 //! @}
 
@@ -11002,8 +11006,8 @@ Instance::getInstanceProcAddr(const char *name, PFN_xrVoidFunction *function,
                               Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrGetInstanceProcAddr(this->get(), name, function));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getInstanceProcAddr");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getInstanceProcAddr");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11032,9 +11036,9 @@ enumerateApiLayerProperties(Dispatch &&d) {
       propertyCapacityInput, &propertyCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || propertyCountOutput == 0) {
 
-    return createResultValue(result, properties,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::enumerateApiLayerProperties");
+    return impl::createResultValue(result, properties,
+                                   OPENXR_HPP_NAMESPACE_STRING
+                                   "::enumerateApiLayerProperties");
   }
   do {
     properties.resize(propertyCountOutput, empty);
@@ -11047,9 +11051,9 @@ enumerateApiLayerProperties(Dispatch &&d) {
     properties.resize(propertyCountOutput, empty);
   }
 
-  return createResultValue(result, properties,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::enumerateApiLayerProperties");
+  return impl::createResultValue(result, properties,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::enumerateApiLayerProperties");
 }
 
 template <typename Allocator, typename Dispatch>
@@ -11068,9 +11072,9 @@ enumerateApiLayerProperties(Allocator const &vectorAllocator, Dispatch &&d) {
       propertyCapacityInput, &propertyCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || propertyCountOutput == 0) {
 
-    return createResultValue(result, properties,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::enumerateApiLayerProperties");
+    return impl::createResultValue(result, properties,
+                                   OPENXR_HPP_NAMESPACE_STRING
+                                   "::enumerateApiLayerProperties");
   }
   do {
     properties.resize(propertyCountOutput, empty);
@@ -11083,9 +11087,9 @@ enumerateApiLayerProperties(Allocator const &vectorAllocator, Dispatch &&d) {
     properties.resize(propertyCountOutput, empty);
   }
 
-  return createResultValue(result, properties,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::enumerateApiLayerProperties");
+  return impl::createResultValue(result, properties,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::enumerateApiLayerProperties");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11115,9 +11119,9 @@ enumerateInstanceExtensionProperties(const char *layerName, Dispatch &&d) {
       layerName, propertyCapacityInput, &propertyCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || propertyCountOutput == 0) {
 
-    return createResultValue(result, properties,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::enumerateInstanceExtensionProperties");
+    return impl::createResultValue(result, properties,
+                                   OPENXR_HPP_NAMESPACE_STRING
+                                   "::enumerateInstanceExtensionProperties");
   }
   do {
     properties.resize(propertyCountOutput, empty);
@@ -11131,9 +11135,9 @@ enumerateInstanceExtensionProperties(const char *layerName, Dispatch &&d) {
     properties.resize(propertyCountOutput, empty);
   }
 
-  return createResultValue(result, properties,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::enumerateInstanceExtensionProperties");
+  return impl::createResultValue(result, properties,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::enumerateInstanceExtensionProperties");
 }
 
 template <typename Allocator, typename Dispatch>
@@ -11154,9 +11158,9 @@ enumerateInstanceExtensionProperties(const char *layerName,
       layerName, propertyCapacityInput, &propertyCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || propertyCountOutput == 0) {
 
-    return createResultValue(result, properties,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::enumerateInstanceExtensionProperties");
+    return impl::createResultValue(result, properties,
+                                   OPENXR_HPP_NAMESPACE_STRING
+                                   "::enumerateInstanceExtensionProperties");
   }
   do {
     properties.resize(propertyCountOutput, empty);
@@ -11170,9 +11174,9 @@ enumerateInstanceExtensionProperties(const char *layerName,
     properties.resize(propertyCountOutput, empty);
   }
 
-  return createResultValue(result, properties,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::enumerateInstanceExtensionProperties");
+  return impl::createResultValue(result, properties,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::enumerateInstanceExtensionProperties");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11191,8 +11195,8 @@ createInstance(const XrInstanceCreateInfo *createInfo, Dispatch &&d) {
   Instance handle;
   Result result =
       static_cast<Result>(d.xrCreateInstance(createInfo, handle.put()));
-  return createResultValue(result, handle,
-                           OPENXR_HPP_NAMESPACE_STRING "::createInstance");
+  return impl::createResultValue(
+      result, handle, OPENXR_HPP_NAMESPACE_STRING "::createInstance");
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -11204,7 +11208,7 @@ createInstanceUnique(const XrInstanceCreateInfo *createInfo, Dispatch &&d) {
   Result result =
       static_cast<Result>(d.xrCreateInstance(createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<Instance, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<Instance, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING "::createInstanceUnique");
 }
@@ -11224,8 +11228,8 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE ResultValueType<void>::type
 Instance::destroy(Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrDestroyInstance(this->get()));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Instance::destroy");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::destroy");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11245,8 +11249,8 @@ Instance::getInstanceProperties(XrInstanceProperties *instanceProperties,
                                 Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrGetInstanceProperties(this->get(), instanceProperties));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getInstanceProperties");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getInstanceProperties");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11263,9 +11267,9 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE Result Instance::pollEvent(XrEventDataBuffer *eventData,
                                              Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrPollEvent(this->get(), eventData));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Instance::pollEvent",
-                           {Result::Success, Result::EventUnavailable});
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING "::Instance::pollEvent",
+      {Result::Success, Result::EventUnavailable});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11287,8 +11291,8 @@ Instance::resultToString(Result value, char buffer[XR_MAX_RESULT_STRING_SIZE],
                          Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrResultToString(
       this->get(), OPENXR_HPP_NAMESPACE::get(value), buffer));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::resultToString");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::resultToString");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11314,8 +11318,8 @@ Instance::structureTypeToString(StructureType value,
                                 Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrStructureTypeToString(
       this->get(), OPENXR_HPP_NAMESPACE::get(value), buffer));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::structureTypeToString");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::structureTypeToString");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11338,8 +11342,8 @@ Instance::getSystem(const XrSystemGetInfo *getInfo, XrSystemId *systemId,
                     Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrGetSystem(this->get(), getInfo, systemId));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Instance::getSystem");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getSystem");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11358,8 +11362,8 @@ OPENXR_HPP_INLINE ResultValueType<void>::type Instance::getSystemProperties(
     XrSystemId systemId, XrSystemProperties *properties, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrGetSystemProperties(this->get(), systemId, properties));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getSystemProperties");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getSystemProperties");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11395,8 +11399,8 @@ Instance::enumerateEnvironmentBlendModes(
       environmentBlendModes_tmp));
   environmentBlendModes =
       static_cast<EnvironmentBlendMode>(environmentBlendModes_tmp);
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::enumerateEnvironmentBlendModes");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::enumerateEnvironmentBlendModes");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11417,7 +11421,7 @@ Instance::createSession(const XrSessionCreateInfo *createInfo,
   Session handle;
   Result result = static_cast<Result>(
       d.xrCreateSession(this->get(), createInfo, handle.put()));
-  return createResultValue(
+  return impl::createResultValue(
       result, handle, OPENXR_HPP_NAMESPACE_STRING "::Instance::createSession");
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
@@ -11431,7 +11435,7 @@ Instance::createSessionUnique(const XrSessionCreateInfo *createInfo,
   Result result = static_cast<Result>(
       d.xrCreateSession(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<Session, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<Session, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING "::Instance::createSessionUnique");
 }
@@ -11451,8 +11455,8 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE ResultValueType<void>::type
 Session::destroy(Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrDestroySession(this->get()));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Session::destroy");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::destroy");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11480,10 +11484,10 @@ Session::enumerateReferenceSpaces(Dispatch &&d) const {
       this->get(), spaceCapacityInput, &spaceCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || spaceCountOutput == 0) {
 
-    return createResultValue(result, spaces,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Session::enumerateReferenceSpaces",
-                             {Result::Success, Result::SessionLossPending});
+    return impl::createResultValue(
+        result, spaces,
+        OPENXR_HPP_NAMESPACE_STRING "::Session::enumerateReferenceSpaces",
+        {Result::Success, Result::SessionLossPending});
   }
   do {
     spaces.resize(spaceCountOutput);
@@ -11496,10 +11500,10 @@ Session::enumerateReferenceSpaces(Dispatch &&d) const {
     spaces.resize(spaceCountOutput);
   }
   spaces = static_cast<ReferenceSpaceType>(spaces_tmp);
-  return createResultValue(result, spaces,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::enumerateReferenceSpaces",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, spaces,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::enumerateReferenceSpaces",
+                                 {Result::Success, Result::SessionLossPending});
 }
 
 template <typename Allocator, typename Dispatch>
@@ -11516,10 +11520,10 @@ Session::enumerateReferenceSpaces(Allocator const &vectorAllocator,
       this->get(), spaceCapacityInput, &spaceCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || spaceCountOutput == 0) {
 
-    return createResultValue(result, spaces,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Session::enumerateReferenceSpaces",
-                             {Result::Success, Result::SessionLossPending});
+    return impl::createResultValue(
+        result, spaces,
+        OPENXR_HPP_NAMESPACE_STRING "::Session::enumerateReferenceSpaces",
+        {Result::Success, Result::SessionLossPending});
   }
   do {
     spaces.resize(spaceCountOutput);
@@ -11532,10 +11536,10 @@ Session::enumerateReferenceSpaces(Allocator const &vectorAllocator,
     spaces.resize(spaceCountOutput);
   }
   spaces = static_cast<ReferenceSpaceType>(spaces_tmp);
-  return createResultValue(result, spaces,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::enumerateReferenceSpaces",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, spaces,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::enumerateReferenceSpaces",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11556,10 +11560,10 @@ Session::createReferenceSpace(const XrReferenceSpaceCreateInfo *createInfo,
   Space handle;
   Result result = static_cast<Result>(
       d.xrCreateReferenceSpace(this->get(), createInfo, handle.put()));
-  return createResultValue(result, handle,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::createReferenceSpace",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, handle,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::createReferenceSpace",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -11572,7 +11576,7 @@ OPENXR_HPP_INLINE
   Result result = static_cast<Result>(
       d.xrCreateReferenceSpace(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<Space, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<Space, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING "::Session::createReferenceSpaceUnique",
       {Result::Success, Result::SessionLossPending});
@@ -11598,11 +11602,11 @@ Session::getReferenceSpaceBoundsRect(ReferenceSpaceType referenceSpaceType,
                                      XrExtent2Df *bounds, Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrGetReferenceSpaceBoundsRect(
       this->get(), OPENXR_HPP_NAMESPACE::get(referenceSpaceType), bounds));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::getReferenceSpaceBoundsRect",
-                           {Result::Success, Result::SpaceBoundsUnavailable,
-                            Result::SessionLossPending});
+  return impl::createResultValue(
+      result,
+      OPENXR_HPP_NAMESPACE_STRING "::Session::getReferenceSpaceBoundsRect",
+      {Result::Success, Result::SpaceBoundsUnavailable,
+       Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11623,10 +11627,10 @@ Session::createActionSpace(const XrActionSpaceCreateInfo *createInfo,
   Space handle;
   Result result = static_cast<Result>(
       d.xrCreateActionSpace(this->get(), createInfo, handle.put()));
-  return createResultValue(result, handle,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::createActionSpace",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, handle,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::createActionSpace",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -11639,7 +11643,7 @@ OPENXR_HPP_INLINE
   Result result = static_cast<Result>(
       d.xrCreateActionSpace(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<Space, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<Space, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING "::Session::createActionSpaceUnique",
       {Result::Success, Result::SessionLossPending});
@@ -11665,9 +11669,9 @@ OPENXR_HPP_INLINE Result Space::locateSpace(Space baseSpace, XrTime time,
                                             Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrLocateSpace(this->get(), baseSpace.get(), time, location));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Space::locateSpace",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING "::Space::locateSpace",
+      {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11683,8 +11687,8 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE ResultValueType<void>::type
 Space::destroy(Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrDestroySpace(this->get()));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Space::destroy");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Space::destroy");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11716,8 +11720,8 @@ Instance::enumerateViewConfigurations(
       viewConfigurationTypeCountOutput, viewConfigurationTypes_tmp));
   viewConfigurationTypes =
       static_cast<ViewConfigurationType>(viewConfigurationTypes_tmp);
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::enumerateViewConfigurations");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::enumerateViewConfigurations");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11743,8 +11747,8 @@ Instance::getViewConfigurationProperties(
   Result result = static_cast<Result>(d.xrGetViewConfigurationProperties(
       this->get(), systemId, OPENXR_HPP_NAMESPACE::get(viewConfigurationType),
       configurationProperties));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getViewConfigurationProperties");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getViewConfigurationProperties");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11778,9 +11782,10 @@ Instance::enumerateViewConfigurationViews(
       viewCapacityInput, &viewCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || viewCountOutput == 0) {
 
-    return createResultValue(result, views,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Instance::enumerateViewConfigurationViews");
+    return impl::createResultValue(
+        result, views,
+        OPENXR_HPP_NAMESPACE_STRING
+        "::Instance::enumerateViewConfigurationViews");
   }
   do {
     views.resize(viewCountOutput, empty);
@@ -11794,9 +11799,9 @@ Instance::enumerateViewConfigurationViews(
     views.resize(viewCountOutput, empty);
   }
 
-  return createResultValue(result, views,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::enumerateViewConfigurationViews");
+  return impl::createResultValue(result, views,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::enumerateViewConfigurationViews");
 }
 
 template <typename Allocator, typename Dispatch>
@@ -11818,9 +11823,10 @@ Instance::enumerateViewConfigurationViews(
       viewCapacityInput, &viewCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || viewCountOutput == 0) {
 
-    return createResultValue(result, views,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Instance::enumerateViewConfigurationViews");
+    return impl::createResultValue(
+        result, views,
+        OPENXR_HPP_NAMESPACE_STRING
+        "::Instance::enumerateViewConfigurationViews");
   }
   do {
     views.resize(viewCountOutput, empty);
@@ -11834,9 +11840,9 @@ Instance::enumerateViewConfigurationViews(
     views.resize(viewCountOutput, empty);
   }
 
-  return createResultValue(result, views,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::enumerateViewConfigurationViews");
+  return impl::createResultValue(result, views,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::enumerateViewConfigurationViews");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11861,10 +11867,10 @@ Session::enumerateSwapchainFormats(Dispatch &&d) const {
       this->get(), formatCapacityInput, &formatCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || formatCountOutput == 0) {
 
-    return createResultValue(result, formats,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Session::enumerateSwapchainFormats",
-                             {Result::Success, Result::SessionLossPending});
+    return impl::createResultValue(
+        result, formats,
+        OPENXR_HPP_NAMESPACE_STRING "::Session::enumerateSwapchainFormats",
+        {Result::Success, Result::SessionLossPending});
   }
   do {
     formats.resize(formatCountOutput);
@@ -11877,10 +11883,10 @@ Session::enumerateSwapchainFormats(Dispatch &&d) const {
     formats.resize(formatCountOutput);
   }
 
-  return createResultValue(result, formats,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::enumerateSwapchainFormats",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, formats,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::enumerateSwapchainFormats",
+                                 {Result::Success, Result::SessionLossPending});
 }
 
 template <typename Allocator, typename Dispatch>
@@ -11896,10 +11902,10 @@ Session::enumerateSwapchainFormats(Allocator const &vectorAllocator,
       this->get(), formatCapacityInput, &formatCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || formatCountOutput == 0) {
 
-    return createResultValue(result, formats,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Session::enumerateSwapchainFormats",
-                             {Result::Success, Result::SessionLossPending});
+    return impl::createResultValue(
+        result, formats,
+        OPENXR_HPP_NAMESPACE_STRING "::Session::enumerateSwapchainFormats",
+        {Result::Success, Result::SessionLossPending});
   }
   do {
     formats.resize(formatCountOutput);
@@ -11912,10 +11918,10 @@ Session::enumerateSwapchainFormats(Allocator const &vectorAllocator,
     formats.resize(formatCountOutput);
   }
 
-  return createResultValue(result, formats,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::enumerateSwapchainFormats",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, formats,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::enumerateSwapchainFormats",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11936,7 +11942,7 @@ Session::createSwapchain(const XrSwapchainCreateInfo *createInfo,
   Swapchain handle;
   Result result = static_cast<Result>(
       d.xrCreateSwapchain(this->get(), createInfo, handle.put()));
-  return createResultValue(
+  return impl::createResultValue(
       result, handle, OPENXR_HPP_NAMESPACE_STRING "::Session::createSwapchain",
       {Result::Success, Result::SessionLossPending});
 }
@@ -11951,7 +11957,7 @@ OPENXR_HPP_INLINE
   Result result = static_cast<Result>(
       d.xrCreateSwapchain(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<Swapchain, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<Swapchain, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING "::Session::createSwapchainUnique",
       {Result::Success, Result::SessionLossPending});
@@ -11972,8 +11978,8 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE ResultValueType<void>::type
 Swapchain::destroy(Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrDestroySwapchain(this->get()));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Swapchain::destroy");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Swapchain::destroy");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -11994,10 +12000,10 @@ OPENXR_HPP_INLINE Result Swapchain::enumerateSwapchainImages(
     XrSwapchainImageBaseHeader *images, Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrEnumerateSwapchainImages(
       this->get(), imageCapacityInput, imageCountOutput, images));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Swapchain::enumerateSwapchainImages",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Swapchain::enumerateSwapchainImages",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12018,7 +12024,7 @@ Swapchain::acquireSwapchainImage(const XrSwapchainImageAcquireInfo *acquireInfo,
                                  uint32_t *index, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrAcquireSwapchainImage(this->get(), acquireInfo, index));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Swapchain::acquireSwapchainImage",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12039,7 +12045,7 @@ OPENXR_HPP_INLINE Result Swapchain::waitSwapchainImage(
     const XrSwapchainImageWaitInfo *waitInfo, Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrWaitSwapchainImage(this->get(), waitInfo));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Swapchain::waitSwapchainImage",
       {Result::Success, Result::TimeoutExpired, Result::SessionLossPending});
 }
@@ -12060,7 +12066,7 @@ OPENXR_HPP_INLINE Result Swapchain::releaseSwapchainImage(
     const XrSwapchainImageReleaseInfo *releaseInfo, Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrReleaseSwapchainImage(this->get(), releaseInfo));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Swapchain::releaseSwapchainImage",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12079,7 +12085,7 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE Result
 Session::beginSession(const XrSessionBeginInfo *beginInfo, Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrBeginSession(this->get(), beginInfo));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::beginSession",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12096,9 +12102,9 @@ OPENXR_HPP_INLINE Result Session::endSession(Dispatch &&d) const {
 template <typename Dispatch>
 OPENXR_HPP_INLINE Result Session::endSession(Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrEndSession(this->get()));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Session::endSession",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING "::Session::endSession",
+      {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12113,7 +12119,7 @@ OPENXR_HPP_INLINE Result Session::requestExitSession(Dispatch &&d) const {
 template <typename Dispatch>
 OPENXR_HPP_INLINE Result Session::requestExitSession(Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrRequestExitSession(this->get()));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::requestExitSession",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12136,9 +12142,9 @@ Session::waitFrame(const XrFrameWaitInfo *frameWaitInfo,
                    XrFrameState *frameState, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrWaitFrame(this->get(), frameWaitInfo, frameState));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Session::waitFrame",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING "::Session::waitFrame",
+      {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12157,7 +12163,7 @@ OPENXR_HPP_INLINE Result Session::beginFrame(
     const XrFrameBeginInfo *frameBeginInfo, Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrBeginFrame(this->get(), frameBeginInfo));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::beginFrame",
       {Result::Success, Result::SessionLossPending, Result::FrameDiscarded});
 }
@@ -12176,9 +12182,9 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE Result Session::endFrame(const XrFrameEndInfo *frameEndInfo,
                                            Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrEndFrame(this->get(), frameEndInfo));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Session::endFrame",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING "::Session::endFrame",
+      {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12210,7 +12216,7 @@ Session::locateViews(const XrViewLocateInfo *viewLocateInfo,
                       &viewCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || viewCountOutput == 0) {
 
-    return createResultValue(
+    return impl::createResultValue(
         result, views, OPENXR_HPP_NAMESPACE_STRING "::Session::locateViews",
         {Result::Success, Result::SessionLossPending});
   }
@@ -12226,9 +12232,9 @@ Session::locateViews(const XrViewLocateInfo *viewLocateInfo,
     views.resize(viewCountOutput, empty);
   }
 
-  return createResultValue(result, views,
-                           OPENXR_HPP_NAMESPACE_STRING "::Session::locateViews",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result, views, OPENXR_HPP_NAMESPACE_STRING "::Session::locateViews",
+      {Result::Success, Result::SessionLossPending});
 }
 
 template <typename Allocator, typename Dispatch>
@@ -12249,7 +12255,7 @@ Session::locateViews(const XrViewLocateInfo *viewLocateInfo,
                       &viewCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || viewCountOutput == 0) {
 
-    return createResultValue(
+    return impl::createResultValue(
         result, views, OPENXR_HPP_NAMESPACE_STRING "::Session::locateViews",
         {Result::Success, Result::SessionLossPending});
   }
@@ -12265,9 +12271,9 @@ Session::locateViews(const XrViewLocateInfo *viewLocateInfo,
     views.resize(viewCountOutput, empty);
   }
 
-  return createResultValue(result, views,
-                           OPENXR_HPP_NAMESPACE_STRING "::Session::locateViews",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result, views, OPENXR_HPP_NAMESPACE_STRING "::Session::locateViews",
+      {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12288,8 +12294,8 @@ Instance::stringToPath(const char *pathString, XrPath *path,
                        Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrStringToPath(this->get(), pathString, path));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::stringToPath");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::stringToPath");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12318,7 +12324,7 @@ Instance::pathToString(XrPath path, Dispatch &&d) const {
       this->get(), path, bufferCapacityInput, &bufferCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || bufferCountOutput == 0) {
 
-    return createResultValue(
+    return impl::createResultValue(
         result, str, OPENXR_HPP_NAMESPACE_STRING "::Instance::pathToString");
   }
   do {
@@ -12334,7 +12340,7 @@ Instance::pathToString(XrPath path, Dispatch &&d) const {
   }
 
   str.assign(buffer.begin(), buffer.end());
-  return createResultValue(
+  return impl::createResultValue(
       result, str, OPENXR_HPP_NAMESPACE_STRING "::Instance::pathToString");
 }
 
@@ -12354,7 +12360,7 @@ Instance::pathToString(XrPath path, Allocator const &vectorAllocator,
       this->get(), path, bufferCapacityInput, &bufferCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || bufferCountOutput == 0) {
 
-    return createResultValue(
+    return impl::createResultValue(
         result, str, OPENXR_HPP_NAMESPACE_STRING "::Instance::pathToString");
   }
   do {
@@ -12370,7 +12376,7 @@ Instance::pathToString(XrPath path, Allocator const &vectorAllocator,
   }
 
   str.assign(buffer.begin(), buffer.end());
-  return createResultValue(
+  return impl::createResultValue(
       result, str, OPENXR_HPP_NAMESPACE_STRING "::Instance::pathToString");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
@@ -12392,9 +12398,9 @@ Instance::createActionSet(const XrActionSetCreateInfo *createInfo,
   ActionSet handle;
   Result result = static_cast<Result>(
       d.xrCreateActionSet(this->get(), createInfo, handle.put()));
-  return createResultValue(result, handle,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::createActionSet");
+  return impl::createResultValue(result, handle,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::createActionSet");
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -12407,7 +12413,7 @@ Instance::createActionSetUnique(const XrActionSetCreateInfo *createInfo,
   Result result = static_cast<Result>(
       d.xrCreateActionSet(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<ActionSet, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<ActionSet, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING "::Instance::createActionSetUnique");
 }
@@ -12427,8 +12433,8 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE ResultValueType<void>::type
 ActionSet::destroy(Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrDestroyActionSet(this->get()));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::ActionSet::destroy");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::ActionSet::destroy");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12448,7 +12454,7 @@ ActionSet::createAction(const XrActionCreateInfo *createInfo,
   Action handle;
   Result result = static_cast<Result>(
       d.xrCreateAction(this->get(), createInfo, handle.put()));
-  return createResultValue(
+  return impl::createResultValue(
       result, handle, OPENXR_HPP_NAMESPACE_STRING "::ActionSet::createAction");
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
@@ -12462,7 +12468,7 @@ ActionSet::createActionUnique(const XrActionCreateInfo *createInfo,
   Result result = static_cast<Result>(
       d.xrCreateAction(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<Action, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<Action, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING "::ActionSet::createActionUnique");
 }
@@ -12482,8 +12488,8 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE ResultValueType<void>::type
 Action::destroy(Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrDestroyAction(this->get()));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING "::Action::destroy");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Action::destroy");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12505,8 +12511,9 @@ Instance::suggestInteractionProfileBindings(
     Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrSuggestInteractionProfileBindings(this->get(), suggestedBindings));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::suggestInteractionProfileBindings");
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING
+      "::Instance::suggestInteractionProfileBindings");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12525,7 +12532,7 @@ OPENXR_HPP_INLINE Result Session::attachSessionActionSets(
     const XrSessionActionSetsAttachInfo *attachInfo, Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrAttachSessionActionSets(this->get(), attachInfo));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::attachSessionActionSets",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12548,10 +12555,10 @@ OPENXR_HPP_INLINE Result Session::getCurrentInteractionProfile(
     Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrGetCurrentInteractionProfile(
       this->get(), topLevelUserPath, interactionProfile));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::getCurrentInteractionProfile",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::getCurrentInteractionProfile",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12572,7 +12579,7 @@ OPENXR_HPP_INLINE Result Session::getActionStateBoolean(
     Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrGetActionStateBoolean(this->get(), getInfo, state));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::getActionStateBoolean",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12595,7 +12602,7 @@ Session::getActionStateFloat(const XrActionStateGetInfo *getInfo,
                              XrActionStateFloat *state, Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrGetActionStateFloat(this->get(), getInfo, state));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::getActionStateFloat",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12618,7 +12625,7 @@ OPENXR_HPP_INLINE Result Session::getActionStateVector2f(
     Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrGetActionStateVector2f(this->get(), getInfo, state));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::getActionStateVector2f",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12641,7 +12648,7 @@ Session::getActionStatePose(const XrActionStateGetInfo *getInfo,
                             XrActionStatePose *state, Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrGetActionStatePose(this->get(), getInfo, state));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::getActionStatePose",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12660,7 +12667,7 @@ template <typename Dispatch>
 OPENXR_HPP_INLINE Result Session::syncActions(const XrActionsSyncInfo *syncInfo,
                                               Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrSyncActions(this->get(), syncInfo));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::syncActions",
       {Result::Success, Result::SessionLossPending, Result::SessionNotFocused});
 }
@@ -12692,10 +12699,10 @@ Session::enumerateBoundSourcesForAction(
       nullptr));
   if (!unqualifiedSuccess(result) || sourceCountOutput == 0) {
 
-    return createResultValue(result, sources,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Session::enumerateBoundSourcesForAction",
-                             {Result::Success, Result::SessionLossPending});
+    return impl::createResultValue(
+        result, sources,
+        OPENXR_HPP_NAMESPACE_STRING "::Session::enumerateBoundSourcesForAction",
+        {Result::Success, Result::SessionLossPending});
   }
   do {
     sources.resize(sourceCountOutput);
@@ -12709,10 +12716,10 @@ Session::enumerateBoundSourcesForAction(
     sources.resize(sourceCountOutput);
   }
 
-  return createResultValue(result, sources,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::enumerateBoundSourcesForAction",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, sources,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::enumerateBoundSourcesForAction",
+                                 {Result::Success, Result::SessionLossPending});
 }
 
 template <typename Allocator, typename Dispatch>
@@ -12730,10 +12737,10 @@ Session::enumerateBoundSourcesForAction(
       nullptr));
   if (!unqualifiedSuccess(result) || sourceCountOutput == 0) {
 
-    return createResultValue(result, sources,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Session::enumerateBoundSourcesForAction",
-                             {Result::Success, Result::SessionLossPending});
+    return impl::createResultValue(
+        result, sources,
+        OPENXR_HPP_NAMESPACE_STRING "::Session::enumerateBoundSourcesForAction",
+        {Result::Success, Result::SessionLossPending});
   }
   do {
     sources.resize(sourceCountOutput);
@@ -12747,10 +12754,10 @@ Session::enumerateBoundSourcesForAction(
     sources.resize(sourceCountOutput);
   }
 
-  return createResultValue(result, sources,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::enumerateBoundSourcesForAction",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, sources,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::enumerateBoundSourcesForAction",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12779,10 +12786,10 @@ OPENXR_HPP_INLINE
       this->get(), getInfo, bufferCapacityInput, &bufferCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || bufferCountOutput == 0) {
 
-    return createResultValue(result, str,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Session::getInputSourceLocalizedName",
-                             {Result::Success, Result::SessionLossPending});
+    return impl::createResultValue(
+        result, str,
+        OPENXR_HPP_NAMESPACE_STRING "::Session::getInputSourceLocalizedName",
+        {Result::Success, Result::SessionLossPending});
   }
   do {
     buffer.resize(bufferCountOutput);
@@ -12797,10 +12804,10 @@ OPENXR_HPP_INLINE
   }
 
   str.assign(buffer.begin(), buffer.end());
-  return createResultValue(result, str,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::getInputSourceLocalizedName",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, str,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::getInputSourceLocalizedName",
+                                 {Result::Success, Result::SessionLossPending});
 }
 
 template <typename Allocator, typename Dispatch>
@@ -12820,10 +12827,10 @@ OPENXR_HPP_INLINE
       this->get(), getInfo, bufferCapacityInput, &bufferCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || bufferCountOutput == 0) {
 
-    return createResultValue(result, str,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Session::getInputSourceLocalizedName",
-                             {Result::Success, Result::SessionLossPending});
+    return impl::createResultValue(
+        result, str,
+        OPENXR_HPP_NAMESPACE_STRING "::Session::getInputSourceLocalizedName",
+        {Result::Success, Result::SessionLossPending});
   }
   do {
     buffer.resize(bufferCountOutput);
@@ -12838,10 +12845,10 @@ OPENXR_HPP_INLINE
   }
 
   str.assign(buffer.begin(), buffer.end());
-  return createResultValue(result, str,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::getInputSourceLocalizedName",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, str,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::getInputSourceLocalizedName",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12862,7 +12869,7 @@ OPENXR_HPP_INLINE Result Session::applyHapticFeedback(
     const XrHapticBaseHeader *hapticFeedback, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrApplyHapticFeedback(this->get(), hapticActionInfo, hapticFeedback));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::applyHapticFeedback",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12883,7 +12890,7 @@ OPENXR_HPP_INLINE Result Session::stopHapticFeedback(
     const XrHapticActionInfo *hapticActionInfo, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrStopHapticFeedback(this->get(), hapticActionInfo));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::stopHapticFeedback",
       {Result::Success, Result::SessionLossPending});
 }
@@ -12906,10 +12913,10 @@ OPENXR_HPP_INLINE Result Session::setAndroidApplicationThreadKHR(
     AndroidThreadTypeKHR threadType, uint32_t threadId, Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrSetAndroidApplicationThreadKHR(
       this->get(), OPENXR_HPP_NAMESPACE::get(threadType), threadId));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::setAndroidApplicationThreadKHR",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::setAndroidApplicationThreadKHR",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -12935,10 +12942,10 @@ Session::createSwapchainAndroidSurfaceKHR(const XrSwapchainCreateInfo *info,
   jobject handle;
   Result result = static_cast<Result>(d.xrCreateSwapchainAndroidSurfaceKHR(
       this->get(), info, swapchain.put(), handle.put()));
-  return createResultValue(result, handle,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::createSwapchainAndroidSurfaceKHR",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, handle,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::createSwapchainAndroidSurfaceKHR",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -12952,7 +12959,7 @@ OPENXR_HPP_INLINE
   Result result = static_cast<Result>(d.xrCreateSwapchainAndroidSurfaceKHR(
       this->get(), info, swapchain.put(), handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<jobject, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<jobject, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING
       "::Session::createSwapchainAndroidSurfaceUniqueKHR",
@@ -12984,8 +12991,9 @@ Instance::getOpenGLGraphicsRequirementsKHR(
     Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrGetOpenGLGraphicsRequirementsKHR(
       this->get(), systemId, graphicsRequirements));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getOpenGLGraphicsRequirementsKHR");
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING
+      "::Instance::getOpenGLGraphicsRequirementsKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13013,8 +13021,9 @@ Instance::getOpenGLESGraphicsRequirementsKHR(
     Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrGetOpenGLESGraphicsRequirementsKHR(
       this->get(), systemId, graphicsRequirements));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getOpenGLESGraphicsRequirementsKHR");
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING
+      "::Instance::getOpenGLESGraphicsRequirementsKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13046,9 +13055,10 @@ Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
       this->get(), systemId, bufferCapacityInput, &bufferCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || bufferCountOutput == 0) {
 
-    return createResultValue(result, str,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Instance::getVulkanInstanceExtensionsKHR");
+    return impl::createResultValue(
+        result, str,
+        OPENXR_HPP_NAMESPACE_STRING
+        "::Instance::getVulkanInstanceExtensionsKHR");
   }
   do {
     buffer.resize(bufferCountOutput);
@@ -13063,9 +13073,9 @@ Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
   }
 
   str.assign(buffer.begin(), buffer.end());
-  return createResultValue(result, str,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getVulkanInstanceExtensionsKHR");
+  return impl::createResultValue(result, str,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getVulkanInstanceExtensionsKHR");
 }
 
 template <typename Allocator, typename Dispatch>
@@ -13085,9 +13095,10 @@ Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
       this->get(), systemId, bufferCapacityInput, &bufferCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || bufferCountOutput == 0) {
 
-    return createResultValue(result, str,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Instance::getVulkanInstanceExtensionsKHR");
+    return impl::createResultValue(
+        result, str,
+        OPENXR_HPP_NAMESPACE_STRING
+        "::Instance::getVulkanInstanceExtensionsKHR");
   }
   do {
     buffer.resize(bufferCountOutput);
@@ -13102,9 +13113,9 @@ Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
   }
 
   str.assign(buffer.begin(), buffer.end());
-  return createResultValue(result, str,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getVulkanInstanceExtensionsKHR");
+  return impl::createResultValue(result, str,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getVulkanInstanceExtensionsKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13136,9 +13147,9 @@ Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
       this->get(), systemId, bufferCapacityInput, &bufferCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || bufferCountOutput == 0) {
 
-    return createResultValue(result, str,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Instance::getVulkanDeviceExtensionsKHR");
+    return impl::createResultValue(result, str,
+                                   OPENXR_HPP_NAMESPACE_STRING
+                                   "::Instance::getVulkanDeviceExtensionsKHR");
   }
   do {
     buffer.resize(bufferCountOutput);
@@ -13153,9 +13164,9 @@ Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
   }
 
   str.assign(buffer.begin(), buffer.end());
-  return createResultValue(result, str,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getVulkanDeviceExtensionsKHR");
+  return impl::createResultValue(result, str,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getVulkanDeviceExtensionsKHR");
 }
 
 template <typename Allocator, typename Dispatch>
@@ -13175,9 +13186,9 @@ Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
       this->get(), systemId, bufferCapacityInput, &bufferCountOutput, nullptr));
   if (!unqualifiedSuccess(result) || bufferCountOutput == 0) {
 
-    return createResultValue(result, str,
-                             OPENXR_HPP_NAMESPACE_STRING
-                             "::Instance::getVulkanDeviceExtensionsKHR");
+    return impl::createResultValue(result, str,
+                                   OPENXR_HPP_NAMESPACE_STRING
+                                   "::Instance::getVulkanDeviceExtensionsKHR");
   }
   do {
     buffer.resize(bufferCountOutput);
@@ -13192,9 +13203,9 @@ Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
   }
 
   str.assign(buffer.begin(), buffer.end());
-  return createResultValue(result, str,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getVulkanDeviceExtensionsKHR");
+  return impl::createResultValue(result, str,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getVulkanDeviceExtensionsKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13220,8 +13231,8 @@ Instance::getVulkanGraphicsDeviceKHR(XrSystemId systemId, VkInstance vkInstance,
                                      Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrGetVulkanGraphicsDeviceKHR(
       this->get(), systemId, vkInstance, vkPhysicalDevice));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getVulkanGraphicsDeviceKHR");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getVulkanGraphicsDeviceKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13247,8 +13258,9 @@ Instance::getVulkanGraphicsRequirementsKHR(
     Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrGetVulkanGraphicsRequirementsKHR(
       this->get(), systemId, graphicsRequirements));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getVulkanGraphicsRequirementsKHR");
+  return impl::createResultValue(
+      result, OPENXR_HPP_NAMESPACE_STRING
+      "::Instance::getVulkanGraphicsRequirementsKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13274,8 +13286,8 @@ Instance::getD3D11GraphicsRequirementsKHR(
     Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrGetD3D11GraphicsRequirementsKHR(
       this->get(), systemId, graphicsRequirements));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getD3D11GraphicsRequirementsKHR");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getD3D11GraphicsRequirementsKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13301,8 +13313,8 @@ Instance::getD3D12GraphicsRequirementsKHR(
     Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrGetD3D12GraphicsRequirementsKHR(
       this->get(), systemId, graphicsRequirements));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::getD3D12GraphicsRequirementsKHR");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::getD3D12GraphicsRequirementsKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13329,7 +13341,7 @@ OPENXR_HPP_INLINE Result Session::getVisibilityMaskKHR(
   Result result = static_cast<Result>(d.xrGetVisibilityMaskKHR(
       this->get(), OPENXR_HPP_NAMESPACE::get(viewConfigurationType), viewIndex,
       OPENXR_HPP_NAMESPACE::get(visibilityMaskType), visibilityMask));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING "::Session::getVisibilityMaskKHR",
       {Result::Success, Result::SessionLossPending});
 }
@@ -13355,7 +13367,7 @@ Instance::convertWin32PerformanceCounterToTimeKHR(
   Result result =
       static_cast<Result>(d.xrConvertWin32PerformanceCounterToTimeKHR(
           this->get(), performanceCounter, time));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING
       "::Instance::convertWin32PerformanceCounterToTimeKHR");
 }
@@ -13383,7 +13395,7 @@ Instance::convertTimeToWin32PerformanceCounterKHR(
   Result result =
       static_cast<Result>(d.xrConvertTimeToWin32PerformanceCounterKHR(
           this->get(), time, performanceCounter));
-  return createResultValue(
+  return impl::createResultValue(
       result, OPENXR_HPP_NAMESPACE_STRING
       "::Instance::convertTimeToWin32PerformanceCounterKHR");
 }
@@ -13409,8 +13421,8 @@ Instance::convertTimespecTimeToTimeKHR(const struct timespec *timespecTime,
                                        XrTime *time, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrConvertTimespecTimeToTimeKHR(this->get(), timespecTime, time));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::convertTimespecTimeToTimeKHR");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::convertTimespecTimeToTimeKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13435,8 +13447,8 @@ Instance::convertTimeToTimespecTimeKHR(XrTime time,
                                        Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrConvertTimeToTimespecTimeKHR(this->get(), time, timespecTime));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::convertTimeToTimespecTimeKHR");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::convertTimeToTimespecTimeKHR");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13461,10 +13473,11 @@ OPENXR_HPP_INLINE Result Session::perfSettingsSetPerformanceLevelEXT(
   Result result = static_cast<Result>(d.xrPerfSettingsSetPerformanceLevelEXT(
       this->get(), OPENXR_HPP_NAMESPACE::get(domain),
       OPENXR_HPP_NAMESPACE::get(level)));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::perfSettingsSetPerformanceLevelEXT",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result,
+      OPENXR_HPP_NAMESPACE_STRING
+      "::Session::perfSettingsSetPerformanceLevelEXT",
+      {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13495,10 +13508,10 @@ OPENXR_HPP_INLINE Result Session::thermalGetTemperatureTrendEXT(
       tempHeadroom, tempSlope));
   notificationLevel =
       static_cast<PerfSettingsNotificationLevelEXT>(notificationLevel_tmp);
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::thermalGetTemperatureTrendEXT",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::thermalGetTemperatureTrendEXT",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13518,8 +13531,8 @@ Instance::setDebugUtilsObjectNameEXT(
     const XrDebugUtilsObjectNameInfoEXT *nameInfo, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrSetDebugUtilsObjectNameEXT(this->get(), nameInfo));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::setDebugUtilsObjectNameEXT");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::setDebugUtilsObjectNameEXT");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13540,9 +13553,9 @@ Instance::createDebugUtilsMessengerEXT(
   DebugUtilsMessengerEXT handle;
   Result result = static_cast<Result>(
       d.xrCreateDebugUtilsMessengerEXT(this->get(), createInfo, handle.put()));
-  return createResultValue(result, handle,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::createDebugUtilsMessengerEXT");
+  return impl::createResultValue(result, handle,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::createDebugUtilsMessengerEXT");
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -13555,8 +13568,8 @@ Instance::createDebugUtilsMessengerUniqueEXT(
   Result result = static_cast<Result>(
       d.xrCreateDebugUtilsMessengerEXT(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<DebugUtilsMessengerEXT,
-                           impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<DebugUtilsMessengerEXT,
+                                 impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING
       "::Instance::createDebugUtilsMessengerUniqueEXT");
@@ -13579,8 +13592,8 @@ OPENXR_HPP_INLINE ResultValueType<void>::type
 DebugUtilsMessengerEXT::destroy(Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrDestroyDebugUtilsMessengerEXT(this->get()));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::DebugUtilsMessengerEXT::destroy");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::DebugUtilsMessengerEXT::destroy");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13606,8 +13619,8 @@ Instance::submitDebugUtilsMessageEXT(
     Dispatch &&d) const {
   Result result = static_cast<Result>(d.xrSubmitDebugUtilsMessageEXT(
       this->get(), messageSeverity, messageTypes, callbackData));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::Instance::submitDebugUtilsMessageEXT");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::Instance::submitDebugUtilsMessageEXT");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13626,10 +13639,11 @@ OPENXR_HPP_INLINE Result Session::sessionBeginDebugUtilsLabelRegionEXT(
     const XrDebugUtilsLabelEXT *labelInfo, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrSessionBeginDebugUtilsLabelRegionEXT(this->get(), labelInfo));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::sessionBeginDebugUtilsLabelRegionEXT",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result,
+      OPENXR_HPP_NAMESPACE_STRING
+      "::Session::sessionBeginDebugUtilsLabelRegionEXT",
+      {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13648,10 +13662,11 @@ OPENXR_HPP_INLINE Result
 Session::sessionEndDebugUtilsLabelRegionEXT(Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrSessionEndDebugUtilsLabelRegionEXT(this->get()));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::sessionEndDebugUtilsLabelRegionEXT",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(
+      result,
+      OPENXR_HPP_NAMESPACE_STRING
+      "::Session::sessionEndDebugUtilsLabelRegionEXT",
+      {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13670,10 +13685,10 @@ OPENXR_HPP_INLINE Result Session::sessionInsertDebugUtilsLabelEXT(
     const XrDebugUtilsLabelEXT *labelInfo, Dispatch &&d) const {
   Result result = static_cast<Result>(
       d.xrSessionInsertDebugUtilsLabelEXT(this->get(), labelInfo));
-  return createResultValue(result,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::sessionInsertDebugUtilsLabelEXT",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::sessionInsertDebugUtilsLabelEXT",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
@@ -13694,10 +13709,10 @@ Session::createSpatialAnchorMSFT(
   SpatialAnchorMSFT handle;
   Result result = static_cast<Result>(
       d.xrCreateSpatialAnchorMSFT(this->get(), createInfo, handle.put()));
-  return createResultValue(result, handle,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::createSpatialAnchorMSFT",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, handle,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::createSpatialAnchorMSFT",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -13710,7 +13725,8 @@ OPENXR_HPP_INLINE
   Result result = static_cast<Result>(
       d.xrCreateSpatialAnchorMSFT(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<SpatialAnchorMSFT, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<SpatialAnchorMSFT,
+                                 impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING "::Session::createSpatialAnchorUniqueMSFT",
       {Result::Success, Result::SessionLossPending});
@@ -13735,10 +13751,10 @@ OPENXR_HPP_INLINE ResultValue<Space> Session::createSpatialAnchorSpaceMSFT(
   Space handle;
   Result result = static_cast<Result>(
       d.xrCreateSpatialAnchorSpaceMSFT(this->get(), createInfo, handle.put()));
-  return createResultValue(result, handle,
-                           OPENXR_HPP_NAMESPACE_STRING
-                           "::Session::createSpatialAnchorSpaceMSFT",
-                           {Result::Success, Result::SessionLossPending});
+  return impl::createResultValue(result, handle,
+                                 OPENXR_HPP_NAMESPACE_STRING
+                                 "::Session::createSpatialAnchorSpaceMSFT",
+                                 {Result::Success, Result::SessionLossPending});
 }
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
@@ -13752,7 +13768,7 @@ OPENXR_HPP_INLINE
   Result result = static_cast<Result>(
       d.xrCreateSpatialAnchorSpaceMSFT(this->get(), createInfo, handle.put()));
   ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};
-  return createResultValue<Space, impl::RemoveRefConst<Dispatch>>(
+  return impl::createResultValue<Space, impl::RemoveRefConst<Dispatch>>(
       result, handle, deleter,
       OPENXR_HPP_NAMESPACE_STRING
       "::Session::createSpatialAnchorSpaceUniqueMSFT",
@@ -13776,8 +13792,8 @@ OPENXR_HPP_INLINE ResultValueType<void>::type
 SpatialAnchorMSFT::destroy(Dispatch &&d) const {
   Result result =
       static_cast<Result>(d.xrDestroySpatialAnchorMSFT(this->get()));
-  return createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
-                           "::SpatialAnchorMSFT::destroy");
+  return impl::createResultValue(result, OPENXR_HPP_NAMESPACE_STRING
+                                 "::SpatialAnchorMSFT::destroy");
 }
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 

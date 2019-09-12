@@ -197,6 +197,7 @@ namespace OPENXR_HPP_NAMESPACE {
  * but knowing how they work could be useful.
  * @{
  */
+
 /*!
  * @brief Contains a Result enumerant and a returned value.
  *
@@ -250,6 +251,7 @@ struct ResultValueType<void> {
 };
 #endif
 
+namespace impl {
 /*!
  * @brief Returned by enhanced-mode functions with no output value and no
  * non-Result::Success success codes.
@@ -443,6 +445,8 @@ OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>> createResultValue(
 #endif
 }
 #endif
+
+} // namespace impl
 
 //! @}
 
