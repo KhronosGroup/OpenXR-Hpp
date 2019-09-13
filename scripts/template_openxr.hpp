@@ -33,12 +33,15 @@
 //## These includes are currently unused
 //## /*% include('template_openxr_nongenerated_chains.hpp')%*/
 //## /*% include('template_openxr_nongenerated_enhanced.hpp')%*/
-//## /*% include('template_openxr_nongenerated_flags.hpp')%*/
 
+/*% include('template_openxr_nongenerated_flags.hpp')%*/
 /*% include('template_openxr_nongenerated_unique.hpp')%*/
 /*% include('template_openxr_enums.hpp')%*/
+/*% include('template_openxr_flags.hpp')%*/
 /*% include('template_openxr_exceptions.hpp')%*/
+/*% include('template_openxr_structs_forward.hpp')%*/
 /*% include('template_openxr_handleclasses.hpp')%*/
+/*% include('template_openxr_structs.hpp')%*/
 /*% include('template_openxr_dispatchdynamic.hpp')%*/
 
 /*

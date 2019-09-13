@@ -89,4 +89,11 @@ class DispatchLoaderDynamic;
 template <typename Allocator = std::allocator<char>>
 using string_with_allocator = std::basic_string<char, std::char_traits<char>, Allocator>;
 
+using Bool32 = XrBool32;
+using Duration = XrDuration;
+using Path = XrPath;
+using SystemId = XrSystemId;
+using Time = XrTime;
+using Version = XrVersion;
+
 }  // namespace OPENXR_HPP_NAMESPACE

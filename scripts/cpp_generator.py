@@ -283,6 +283,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def createEnumValue(self, name, typename):
         prefix, type_suffix = self.getEnumValuePrefixSuffix(typename)
+        if (typename.endswith("FlagBits")) :
+            prefix = prefix[:-len('_FLAG_BITS')]
         name = _strip_prefix(name, prefix + '_')
         suffix = None
         if type_suffix:
@@ -547,6 +549,37 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def allReturnCodesForCommand(self, cur_cmd):
         return cur_cmd.return_values + list(self.extensionReturnCodesForCommand(cur_cmd))
 
+    def _cpp_hidden_member(self, member):
+        return member.name == "type" or member.name == "next"
+
+    def _struct_member_count(self, struct):
+        return len(struct.members)
+
+    def _bitmask_for_flags(self, flags):
+        return self.dict_bitmasks[flags.valid_flags]
+
+    def _project_cppdecl(self, member, defaulted=False, suffix="", input=False):
+        result = member.cdecl.strip() + suffix
+        if (member.type.startswith("Xr")):
+            result = re.sub(r'\bXr(\w+)', '\\1', result)
+
+        if (input):
+            if (member.type == 'char' and member.is_array and member.pointer_count == 0):
+                result = "const char* " + member.name + suffix
+            elif (member.type.startswith("Xr") and member.pointer_count == 0):
+                result = "const " + _project_type_name(member.type) + "& " + member.name + suffix
+
+        if (defaulted):
+            defaultValue = "{}"
+            if (member.pointer_count > 0 or (member.type == 'char' and member.is_array)):
+                defaultValue = "nullptr"
+            elif member.type.startswith("uint") or member.type.startswith("int"):
+                defaultValue = "0"
+            elif member.type == "XrBool32":
+                defaultValue = "XR_FALSE"
+            result = result + " = " + defaultValue
+        return result
+
     # Write out all the information for the appropriate file,
     # and then call down to the base class to wrap everything up.
     #   self            the ConformanceLayerBaseGenerator object
@@ -566,6 +599,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.dict_structs = {}
         for struct in self.api_structures:
             self.dict_structs[struct.name] = struct
+
+        self.dict_bitmasks = {}
+        for bitmask in self.api_bitmasks:
+            self.dict_bitmasks[bitmask.name] = bitmask
 
         basic_cmds = {}
         enhanced_cmds = {}
@@ -599,7 +636,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             discouraged_begin=_discouraged_begin,
             discouraged_end=_discouraged_end,
             generate_structure_type_from_name=self.conventions.generate_structure_type_from_name,
-            is_tagged_type=self._is_tagged_type
+            is_tagged_type=self._is_tagged_type,
+            project_cppdecl=self._project_cppdecl,
+            cpp_hidden_member=self._cpp_hidden_member,
+            struct_member_count=self._struct_member_count,
+            bitmask_for_flags = self._bitmask_for_flags
         )
         write(file_data, file=self.outFile)
 
