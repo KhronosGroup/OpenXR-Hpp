@@ -52,6 +52,16 @@ INHERITANCE = {
     )),
 }
 
+ATOM_TYPES = set((
+    'XrVersion',
+    'XrFlags64',
+    'XrSystemId',
+    'XrBool32',
+    'XrPath',
+    'XrTime',
+    'XrDuration'
+))
+
 TWO_CALL_STRING_NAME = "buffer"
 
 CAPACITY_INPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CapacityInput')
@@ -553,6 +563,23 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         print(method.name, "is a two-call")
 
+    def _method_has_single_output(self, method):
+        if len(method.get_success_codes()) > 1:
+            return False
+
+        last_param = method.params[-1]
+        if last_param.is_const or last_param.pointer_count != 1 or last_param.array_count_var != '':
+            return False
+
+        for param in method.params[:-1]:
+            if param.is_handle:
+                continue
+            if param.pointer_count > 0 and not param.is_const:
+                return False
+
+        print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
+        return True
+
     def _enhanced_method_projection(self, method):
         """Perform the manipulation of a MethodProjection to convert it from C to C++ for "enhanced mode"."""
         method.masks_simple = True
@@ -575,6 +602,21 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.pre_statements.append("{} handle;".format(cpp_outtype))
             method.access_dict[outparam.name] = "handle.put()"
             method.returns.append("handle")
+        elif self._method_has_single_output(method):
+            method.masks_simple = False
+            outparam = method.decl_params[-1]
+            cpp_outtype = _project_type_name(outparam.type)
+            method.bare_return_type = cpp_outtype
+
+            method.decl_params.pop()
+            method.decl_dict[outparam.name] = None
+            method.pre_statements.append("{} structResult;".format(cpp_outtype))
+            method.access_dict[outparam.name] = "&(structResult.operator {}&())".format(outparam.type)
+            if outparam.type in ATOM_TYPES:
+                method.access_dict[outparam.name] = "&structResult"
+            method.returns.append("structResult")
+
+
         self._update_enhanced_return_type(method)
 
         # Look for two-call
