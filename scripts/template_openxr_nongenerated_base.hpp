@@ -22,6 +22,9 @@
 #ifdef Success
 #undef Success
 #endif
+#ifdef None
+#undef None
+#endif
 
 #if !defined(OPENXR_HPP_ASSERT)
 #include <cassert>

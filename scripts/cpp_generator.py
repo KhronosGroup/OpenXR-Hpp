@@ -327,7 +327,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             suffix = 'BIT_' + suffix
         else:
             suffix = 'BIT'
-        
+
         prefix = prefix[:-len('_FLAG_BITS')]
         return prefix, suffix
 
