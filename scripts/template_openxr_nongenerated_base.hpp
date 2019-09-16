@@ -6,11 +6,13 @@
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <functional>
 #include <initializer_list>
 #include <string>
 #include <system_error>
 #include <tuple>
 #include <type_traits>
+
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 #include <memory>
 #include <vector>
@@ -95,5 +97,40 @@ using Path = XrPath;
 using SystemId = XrSystemId;
 using Time = XrTime;
 using Version = XrVersion;
+
+enum Side : uint32_t {
+    Left = 0,
+    Right = 1,
+};
+
+constexpr uint32_t SIDE_COUNT = 2;
+
+using BilateralPaths = std::array<Path, SIDE_COUNT>;
+
+using SideHandler = std::function<void(Side)>;
+using IndexHandler = std::function<void(uint32_t)>;
+
+constexpr char* const reserved_paths[] = {
+    "/user/hand/left", "/user/hand/right", "/user/head", "/user/gamepad", "/user/treadmill",
+};
+
+constexpr char* const interaction_profiles[] = {
+    "/interaction_profiles/khr/simple_controller",       "/interaction_profiles/google/daydream_controller",
+    "/interaction_profiles/htc/vive_controller",         "/interaction_profiles/htc/vive_pro",
+    "/interaction_profiles/microsoft/motion_controller", "/interaction_profiles/microsoft/xbox_controller",
+    "/interaction_profiles/oculus/go_controller",        "/interaction_profiles/oculus/touch_controller",
+    "/interaction_profiles/valve/index_controller",
+};
+
+void for_each_side(const SideHandler& handler) {
+    handler(Left);
+    handler(Right);
+}
+
+void for_each_side_index(const IndexHandler& handler) {
+    for (uint32_t i = 0; i < SIDE_COUNT; ++i) {
+        handler(i);
+    }
+}
 
 }  // namespace OPENXR_HPP_NAMESPACE

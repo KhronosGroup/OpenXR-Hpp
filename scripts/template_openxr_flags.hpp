@@ -16,8 +16,13 @@ namespace OPENXR_HPP_NAMESPACE {
 //!
 //! See the related specification text at /*{ make_spec_url(flags.name) }*/
 enum class /*{projected_bits_type }*/ : XrFlags64 {
+    None = 0,
     //# for val in bitmask.values
-    /*{ create_enum_value(val.name, flags.valid_flags) }*/ = /*{val.name}*/ /*{- "," if not loop.last }*/
+    /*{ create_flag_value(val.name, flags.valid_flags) }*/ = /*{val.name}*/,
+    //# endfor
+    AllBits = 0
+              //# for val in bitmask.values
+              | /*{ val.name}*/
     //# endfor
 };
 

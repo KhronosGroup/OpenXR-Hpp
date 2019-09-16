@@ -303,8 +303,36 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def createEnumValue(self, name, typename):
         prefix, type_suffix = self.getEnumValuePrefixSuffix(typename)
-        if typename.endswith("FlagBits"):
-            prefix = prefix[:-len('_FLAG_BITS')]
+        name = _strip_prefix(name, prefix + '_')
+        suffix = None
+        if type_suffix:
+            name = _strip_suffix(name, '_' + type_suffix)
+
+        suffix = self.findVendorSuffix(name)
+        if suffix:
+            name = _strip_suffix(name, '_' + suffix)
+        enum_name = _to_camel_case(name)
+
+        if suffix:
+            enum_name += suffix
+
+        return enum_name
+
+    def getFlagValuePrefixSuffix(self, typename):
+        prefix = self.conventions.generate_structure_type_from_name(typename)
+        prefix = prefix.replace('XR_TYPE', 'XR')
+        suffix = self.findVendorSuffix(prefix)
+        if suffix:
+            prefix = _strip_suffix(prefix, '_' + suffix)
+            suffix = 'BIT_' + suffix
+        else:
+            suffix = 'BIT'
+        
+        prefix = prefix[:-len('_FLAG_BITS')]
+        return prefix, suffix
+
+    def createFlagValue(self, name, typename):
+        prefix, type_suffix = self.getFlagValuePrefixSuffix(typename)
         name = _strip_prefix(name, prefix + '_')
         suffix = None
         if type_suffix:
@@ -769,6 +797,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             null_instance_ok=VALID_FOR_NULL_INSTANCE,
             sorted_cmds=sorted_cmds,
             create_enum_value=self.createEnumValue,
+            create_flag_value=self.createFlagValue,
             project_type_name=_project_type_name,
             result_enum=result_enum,
             create_enum_exception=self.createEnumException,
