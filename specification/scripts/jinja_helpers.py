@@ -30,8 +30,8 @@ def _add_to_path():
         # Find Jinja2 in source tree, as last resort.
         sys.path.append(
             str(
-                Path(__file__).resolve().parent.parent.parent / "external" /
-                "python"))
+                Path(__file__).resolve().parent.parent.parent / "external"
+                / "python"))
         _ADDED_TO_PATH = True
 
 
@@ -170,7 +170,7 @@ class JinjaTemplate:
         try:
             return self.template.render(*args, **kwargs)
         except TemplateSyntaxError as e:
-            print(
-                "Jinja2 template syntax error during render: {}:{} error: {}".
-                format(e.filename, e.lineno, e.message))
-            raise e
+            error_str = "Jinja2 template syntax error during render: {}:{} error: {}".format(
+                e.filename, e.lineno, e.message)
+            print(error_str)
+            raise RuntimeError(error_str)
