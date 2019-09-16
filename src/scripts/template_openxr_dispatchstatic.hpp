@@ -1,13 +1,4 @@
-
-/*!
- * @brief Namespace containing all openxr.hpp entities.
- *
- * If the default namespace `xr` isn't suitable, you can define OPENXR_HPP_NAMESPACE to a different name before including this
- * header.
- */
 namespace OPENXR_HPP_NAMESPACE {
-// Forward declaration
-class DispatchLoaderDynamic;
 
 /*!
  * @defgroup dispatch Dispatch classes

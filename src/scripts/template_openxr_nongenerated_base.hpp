@@ -74,3 +74,19 @@
 #define OPENXR_HPP_STRINGIFY2(text) #text
 #define OPENXR_HPP_STRINGIFY(text) OPENXR_HPP_STRINGIFY2(text)
 #define OPENXR_HPP_NAMESPACE_STRING OPENXR_HPP_STRINGIFY(OPENXR_HPP_NAMESPACE)
+
+/*!
+ * @brief Namespace containing all openxr.hpp entities.
+ *
+ * If the default namespace `xr` isn't suitable, you can define OPENXR_HPP_NAMESPACE to a different name before including this
+ * header.
+ */
+namespace OPENXR_HPP_NAMESPACE {
+// Forward declaration
+class DispatchLoaderDynamic;
+
+// The generalization of std::string with user-specifiable allocator types.
+template <typename Allocator = std::allocator<char>>
+using string_with_allocator = std::basic_string<char, std::char_traits<char>, Allocator>;
+
+}  // namespace OPENXR_HPP_NAMESPACE

@@ -284,8 +284,6 @@ OPENXR_HPP_INLINE ResultValueType<void>::type createResultValue(Result result, c
  * @brief Returned by enhanced-mode functions with output value of type T and no
  * non-Result::Success success codes.
  *
- * On failure:
- *
  * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
  *
  * - Throws an appropriate exception on failure.
@@ -325,7 +323,7 @@ OPENXR_HPP_INLINE typename ResultValueType<T>::type createResultValue(Result res
  *
  * If OPENXR_HPP_NO_EXCEPTIONS is defined:
  *
- * - Asserts that result == Result::Success.
+ * - Asserts that result is one of the expected success codes.
  * - Returns Result (which may be an error, Result::Success, or a
  * non-Result::Success success code).
  */
@@ -392,7 +390,7 @@ OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char 
  *
  * - Asserts that result == Result::Success.
  * - Returns ResultValue<UniqueHandle<T, D>>, containing both a Result (which may be an error,
- * Result::Success, or a non-Result::Success success code) and the UniqueHandle<T, D>.
+ * or Result::Success) and the UniqueHandle<T, D>.
  */
 template <typename T, typename D>
 OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle<T, D>>::type createResultValue(

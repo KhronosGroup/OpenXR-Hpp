@@ -115,6 +115,14 @@ namespace OPENXR_HPP_NAMESPACE {
 // Forward declaration
 class DispatchLoaderDynamic;
 
+// The generalization of std::string with user-specifiable allocator types.
+template <typename Allocator = std::allocator<char>>
+using string_with_allocator =
+    std::basic_string<char, std::char_traits<char>, Allocator>;
+
+} // namespace OPENXR_HPP_NAMESPACE
+namespace OPENXR_HPP_NAMESPACE {
+
 /*!
  * @defgroup dispatch Dispatch classes
  * @brief Classes providing a method or function pointer member for OpenXR APIs.
@@ -3317,8 +3325,6 @@ createResultValue(Result result, char const *message) {
  * @brief Returned by enhanced-mode functions with output value of type T and no
  * non-Result::Success success codes.
  *
- * On failure:
- *
  * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
  *
  * - Throws an appropriate exception on failure.
@@ -3359,7 +3365,7 @@ createResultValue(Result result, T &data, char const *message) {
  *
  * If OPENXR_HPP_NO_EXCEPTIONS is defined:
  *
- * - Asserts that result == Result::Success.
+ * - Asserts that result is one of the expected success codes.
  * - Returns Result (which may be an error, Result::Success, or a
  * non-Result::Success success code).
  */
@@ -3433,8 +3439,7 @@ createResultValue(Result result, T &data, char const *message,
  *
  * - Asserts that result == Result::Success.
  * - Returns ResultValue<UniqueHandle<T, D>>, containing both a Result (which
- * may be an error, Result::Success, or a non-Result::Success success code) and
- * the UniqueHandle<T, D>.
+ * may be an error, or Result::Success) and the UniqueHandle<T, D>.
  */
 template <typename T, typename D>
 OPENXR_HPP_INLINE typename ResultValueType<UniqueHandle<T, D>>::type
@@ -3663,22 +3668,33 @@ public:
    */
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetInstanceProcAddr wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProcAddr>
-
+  /*!
+   * @brief xrGetInstanceProcAddr wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProcAddr>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getInstanceProcAddr(const char *name, PFN_xrVoidFunction *function,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetInstanceProcAddr wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProcAddr>
-
+  /*!
+   * @brief xrGetInstanceProcAddr wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProcAddr>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getInstanceProcAddr(const char *name, PFN_xrVoidFunction *function,
@@ -3687,43 +3703,65 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrDestroyInstance wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyInstance>
-
+  /*!
+   * @brief xrDestroyInstance wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyInstance>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrDestroyInstance wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyInstance>
-
+  /*!
+   * @brief xrDestroyInstance wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyInstance>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetInstanceProperties wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProperties>
-
+  /*!
+   * @brief xrGetInstanceProperties wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProperties>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getInstanceProperties(XrInstanceProperties *instanceProperties,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetInstanceProperties wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProperties>
-
+  /*!
+   * @brief xrGetInstanceProperties wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInstanceProperties>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getInstanceProperties(XrInstanceProperties *instanceProperties,
@@ -3732,22 +3770,35 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrPollEvent wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPollEvent>
-
+  /*!
+   * @brief xrPollEvent wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPollEvent>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result pollEvent(XrEventDataBuffer *eventData,
                    Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrPollEvent wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPollEvent>
-
+  /*!
+   * @brief xrPollEvent wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPollEvent>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result pollEvent(XrEventDataBuffer *eventData,
                    Dispatch &&d = Dispatch{}) const;
@@ -3757,22 +3808,33 @@ public:
 #ifdef OPENXR_HPP_PROVIDE_DISCOURAGED_FUNCTIONS
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrResultToString wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrResultToString>
-
+  /*!
+   * @brief xrResultToString wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrResultToString>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result resultToString(Result value, char buffer[XR_MAX_RESULT_STRING_SIZE],
                         Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrResultToString wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrResultToString>
-
+  /*!
+   * @brief xrResultToString wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrResultToString>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   resultToString(Result value, char buffer[XR_MAX_RESULT_STRING_SIZE],
@@ -3785,23 +3847,34 @@ public:
 #ifdef OPENXR_HPP_PROVIDE_DISCOURAGED_FUNCTIONS
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrStructureTypeToString wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStructureTypeToString>
-
+  /*!
+   * @brief xrStructureTypeToString wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStructureTypeToString>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result structureTypeToString(StructureType value,
                                char buffer[XR_MAX_STRUCTURE_NAME_SIZE],
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrStructureTypeToString wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStructureTypeToString>
-
+  /*!
+   * @brief xrStructureTypeToString wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStructureTypeToString>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   structureTypeToString(StructureType value,
@@ -3813,22 +3886,33 @@ public:
 #endif //  OPENXR_HPP_PROVIDE_DISCOURAGED_FUNCTIONS
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetSystem wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystem>
-
+  /*!
+   * @brief xrGetSystem wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystem>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getSystem(const XrSystemGetInfo *getInfo, XrSystemId *systemId,
                    Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetSystem wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystem>
-
+  /*!
+   * @brief xrGetSystem wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystem>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type getSystem(const XrSystemGetInfo *getInfo,
                                         XrSystemId *systemId,
@@ -3837,23 +3921,34 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetSystemProperties wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystemProperties>
-
+  /*!
+   * @brief xrGetSystemProperties wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystemProperties>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getSystemProperties(XrSystemId systemId,
                              XrSystemProperties *properties,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetSystemProperties wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystemProperties>
-
+  /*!
+   * @brief xrGetSystemProperties wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetSystemProperties>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   getSystemProperties(XrSystemId systemId, XrSystemProperties *properties,
@@ -3862,11 +3957,12 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEnumerateEnvironmentBlendModes wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateEnvironmentBlendModes>
-
+  /*!
+   * @brief xrEnumerateEnvironmentBlendModes wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateEnvironmentBlendModes>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   enumerateEnvironmentBlendModes(XrSystemId systemId,
@@ -3877,12 +3973,22 @@ public:
                                  Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrEnumerateEnvironmentBlendModes wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateEnvironmentBlendModes>
-
+  /*!
+   * @brief xrEnumerateEnvironmentBlendModes wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateEnvironmentBlendModes>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   enumerateEnvironmentBlendModes(XrSystemId systemId,
@@ -3894,21 +4000,32 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateSession wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
-
+  /*!
+   * @brief xrCreateSession wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result createSession(const XrSessionCreateInfo *createInfo, Session &session,
                        Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateSession wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
-
+  /*!
+   * @brief xrCreateSession wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type Session
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type Session.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<Session>::type
   createSession(const XrSessionCreateInfo *createInfo,
@@ -3916,11 +4033,24 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateSession wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
-
+  /*!
+   * @brief xrCreateSession wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type UniqueHandle<Session,
+   * impl::RemoveRefConst<Dispatch>>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type UniqueHandle<Session,
+   * impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<Session, impl::RemoveRefConst<Dispatch>>>::type
@@ -3930,11 +4060,12 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEnumerateViewConfigurations wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurations>
-
+  /*!
+   * @brief xrEnumerateViewConfigurations wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurations>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   enumerateViewConfigurations(XrSystemId systemId,
@@ -3944,12 +4075,22 @@ public:
                               Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrEnumerateViewConfigurations wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurations>
-
+  /*!
+   * @brief xrEnumerateViewConfigurations wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurations>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type
   enumerateViewConfigurations(XrSystemId systemId,
@@ -3961,11 +4102,12 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetViewConfigurationProperties wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetViewConfigurationProperties>
-
+  /*!
+   * @brief xrGetViewConfigurationProperties wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetViewConfigurationProperties>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getViewConfigurationProperties(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3973,12 +4115,22 @@ public:
       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetViewConfigurationProperties wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetViewConfigurationProperties>
-
+  /*!
+   * @brief xrGetViewConfigurationProperties wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetViewConfigurationProperties>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type getViewConfigurationProperties(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3987,11 +4139,12 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrEnumerateViewConfigurationViews wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
-
+  /*!
+   * @brief xrEnumerateViewConfigurationViews wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateViewConfigurationViews(
       XrSystemId systemId, ViewConfigurationType viewConfigurationType,
@@ -3999,29 +4152,52 @@ public:
       XrViewConfigurationView *views, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEnumerateViewConfigurationViews wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
-
-  template <typename Allocator = ::std::allocator<XrViewConfigurationView>,
+  /*!
+   * @brief xrEnumerateViewConfigurationViews wrapper - enhanced mode.Performs
+   * two-call idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type std::vector<XrViewConfigurationView, Allocator>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type std::vector<XrViewConfigurationView,
+   * Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
+   */
+  template <typename Allocator = std::allocator<XrViewConfigurationView>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
-      ::std::vector<XrViewConfigurationView, Allocator>>::type
+      std::vector<XrViewConfigurationView, Allocator>>::type
   enumerateViewConfigurationViews(XrSystemId systemId,
                                   ViewConfigurationType viewConfigurationType,
                                   Dispatch &&d = Dispatch{}) const;
 
-  //! @brief xrEnumerateViewConfigurationViews wrapper - enhanced mode, stateful
-  //! allocator for two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
-
-  template <typename Allocator = ::std::allocator<XrViewConfigurationView>,
+  /*!
+   * @brief xrEnumerateViewConfigurationViews wrapper - enhanced mode. Performs
+   * two-call idiom with a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type std::vector<XrViewConfigurationView, Allocator>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type std::vector<XrViewConfigurationView,
+   * Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateViewConfigurationViews>
+   */
+  template <typename Allocator = std::allocator<XrViewConfigurationView>,
             typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
-      ::std::vector<XrViewConfigurationView, Allocator>>::type
+      std::vector<XrViewConfigurationView, Allocator>>::type
   enumerateViewConfigurationViews(XrSystemId systemId,
                                   ViewConfigurationType viewConfigurationType,
                                   Allocator const &vectorAllocator,
@@ -4030,80 +4206,122 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrStringToPath wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStringToPath>
-
+  /*!
+   * @brief xrStringToPath wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStringToPath>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result stringToPath(const char *pathString, XrPath *path,
                       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrStringToPath wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStringToPath>
-
+  /*!
+   * @brief xrStringToPath wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStringToPath>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type stringToPath(const char *pathString, XrPath *path,
                                            Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrPathToString wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
-
+  /*!
+   * @brief xrPathToString wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result pathToString(XrPath path, uint32_t bufferCapacityInput,
                       uint32_t *bufferCountOutput, char *buffer,
                       Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrPathToString wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
-
-  template <typename Allocator = ::std::allocator<char>,
+  /*!
+   * @brief xrPathToString wrapper - enhanced mode.Performs two-call idiom. //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type string_with_allocator<Allocator>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type string_with_allocator<Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
+   */
+  template <typename Allocator = std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
-  typename ResultValueType<
-      ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
+  typename ResultValueType<string_with_allocator<Allocator>>::type
   pathToString(XrPath path, Dispatch &&d = Dispatch{}) const;
 
-  //! @brief xrPathToString wrapper - enhanced mode, stateful allocator for
-  //! two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
-
-  template <typename Allocator = ::std::allocator<char>,
+  /*!
+   * @brief xrPathToString wrapper - enhanced mode. Performs two-call idiom with
+   * a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type string_with_allocator<Allocator>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type string_with_allocator<Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPathToString>
+   */
+  template <typename Allocator = std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
-  typename ResultValueType<
-      ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
+  typename ResultValueType<string_with_allocator<Allocator>>::type
   pathToString(XrPath path, Allocator const &vectorAllocator,
                Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateActionSet wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
-
+  /*!
+   * @brief xrCreateActionSet wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result createActionSet(const XrActionSetCreateInfo *createInfo,
                          ActionSet &actionSet, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateActionSet wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
-
+  /*!
+   * @brief xrCreateActionSet wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type ActionSet
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type ActionSet.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<ActionSet>::type
   createActionSet(const XrActionSetCreateInfo *createInfo,
@@ -4111,11 +4329,24 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateActionSet wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
-
+  /*!
+   * @brief xrCreateActionSet wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type UniqueHandle<ActionSet,
+   * impl::RemoveRefConst<Dispatch>>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type UniqueHandle<ActionSet,
+   * impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSet>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<ActionSet, impl::RemoveRefConst<Dispatch>>>::type
@@ -4125,23 +4356,34 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrSuggestInteractionProfileBindings wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSuggestInteractionProfileBindings>
-
+  /*!
+   * @brief xrSuggestInteractionProfileBindings wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSuggestInteractionProfileBindings>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result suggestInteractionProfileBindings(
       const XrInteractionProfileSuggestedBinding *suggestedBindings,
       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrSuggestInteractionProfileBindings wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSuggestInteractionProfileBindings>
-
+  /*!
+   * @brief xrSuggestInteractionProfileBindings wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSuggestInteractionProfileBindings>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type suggestInteractionProfileBindings(
       const XrInteractionProfileSuggestedBinding *suggestedBindings,
@@ -4152,13 +4394,15 @@ public:
 #if defined(XR_USE_GRAPHICS_API_OPENGL)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetOpenGLGraphicsRequirementsKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLGraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetOpenGLGraphicsRequirementsKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLGraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getOpenGLGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -4166,14 +4410,25 @@ public:
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetOpenGLGraphicsRequirementsKHR wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLGraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetOpenGLGraphicsRequirementsKHR wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLGraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type getOpenGLGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -4187,13 +4442,15 @@ public:
 #if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetOpenGLESGraphicsRequirementsKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLESGraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetOpenGLESGraphicsRequirementsKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLESGraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getOpenGLESGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -4201,14 +4458,25 @@ public:
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetOpenGLESGraphicsRequirementsKHR wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLESGraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetOpenGLESGraphicsRequirementsKHR wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetOpenGLESGraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type getOpenGLESGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -4221,13 +4489,15 @@ public:
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
-  //! @brief xrGetVulkanInstanceExtensionsKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetVulkanInstanceExtensionsKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getVulkanInstanceExtensionsKHR(XrSystemId systemId,
                                         uint32_t bufferCapacityInput,
@@ -4235,29 +4505,50 @@ public:
                                         char *buffer, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
-  template <typename Allocator = ::std::allocator<char>, typename Dispatch>
-  typename ResultValueType<
-      ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
+  /*!
+   * @brief xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode.Performs
+   * two-call idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type string_with_allocator<Allocator>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type string_with_allocator<Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
+  template <typename Allocator = std::allocator<char>, typename Dispatch>
+  typename ResultValueType<string_with_allocator<Allocator>>::type
   getVulkanInstanceExtensionsKHR(XrSystemId systemId, Dispatch &&d) const;
 
-  //! @brief xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode, stateful
-  //! allocator for two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
-  template <typename Allocator = ::std::allocator<char>, typename Dispatch>
-  typename ResultValueType<
-      ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
+  /*!
+   * @brief xrGetVulkanInstanceExtensionsKHR wrapper - enhanced mode. Performs
+   * two-call idiom with a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type string_with_allocator<Allocator>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type string_with_allocator<Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanInstanceExtensionsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
+  template <typename Allocator = std::allocator<char>, typename Dispatch>
+  typename ResultValueType<string_with_allocator<Allocator>>::type
   getVulkanInstanceExtensionsKHR(XrSystemId systemId,
                                  Allocator const &vectorAllocator,
                                  Dispatch &&d) const;
@@ -4268,13 +4559,15 @@ public:
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
-  //! @brief xrGetVulkanDeviceExtensionsKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetVulkanDeviceExtensionsKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getVulkanDeviceExtensionsKHR(XrSystemId systemId,
                                       uint32_t bufferCapacityInput,
@@ -4282,29 +4575,50 @@ public:
                                       Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
-  template <typename Allocator = ::std::allocator<char>, typename Dispatch>
-  typename ResultValueType<
-      ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
+  /*!
+   * @brief xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode.Performs
+   * two-call idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type string_with_allocator<Allocator>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type string_with_allocator<Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
+  template <typename Allocator = std::allocator<char>, typename Dispatch>
+  typename ResultValueType<string_with_allocator<Allocator>>::type
   getVulkanDeviceExtensionsKHR(XrSystemId systemId, Dispatch &&d) const;
 
-  //! @brief xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode, stateful
-  //! allocator for two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
-  template <typename Allocator = ::std::allocator<char>, typename Dispatch>
-  typename ResultValueType<
-      ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
+  /*!
+   * @brief xrGetVulkanDeviceExtensionsKHR wrapper - enhanced mode. Performs
+   * two-call idiom with a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type string_with_allocator<Allocator>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type string_with_allocator<Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanDeviceExtensionsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
+  template <typename Allocator = std::allocator<char>, typename Dispatch>
+  typename ResultValueType<string_with_allocator<Allocator>>::type
   getVulkanDeviceExtensionsKHR(XrSystemId systemId,
                                Allocator const &vectorAllocator,
                                Dispatch &&d) const;
@@ -4316,27 +4630,40 @@ public:
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetVulkanGraphicsDeviceKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsDeviceKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetVulkanGraphicsDeviceKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsDeviceKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getVulkanGraphicsDeviceKHR(XrSystemId systemId, VkInstance vkInstance,
                                     VkPhysicalDevice *vkPhysicalDevice,
                                     Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetVulkanGraphicsDeviceKHR wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsDeviceKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetVulkanGraphicsDeviceKHR wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsDeviceKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type
   getVulkanGraphicsDeviceKHR(XrSystemId systemId, VkInstance vkInstance,
@@ -4350,13 +4677,15 @@ public:
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetVulkanGraphicsRequirementsKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetVulkanGraphicsRequirementsKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getVulkanGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -4364,14 +4693,25 @@ public:
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetVulkanGraphicsRequirementsKHR wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetVulkanGraphicsRequirementsKHR wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVulkanGraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type getVulkanGraphicsRequirementsKHR(
       XrSystemId systemId,
@@ -4385,27 +4725,40 @@ public:
 #if defined(XR_USE_GRAPHICS_API_D3D11)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetD3D11GraphicsRequirementsKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D11GraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetD3D11GraphicsRequirementsKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D11GraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getD3D11GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D11KHR *graphicsRequirements,
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetD3D11GraphicsRequirementsKHR wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D11GraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetD3D11GraphicsRequirementsKHR wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D11GraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type getD3D11GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D11KHR *graphicsRequirements,
@@ -4418,27 +4771,40 @@ public:
 #if defined(XR_USE_GRAPHICS_API_D3D12)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetD3D12GraphicsRequirementsKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D12GraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetD3D12GraphicsRequirementsKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D12GraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getD3D12GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D12KHR *graphicsRequirements,
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetD3D12GraphicsRequirementsKHR wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D12GraphicsRequirementsKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetD3D12GraphicsRequirementsKHR wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetD3D12GraphicsRequirementsKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type getD3D12GraphicsRequirementsKHR(
       XrSystemId systemId, XrGraphicsRequirementsD3D12KHR *graphicsRequirements,
@@ -4451,27 +4817,40 @@ public:
 #if defined(XR_USE_PLATFORM_WIN32)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrConvertWin32PerformanceCounterToTimeKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertWin32PerformanceCounterToTimeKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrConvertWin32PerformanceCounterToTimeKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertWin32PerformanceCounterToTimeKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result convertWin32PerformanceCounterToTimeKHR(
       const LARGE_INTEGER *performanceCounter, XrTime *time,
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrConvertWin32PerformanceCounterToTimeKHR wrapper - enhanced mode
-  //! (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertWin32PerformanceCounterToTimeKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrConvertWin32PerformanceCounterToTimeKHR wrapper - enhanced mode
+   * (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined). //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertWin32PerformanceCounterToTimeKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type convertWin32PerformanceCounterToTimeKHR(
       const LARGE_INTEGER *performanceCounter, XrTime *time,
@@ -4484,26 +4863,39 @@ public:
 #if defined(XR_USE_PLATFORM_WIN32)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrConvertTimeToWin32PerformanceCounterKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToWin32PerformanceCounterKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrConvertTimeToWin32PerformanceCounterKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToWin32PerformanceCounterKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result convertTimeToWin32PerformanceCounterKHR(
       XrTime time, LARGE_INTEGER *performanceCounter, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrConvertTimeToWin32PerformanceCounterKHR wrapper - enhanced mode
-  //! (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToWin32PerformanceCounterKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrConvertTimeToWin32PerformanceCounterKHR wrapper - enhanced mode
+   * (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined). //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToWin32PerformanceCounterKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type convertTimeToWin32PerformanceCounterKHR(
       XrTime time, LARGE_INTEGER *performanceCounter, Dispatch &&d) const;
@@ -4515,26 +4907,39 @@ public:
 #if defined(XR_USE_TIMESPEC)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrConvertTimespecTimeToTimeKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimespecTimeToTimeKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrConvertTimespecTimeToTimeKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimespecTimeToTimeKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result convertTimespecTimeToTimeKHR(const struct timespec *timespecTime,
                                       XrTime *time, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrConvertTimespecTimeToTimeKHR wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimespecTimeToTimeKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrConvertTimespecTimeToTimeKHR wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimespecTimeToTimeKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type
   convertTimespecTimeToTimeKHR(const struct timespec *timespecTime,
@@ -4547,27 +4952,40 @@ public:
 #if defined(XR_USE_TIMESPEC)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrConvertTimeToTimespecTimeKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToTimespecTimeKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrConvertTimeToTimespecTimeKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToTimespecTimeKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result convertTimeToTimespecTimeKHR(XrTime time,
                                       struct timespec *timespecTime,
                                       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrConvertTimeToTimespecTimeKHR wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToTimespecTimeKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrConvertTimeToTimespecTimeKHR wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrConvertTimeToTimespecTimeKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type
   convertTimeToTimespecTimeKHR(XrTime time, struct timespec *timespecTime,
@@ -4578,27 +4996,40 @@ public:
 #endif // defined(XR_USE_TIMESPEC)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrSetDebugUtilsObjectNameEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetDebugUtilsObjectNameEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSetDebugUtilsObjectNameEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetDebugUtilsObjectNameEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result
   setDebugUtilsObjectNameEXT(const XrDebugUtilsObjectNameInfoEXT *nameInfo,
                              Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrSetDebugUtilsObjectNameEXT wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetDebugUtilsObjectNameEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSetDebugUtilsObjectNameEXT wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetDebugUtilsObjectNameEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type
   setDebugUtilsObjectNameEXT(const XrDebugUtilsObjectNameInfoEXT *nameInfo,
@@ -4606,26 +5037,39 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateDebugUtilsMessengerEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateDebugUtilsMessengerEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result createDebugUtilsMessengerEXT(
       const XrDebugUtilsMessengerCreateInfoEXT *createInfo,
       DebugUtilsMessengerEXT &messenger, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateDebugUtilsMessengerEXT wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateDebugUtilsMessengerEXT wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type DebugUtilsMessengerEXT
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type DebugUtilsMessengerEXT.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   typename ResultValueType<DebugUtilsMessengerEXT>::type
   createDebugUtilsMessengerEXT(
@@ -4633,13 +5077,27 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateDebugUtilsMessengerEXT wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateDebugUtilsMessengerEXT wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type UniqueHandle<DebugUtilsMessengerEXT,
+   * impl::RemoveRefConst<Dispatch>>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type UniqueHandle<DebugUtilsMessengerEXT,
+   * impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateDebugUtilsMessengerEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   typename ResultValueType<UniqueHandle<DebugUtilsMessengerEXT,
                                         impl::RemoveRefConst<Dispatch>>>::type
@@ -4649,13 +5107,15 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrSubmitDebugUtilsMessageEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSubmitDebugUtilsMessageEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSubmitDebugUtilsMessageEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSubmitDebugUtilsMessageEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result submitDebugUtilsMessageEXT(
       XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
@@ -4664,14 +5124,25 @@ public:
       Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrSubmitDebugUtilsMessageEXT wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSubmitDebugUtilsMessageEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSubmitDebugUtilsMessageEXT wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSubmitDebugUtilsMessageEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type submitDebugUtilsMessageEXT(
       XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
@@ -4994,31 +5465,43 @@ public:
    */
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrDestroySession wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySession>
-
+  /*!
+   * @brief xrDestroySession wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrDestroySession wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySession>
-
+  /*!
+   * @brief xrDestroySession wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrEnumerateReferenceSpaces wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
-
+  /*!
+   * @brief xrEnumerateReferenceSpaces wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateReferenceSpaces(uint32_t spaceCapacityInput,
                                   uint32_t *spaceCountOutput,
@@ -5026,45 +5509,93 @@ public:
                                   Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEnumerateReferenceSpaces wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
-
-  template <typename Allocator = ::std::allocator<ReferenceSpaceType>,
+  /*!
+   * @brief xrEnumerateReferenceSpaces wrapper - enhanced mode.Performs two-call
+   * idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<std::vector<ReferenceSpaceType, Allocator>>,
+   * containing both a Result (which may be Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * std::vector<ReferenceSpaceType, Allocator>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<std::vector<ReferenceSpaceType, Allocator>>,
+   * containing both a Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * std::vector<ReferenceSpaceType, Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
+   */
+  template <typename Allocator = std::allocator<ReferenceSpaceType>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::vector<ReferenceSpaceType, Allocator>>
+  ResultValue<std::vector<ReferenceSpaceType, Allocator>>
   enumerateReferenceSpaces(Dispatch &&d = Dispatch{}) const;
 
-  //! @brief xrEnumerateReferenceSpaces wrapper - enhanced mode, stateful
-  //! allocator for two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
-
-  template <typename Allocator = ::std::allocator<ReferenceSpaceType>,
+  /*!
+   * @brief xrEnumerateReferenceSpaces wrapper - enhanced mode. Performs
+   * two-call idiom with a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<std::vector<ReferenceSpaceType, Allocator>>,
+   * containing both a Result (which may be Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * std::vector<ReferenceSpaceType, Allocator>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<std::vector<ReferenceSpaceType, Allocator>>,
+   * containing both a Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * std::vector<ReferenceSpaceType, Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateReferenceSpaces>
+   */
+  template <typename Allocator = std::allocator<ReferenceSpaceType>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::vector<ReferenceSpaceType, Allocator>>
+  ResultValue<std::vector<ReferenceSpaceType, Allocator>>
   enumerateReferenceSpaces(Allocator const &vectorAllocator,
                            Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateReferenceSpace wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
-
+  /*!
+   * @brief xrCreateReferenceSpace wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result createReferenceSpace(const XrReferenceSpaceCreateInfo *createInfo,
                               Space &space, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateReferenceSpace wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
-
+  /*!
+   * @brief xrCreateReferenceSpace wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<Space>, containing both a Result (which may be
+   * Result::Success, or a non-Result::Success success code) and the output of
+   * type Space.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<Space>, containing both a Result (which may be an
+   * error, Result::Success, or a non-Result::Success success code) and the
+   * output of type Space.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Space>
   createReferenceSpace(const XrReferenceSpaceCreateInfo *createInfo,
@@ -5072,11 +5603,28 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateReferenceSpace wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
-
+  /*!
+   * @brief xrCreateReferenceSpace wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>,
+   * containing both a Result (which may be Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>,
+   * containing both a Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateReferenceSpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createReferenceSpaceUnique(const XrReferenceSpaceCreateInfo *createInfo,
@@ -5085,23 +5633,36 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetReferenceSpaceBoundsRect wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetReferenceSpaceBoundsRect>
-
+  /*!
+   * @brief xrGetReferenceSpaceBoundsRect wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetReferenceSpaceBoundsRect>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getReferenceSpaceBoundsRect(ReferenceSpaceType referenceSpaceType,
                                      XrExtent2Df *bounds,
                                      Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetReferenceSpaceBoundsRect wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetReferenceSpaceBoundsRect>
-
+  /*!
+   * @brief xrGetReferenceSpaceBoundsRect wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetReferenceSpaceBoundsRect>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getReferenceSpaceBoundsRect(ReferenceSpaceType referenceSpaceType,
                                      XrExtent2Df *bounds,
@@ -5109,21 +5670,36 @@ public:
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateActionSpace wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
-
+  /*!
+   * @brief xrCreateActionSpace wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result createActionSpace(const XrActionSpaceCreateInfo *createInfo,
                            Space &space, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateActionSpace wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
-
+  /*!
+   * @brief xrCreateActionSpace wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<Space>, containing both a Result (which may be
+   * Result::Success, or a non-Result::Success success code) and the output of
+   * type Space.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<Space>, containing both a Result (which may be an
+   * error, Result::Success, or a non-Result::Success success code) and the
+   * output of type Space.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Space>
   createActionSpace(const XrActionSpaceCreateInfo *createInfo,
@@ -5131,11 +5707,28 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateActionSpace wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
-
+  /*!
+   * @brief xrCreateActionSpace wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>,
+   * containing both a Result (which may be Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>,
+   * containing both a Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateActionSpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createActionSpaceUnique(const XrActionSpaceCreateInfo *createInfo,
@@ -5143,11 +5736,12 @@ public:
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrEnumerateSwapchainFormats wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
-
+  /*!
+   * @brief xrEnumerateSwapchainFormats wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainFormats(uint32_t formatCapacityInput,
                                    uint32_t *formatCountOutput,
@@ -5155,45 +5749,89 @@ public:
                                    Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEnumerateSwapchainFormats wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
-
-  template <typename Allocator = ::std::allocator<int64_t>,
+  /*!
+   * @brief xrEnumerateSwapchainFormats wrapper - enhanced mode.Performs
+   * two-call idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<std::vector<int64_t, Allocator>>, containing both a
+   * Result (which may be Result::Success, or a non-Result::Success success
+   * code) and the output of type std::vector<int64_t, Allocator>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<std::vector<int64_t, Allocator>>, containing both a
+   * Result (which may be an error, Result::Success, or a non-Result::Success
+   * success code) and the output of type std::vector<int64_t, Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
+   */
+  template <typename Allocator = std::allocator<int64_t>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::vector<int64_t, Allocator>>
+  ResultValue<std::vector<int64_t, Allocator>>
   enumerateSwapchainFormats(Dispatch &&d = Dispatch{}) const;
 
-  //! @brief xrEnumerateSwapchainFormats wrapper - enhanced mode, stateful
-  //! allocator for two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
-
-  template <typename Allocator = ::std::allocator<int64_t>,
+  /*!
+   * @brief xrEnumerateSwapchainFormats wrapper - enhanced mode. Performs
+   * two-call idiom with a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<std::vector<int64_t, Allocator>>, containing both a
+   * Result (which may be Result::Success, or a non-Result::Success success
+   * code) and the output of type std::vector<int64_t, Allocator>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<std::vector<int64_t, Allocator>>, containing both a
+   * Result (which may be an error, Result::Success, or a non-Result::Success
+   * success code) and the output of type std::vector<int64_t, Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainFormats>
+   */
+  template <typename Allocator = std::allocator<int64_t>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::vector<int64_t, Allocator>>
+  ResultValue<std::vector<int64_t, Allocator>>
   enumerateSwapchainFormats(Allocator const &vectorAllocator,
                             Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateSwapchain wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
-
+  /*!
+   * @brief xrCreateSwapchain wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result createSwapchain(const XrSwapchainCreateInfo *createInfo,
                          Swapchain &swapchain, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateSwapchain wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
-
+  /*!
+   * @brief xrCreateSwapchain wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<Swapchain>, containing both a Result (which may be
+   * Result::Success, or a non-Result::Success success code) and the output of
+   * type Swapchain.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<Swapchain>, containing both a Result (which may be an
+   * error, Result::Success, or a non-Result::Success success code) and the
+   * output of type Swapchain.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<Swapchain>
   createSwapchain(const XrSwapchainCreateInfo *createInfo,
@@ -5201,11 +5839,28 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateSwapchain wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
-
+  /*!
+   * @brief xrCreateSwapchain wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<UniqueHandle<Swapchain,
+   * impl::RemoveRefConst<Dispatch>>>, containing both a Result (which may be
+   * Result::Success, or a non-Result::Success success code) and the output of
+   * type UniqueHandle<Swapchain, impl::RemoveRefConst<Dispatch>>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<UniqueHandle<Swapchain,
+   * impl::RemoveRefConst<Dispatch>>>, containing both a Result (which may be an
+   * error, Result::Success, or a non-Result::Success success code) and the
+   * output of type UniqueHandle<Swapchain, impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchain>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValue<UniqueHandle<Swapchain, impl::RemoveRefConst<Dispatch>>>
   createSwapchainUnique(const XrSwapchainCreateInfo *createInfo,
@@ -5214,22 +5869,35 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrBeginSession wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginSession>
-
+  /*!
+   * @brief xrBeginSession wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginSession(const XrSessionBeginInfo *beginInfo,
                       Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrBeginSession wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginSession>
-
+  /*!
+   * @brief xrBeginSession wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginSession(const XrSessionBeginInfo *beginInfo,
                       Dispatch &&d = Dispatch{}) const;
@@ -5237,64 +5905,103 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEndSession wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndSession>
-
+  /*!
+   * @brief xrEndSession wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result endSession(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrEndSession wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndSession>
-
+  /*!
+   * @brief xrEndSession wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result endSession(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrRequestExitSession wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrRequestExitSession>
-
+  /*!
+   * @brief xrRequestExitSession wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrRequestExitSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result requestExitSession(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrRequestExitSession wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrRequestExitSession>
-
+  /*!
+   * @brief xrRequestExitSession wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrRequestExitSession>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result requestExitSession(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrWaitFrame wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitFrame>
-
+  /*!
+   * @brief xrWaitFrame wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitFrame>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitFrame(const XrFrameWaitInfo *frameWaitInfo,
                    XrFrameState *frameState, Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrWaitFrame wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitFrame>
-
+  /*!
+   * @brief xrWaitFrame wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitFrame>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitFrame(const XrFrameWaitInfo *frameWaitInfo,
                    XrFrameState *frameState, Dispatch &&d = Dispatch{}) const;
@@ -5302,22 +6009,35 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrBeginFrame wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginFrame>
-
+  /*!
+   * @brief xrBeginFrame wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginFrame>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginFrame(const XrFrameBeginInfo *frameBeginInfo,
                     Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrBeginFrame wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginFrame>
-
+  /*!
+   * @brief xrBeginFrame wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrBeginFrame>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result beginFrame(const XrFrameBeginInfo *frameBeginInfo,
                     Dispatch &&d = Dispatch{}) const;
@@ -5325,33 +6045,47 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEndFrame wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndFrame>
-
+  /*!
+   * @brief xrEndFrame wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndFrame>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result endFrame(const XrFrameEndInfo *frameEndInfo,
                   Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrEndFrame wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndFrame>
-
+  /*!
+   * @brief xrEndFrame wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEndFrame>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result endFrame(const XrFrameEndInfo *frameEndInfo,
                   Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrLocateViews wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
-
+  /*!
+   * @brief xrLocateViews wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateViews(const XrViewLocateInfo *viewLocateInfo,
                      XrViewState *viewState, uint32_t viewCapacityInput,
@@ -5359,49 +6093,91 @@ public:
                      Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrLocateViews wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
-
-  template <typename Allocator = ::std::allocator<XrView>,
+  /*!
+   * @brief xrLocateViews wrapper - enhanced mode.Performs two-call idiom. //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<std::vector<XrView, Allocator>>, containing both a
+   * Result (which may be Result::Success, or a non-Result::Success success
+   * code) and the output of type std::vector<XrView, Allocator>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<std::vector<XrView, Allocator>>, containing both a
+   * Result (which may be an error, Result::Success, or a non-Result::Success
+   * success code) and the output of type std::vector<XrView, Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
+   */
+  template <typename Allocator = std::allocator<XrView>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::vector<XrView, Allocator>>
+  ResultValue<std::vector<XrView, Allocator>>
   locateViews(const XrViewLocateInfo *viewLocateInfo, XrViewState *viewState,
               Dispatch &&d = Dispatch{}) const;
 
-  //! @brief xrLocateViews wrapper - enhanced mode, stateful allocator for
-  //! two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
-
-  template <typename Allocator = ::std::allocator<XrView>,
+  /*!
+   * @brief xrLocateViews wrapper - enhanced mode. Performs two-call idiom with
+   * a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<std::vector<XrView, Allocator>>, containing both a
+   * Result (which may be Result::Success, or a non-Result::Success success
+   * code) and the output of type std::vector<XrView, Allocator>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<std::vector<XrView, Allocator>>, containing both a
+   * Result (which may be an error, Result::Success, or a non-Result::Success
+   * success code) and the output of type std::vector<XrView, Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateViews>
+   */
+  template <typename Allocator = std::allocator<XrView>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::vector<XrView, Allocator>>
+  ResultValue<std::vector<XrView, Allocator>>
   locateViews(const XrViewLocateInfo *viewLocateInfo, XrViewState *viewState,
               Allocator const &vectorAllocator, Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrAttachSessionActionSets wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAttachSessionActionSets>
-
+  /*!
+   * @brief xrAttachSessionActionSets wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAttachSessionActionSets>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   attachSessionActionSets(const XrSessionActionSetsAttachInfo *attachInfo,
                           Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrAttachSessionActionSets wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAttachSessionActionSets>
-
+  /*!
+   * @brief xrAttachSessionActionSets wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAttachSessionActionSets>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   attachSessionActionSets(const XrSessionActionSetsAttachInfo *attachInfo,
@@ -5410,11 +6186,12 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetCurrentInteractionProfile wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetCurrentInteractionProfile>
-
+  /*!
+   * @brief xrGetCurrentInteractionProfile wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetCurrentInteractionProfile>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getCurrentInteractionProfile(XrPath topLevelUserPath,
@@ -5422,12 +6199,24 @@ public:
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetCurrentInteractionProfile wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetCurrentInteractionProfile>
-
+  /*!
+   * @brief xrGetCurrentInteractionProfile wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetCurrentInteractionProfile>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getCurrentInteractionProfile(XrPath topLevelUserPath,
@@ -5437,23 +6226,36 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetActionStateBoolean wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateBoolean>
-
+  /*!
+   * @brief xrGetActionStateBoolean wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateBoolean>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateBoolean(const XrActionStateGetInfo *getInfo,
                                XrActionStateBoolean *state,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetActionStateBoolean wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateBoolean>
-
+  /*!
+   * @brief xrGetActionStateBoolean wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateBoolean>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateBoolean(const XrActionStateGetInfo *getInfo,
                                XrActionStateBoolean *state,
@@ -5462,23 +6264,36 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetActionStateFloat wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateFloat>
-
+  /*!
+   * @brief xrGetActionStateFloat wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateFloat>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateFloat(const XrActionStateGetInfo *getInfo,
                              XrActionStateFloat *state,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetActionStateFloat wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateFloat>
-
+  /*!
+   * @brief xrGetActionStateFloat wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateFloat>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateFloat(const XrActionStateGetInfo *getInfo,
                              XrActionStateFloat *state,
@@ -5487,23 +6302,36 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetActionStateVector2f wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateVector2f>
-
+  /*!
+   * @brief xrGetActionStateVector2f wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateVector2f>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateVector2f(const XrActionStateGetInfo *getInfo,
                                 XrActionStateVector2f *state,
                                 Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetActionStateVector2f wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateVector2f>
-
+  /*!
+   * @brief xrGetActionStateVector2f wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStateVector2f>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStateVector2f(const XrActionStateGetInfo *getInfo,
                                 XrActionStateVector2f *state,
@@ -5512,23 +6340,36 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetActionStatePose wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStatePose>
-
+  /*!
+   * @brief xrGetActionStatePose wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStatePose>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStatePose(const XrActionStateGetInfo *getInfo,
                             XrActionStatePose *state,
                             Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetActionStatePose wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStatePose>
-
+  /*!
+   * @brief xrGetActionStatePose wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetActionStatePose>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result getActionStatePose(const XrActionStateGetInfo *getInfo,
                             XrActionStatePose *state,
@@ -5537,33 +6378,47 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrSyncActions wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSyncActions>
-
+  /*!
+   * @brief xrSyncActions wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSyncActions>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result syncActions(const XrActionsSyncInfo *syncInfo,
                      Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrSyncActions wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSyncActions>
-
+  /*!
+   * @brief xrSyncActions wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSyncActions>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result syncActions(const XrActionsSyncInfo *syncInfo,
                      Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrEnumerateBoundSourcesForAction wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
-
+  /*!
+   * @brief xrEnumerateBoundSourcesForAction wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateBoundSourcesForAction(
       const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
@@ -5571,36 +6426,66 @@ public:
       XrPath *sources, Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEnumerateBoundSourcesForAction wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
-
-  template <typename Allocator = ::std::allocator<XrPath>,
+  /*!
+   * @brief xrEnumerateBoundSourcesForAction wrapper - enhanced mode.Performs
+   * two-call idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<std::vector<XrPath, Allocator>>, containing both a
+   * Result (which may be Result::Success, or a non-Result::Success success
+   * code) and the output of type std::vector<XrPath, Allocator>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<std::vector<XrPath, Allocator>>, containing both a
+   * Result (which may be an error, Result::Success, or a non-Result::Success
+   * success code) and the output of type std::vector<XrPath, Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
+   */
+  template <typename Allocator = std::allocator<XrPath>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::vector<XrPath, Allocator>> enumerateBoundSourcesForAction(
+  ResultValue<std::vector<XrPath, Allocator>> enumerateBoundSourcesForAction(
       const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
       Dispatch &&d = Dispatch{}) const;
 
-  //! @brief xrEnumerateBoundSourcesForAction wrapper - enhanced mode, stateful
-  //! allocator for two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
-
-  template <typename Allocator = ::std::allocator<XrPath>,
+  /*!
+   * @brief xrEnumerateBoundSourcesForAction wrapper - enhanced mode. Performs
+   * two-call idiom with a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<std::vector<XrPath, Allocator>>, containing both a
+   * Result (which may be Result::Success, or a non-Result::Success success
+   * code) and the output of type std::vector<XrPath, Allocator>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<std::vector<XrPath, Allocator>>, containing both a
+   * Result (which may be an error, Result::Success, or a non-Result::Success
+   * success code) and the output of type std::vector<XrPath, Allocator>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateBoundSourcesForAction>
+   */
+  template <typename Allocator = std::allocator<XrPath>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::vector<XrPath, Allocator>> enumerateBoundSourcesForAction(
+  ResultValue<std::vector<XrPath, Allocator>> enumerateBoundSourcesForAction(
       const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
       Allocator const &vectorAllocator, Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrGetInputSourceLocalizedName wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
-
+  /*!
+   * @brief xrGetInputSourceLocalizedName wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result
   getInputSourceLocalizedName(const XrInputSourceLocalizedNameGetInfo *getInfo,
@@ -5609,26 +6494,55 @@ public:
                               Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetInputSourceLocalizedName wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
-
-  template <typename Allocator = ::std::allocator<char>,
+  /*!
+   * @brief xrGetInputSourceLocalizedName wrapper - enhanced mode.Performs
+   * two-call idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<string_with_allocator<Allocator>>, containing both a
+   * Result (which may be Result::Success, or a non-Result::Success success
+   * code) and the output string.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<string_with_allocator<Allocator>>, containing both a
+   * Result (which may be an error, Result::Success, or a non-Result::Success
+   * success code) and the output string.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
+   */
+  template <typename Allocator = std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::basic_string<char, ::std::char_traits<char>, Allocator>>
+  ResultValue<string_with_allocator<Allocator>>
   getInputSourceLocalizedName(const XrInputSourceLocalizedNameGetInfo *getInfo,
                               Dispatch &&d = Dispatch{}) const;
 
-  //! @brief xrGetInputSourceLocalizedName wrapper - enhanced mode, stateful
-  //! allocator for two-call result.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
-
-  template <typename Allocator = ::std::allocator<char>,
+  /*!
+   * @brief xrGetInputSourceLocalizedName wrapper - enhanced mode. Performs
+   * two-call idiom with a stateful allocator.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<string_with_allocator<Allocator>>, containing both a
+   * Result (which may be Result::Success, or a non-Result::Success success
+   * code) and the output string.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<string_with_allocator<Allocator>>, containing both a
+   * Result (which may be an error, Result::Success, or a non-Result::Success
+   * success code) and the output string.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetInputSourceLocalizedName>
+   */
+  template <typename Allocator = std::allocator<char>,
             typename Dispatch = DispatchLoaderStatic>
-  ResultValue<::std::basic_string<char, ::std::char_traits<char>, Allocator>>
+  ResultValue<string_with_allocator<Allocator>>
   getInputSourceLocalizedName(const XrInputSourceLocalizedNameGetInfo *getInfo,
                               Allocator const &vectorAllocator,
                               Dispatch &&d) const;
@@ -5636,23 +6550,36 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrApplyHapticFeedback wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrApplyHapticFeedback>
-
+  /*!
+   * @brief xrApplyHapticFeedback wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrApplyHapticFeedback>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result applyHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                              const XrHapticBaseHeader *hapticFeedback,
                              Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrApplyHapticFeedback wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrApplyHapticFeedback>
-
+  /*!
+   * @brief xrApplyHapticFeedback wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrApplyHapticFeedback>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result applyHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                              const XrHapticBaseHeader *hapticFeedback,
@@ -5661,22 +6588,35 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrStopHapticFeedback wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStopHapticFeedback>
-
+  /*!
+   * @brief xrStopHapticFeedback wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStopHapticFeedback>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result stopHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                             Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrStopHapticFeedback wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStopHapticFeedback>
-
+  /*!
+   * @brief xrStopHapticFeedback wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrStopHapticFeedback>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result stopHapticFeedback(const XrHapticActionInfo *hapticActionInfo,
                             Dispatch &&d = Dispatch{}) const;
@@ -5686,26 +6626,41 @@ public:
 #if defined(XR_USE_PLATFORM_ANDROID)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrSetAndroidApplicationThreadKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetAndroidApplicationThreadKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSetAndroidApplicationThreadKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetAndroidApplicationThreadKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result setAndroidApplicationThreadKHR(AndroidThreadTypeKHR threadType,
                                         uint32_t threadId, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrSetAndroidApplicationThreadKHR wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetAndroidApplicationThreadKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSetAndroidApplicationThreadKHR wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSetAndroidApplicationThreadKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result setAndroidApplicationThreadKHR(AndroidThreadTypeKHR threadType,
                                         uint32_t threadId, Dispatch &&d) const;
@@ -5716,26 +6671,43 @@ public:
 
 #if defined(XR_USE_PLATFORM_ANDROID)
 
-  //! @brief xrCreateSwapchainAndroidSurfaceKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSwapchainAndroidSurfaceKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result createSwapchainAndroidSurfaceKHR(const XrSwapchainCreateInfo *info,
                                           Swapchain &swapchain,
                                           jobject *surface, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateSwapchainAndroidSurfaceKHR wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSwapchainAndroidSurfaceKHR wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<jobject>, containing both a Result (which may be
+   * Result::Success, or a non-Result::Success success code) and the output of
+   * type jobject.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<jobject>, containing both a Result (which may be an
+   * error, Result::Success, or a non-Result::Success success code) and the
+   * output of type jobject.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValue<jobject>
   createSwapchainAndroidSurfaceKHR(const XrSwapchainCreateInfo *info,
@@ -5743,14 +6715,31 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateSwapchainAndroidSurfaceKHR wrapper returning a smart
-  //! handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSwapchainAndroidSurfaceKHR wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<UniqueHandle<jobject,
+   * impl::RemoveRefConst<Dispatch>>>, containing both a Result (which may be
+   * Result::Success, or a non-Result::Success success code) and the output of
+   * type UniqueHandle<jobject, impl::RemoveRefConst<Dispatch>>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<UniqueHandle<jobject,
+   * impl::RemoveRefConst<Dispatch>>>, containing both a Result (which may be an
+   * error, Result::Success, or a non-Result::Success success code) and the
+   * output of type UniqueHandle<jobject, impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSwapchainAndroidSurfaceKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValue<UniqueHandle<jobject, impl::RemoveRefConst<Dispatch>>>
   createSwapchainAndroidSurfaceUniqueKHR(const XrSwapchainCreateInfo *info,
@@ -5762,13 +6751,15 @@ public:
 #endif // defined(XR_USE_PLATFORM_ANDROID)
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrGetVisibilityMaskKHR wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVisibilityMaskKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetVisibilityMaskKHR wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVisibilityMaskKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getVisibilityMaskKHR(ViewConfigurationType viewConfigurationType,
                               uint32_t viewIndex,
@@ -5777,14 +6768,27 @@ public:
                               Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrGetVisibilityMaskKHR wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVisibilityMaskKHR>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrGetVisibilityMaskKHR wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrGetVisibilityMaskKHR>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result getVisibilityMaskKHR(ViewConfigurationType viewConfigurationType,
                               uint32_t viewIndex,
@@ -5795,27 +6799,42 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrPerfSettingsSetPerformanceLevelEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPerfSettingsSetPerformanceLevelEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrPerfSettingsSetPerformanceLevelEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPerfSettingsSetPerformanceLevelEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result perfSettingsSetPerformanceLevelEXT(PerfSettingsDomainEXT domain,
                                             PerfSettingsLevelEXT level,
                                             Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrPerfSettingsSetPerformanceLevelEXT wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPerfSettingsSetPerformanceLevelEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrPerfSettingsSetPerformanceLevelEXT wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrPerfSettingsSetPerformanceLevelEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result perfSettingsSetPerformanceLevelEXT(PerfSettingsDomainEXT domain,
                                             PerfSettingsLevelEXT level,
@@ -5824,13 +6843,15 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrThermalGetTemperatureTrendEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrThermalGetTemperatureTrendEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrThermalGetTemperatureTrendEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrThermalGetTemperatureTrendEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result thermalGetTemperatureTrendEXT(
       PerfSettingsDomainEXT domain,
@@ -5838,14 +6859,27 @@ public:
       float *tempSlope, Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrThermalGetTemperatureTrendEXT wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrThermalGetTemperatureTrendEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrThermalGetTemperatureTrendEXT wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrThermalGetTemperatureTrendEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result thermalGetTemperatureTrendEXT(
       PerfSettingsDomainEXT domain,
@@ -5855,27 +6889,42 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrSessionBeginDebugUtilsLabelRegionEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionBeginDebugUtilsLabelRegionEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSessionBeginDebugUtilsLabelRegionEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionBeginDebugUtilsLabelRegionEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result
   sessionBeginDebugUtilsLabelRegionEXT(const XrDebugUtilsLabelEXT *labelInfo,
                                        Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrSessionBeginDebugUtilsLabelRegionEXT wrapper - enhanced mode
-  //! (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionBeginDebugUtilsLabelRegionEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSessionBeginDebugUtilsLabelRegionEXT wrapper - enhanced mode
+   * (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined). //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionBeginDebugUtilsLabelRegionEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result
   sessionBeginDebugUtilsLabelRegionEXT(const XrDebugUtilsLabelEXT *labelInfo,
@@ -5884,77 +6933,124 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrSessionEndDebugUtilsLabelRegionEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionEndDebugUtilsLabelRegionEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSessionEndDebugUtilsLabelRegionEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionEndDebugUtilsLabelRegionEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result sessionEndDebugUtilsLabelRegionEXT(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrSessionEndDebugUtilsLabelRegionEXT wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionEndDebugUtilsLabelRegionEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSessionEndDebugUtilsLabelRegionEXT wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionEndDebugUtilsLabelRegionEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result sessionEndDebugUtilsLabelRegionEXT(Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrSessionInsertDebugUtilsLabelEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionInsertDebugUtilsLabelEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSessionInsertDebugUtilsLabelEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionInsertDebugUtilsLabelEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result sessionInsertDebugUtilsLabelEXT(const XrDebugUtilsLabelEXT *labelInfo,
                                          Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrSessionInsertDebugUtilsLabelEXT wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionInsertDebugUtilsLabelEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrSessionInsertDebugUtilsLabelEXT wrapper - enhanced mode (hides
+   * basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrSessionInsertDebugUtilsLabelEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result sessionInsertDebugUtilsLabelEXT(const XrDebugUtilsLabelEXT *labelInfo,
                                          Dispatch &&d) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateSpatialAnchorMSFT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSpatialAnchorMSFT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result
   createSpatialAnchorMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
                           SpatialAnchorMSFT &anchor, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateSpatialAnchorMSFT wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSpatialAnchorMSFT wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<SpatialAnchorMSFT>, containing both a Result (which
+   * may be Result::Success, or a non-Result::Success success code) and the
+   * output of type SpatialAnchorMSFT.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<SpatialAnchorMSFT>, containing both a Result (which
+   * may be an error, Result::Success, or a non-Result::Success success code)
+   * and the output of type SpatialAnchorMSFT.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValue<SpatialAnchorMSFT>
   createSpatialAnchorMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
@@ -5962,13 +7058,32 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateSpatialAnchorMSFT wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSpatialAnchorMSFT wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<UniqueHandle<SpatialAnchorMSFT,
+   * impl::RemoveRefConst<Dispatch>>>, containing both a Result (which may be
+   * Result::Success, or a non-Result::Success success code) and the output of
+   * type UniqueHandle<SpatialAnchorMSFT, impl::RemoveRefConst<Dispatch>>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<UniqueHandle<SpatialAnchorMSFT,
+   * impl::RemoveRefConst<Dispatch>>>, containing both a Result (which may be an
+   * error, Result::Success, or a non-Result::Success success code) and the
+   * output of type UniqueHandle<SpatialAnchorMSFT,
+   * impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorMSFT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValue<UniqueHandle<SpatialAnchorMSFT, impl::RemoveRefConst<Dispatch>>>
   createSpatialAnchorUniqueMSFT(const XrSpatialAnchorCreateInfoMSFT *createInfo,
@@ -5976,39 +7091,74 @@ public:
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateSpatialAnchorSpaceMSFT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSpatialAnchorSpaceMSFT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   Result createSpatialAnchorSpaceMSFT(
       const XrSpatialAnchorSpaceCreateInfoMSFT *createInfo, Space &space,
       Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateSpatialAnchorSpaceMSFT wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSpatialAnchorSpaceMSFT wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<Space>, containing both a Result (which may be
+   * Result::Success, or a non-Result::Success success code) and the output of
+   * type Space.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<Space>, containing both a Result (which may be an
+   * error, Result::Success, or a non-Result::Success success code) and the
+   * output of type Space.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValue<Space> createSpatialAnchorSpaceMSFT(
       const XrSpatialAnchorSpaceCreateInfoMSFT *createInfo, Dispatch &&d) const;
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateSpatialAnchorSpaceMSFT wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrCreateSpatialAnchorSpaceMSFT wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>,
+   * containing both a Result (which may be Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>,
+   * containing both a Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code) and the output of type
+   * UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateSpatialAnchorSpaceMSFT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValue<UniqueHandle<Space, impl::RemoveRefConst<Dispatch>>>
   createSpatialAnchorSpaceUniqueMSFT(
@@ -6329,22 +7479,35 @@ public:
    */
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrLocateSpace wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateSpace>
-
+  /*!
+   * @brief xrLocateSpace wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateSpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateSpace(Space baseSpace, XrTime time, XrSpaceLocation *location,
                      Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrLocateSpace wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateSpace>
-
+  /*!
+   * @brief xrLocateSpace wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrLocateSpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result locateSpace(Space baseSpace, XrTime time, XrSpaceLocation *location,
                      Dispatch &&d = Dispatch{}) const;
@@ -6352,21 +7515,32 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrDestroySpace wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpace>
-
+  /*!
+   * @brief xrDestroySpace wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrDestroySpace wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpace>
-
+  /*!
+   * @brief xrDestroySpace wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpace>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
@@ -6685,21 +7859,32 @@ public:
    */
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrDestroyAction wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyAction>
-
+  /*!
+   * @brief xrDestroyAction wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyAction>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrDestroyAction wrapper - enhanced mode (hides basic wrapper unless
-  //! OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyAction>
-
+  /*!
+   * @brief xrDestroyAction wrapper - enhanced mode (hides basic wrapper unless
+   * OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyAction>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
@@ -7021,32 +8206,44 @@ public:
    */
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrDestroySwapchain wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySwapchain>
-
+  /*!
+   * @brief xrDestroySwapchain wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySwapchain>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrDestroySwapchain wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySwapchain>
-
+  /*!
+   * @brief xrDestroySwapchain wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySwapchain>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrEnumerateSwapchainImages wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainImages>
-
+  /*!
+   * @brief xrEnumerateSwapchainImages wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainImages>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainImages(uint32_t imageCapacityInput,
                                   uint32_t *imageCountOutput,
@@ -7054,12 +8251,24 @@ public:
                                   Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrEnumerateSwapchainImages wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainImages>
-
+  /*!
+   * @brief xrEnumerateSwapchainImages wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateSwapchainImages>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result enumerateSwapchainImages(uint32_t imageCapacityInput,
                                   uint32_t *imageCountOutput,
@@ -7069,23 +8278,36 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrAcquireSwapchainImage wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAcquireSwapchainImage>
-
+  /*!
+   * @brief xrAcquireSwapchainImage wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAcquireSwapchainImage>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result acquireSwapchainImage(const XrSwapchainImageAcquireInfo *acquireInfo,
                                uint32_t *index,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrAcquireSwapchainImage wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAcquireSwapchainImage>
-
+  /*!
+   * @brief xrAcquireSwapchainImage wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrAcquireSwapchainImage>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result acquireSwapchainImage(const XrSwapchainImageAcquireInfo *acquireInfo,
                                uint32_t *index,
@@ -7094,22 +8316,35 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrWaitSwapchainImage wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitSwapchainImage>
-
+  /*!
+   * @brief xrWaitSwapchainImage wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitSwapchainImage>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitSwapchainImage(const XrSwapchainImageWaitInfo *waitInfo,
                             Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrWaitSwapchainImage wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitSwapchainImage>
-
+  /*!
+   * @brief xrWaitSwapchainImage wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrWaitSwapchainImage>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result waitSwapchainImage(const XrSwapchainImageWaitInfo *waitInfo,
                             Dispatch &&d = Dispatch{}) const;
@@ -7117,22 +8352,35 @@ public:
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrReleaseSwapchainImage wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrReleaseSwapchainImage>
-
+  /*!
+   * @brief xrReleaseSwapchainImage wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrReleaseSwapchainImage>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result releaseSwapchainImage(const XrSwapchainImageReleaseInfo *releaseInfo,
                                Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrReleaseSwapchainImage wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrReleaseSwapchainImage>
-
+  /*!
+   * @brief xrReleaseSwapchainImage wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns Result (which may be Result::Success, or a non-Result::Success
+   * success code)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is one of the expected success codes.
+   * - Returns Result (which may be an error, Result::Success, or a
+   * non-Result::Success success code).
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrReleaseSwapchainImage>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result releaseSwapchainImage(const XrSwapchainImageReleaseInfo *releaseInfo,
                                Dispatch &&d = Dispatch{}) const;
@@ -7455,41 +8703,63 @@ public:
    */
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrDestroyActionSet wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyActionSet>
-
+  /*!
+   * @brief xrDestroyActionSet wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyActionSet>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result destroy(Dispatch &&d = Dispatch{}) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrDestroyActionSet wrapper - enhanced mode (hides basic wrapper
-  //! unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyActionSet>
-
+  /*!
+   * @brief xrDestroyActionSet wrapper - enhanced mode (hides basic wrapper
+   * unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyActionSet>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   ResultValueType<void>::type destroy(Dispatch &&d = Dispatch{}) const;
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-  //! @brief xrCreateAction wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
-
+  /*!
+   * @brief xrCreateAction wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   Result createAction(const XrActionCreateInfo *createInfo, Action &action,
                       Dispatch &&d = Dispatch{}) const;
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrCreateAction wrapper - enhanced mode.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
-
+  /*!
+   * @brief xrCreateAction wrapper - enhanced mode.    //!
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type Action
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type Action.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<Action>::type
   createAction(const XrActionCreateInfo *createInfo,
@@ -7497,11 +8767,24 @@ public:
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-  //! @brief xrCreateAction wrapper returning a smart handle.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
-
+  /*!
+   * @brief xrCreateAction wrapper returning a smart handle.
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns the value of type UniqueHandle<Action,
+   * impl::RemoveRefConst<Dispatch>>
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns the output of type UniqueHandle<Action,
+   * impl::RemoveRefConst<Dispatch>>.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateAction>
+   */
   template <typename Dispatch = DispatchLoaderStatic>
   typename ResultValueType<
       UniqueHandle<Action, impl::RemoveRefConst<Dispatch>>>::type
@@ -7830,24 +9113,38 @@ public:
    */
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrDestroyDebugUtilsMessengerEXT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyDebugUtilsMessengerEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
-  template <typename Dispatch> Result destroy(Dispatch &&d) const;
+  /*!
+   * @brief xrDestroyDebugUtilsMessengerEXT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyDebugUtilsMessengerEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
+  template <typename Dispatch>
+  Result destroy(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrDestroyDebugUtilsMessengerEXT wrapper - enhanced mode (hides
-  //! basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyDebugUtilsMessengerEXT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrDestroyDebugUtilsMessengerEXT wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroyDebugUtilsMessengerEXT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type destroy(Dispatch &&d) const;
 
@@ -8199,24 +9496,38 @@ public:
    */
 
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-  //! @brief xrDestroySpatialAnchorMSFT wrapper.
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpatialAnchorMSFT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
-  template <typename Dispatch> Result destroy(Dispatch &&d) const;
+  /*!
+   * @brief xrDestroySpatialAnchorMSFT wrapper.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpatialAnchorMSFT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
+  template <typename Dispatch>
+  Result destroy(Dispatch &&d) const;
 
 #else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-  //! @brief xrDestroySpatialAnchorMSFT wrapper - enhanced mode (hides basic
-  //! wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-  //!
-  //! See the related specification text at
-  //! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpatialAnchorMSFT>
-  //!
-  //! @note No default dispatch is provided as this is a non-core function,
-  //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+  /*!
+   * @brief xrDestroySpatialAnchorMSFT wrapper - enhanced mode (hides basic
+   * wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).    //! If
+   * OPENXR_HPP_NO_EXCEPTIONS is not defined:
+   *
+   * - Throws an appropriate exception on failure.
+   * - Returns nothing (void)
+   *
+   * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+   *
+   * - Asserts that result is Result::Success.
+   * - Returns Result.
+   *
+   * See the related specification text at
+   * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrDestroySpatialAnchorMSFT>
+   *
+   * @note No default dispatch is provided as this is a non-core function,
+   * and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
+   */
   template <typename Dispatch>
   ResultValueType<void>::type destroy(Dispatch &&d) const;
 
@@ -8425,11 +9736,12 @@ template <> struct cpp_type<ObjectType::SpatialAnchorMSFT> {
  */
 // Forward declarations - implementations at the bottom of the file
 
-//! @brief xrEnumerateApiLayerProperties wrapper.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
-
+/*!
+ * @brief xrEnumerateApiLayerProperties wrapper.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
+ */
 template <typename Dispatch = DispatchLoaderStatic>
 Result enumerateApiLayerProperties(uint32_t propertyCapacityInput,
                                    uint32_t *propertyCountOutput,
@@ -8437,34 +9749,56 @@ Result enumerateApiLayerProperties(uint32_t propertyCapacityInput,
                                    Dispatch &&d = Dispatch{});
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//! @brief xrEnumerateApiLayerProperties wrapper - enhanced mode.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
-
-template <typename Allocator = ::std::allocator<XrApiLayerProperties>,
+/*!
+ * @brief xrEnumerateApiLayerProperties wrapper - enhanced mode.Performs
+ * two-call idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns the value of type std::vector<XrApiLayerProperties, Allocator>
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result is Result::Success.
+ * - Returns the output of type std::vector<XrApiLayerProperties, Allocator>.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
+ */
+template <typename Allocator = std::allocator<XrApiLayerProperties>,
           typename Dispatch = DispatchLoaderStatic>
-typename ResultValueType<::std::vector<XrApiLayerProperties, Allocator>>::type
+typename ResultValueType<std::vector<XrApiLayerProperties, Allocator>>::type
 enumerateApiLayerProperties(Dispatch &&d = Dispatch{});
 
-//! @brief xrEnumerateApiLayerProperties wrapper - enhanced mode, stateful
-//! allocator for two-call result.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
-
-template <typename Allocator = ::std::allocator<XrApiLayerProperties>,
+/*!
+ * @brief xrEnumerateApiLayerProperties wrapper - enhanced mode. Performs
+ * two-call idiom with a stateful allocator.
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns the value of type std::vector<XrApiLayerProperties, Allocator>
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result is Result::Success.
+ * - Returns the output of type std::vector<XrApiLayerProperties, Allocator>.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateApiLayerProperties>
+ */
+template <typename Allocator = std::allocator<XrApiLayerProperties>,
           typename Dispatch = DispatchLoaderStatic>
-typename ResultValueType<::std::vector<XrApiLayerProperties, Allocator>>::type
+typename ResultValueType<std::vector<XrApiLayerProperties, Allocator>>::type
 enumerateApiLayerProperties(Allocator const &vectorAllocator, Dispatch &&d);
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-//! @brief xrEnumerateInstanceExtensionProperties wrapper.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
-
+/*!
+ * @brief xrEnumerateInstanceExtensionProperties wrapper.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
+ */
 template <typename Dispatch = DispatchLoaderStatic>
 Result enumerateInstanceExtensionProperties(const char *layerName,
                                             uint32_t propertyCapacityInput,
@@ -8473,47 +9807,80 @@ Result enumerateInstanceExtensionProperties(const char *layerName,
                                             Dispatch &&d = Dispatch{});
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//! @brief xrEnumerateInstanceExtensionProperties wrapper - enhanced mode.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
-
-template <typename Allocator = ::std::allocator<XrExtensionProperties>,
+/*!
+ * @brief xrEnumerateInstanceExtensionProperties wrapper - enhanced
+ * mode.Performs two-call idiom.    //! If OPENXR_HPP_NO_EXCEPTIONS is not
+ * defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns the value of type std::vector<XrExtensionProperties, Allocator>
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result is Result::Success.
+ * - Returns the output of type std::vector<XrExtensionProperties, Allocator>.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
+ */
+template <typename Allocator = std::allocator<XrExtensionProperties>,
           typename Dispatch = DispatchLoaderStatic>
-typename ResultValueType<::std::vector<XrExtensionProperties, Allocator>>::type
+typename ResultValueType<std::vector<XrExtensionProperties, Allocator>>::type
 enumerateInstanceExtensionProperties(const char *layerName,
                                      Dispatch &&d = Dispatch{});
 
-//! @brief xrEnumerateInstanceExtensionProperties wrapper - enhanced mode,
-//! stateful allocator for two-call result.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
-
-template <typename Allocator = ::std::allocator<XrExtensionProperties>,
+/*!
+ * @brief xrEnumerateInstanceExtensionProperties wrapper - enhanced mode.
+ * Performs two-call idiom with a stateful allocator.
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns the value of type std::vector<XrExtensionProperties, Allocator>
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result is Result::Success.
+ * - Returns the output of type std::vector<XrExtensionProperties, Allocator>.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrEnumerateInstanceExtensionProperties>
+ */
+template <typename Allocator = std::allocator<XrExtensionProperties>,
           typename Dispatch = DispatchLoaderStatic>
-typename ResultValueType<::std::vector<XrExtensionProperties, Allocator>>::type
+typename ResultValueType<std::vector<XrExtensionProperties, Allocator>>::type
 enumerateInstanceExtensionProperties(const char *layerName,
                                      Allocator const &vectorAllocator,
                                      Dispatch &&d);
 
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-//! @brief xrCreateInstance wrapper.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
-
+/*!
+ * @brief xrCreateInstance wrapper.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
+ */
 template <typename Dispatch = DispatchLoaderStatic>
 Result createInstance(const XrInstanceCreateInfo *createInfo,
                       Instance &instance, Dispatch &&d = Dispatch{});
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//! @brief xrCreateInstance wrapper - enhanced mode.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
-
+/*!
+ * @brief xrCreateInstance wrapper - enhanced mode.    //!
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns the value of type Instance
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result is Result::Success.
+ * - Returns the output of type Instance.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
+ */
 template <typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<Instance>::type
 createInstance(const XrInstanceCreateInfo *createInfo,
@@ -8521,11 +9888,24 @@ createInstance(const XrInstanceCreateInfo *createInfo,
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
-//! @brief xrCreateInstance wrapper returning a smart handle.
-//!
-//! See the related specification text at
-//! <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
-
+/*!
+ * @brief xrCreateInstance wrapper returning a smart handle.
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+ *
+ * - Throws an appropriate exception on failure.
+ * - Returns the value of type UniqueHandle<Instance,
+ * impl::RemoveRefConst<Dispatch>>
+ *
+ * If OPENXR_HPP_NO_EXCEPTIONS is defined:
+ *
+ * - Asserts that result is Result::Success.
+ * - Returns the output of type UniqueHandle<Instance,
+ * impl::RemoveRefConst<Dispatch>>.
+ *
+ * See the related specification text at
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#xrCreateInstance>
+ */
 template <typename Dispatch = DispatchLoaderStatic>
 typename ResultValueType<
     UniqueHandle<Instance, impl::RemoveRefConst<Dispatch>>>::type
@@ -11021,11 +12401,11 @@ OPENXR_HPP_INLINE Result enumerateApiLayerProperties(
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::vector<XrApiLayerProperties, Allocator>>::type
-enumerateApiLayerProperties(Dispatch &&d) {
+OPENXR_HPP_INLINE
+    typename ResultValueType<std::vector<XrApiLayerProperties, Allocator>>::type
+    enumerateApiLayerProperties(Dispatch &&d) {
   // Two-call idiom
-  ::std::vector<XrApiLayerProperties, Allocator> properties;
+  std::vector<XrApiLayerProperties, Allocator> properties;
   uint32_t propertyCountOutput = 0;
   uint32_t propertyCapacityInput = 0;
 
@@ -11057,11 +12437,12 @@ enumerateApiLayerProperties(Dispatch &&d) {
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::vector<XrApiLayerProperties, Allocator>>::type
-enumerateApiLayerProperties(Allocator const &vectorAllocator, Dispatch &&d) {
+OPENXR_HPP_INLINE
+    typename ResultValueType<std::vector<XrApiLayerProperties, Allocator>>::type
+    enumerateApiLayerProperties(Allocator const &vectorAllocator,
+                                Dispatch &&d) {
   // Two-call idiom
-  ::std::vector<XrApiLayerProperties, Allocator> properties{vectorAllocator};
+  std::vector<XrApiLayerProperties, Allocator> properties{vectorAllocator};
   uint32_t propertyCountOutput = 0;
   uint32_t propertyCapacityInput = 0;
 
@@ -11105,10 +12486,10 @@ OPENXR_HPP_INLINE Result enumerateInstanceExtensionProperties(
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
 OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::vector<XrExtensionProperties, Allocator>>::type
+    std::vector<XrExtensionProperties, Allocator>>::type
 enumerateInstanceExtensionProperties(const char *layerName, Dispatch &&d) {
   // Two-call idiom
-  ::std::vector<XrExtensionProperties, Allocator> properties;
+  std::vector<XrExtensionProperties, Allocator> properties;
   uint32_t propertyCountOutput = 0;
   uint32_t propertyCapacityInput = 0;
 
@@ -11142,12 +12523,12 @@ enumerateInstanceExtensionProperties(const char *layerName, Dispatch &&d) {
 
 template <typename Allocator, typename Dispatch>
 OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::vector<XrExtensionProperties, Allocator>>::type
+    std::vector<XrExtensionProperties, Allocator>>::type
 enumerateInstanceExtensionProperties(const char *layerName,
                                      Allocator const &vectorAllocator,
                                      Dispatch &&d) {
   // Two-call idiom
-  ::std::vector<XrExtensionProperties, Allocator> properties{vectorAllocator};
+  std::vector<XrExtensionProperties, Allocator> properties{vectorAllocator};
   uint32_t propertyCountOutput = 0;
   uint32_t propertyCapacityInput = 0;
 
@@ -11472,10 +12853,10 @@ OPENXR_HPP_INLINE Result Session::enumerateReferenceSpaces(
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE ResultValue<::std::vector<ReferenceSpaceType, Allocator>>
+OPENXR_HPP_INLINE ResultValue<std::vector<ReferenceSpaceType, Allocator>>
 Session::enumerateReferenceSpaces(Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<ReferenceSpaceType, Allocator> spaces;
+  std::vector<ReferenceSpaceType, Allocator> spaces;
   uint32_t spaceCountOutput = 0;
   uint32_t spaceCapacityInput = 0;
 
@@ -11507,11 +12888,11 @@ Session::enumerateReferenceSpaces(Dispatch &&d) const {
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE ResultValue<::std::vector<ReferenceSpaceType, Allocator>>
+OPENXR_HPP_INLINE ResultValue<std::vector<ReferenceSpaceType, Allocator>>
 Session::enumerateReferenceSpaces(Allocator const &vectorAllocator,
                                   Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<ReferenceSpaceType, Allocator> spaces{vectorAllocator};
+  std::vector<ReferenceSpaceType, Allocator> spaces{vectorAllocator};
   uint32_t spaceCountOutput = 0;
   uint32_t spaceCapacityInput = 0;
 
@@ -11765,12 +13146,12 @@ OPENXR_HPP_INLINE Result Instance::enumerateViewConfigurationViews(
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
 OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::vector<XrViewConfigurationView, Allocator>>::type
+    std::vector<XrViewConfigurationView, Allocator>>::type
 Instance::enumerateViewConfigurationViews(
     XrSystemId systemId, ViewConfigurationType viewConfigurationType,
     Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<XrViewConfigurationView, Allocator> views;
+  std::vector<XrViewConfigurationView, Allocator> views;
   uint32_t viewCountOutput = 0;
   uint32_t viewCapacityInput = 0;
 
@@ -11806,12 +13187,12 @@ Instance::enumerateViewConfigurationViews(
 
 template <typename Allocator, typename Dispatch>
 OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::vector<XrViewConfigurationView, Allocator>>::type
+    std::vector<XrViewConfigurationView, Allocator>>::type
 Instance::enumerateViewConfigurationViews(
     XrSystemId systemId, ViewConfigurationType viewConfigurationType,
     Allocator const &vectorAllocator, Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<XrViewConfigurationView, Allocator> views{vectorAllocator};
+  std::vector<XrViewConfigurationView, Allocator> views{vectorAllocator};
   uint32_t viewCountOutput = 0;
   uint32_t viewCapacityInput = 0;
 
@@ -11856,10 +13237,10 @@ OPENXR_HPP_INLINE Result Session::enumerateSwapchainFormats(
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE ResultValue<::std::vector<int64_t, Allocator>>
+OPENXR_HPP_INLINE ResultValue<std::vector<int64_t, Allocator>>
 Session::enumerateSwapchainFormats(Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<int64_t, Allocator> formats;
+  std::vector<int64_t, Allocator> formats;
   uint32_t formatCountOutput = 0;
   uint32_t formatCapacityInput = 0;
 
@@ -11890,11 +13271,11 @@ Session::enumerateSwapchainFormats(Dispatch &&d) const {
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE ResultValue<::std::vector<int64_t, Allocator>>
+OPENXR_HPP_INLINE ResultValue<std::vector<int64_t, Allocator>>
 Session::enumerateSwapchainFormats(Allocator const &vectorAllocator,
                                    Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<int64_t, Allocator> formats{vectorAllocator};
+  std::vector<int64_t, Allocator> formats{vectorAllocator};
   uint32_t formatCountOutput = 0;
   uint32_t formatCapacityInput = 0;
 
@@ -12200,11 +13581,11 @@ OPENXR_HPP_INLINE Result Session::locateViews(
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE ResultValue<::std::vector<XrView, Allocator>>
+OPENXR_HPP_INLINE ResultValue<std::vector<XrView, Allocator>>
 Session::locateViews(const XrViewLocateInfo *viewLocateInfo,
                      XrViewState *viewState, Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<XrView, Allocator> views;
+  std::vector<XrView, Allocator> views;
   uint32_t viewCountOutput = 0;
   uint32_t viewCapacityInput = 0;
 
@@ -12238,12 +13619,12 @@ Session::locateViews(const XrViewLocateInfo *viewLocateInfo,
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE ResultValue<::std::vector<XrView, Allocator>>
+OPENXR_HPP_INLINE ResultValue<std::vector<XrView, Allocator>>
 Session::locateViews(const XrViewLocateInfo *viewLocateInfo,
                      XrViewState *viewState, Allocator const &vectorAllocator,
                      Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<XrView, Allocator> views{vectorAllocator};
+  std::vector<XrView, Allocator> views{vectorAllocator};
   uint32_t viewCountOutput = 0;
   uint32_t viewCapacityInput = 0;
 
@@ -12311,11 +13692,11 @@ OPENXR_HPP_INLINE Result Instance::pathToString(XrPath path,
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
-Instance::pathToString(XrPath path, Dispatch &&d) const {
+OPENXR_HPP_INLINE
+    typename ResultValueType<string_with_allocator<Allocator>>::type
+    Instance::pathToString(XrPath path, Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<char, Allocator> buffer;
+  std::vector<char, Allocator> buffer;
   uint32_t bufferCountOutput = 0;
   uint32_t bufferCapacityInput = 0;
 
@@ -12345,12 +13726,12 @@ Instance::pathToString(XrPath path, Dispatch &&d) const {
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
-Instance::pathToString(XrPath path, Allocator const &vectorAllocator,
-                       Dispatch &&d) const {
+OPENXR_HPP_INLINE
+    typename ResultValueType<string_with_allocator<Allocator>>::type
+    Instance::pathToString(XrPath path, Allocator const &vectorAllocator,
+                           Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<char, Allocator> buffer{vectorAllocator};
+  std::vector<char, Allocator> buffer{vectorAllocator};
   uint32_t bufferCountOutput = 0;
   uint32_t bufferCapacityInput = 0;
 
@@ -12685,12 +14066,12 @@ OPENXR_HPP_INLINE Result Session::enumerateBoundSourcesForAction(
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE ResultValue<::std::vector<XrPath, Allocator>>
+OPENXR_HPP_INLINE ResultValue<std::vector<XrPath, Allocator>>
 Session::enumerateBoundSourcesForAction(
     const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
     Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<XrPath, Allocator> sources;
+  std::vector<XrPath, Allocator> sources;
   uint32_t sourceCountOutput = 0;
   uint32_t sourceCapacityInput = 0;
 
@@ -12723,12 +14104,12 @@ Session::enumerateBoundSourcesForAction(
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE ResultValue<::std::vector<XrPath, Allocator>>
+OPENXR_HPP_INLINE ResultValue<std::vector<XrPath, Allocator>>
 Session::enumerateBoundSourcesForAction(
     const XrBoundSourcesForActionEnumerateInfo *enumerateInfo,
     Allocator const &vectorAllocator, Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<XrPath, Allocator> sources{vectorAllocator};
+  std::vector<XrPath, Allocator> sources{vectorAllocator};
   uint32_t sourceCountOutput = 0;
   uint32_t sourceCapacityInput = 0;
 
@@ -12772,12 +14153,11 @@ OPENXR_HPP_INLINE Result Session::getInputSourceLocalizedName(
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE
-    ResultValue<::std::basic_string<char, ::std::char_traits<char>, Allocator>>
-    Session::getInputSourceLocalizedName(
-        const XrInputSourceLocalizedNameGetInfo *getInfo, Dispatch &&d) const {
+OPENXR_HPP_INLINE ResultValue<string_with_allocator<Allocator>>
+Session::getInputSourceLocalizedName(
+    const XrInputSourceLocalizedNameGetInfo *getInfo, Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<char, Allocator> buffer;
+  std::vector<char, Allocator> buffer;
   uint32_t bufferCountOutput = 0;
   uint32_t bufferCapacityInput = 0;
 
@@ -12811,13 +14191,12 @@ OPENXR_HPP_INLINE
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE
-    ResultValue<::std::basic_string<char, ::std::char_traits<char>, Allocator>>
-    Session::getInputSourceLocalizedName(
-        const XrInputSourceLocalizedNameGetInfo *getInfo,
-        Allocator const &vectorAllocator, Dispatch &&d) const {
+OPENXR_HPP_INLINE ResultValue<string_with_allocator<Allocator>>
+Session::getInputSourceLocalizedName(
+    const XrInputSourceLocalizedNameGetInfo *getInfo,
+    Allocator const &vectorAllocator, Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<char, Allocator> buffer{vectorAllocator};
+  std::vector<char, Allocator> buffer{vectorAllocator};
   uint32_t bufferCountOutput = 0;
   uint32_t bufferCapacityInput = 0;
 
@@ -13041,12 +14420,12 @@ OPENXR_HPP_INLINE Result Instance::getVulkanInstanceExtensionsKHR(
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
-Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
-                                         Dispatch &&d) const {
+OPENXR_HPP_INLINE
+    typename ResultValueType<string_with_allocator<Allocator>>::type
+    Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
+                                             Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<char, Allocator> buffer;
+  std::vector<char, Allocator> buffer;
   uint32_t bufferCountOutput = 0;
   uint32_t bufferCapacityInput = 0;
 
@@ -13079,13 +14458,13 @@ Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
-Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
-                                         Allocator const &vectorAllocator,
-                                         Dispatch &&d) const {
+OPENXR_HPP_INLINE
+    typename ResultValueType<string_with_allocator<Allocator>>::type
+    Instance::getVulkanInstanceExtensionsKHR(XrSystemId systemId,
+                                             Allocator const &vectorAllocator,
+                                             Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<char, Allocator> buffer{vectorAllocator};
+  std::vector<char, Allocator> buffer{vectorAllocator};
   uint32_t bufferCountOutput = 0;
   uint32_t bufferCapacityInput = 0;
 
@@ -13133,12 +14512,12 @@ OPENXR_HPP_INLINE Result Instance::getVulkanDeviceExtensionsKHR(
 }
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
-Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
-                                       Dispatch &&d) const {
+OPENXR_HPP_INLINE
+    typename ResultValueType<string_with_allocator<Allocator>>::type
+    Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
+                                           Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<char, Allocator> buffer;
+  std::vector<char, Allocator> buffer;
   uint32_t bufferCountOutput = 0;
   uint32_t bufferCapacityInput = 0;
 
@@ -13170,13 +14549,13 @@ Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
 }
 
 template <typename Allocator, typename Dispatch>
-OPENXR_HPP_INLINE typename ResultValueType<
-    ::std::basic_string<char, ::std::char_traits<char>, Allocator>>::type
-Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
-                                       Allocator const &vectorAllocator,
-                                       Dispatch &&d) const {
+OPENXR_HPP_INLINE
+    typename ResultValueType<string_with_allocator<Allocator>>::type
+    Instance::getVulkanDeviceExtensionsKHR(XrSystemId systemId,
+                                           Allocator const &vectorAllocator,
+                                           Dispatch &&d) const {
   // Two-call idiom
-  ::std::vector<char, Allocator> buffer{vectorAllocator};
+  std::vector<char, Allocator> buffer{vectorAllocator};
   uint32_t bufferCountOutput = 0;
   uint32_t bufferCapacityInput = 0;
 

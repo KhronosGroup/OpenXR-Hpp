@@ -23,6 +23,51 @@ class /*{ project_type_name(handle.name) }*/;
 /*%- endif -%*/
 /*%- endmacro -%*/
 
+//# macro enhanced_method_behavior(enhanced)
+// If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+//
+// - Throws an appropriate exception on failure.
+//# if enhanced.bare_return_type == "void" and enhanced.successes_arg
+//## No return value, has non-Success success codes
+// - Returns Result (which may be Result::Success, or a non-Result::Success success code)
+
+//# elif enhanced.bare_return_type == "void"
+//## No return value, only Result::Success or errors
+// - Returns nothing (void)
+
+//# elif enhanced.successes_arg
+//## Some return value, has non-Success success codes
+// - Returns ResultValue</*{enhanced.bare_return_type}*/>, containing both a Result (which may be
+// Result::Success, or a non-Result::Success success code) and /*{enhanced.prose_bare_return}*/.
+
+//# else
+//## Some return value, only Result::Success or errors
+// - Returns the value of type /*{enhanced.bare_return_type}*/
+//# endif
+//
+// If OPENXR_HPP_NO_EXCEPTIONS is defined:
+//
+
+// - Asserts that result is /*{ "one of the expected success codes." if enhanced.successes_arg else "Result::Success." }*/
+
+//# if enhanced.bare_return_type == "void" and enhanced.successes_arg
+//## No return value, has non-Success success codes
+// - Returns Result (which may be an error, Result::Success, or a non-Result::Success success code).
+
+//# elif enhanced.bare_return_type == "void"
+//## No return value, only Result::Success or errors
+// - Returns Result.
+
+//# elif enhanced.successes_arg
+//## Some return value, has non-Success success codes
+// - Returns ResultValue</*{enhanced.bare_return_type}*/>, containing both a Result (which may be an error,
+// Result::Success, or a non-Result::Success success code) and /*{enhanced.prose_bare_return}*/.
+//# else
+//## Some return value, only Result::Success or errors
+// - Returns the output of type /*{enhanced.bare_return_type}*/.
+//# endif
+//# endmacro
+
 //# macro method_prototypes(cur_cmd, context)
 
 /*{- protect_begin(cur_cmd, context) }*/
@@ -37,8 +82,10 @@ class /*{ project_type_name(handle.name) }*/;
 #ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
 //# endif
 
+//# filter block_doxygen_comment
 //! @brief /*{cur_cmd.name}*/ wrapper.
 /*{ shared_comments(cur_cmd, method) }*/
+//# endfilter
 template </*{ method.template_decls }*/>
 /*{method.return_type}*/ /*{method.cpp_name}*/ (
     /*{ method.get_declaration_params() | join(", ")}*/) /*{method.qualifiers}*/;
@@ -49,20 +96,23 @@ template </*{ method.template_decls }*/>
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 //# endif
 
-
-    //# if hide_simple
-    //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined).
-    //# else
-    //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode.
-    //# endif
+//# filter block_doxygen_comment
+    //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode/*% if hide_simple %*/ (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined)/*% endif %*/. /*%- if enhanced.is_two_call %*/Performs two-call idiom./*% endif %*/
+    //!
+    /*{ enhanced_method_behavior(enhanced) }*/
     /*{ shared_comments(cur_cmd, enhanced) }*/
+//# endfilter
     template </*{ enhanced.template_decls }*/>
     /*{enhanced.return_type}*/ /*{enhanced.cpp_name}*/ (
         /*{ enhanced.get_declaration_params() | join(", ")}*/) /*{enhanced.qualifiers}*/;
 
 //# if enhanced.is_two_call
-    //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode, stateful allocator for two-call result.
+//# filter block_doxygen_comment
+    //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode. Performs two-call idiom with a stateful allocator.
+    //!
+    /*{ enhanced_method_behavior(enhanced) }*/
     /*{ shared_comments(cur_cmd, enhanced) }*/
+//# endfilter
     template </*{ enhanced.template_decls }*/>
     /*{enhanced.return_type}*/ /*{enhanced.cpp_name}*/ (
         /*{ enhanced.get_declaration_params(extras=["Allocator const& vectorAllocator"], suppress_default_dispatch_arg=true) | join(", ")}*/) /*{enhanced.qualifiers}*/;
@@ -72,8 +122,13 @@ template </*{ method.template_decls }*/>
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
     //#     set uniq = unique_cmds[cur_cmd.name]
+
+//# filter block_doxygen_comment
     //! @brief /*{cur_cmd.name}*/ wrapper returning a smart handle.
+    //!
+    /*{ enhanced_method_behavior(uniq) }*/
     /*{ shared_comments(cur_cmd, uniq) }*/
+//# endfilter
     template </*{ uniq.template_decls }*/>
     /*{uniq.return_type}*/ /*{uniq.cpp_name}*/ (
         /*{ uniq.get_declaration_params() | join(", ")}*/) /*{uniq.qualifiers}*/;
