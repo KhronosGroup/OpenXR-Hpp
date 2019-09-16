@@ -38,14 +38,14 @@ TEMPLATED_TWO_CALL = set([
 
 # Determining this heuristically appears to be impossible
 INHERITANCE = {
-    'XrSwapchainImageBaseHeader' : set((
+    'XrSwapchainImageBaseHeader': set((
         'XrSwapchainImageOpenGLKHR',
         'XrSwapchainImageOpenGLESKHR',
         'XrSwapchainImageVulkanKHR',
         'XrSwapchainImageD3D11KHR',
         'XrSwapchainImageD3D12KHR'
     )),
-    'XrCompositionLayerBaseHeader' : set((
+    'XrCompositionLayerBaseHeader': set((
         'XrCompositionLayerProjectionView',
         'XrCompositionLayerProjection',
         'XrCompositionLayerQuad',
@@ -110,6 +110,7 @@ def _project_type_name(typename):
 
 def _is_static_length_string(member):
     return member.type == "char" and member.is_array and member.pointer_count == 0
+
 
 RULE_BREAKING_ENUMS = {
     'XrResult': 'XR',
@@ -302,7 +303,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def createEnumValue(self, name, typename):
         prefix, type_suffix = self.getEnumValuePrefixSuffix(typename)
-        if (typename.endswith("FlagBits")) :
+        if (typename.endswith("FlagBits")):
             prefix = prefix[:-len('_FLAG_BITS')]
         name = _strip_prefix(name, prefix + '_')
         suffix = None
@@ -398,6 +399,18 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if typename not in self.dict_structs:
             return False
         return any((x.name == "type" for x in self.dict_structs[typename].members))
+
+    def _get_tag(self, typename):
+        if typename not in self.dict_structs:
+            return None
+        tag_member = [x for x in self.dict_structs[typename].members
+                      if x.name == "type"]
+        if not tag_member:
+            return None
+        raw_tag = tag_member[0].values
+        if not raw_tag:
+            return None
+        return "StructureType::" + self.createEnumValue(raw_tag, "XrStructureType")
 
     def _enhanced_method_projection_twocall(self, method):
         # Find the three important parameters
@@ -574,6 +587,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def allReturnCodesForCommand(self, cur_cmd):
         return cur_cmd.return_values + list(self.extensionReturnCodesForCommand(cur_cmd))
 
+    def _is_base_only(self, struct):
+        if not struct:
+            return False
+        tag_member = [x for x in struct.members if x.name == "type"]
+        if not tag_member:
+            return False
+        return tag_member[0].values is None
+
     def _cpp_hidden_member(self, member):
         return member.name == "type" or member.name == "next"
 
@@ -629,6 +650,18 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         for bitmask in self.api_bitmasks:
             self.dict_bitmasks[bitmask.name] = bitmask
 
+        # Every type mentioned in some other type's parentstruct attribute.
+        struct_parents = ((otherType, otherType.elem.get('parentstruct'))
+                          for otherType in self.registry.typedict.values())
+        self.struct_parents = {child: parent for child, parent in struct_parents
+                               if parent is not None}
+        self.parents = set(self.struct_parents.values())
+
+        def children_of(t):
+            return set(child for child, parent in self.struct_parents.items() if parent == t)
+
+        self.struct_children = {parent: children_of(parent) for parent in self.parents}
+
         basic_cmds = {}
         enhanced_cmds = {}
         unique_cmds = {}
@@ -665,8 +698,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             project_cppdecl=self._project_cppdecl,
             cpp_hidden_member=self._cpp_hidden_member,
             struct_member_count=self._struct_member_count,
-            bitmask_for_flags = self._bitmask_for_flags,
+            bitmask_for_flags=self._bitmask_for_flags,
             is_static_length_string=_is_static_length_string,
+            parents=self.parents,
+            struct_parents=self.struct_parents,
+            struct_children=self.struct_children,
+            get_tag=self._get_tag,
+            is_base_only=self._is_base_only
         )
         write(file_data, file=self.outFile)
 
