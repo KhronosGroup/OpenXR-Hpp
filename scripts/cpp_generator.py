@@ -387,11 +387,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.is_const:
                 # Input struct
                 method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
-                method.access_dict[name] = "&({}.operator const {}&())".format(name.strip(), param.type)
+                method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
             elif param.pointer_count == 1 and not is_two_call:
                 # Output struct
                 method.decl_dict[name] = "{}& {}".format(cpp_type, name)
-                method.access_dict[name] = "&({}.operator {}&())".format(name.strip(), param.type)
+                method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
 
     def _update_enhanced_return_type(self, method):
         """Set the return type based on the bare return type.
@@ -602,11 +602,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.decl_dict[outparam.name] = None
             method.pre_statements.append("{} structResult;".format(cpp_outtype))
             if outparam.type in self.dict_structs:
-                method.access_dict[outparam.name] = "&(structResult.operator {}&())".format(outparam.type)
+                method.access_dict[outparam.name] = "OPENXR_HPP_NAMESPACE::put(structResult)"
             else:
                 method.access_dict[outparam.name] = "&structResult"
             method.returns.append("structResult")
-
 
         self._update_enhanced_return_type(method)
 
