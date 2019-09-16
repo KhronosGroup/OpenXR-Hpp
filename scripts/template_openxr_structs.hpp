@@ -25,9 +25,9 @@ struct CompositionLayerBaseHeader {
 
 //# for struct in gen.api_structures if not struct.name.startswith("XrBase") and not struct.name.endswith("BaseHeader")
 //#     set projected_type = project_type_name(struct.name)
-//#     set typed_struct = struct.members[0].name == "type"
+//#     set typed_struct = is_tagged_type(struct.name)
 //#     set member_count = struct_member_count(struct)
-//#     set intermediate_type = struct.name.endswith("BaseHeader")
+//#     set intermediate_type = is_base_only(struct)
 //#     set parent_type = "traits::TypedStructTraits<" + projected_type + ">"
 /*{ protect_begin(struct) }*/
 //#  if typed_struct
@@ -40,15 +40,14 @@ struct /*{projected_type }*/ : public /*{ parent_type }*/ {
     struct /*{projected_type }*/ {
         //# endif
 
-        //# set struct_type = "Unknown"
-        //# if typed_struct and not intermediate_type
-        //#     set struct_type = create_enum_value(struct.members[0].values, "XrStructureType")
+        //# if typed_struct
+        //#     set struct_type = get_tag(struct.name)
         //# endif
 
         // ctor
         //# if struct.returned_only
-        /*{projected_type-}*/ ()
-            : Parent(StructureType::/*{struct_type}*/){}
+        /*{projected_type }*/ ()
+            : Parent(/*{struct_type}*/){}
 
               //# elif struct.name == 'XrEventDataBuffer'
               /*{projected_type }*/ ()
@@ -70,7 +69,7 @@ struct /*{projected_type }*/ : public /*{ parent_type }*/ {
 
               //# if typed_struct
 
-              Parent(StructureType::/*{ struct_type }*/) /*{ "," if member_count > 2 }*/
+              Parent(/*{ struct_type }*/) /*{ "," if member_count > 2 }*/
 
               //# endif
               //# for member in struct.members if not cpp_hidden_member(member) and not is_static_length_string(member)
