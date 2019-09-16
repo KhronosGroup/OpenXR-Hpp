@@ -303,7 +303,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def createEnumValue(self, name, typename):
         prefix, type_suffix = self.getEnumValuePrefixSuffix(typename)
-        if (typename.endswith("FlagBits")):
+        if typename.endswith("FlagBits"):
             prefix = prefix[:-len('_FLAG_BITS')]
         name = _strip_prefix(name, prefix + '_')
         suffix = None
@@ -611,7 +611,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         # Look for two-call
         if self._enhanced_method_projection_twocall(method):
-                # No further enhancements.
+            # No further enhancements.
             return
 
     def _unique_method_projection(self, method):
@@ -684,18 +684,18 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def _project_cppdecl(self, struct, member, defaulted=False, suffix="", input=False):
         result = member.cdecl.strip() + suffix
-        if (member.type.startswith("Xr")):
-            result = re.sub(r'\bXr(\w+)', '\\1', result)
+        if member.type.startswith("Xr"):
+            result = _project_type_name(result)
 
-        if (input):
-            if (member.type == 'char' and member.is_array and member.pointer_count == 0):
+        if input:
+            if member.type == 'char' and member.is_array and member.pointer_count == 0:
                 result = "const char* " + member.name + suffix
-            elif (member.type.startswith("Xr") and member.pointer_count == 0):
+            elif member.type.startswith("Xr") and member.pointer_count == 0:
                 result = "const " + _project_type_name(member.type) + "& " + member.name + suffix
 
-        if (defaulted):
+        if defaulted:
             defaultValue = "{}"
-            if (member.pointer_count > 0 or (member.type == 'char' and member.is_array)):
+            if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
                 defaultValue = "nullptr"
             elif member.type.startswith("uint") or member.type.startswith("int"):
                 defaultValue = "0"
