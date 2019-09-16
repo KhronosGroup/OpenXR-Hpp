@@ -377,17 +377,21 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         # Convert structs
         for param in method.decl_params:
-            if param.type in self.dict_structs:
-                name = param.name
-                cpp_type = _project_type_name(param.type)
-                if param.is_const:
-                    # Input struct
-                    method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
-                    method.access_dict[name] = "&({}.operator const {}&())".format(name.strip(), param.type)
-                elif param.pointer_count == 1 and not is_two_call:
-                    # Output struct
-                    method.decl_dict[name] = "{}& {}".format(cpp_type, name)
-                    method.access_dict[name] = "&({}.operator {}&())".format(name.strip(), param.type)
+            if param.type not in self.dict_structs:
+                continue
+            if self._is_base_only(self.dict_structs[param.type]):
+                # This is a polymorphic parameter: skip conversion for now.
+                continue
+            name = param.name
+            cpp_type = _project_type_name(param.type)
+            if param.is_const:
+                # Input struct
+                method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
+                method.access_dict[name] = "&({}.operator const {}&())".format(name.strip(), param.type)
+            elif param.pointer_count == 1 and not is_two_call:
+                # Output struct
+                method.decl_dict[name] = "{}& {}".format(cpp_type, name)
+                method.access_dict[name] = "&({}.operator {}&())".format(name.strip(), param.type)
 
     def _update_enhanced_return_type(self, method):
         """Set the return type based on the bare return type.
