@@ -3407,8 +3407,8 @@ createResultValue(Result result, char const *message,
  * type T.
  */
 template <typename T>
-OPENXR_HPP_INLINE ResultValue<T>
-createResultValue(Result result, T &data, char const *message,
+OPENXR_HPP_INLINE ResultValue<typename std::remove_reference<T>::type>
+createResultValue(Result result, T &&data, char const *message,
                   std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
   (void)message;
@@ -3420,7 +3420,7 @@ createResultValue(Result result, T &data, char const *message,
     exceptions::throwResultException(result, message);
   }
 #endif
-  return ResultValue<T>(result, data);
+  return {result, std::move(data)};
 }
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE

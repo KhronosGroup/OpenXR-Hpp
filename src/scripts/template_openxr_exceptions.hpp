@@ -361,8 +361,8 @@ OPENXR_HPP_INLINE Result createResultValue(Result result, char const* message, s
  * type T.
  */
 template <typename T>
-OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char const* message,
-                                                   std::initializer_list<Result> successCodes) {
+OPENXR_HPP_INLINE ResultValue<typename std::remove_reference<T>::type> createResultValue(
+    Result result, T&& data, char const* message, std::initializer_list<Result> successCodes) {
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
     (void)message;
     OPENXR_HPP_ASSERT(std::find(successCodes.begin(), successCodes.end(), result) != successCodes.end());
@@ -371,7 +371,7 @@ OPENXR_HPP_INLINE ResultValue<T> createResultValue(Result result, T& data, char 
         exceptions::throwResultException(result, message);
     }
 #endif
-    return ResultValue<T>(result, data);
+    return {result, std::move(data)};
 }
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
@@ -444,7 +444,7 @@ OPENXR_HPP_INLINE ResultValue<UniqueHandle<T, D>> createResultValue(
 }
 #endif
 
-} // namespace impl
+}  // namespace impl
 
 //! @}
 
