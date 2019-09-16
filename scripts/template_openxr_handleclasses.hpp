@@ -24,9 +24,7 @@ class /*{ project_type_name(handle.name) }*/;
 /*%- endmacro -%*/
 
 //# macro enhanced_method_behavior(enhanced)
-// If OPENXR_HPP_NO_EXCEPTIONS is not defined:
 //
-// - Throws an appropriate exception on failure.
 //# if enhanced.bare_return_type == "void" and enhanced.successes_arg
 //## No return value, has non-Success success codes
 // - Returns Result (which may be Result::Success, or a non-Result::Success success code)
@@ -98,7 +96,6 @@ template </*{ method.template_decls }*/>
 
 //# filter block_doxygen_comment
     //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode/*% if hide_simple %*/ (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined)/*% endif %*/. /*%- if enhanced.is_two_call %*/Performs two-call idiom./*% endif %*/
-    //!
     /*{ enhanced_method_behavior(enhanced) }*/
     /*{ shared_comments(cur_cmd, enhanced) }*/
 //# endfilter
@@ -109,7 +106,6 @@ template </*{ method.template_decls }*/>
 //# if enhanced.is_two_call
 //# filter block_doxygen_comment
     //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode. Performs two-call idiom with a stateful allocator.
-    //!
     /*{ enhanced_method_behavior(enhanced) }*/
     /*{ shared_comments(cur_cmd, enhanced) }*/
 //# endfilter
@@ -125,7 +121,6 @@ template </*{ method.template_decls }*/>
 
 //# filter block_doxygen_comment
     //! @brief /*{cur_cmd.name}*/ wrapper returning a smart handle.
-    //!
     /*{ enhanced_method_behavior(uniq) }*/
     /*{ shared_comments(cur_cmd, uniq) }*/
 //# endfilter
@@ -195,7 +190,7 @@ struct cpp_type<ObjectType::/*{shortname}*/> {
 //## Generate free-function prototypes
 /*!
  * @defgroup api_free_functions OpenXR API free functions
- * 
+ *
  * Equivalent to the method wrappers in the handle classes,
  * but for the few functions that don't take (or don't require)
  * a handle as their first argument.
