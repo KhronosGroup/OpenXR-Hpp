@@ -113,11 +113,11 @@ using BilateralPaths = std::array<Path, SIDE_COUNT>;
 using SideHandler = std::function<void(Side)>;
 using IndexHandler = std::function<void(uint32_t)>;
 
-constexpr char* const reserved_paths[] = {
+constexpr char const* const reserved_paths[] = {
     "/user/hand/left", "/user/hand/right", "/user/head", "/user/gamepad", "/user/treadmill",
 };
 
-constexpr char* const interaction_profiles[] = {
+constexpr char const* const interaction_profiles[] = {
     "/interaction_profiles/khr/simple_controller",       "/interaction_profiles/google/daydream_controller",
     "/interaction_profiles/htc/vive_controller",         "/interaction_profiles/htc/vive_pro",
     "/interaction_profiles/microsoft/motion_controller", "/interaction_profiles/microsoft/xbox_controller",
@@ -125,15 +125,16 @@ constexpr char* const interaction_profiles[] = {
     "/interaction_profiles/valve/index_controller",
 };
 
-void for_each_side(const SideHandler& handler) {
+template <typename SideHandler>
+static inline void for_each_side(SideHandler&& handler) {
     handler(Left);
     handler(Right);
 }
 
-void for_each_side_index(const IndexHandler& handler) {
-    for (uint32_t i = 0; i < SIDE_COUNT; ++i) {
-        handler(i);
-    }
+template <typename IndexHandler>
+static inline void for_each_side_index(IndexHandler&& handler) {
+    handler(0);
+    handler(1);
 }
 
 }  // namespace OPENXR_HPP_NAMESPACE
