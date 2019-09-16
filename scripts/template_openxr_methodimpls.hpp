@@ -38,33 +38,25 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     uint32_t /*{ enhanced.count_output_param_name }*/ = 0;
     uint32_t /*{ enhanced.capacity_input_param_name }*/ = 0;
     
-    //# if is_tagged_type(enhanced.item_type)
-    /*{ enhanced.item_type_cpp }*/ empty{};
-    empty.type = /*{generate_structure_type_from_name(enhanced.item_type)}*/;
-    //# set empty_arg = ", empty"
-    //# endif
-
     /*{ enhanced.pre_statements |join("\n") | indent }*/
     //# if enhanced.item_type == 'char'
     std::basic_string<char, std::char_traits<char>, Allocator> str{vectorAllocator};
     //# endif
     /*{ enhanced.get_main_invoke({enhanced.array_param_name: "nullptr"}) }*/
     if (!unqualifiedSuccess(result) || /*{ enhanced.count_output_param_name }*/ == 0) {
-        
+
         /*{ enhanced.return_statement }*/
     }
     do {
-        /*{ enhanced.array_param_name }*/.resize(/*{ enhanced.count_output_param_name }*//*{ empty_arg }*/);
+        /*{ enhanced.array_param_name }*/.resize(/*{ enhanced.count_output_param_name }*/);
         /*{ enhanced.capacity_input_param_name }*/ = static_cast<uint32_t>(/*{enhanced.array_param_name}*/.size());
-        //# set array_param = enhanced.array_param_name + ".data()"
-        //# if enhanced.array_param.param.type in gen.dict_enum
-        //#     set array_param = "reinterpret_cast<" + enhanced.array_param.param.type + "*>(" + array_param + ")"
-        //# endif
-        /*{ enhanced.get_main_invoke({ enhanced.array_param_name: enhanced.array_param_name + ".data()"}) | replace("Result ", "") }*/
+        //# set raw_array_param = enhanced.array_param_name + ".data()"
+        //# set array_param = "reinterpret_cast<" + enhanced.array_param.param.type + "*>(" + raw_array_param + ")"
+        /*{ enhanced.get_main_invoke({ enhanced.array_param_name: array_param }) | replace("Result ", "") }*/
     } while (result == xr::Result::ErrorSizeInsufficient);
     if (result == xr::Result::Success) {
         OPENXR_HPP_ASSERT(/*{ enhanced.count_output_param_name }*/ <= /*{enhanced.array_param_name}*/.size());
-        /*{enhanced.array_param_name}*/.resize(/*{ enhanced.count_output_param_name }*//*{ empty_arg }*/);
+        /*{enhanced.array_param_name}*/.resize(/*{ enhanced.count_output_param_name }*/);
     }
     /*{ enhanced.post_statements |join("\n") | indent }*/
     //# if enhanced.item_type == 'char'

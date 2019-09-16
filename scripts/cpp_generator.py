@@ -32,9 +32,25 @@ DISCOURAGED = set((
     'xrStructureTypeToString',
 ))
 
-SUPPRESS_TWO_CALL = set([
+TEMPLATED_TWO_CALL = set([
     'xrEnumerateSwapchainImages'
 ])
+
+# Determining this heuristically appears to be impossible
+INHERITANCE = {
+    'XrSwapchainImageBaseHeader' : set((
+        'XrSwapchainImageOpenGLKHR',
+        'XrSwapchainImageOpenGLESKHR',
+        'XrSwapchainImageVulkanKHR',
+        'XrSwapchainImageD3D11KHR',
+        'XrSwapchainImageD3D12KHR'
+    )),
+    'XrCompositionLayerBaseHeader' : set((
+        'XrCompositionLayerProjectionView',
+        'XrCompositionLayerProjection',
+        'XrCompositionLayerQuad',
+    )),
+}
 
 TWO_CALL_STRING_NAME = "buffer"
 
@@ -243,7 +259,7 @@ class MethodProjection:
         return lines
 
     def get_success_codes(self):
-        return [x for x in self.cpp_return_codes if "Error" not in x]
+        return [x for x in self.cpp_return_codes if "Error" not in x and "LossPending" not in x]
 
     @property
     def qualifiers(self):
@@ -384,8 +400,6 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         return any((x.name == "type" for x in self.dict_structs[typename].members))
 
     def _enhanced_method_projection_twocall(self, method):
-        if method.name in SUPPRESS_TWO_CALL:
-            return False
         # Find the three important parameters
         capacity_input_param = None
         capacity_input_param_name = None
@@ -437,15 +451,23 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         item_type = array_param['param'].type
         method.item_type = item_type
 
-        item_type_cpp = item_type
-        if item_type in self.dict_enums:
-            item_type_cpp = _project_type_name(item_type)
+        item_type_cpp = _project_type_name(item_type)
         method.item_type_cpp = item_type_cpp
+        templated = method.name in TEMPLATED_TWO_CALL
+        method.templated = templated
 
-        vec_type = "std::vector<{}, Allocator>".format(item_type_cpp)
+        vector_member_type = item_type_cpp
+        if templated:
+            vector_member_type = 'ResultItemType'
+
+        vec_type = "std::vector<{}, Allocator>".format(vector_member_type)
         method.vec_type = vec_type
-        method.template_decl_list.insert(0, "typename Allocator = std::allocator<{}>".format(item_type_cpp))
+        method.template_decl_list.insert(0, "typename Allocator = std::allocator<{}>".format(vector_member_type))
         method.template_defn_list.insert(0, "typename Allocator")
+
+        if templated:
+            method.template_decl_list.insert(0, "typename ResultItemType")
+            method.template_defn_list.insert(0, "typename ResultItemType")
 
         method.capacity_input_param_name = capacity_input_param_name
         method.count_output_param_name = count_output_param_name

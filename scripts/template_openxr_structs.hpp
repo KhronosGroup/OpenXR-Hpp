@@ -13,7 +13,7 @@ class TypedStructTraits {
     const StructureType type;
 
    public:
-    const void* next;
+    const void* next{nullptr};
 };
 
 }  // namespace traits
@@ -25,27 +25,42 @@ struct CompositionLayerBaseHeader {
     Space space;
 };
 
-//# for struct in gen.api_structures if not struct.name.endswith("BaseHeader") and not struct.name.startswith("XrBase")
+//# for struct in gen.api_structures if not struct.name.startswith("XrBase") and not struct.name.endswith("BaseHeader")
 //#     set projected_type = project_type_name(struct.name)
 //#     set typed_struct = struct.members[0].name == "type"
 //#     set member_count = struct_member_count(struct)
+//#     set intermediate_type = struct.name.endswith("BaseHeader")
+//#     set parent_type = "traits::TypedStructTraits<" + projected_type + ">"
 /*{ protect_begin(struct) }*/
 //#  if typed_struct
-struct /*{projected_type }*/ : public traits::TypedStructTraits</*{projected_type }*/> {
+struct /*{projected_type }*/ : public /*{ parent_type }*/ {
    private:
-    using Parent = traits::TypedStructTraits</*{projected_type }*/>;
+    using Parent = /*{ parent_type }*/;
 
    public:
     //# else
     struct /*{projected_type }*/ {
         //# endif
 
-        //# if struct.name == "XrEventDataBuffer"
-        EventDataBuffer()
+        //# set struct_type = "Unknown"
+        //# if typed_struct and not intermediate_type
+        //#     set struct_type = create_enum_value(struct.members[0].values, "XrStructureType")
+        //# endif
+
+        // ctor
+        //# if struct.returned_only
+        /*{projected_type }*/ ()
+            : Parent(StructureType::/*{struct_type}*/){}
+
+              //# elif struct.name == 'XrEventDataBuffer'
+              /*{projected_type }*/ ()
             : Parent(StructureType::EventDataBuffer){}
 
-              //# elif not struct.returned_only
+              //# elif struct.intermediate_type
+              /*{projected_type }*/ (StructureType type_)
+            : Parent(type_){}
 
+              //# else
               /*{projected_type }*/ (
                   //# for member in struct.members if not cpp_hidden_member(member)
                   //# set projected_member_type = project_type_name(member.type)
@@ -55,12 +70,11 @@ struct /*{projected_type }*/ : public traits::TypedStructTraits</*{projected_typ
                   )
             :
 
-              //#  if typed_struct
+              //# if typed_struct
 
-              Parent(StructureType::/*{create_enum_value(struct.members[0].values, "XrStructureType")}*/)
-              /*{- "," if  member_count > 2 }*/
-              //#  endif
+              Parent(StructureType::/*{ struct_type }*/) /*{ "," if member_count > 2 }*/
 
+              //# endif
               //# for member in struct.members if not cpp_hidden_member(member) and not is_static_length_string(member)
               /*{ member.name }*/ {/*{ member.name + "_"}*/} /*{ "," if not loop.last }*/
         //# endfor
@@ -74,6 +88,12 @@ struct /*{projected_type }*/ : public traits::TypedStructTraits</*{projected_typ
         }
         //# endif
 
+        operator const /*{ struct.name }*/&() const { return *reinterpret_cast<const /*{ struct.name }*/*>(this); }
+        /*{ "operator " + struct.name }*/ &() {
+            return *reinterpret_cast</*{ struct.name }*/*>(this);
+        }
+
+        // member decl
         //# for member in struct.members if not cpp_hidden_member(member)
         /*{ project_cppdecl(member) }*/;
         //# endfor
