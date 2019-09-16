@@ -92,6 +92,9 @@ def _project_type_name(typename):
     return _strip_prefix(typename, "Xr")
 
 
+def _is_static_length_string(member):
+    return member.type == "char" and member.is_array and member.pointer_count == 0
+
 RULE_BREAKING_ENUMS = {
     'XrResult': 'XR',
     'XrStructureType': 'XR_TYPE',
@@ -640,7 +643,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             project_cppdecl=self._project_cppdecl,
             cpp_hidden_member=self._cpp_hidden_member,
             struct_member_count=self._struct_member_count,
-            bitmask_for_flags = self._bitmask_for_flags
+            bitmask_for_flags = self._bitmask_for_flags,
+            is_static_length_string=_is_static_length_string,
         )
         write(file_data, file=self.outFile)
 
