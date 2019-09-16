@@ -52,16 +52,6 @@ INHERITANCE = {
     )),
 }
 
-ATOM_TYPES = set((
-    'XrVersion',
-    'XrFlags64',
-    'XrSystemId',
-    'XrBool32',
-    'XrPath',
-    'XrTime',
-    'XrDuration'
-))
-
 TWO_CALL_STRING_NAME = "buffer"
 
 CAPACITY_INPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CapacityInput')
@@ -611,8 +601,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.decl_params.pop()
             method.decl_dict[outparam.name] = None
             method.pre_statements.append("{} structResult;".format(cpp_outtype))
-            method.access_dict[outparam.name] = "&(structResult.operator {}&())".format(outparam.type)
-            if outparam.type in ATOM_TYPES:
+            if outparam.type in self.dict_structs:
+                method.access_dict[outparam.name] = "&(structResult.operator {}&())".format(outparam.type)
+            else:
                 method.access_dict[outparam.name] = "&structResult"
             method.returns.append("structResult")
 
