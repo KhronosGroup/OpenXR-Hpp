@@ -779,7 +779,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         # Every type mentioned in some other type's parentstruct attribute.
         struct_parents = ((otherType, otherType.elem.get('parentstruct'))
                           for otherType in self.registry.typedict.values())
-        self.struct_parents = {child: parent for child, parent in struct_parents
+        self.struct_parents = {child.elem.get('name'): parent for child, parent in struct_parents
                                if parent is not None}
         self.parents = set(self.struct_parents.values())
 
@@ -787,6 +787,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             return set(child for child, parent in self.struct_parents.items() if parent == t)
 
         self.struct_children = {parent: children_of(parent) for parent in self.parents}
+
+        def fields_of(t):
+            struct = self.dict_structs[t]
+            members = struct.members
+            return set(field.name for field in members if not self._cpp_hidden_member(field))
+
+        self.struct_fields = {parent: fields_of(parent) for parent in self.parents}
 
         basic_cmds = {}
         enhanced_cmds = {}
@@ -830,6 +837,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             parents=self.parents,
             struct_parents=self.struct_parents,
             struct_children=self.struct_children,
+            struct_fields=self.struct_fields,
             get_tag=self._get_tag,
             is_base_only=self._is_base_only
         )

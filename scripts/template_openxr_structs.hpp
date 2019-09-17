@@ -16,27 +16,63 @@ class TypedStructTraits {
 
 }  // namespace traits
 
-struct HapticBaseHeader {
-    StructureType type;
-    const void* next;
+struct EventDataBaseHeader : public traits::TypedStructTraits<EventDataBaseHeader> {
+private:
+    using Parent = traits::TypedStructTraits<EventDataBaseHeader>;
+
+protected:
+    EventDataBaseHeader(StructureType type_) : Parent(type_) { }
+};
+static_assert(sizeof(EventDataBaseHeader) == sizeof(XrEventDataBaseHeader), "struct and wrapper have different size!");
+
+struct SwapchainImageBaseHeader : public traits::TypedStructTraits<SwapchainImageBaseHeader> {
+private:
+    using Parent = traits::TypedStructTraits<SwapchainImageBaseHeader>;
+
+protected:
+    SwapchainImageBaseHeader(StructureType type_) : Parent(type_) { }
+};
+static_assert(sizeof(SwapchainImageBaseHeader) == sizeof(XrSwapchainImageBaseHeader), "struct and wrapper have different size!");
+
+struct HapticBaseHeader : public traits::TypedStructTraits<HapticBaseHeader> {
+private:
+    using Parent = traits::TypedStructTraits<HapticBaseHeader>;
+
+protected:
+    HapticBaseHeader(StructureType type_) : Parent(type_) { }
 };
 static_assert(sizeof(HapticBaseHeader) == sizeof(XrHapticBaseHeader), "struct and wrapper have different size!");
 
-struct CompositionLayerBaseHeader {
-    StructureType type;
-    const void* next;
+struct CompositionLayerBaseHeader : public traits::TypedStructTraits<CompositionLayerBaseHeader> {
+private:
+    using Parent = traits::TypedStructTraits<CompositionLayerBaseHeader>;
+
+protected:
+    CompositionLayerBaseHeader(
+        StructureType type_,
+        const CompositionLayerFlags& layerFlags_,
+        const Space& space_)
+        : Parent(type_), layerFlags(layerFlags_), space(space) { }
+
+public:
     CompositionLayerFlags layerFlags;
     Space space;
 };
 static_assert(sizeof(CompositionLayerBaseHeader) == sizeof(XrCompositionLayerBaseHeader),
-              "struct and wrapper have different size!");
+    "struct and wrapper have different size!");
 
 //# for struct in gen.api_structures if not struct.name.startswith("XrBase") and not struct.name.endswith("BaseHeader")
 //#     set projected_type = project_type_name(struct.name)
 //#     set typed_struct = is_tagged_type(struct.name)
 //#     set member_count = struct_member_count(struct)
 //#     set intermediate_type = is_base_only(struct)
+//#     set derived_type = struct.name in struct_parents
 //#     set parent_type = "traits::TypedStructTraits<" + projected_type + ">"
+//#     set parent_fields = {}
+//#     if derived_type
+//#         set parent_type = project_type_name(struct_parents[struct.name])
+//#         set parent_fields = struct_fields[struct_parents[struct.name]]
+//#     endif
 /*{ protect_begin(struct) }*/
 //#  if typed_struct
 struct /*{projected_type }*/ : public /*{ parent_type }*/ {
@@ -75,12 +111,16 @@ struct /*{projected_type }*/ : public /*{ parent_type }*/ {
                   )
             :
 
-              //# if typed_struct
+        //# if typed_struct
 
-              Parent(/*{ struct_type }*/) /*{ "," if member_count > 2 }*/
+              Parent(/*{ struct_type }*/
+        //# for member in struct.members if not cpp_hidden_member(member) and not is_static_length_string(member) and member.name in parent_fields
+              , /*{ member.name + "_"}*/
+        //# endfor
+              ) /*{ "," if member_count > 2 }*/
 
-              //# endif
-              //# for member in struct.members if not cpp_hidden_member(member) and not is_static_length_string(member)
+        //# endif
+        //# for member in struct.members if not cpp_hidden_member(member) and not is_static_length_string(member) and member.name not in parent_fields
               /*{ member.name }*/ {/*{ member.name + "_"}*/} /*{ "," if not loop.last }*/
         //# endfor
         {
@@ -99,7 +139,7 @@ struct /*{projected_type }*/ : public /*{ parent_type }*/ {
         }
 
         // member decl
-        //# for member in struct.members if not cpp_hidden_member(member)
+        //# for member in struct.members if not cpp_hidden_member(member) and member.name not in parent_fields
         /*{ project_cppdecl(struct, member) }*/;
         //# endfor
     };
