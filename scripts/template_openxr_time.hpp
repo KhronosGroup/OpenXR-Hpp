@@ -8,6 +8,11 @@
 OPENXR_HPP_CONSTEXPR explicit operator bool() const noexcept { return val_ > 0; }
 //# endblock
 
+//# block operator_negation
+//! Unary negation: True if this /*{ type }*/ is invalid
+OPENXR_HPP_CONSTEXPR bool operator!() const noexcept { return val_ <= 0; }
+//# endblock
+
 //# block extra_methods
 //! Add a Duration to the current Time
 Time& operator+=(Duration d) noexcept {

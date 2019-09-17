@@ -14,32 +14,33 @@
 //# endblock
 
 //# block member_types
-using Type = /*{ shortname }*/;
-using RawHandleType = /*{handle.name}*/;
-//# endblock
+using Type = /*{ type }*/;
+using RawHandleType = /*{raw_type}*/;
+//# endblock member_types
 
 //# block constructor_default
 //! Default (empty/null) constructor
-OPENXR_HPP_CONSTEXPR /*{shortname -}*/ () : val_(XR_NULL_HANDLE) {}
-//# endblock
+OPENXR_HPP_CONSTEXPR /*{ type }*/ () noexcept : val_(XR_NULL_HANDLE) {}
+//# endblock constructor_default
+
 //# block constructor_explicit
-//! @brief Conversion constructor from the raw /*{handle.name}*/ type
+//! @brief Conversion constructor from the raw /*{raw_type}*/ type
 //!
 //! Explicit on 32-bit platforms by default unless OPENXR_HPP_TYPESAFE_CONVERSION is defined.
-OPENXR_HPP_TYPESAFE_EXPLICIT /*{shortname -}*/ (RawHandleType handle) : val_(handle) {}
-//# endblock
+OPENXR_HPP_TYPESAFE_EXPLICIT /*{ type }*/ (RawHandleType handle) noexcept : val_(handle) {}
+//# endblock constructor_explicit
 
 //# block extra_constructors_conversion_assign
 //! Constructor from nullptr - creates empty/null handle.
-OPENXR_HPP_CONSTEXPR /*{shortname -}*/ (std::nullptr_t /* unused */) : val_(XR_NULL_HANDLE) {}
+OPENXR_HPP_CONSTEXPR /*{ type }*/ (std::nullptr_t /* unused */) noexcept : val_(XR_NULL_HANDLE) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-//! @brief Assignment operator from the raw /*{handle.name}*/
+//! @brief Assignment operator from the raw /*{raw_type}*/
 //!
 //! Does *not* destroy any contained non-null handle first! For that, see UniqueHandle<>.
 //!
 //! Only provided if OPENXR_HPP_TYPESAFE_CONVERSION is defined (defaults to only on 64-bit).
-Type &operator=(RawHandleType handle) {
+Type &operator=(RawHandleType handle) noexcept {
     val_ = handle;
     return *this;
 }
@@ -48,28 +49,28 @@ Type &operator=(RawHandleType handle) {
 //! @brief Assignment operator from nullptr - assigns to empty/null handle.
 //!
 //! Does *not* destroy any contained non-null handle first! For that, see UniqueHandle<>.
-Type &operator=(std::nullptr_t /* unused */) {
+Type &operator=(std::nullptr_t /* unused */) noexcept {
     val_ = XR_NULL_HANDLE;
     return *this;
 }
 
-//! @brief Conversion operator to the raw /*{handle.name}*/ type
+//! @brief Conversion operator to the raw /*{raw_type}*/ type
 //!
 //! Explicit on 32-bit platforms by default unless OPENXR_HPP_TYPESAFE_CONVERSION is defined.
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const { return val_; }
-//# endblock
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const noexcept { return val_; }
+//# endblock extra_constructors_conversion_assign
 
 //# block method_put
 //! @brief "Put" function for assigning as null then getting the address of the raw pointer to pass to creation functions.
 //!
 //! e.g.
 //! ```
-//! /*{shortname}*/ yourHandle;
-//! auto result = d.xrCreate/*{shortname}*/(..., yourHandle.put()));
+//! /*{type}*/ yourHandle;
+//! auto result = d.xrCreate/*{- type -}*/(..., yourHandle.put()));
 //! ```
 //!
 //! See also OPENXR_HPP_NAMESPACE::put()
-RawHandleType *put() {
+RawHandleType *put() noexcept {
     val_ = XR_NULL_HANDLE;
     return &val_;
 }
@@ -81,67 +82,66 @@ RawHandleType *put() {
  * @{
  */
 //## Generate "member function" prototypes
-//# for cur_cmd in sorted_cmds if cur_cmd.params[0].type == handle.name
+//# for cur_cmd in sorted_cmds if cur_cmd.params[0].type == raw_type
 /*{ method_prototypes(cur_cmd, handle) }*/
 
 //# endfor
 
 //! @}
-
-//# endblock
+//# endblock extra_methods
 
 //# block extra_free_functions
-//! @brief Equality comparison between /*{shortname}*/ and nullptr: true if the handle is null.
-//! @relates /*{shortname}*/
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) {
+//! @brief Equality comparison between /*{type}*/ and nullptr: true if the handle is null.
+//! @relates /*{type}*/
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(/*{type}*/ const &lhs, std::nullptr_t /* unused */) noexcept {
     return lhs.get() == XR_NULL_HANDLE;
 }
-//! @brief Equality comparison between nullptr and /*{shortname}*/: true if the handle is null.
-//! @relates /*{shortname}*/
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) {
+//! @brief Equality comparison between nullptr and /*{type}*/: true if the handle is null.
+//! @relates /*{type}*/
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{type}*/ const &rhs) noexcept {
     return rhs.get() == XR_NULL_HANDLE;
 }
-//! @brief Inequality comparison between /*{shortname}*/ and nullptr: true if the handle is not null.
-//! @relates /*{shortname}*/
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(/*{shortname}*/ const &lhs, std::nullptr_t /* unused */) {
+//! @brief Inequality comparison between /*{type}*/ and nullptr: true if the handle is not null.
+//! @relates /*{type}*/
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(/*{type}*/ const &lhs, std::nullptr_t /* unused */) noexcept {
     return lhs.get() != XR_NULL_HANDLE;
 }
-//! @brief Inequality comparison between nullptr and /*{shortname}*/: true if the handle is not null.
-//! @relates /*{shortname}*/
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{shortname}*/ const &rhs) {
+//! @brief Inequality comparison between nullptr and /*{type}*/: true if the handle is not null.
+//! @relates /*{type}*/
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{type}*/ const &rhs) noexcept {
     return rhs.get() != XR_NULL_HANDLE;
 }
-//# endblock
+//# endblock extra_free_functions
 
 //# block free_put
-//! @brief Free "put" function for clearing and getting the address of the raw /*{handle.name}*/ handle in a /*{shortname}*/ (by
+//! @brief Free "put" function for clearing and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
 //! reference).
 //!
 //! e.g.
 //! ```
-//! /*{shortname}*/ yourHandle;
-//! auto result = d.xrCreate/*{shortname}*/(..., put(yourHandle));
+//! /*{type}*/ yourHandle;
+//! auto result = d.xrCreate/*{- type -}*/(..., put(yourHandle));
 //! ```
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
-//! @relates /*{shortname}*/
+//! @relates /*{type}*/
 OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return v.put(); }
 
-//! @brief Free "put" function for clearing and getting the address of the raw /*{handle.name}*/ handle in a /*{shortname}*/ (by
+//! @brief Free "put" function for clearing and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
 //! pointer).
 //!
 //! e.g.
 //! ```
-//! void yourFunction(/*{shortname}*/* yourHandle) {
-//!     auto result = d.xrCreate/*{shortname}*/(..., put(yourHandle));
+//! void yourFunction(/*{type}*/* yourHandle) {
+//!     auto result = d.xrCreate/*{- type -}*/(..., put(yourHandle));
 //!     ....
 //! }
 //! ```
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
-//! @relates /*{shortname}*/
-OPENXR_HPP_INLINE /*{handle.name}*/ *put(/*{shortname}*/ *h) noexcept {
+//! @relates /*{type}*/
+OPENXR_HPP_INLINE /*{raw_type}*/ *put(/*{type}*/ *h) noexcept {
     OPENXR_HPP_ASSERT(h != nullptr);
     return h->put();
 }
-//# endblock
+//# endblock free_put

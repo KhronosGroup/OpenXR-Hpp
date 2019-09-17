@@ -3,6 +3,10 @@
 //# set invalid = ""
 //# extends "template_openxr_wrapperclass.hpp"
 
+//## No validity methods
+//# block validity
+//# endblock
+
 //# block extra_methods
 //! Add a Duration to the current Duration
 Duration& operator+=(Duration d) noexcept {
@@ -28,8 +32,8 @@ static OPENXR_HPP_CONSTEXPR Duration minHaptic() noexcept { return Duration{XR_M
 
 //# block extra_free_functions
 //! Add two Duration values
-OPENXR_HPP_CONSTEXPR inline Duration operator+(Duration lhs, Duration rhs) noexcept { return Duration{lhs.get() + rhs.get()}; }
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE Duration operator+(Duration lhs, Duration rhs) noexcept { return Duration{lhs.get() + rhs.get()}; }
 
 //! Subtract two Duration values
-OPENXR_HPP_CONSTEXPR inline Duration operator-(Duration lhs, Duration rhs) noexcept { return Duration{lhs.get() - rhs.get()}; }
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE Duration operator-(Duration lhs, Duration rhs) noexcept { return Duration{lhs.get() - rhs.get()}; }
 //# endblock

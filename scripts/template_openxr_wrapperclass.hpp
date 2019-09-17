@@ -15,12 +15,12 @@
 //! /*{ raw_type }*/ wrapper class
 //!
 //! See the related specification text at /*{ make_spec_url(type) }*/
-//# endblock
+//# endblock comment_class
 class /*{ type }*/ {
    public:
 
 //# block member_types
-//# endblock
+//# endblock member_types
 
     /*!
      * @name Constructors, assignment, and conversions
@@ -29,18 +29,19 @@ class /*{ type }*/ {
 //# block constructor_default
     //! Default constructor.
     OPENXR_HPP_CONSTEXPR /*{ type }*/ () = default;
-//# endblock
+//# endblock constructor_default
 
 //# block constructor_explicit
     //! Explicit constructor from raw /*{ raw_type }*/
     OPENXR_HPP_CONSTEXPR explicit /*{ type }*/ (/*{ raw_type }*/ v) noexcept : val_(v) {}
-//# endblock
+//# endblock constructor_explicit
 
 //# block extra_constructors_conversion_assign
-//# endblock
+//# endblock extra_constructors_conversion_assign
 
     //! @}
 
+//# block validity
     /*!
      * @name Validity checking
      * @{
@@ -50,18 +51,19 @@ class /*{ type }*/ {
     //! Returns true in conditionals if this /*{ type }*/ is valid
     OPENXR_HPP_CONSTEXPR explicit operator bool() const noexcept { return val_ != /*{ invalid }*/; }
     //# endif
-//# endblock
+//# endblock conversion_explicit_bool
 
 //# block operator_negation
     //# if invalid
     //! Unary negation: True if this /*{ type }*/ is invalid
     OPENXR_HPP_CONSTEXPR bool operator!() const noexcept { return val_ == /*{ invalid }*/; }
     //# endif
-//# endblock
+//# endblock operator_negation
 
 //# block extra_validity
-//# endblock
+//# endblock extra_validity
     //! @}
+//# endblock validity
 
     //! @name Raw /*{ raw_type }*/ manipulation
     //! @{
@@ -69,7 +71,7 @@ class /*{ type }*/ {
 //# block method_get
     //! Gets the raw /*{ raw_type }*/ type.
     OPENXR_HPP_CONSTEXPR /*{ raw_type }*/ get() const noexcept { return val_; }
-//# endblock
+//# endblock method_get
 
 //# block method_put
     //! @brief Clears this value, then returns the address of the raw /*{ raw_type }*/ type,
@@ -78,11 +80,11 @@ class /*{ type }*/ {
         val_ = /*{ invalid if invalid else "0"}*/;
         return &val_;
     }
-//# endblock
+//# endblock method_put
     //! @}
 
 //# block extra_methods
-//# endblock
+//# endblock extra_methods
 
    private:
     /*{ raw_type }*/ val_{/*{ invalid }*/};
@@ -90,7 +92,7 @@ class /*{ type }*/ {
 
 //# block size_assert
 static_assert(sizeof(/*{ type }*/) == sizeof(/*{raw_type}*/), "raw type and wrapper have different size!");
-//# endblock
+//# endblock size_assert
 
 //# block free_get
 //! @brief Free function for getting the raw /*{ raw_type }*/ from /*{type}*/.
@@ -99,19 +101,18 @@ static_assert(sizeof(/*{ type }*/) == sizeof(/*{raw_type}*/), "raw type and wrap
 //! @see /*{type}*/::get()
 //! @relates /*{type}*/
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{ raw_type }*/ get(/*{input_param_type}*/ v) noexcept { return v.get(); }
-//# endblock
+//# endblock free_get
 
 //# block free_put
-//# block free_put_comment
 //! @brief Free function for clearing and getting the raw /*{ raw_type }*/ from /*{type}*/.
 //!
 //! Should be found via argument-dependent lookup and thus not need explicit namespace qualification.
 //! @see /*{type}*/::put()
 //! @relates /*{type}*/
-//# endblock
 OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return v.put(); }
-//# endblock
+//# endblock free_put
 
+//# block comparisons
 
 //# block compare_self
 //# for op in comparison_operators
@@ -121,7 +122,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{input_param_
     return lhs.get() /*{- op -}*/ rhs.get();
 }
 //# endfor
-//# endblock
+//# endblock compare_self
 
 //# block compare_raw
 //# for op in comparison_operators
@@ -136,7 +137,9 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{raw_type}*/ 
     return lhs /*{- op -}*/ rhs.get();
 }
 //# endfor
-//# endblock
+//# endblock compare_raw
+
+//# endblock comparisons
 
 //# block extra_free_functions
-//# endblock
+//# endblock extra_free_functions
