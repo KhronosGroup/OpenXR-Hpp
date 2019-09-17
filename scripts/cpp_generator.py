@@ -39,6 +39,8 @@ TEMPLATED_TWO_CALL = set([
 MANUALLY_PROJECTED = set((
     "XrTime",
     "XrDuration",
+    "XrSystemId",
+    "XrPath",
 ))
 
 # Determining this heuristically appears to be impossible

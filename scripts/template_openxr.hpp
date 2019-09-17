@@ -28,6 +28,7 @@
 /*% macro forwardCommandArgs(cur_cmd) %*/ /*{ cur_cmd.params | map(attribute="name") | join(", ") }*/ /*% endmacro %*/
 
 /*% include('template_openxr_nongenerated_base.hpp')%*/
+/*% include('template_openxr_manualprojections.hpp')%*/
 /*% include('template_openxr_dispatchstatic.hpp')%*/
 
 //## These includes are currently unused
