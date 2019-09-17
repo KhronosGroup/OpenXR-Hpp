@@ -36,6 +36,11 @@ TEMPLATED_TWO_CALL = set([
     'xrEnumerateSwapchainImages'
 ])
 
+MANUALLY_PROJECTED = set((
+    "XrTime",
+    "XrDuration",
+))
+
 # Determining this heuristically appears to be impossible
 INHERITANCE = {
     'XrSwapchainImageBaseHeader': set((
@@ -423,7 +428,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         # Convert XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
         for param in method.decl_params:
-            if param.type != 'XrTime' and param.type != 'XrDuration':
+            if param.type not in MANUALLY_PROJECTED:
                 continue
             name = param.name
             cpp_type = _project_type_name(param.type)
@@ -637,12 +642,12 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
             method.decl_params.pop()
             method.decl_dict[outparam.name] = None
-            method.pre_statements.append("{} structResult;".format(cpp_outtype))
-            if outparam.type in self.dict_structs:
-                method.access_dict[outparam.name] = "OPENXR_HPP_NAMESPACE::put(structResult)"
+            method.pre_statements.append("{} returnVal;".format(cpp_outtype))
+            if outparam.type in self.projected_types:
+                method.access_dict[outparam.name] = "OPENXR_HPP_NAMESPACE::put(returnVal)"
             else:
-                method.access_dict[outparam.name] = "&structResult"
-            method.returns.append("structResult")
+                method.access_dict[outparam.name] = "&returnVal"
+            method.returns.append("returnVal")
 
         self._update_enhanced_return_type(method)
 
@@ -775,6 +780,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.dict_bitmasks = {}
         for bitmask in self.api_bitmasks:
             self.dict_bitmasks[bitmask.name] = bitmask
+
+        self.projected_types = MANUALLY_PROJECTED.union(self.dict_handles.keys())
+        self.projected_types.update(self.dict_enums.keys())
+        self.projected_types.update(self.dict_structs.keys())
+        self.projected_types.update(self.dict_bitmasks.keys())
 
         # Every type mentioned in some other type's parentstruct attribute.
         struct_parents = ((otherType, otherType.elem.get('parentstruct'))
