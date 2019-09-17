@@ -134,6 +134,7 @@ static inline void for_each_side_index(IndexHandler&& handler) {
     handler(0);
     handler(1);
 }
+
 class Duration {
    public:
     OPENXR_HPP_CONSTEXPR Duration() = default;
@@ -146,22 +147,18 @@ class Duration {
         return &val_;
     }
 
-    OPENXR_HPP_CONSTEXPR Duration& operator-=(Duration d) noexcept {
+    Duration& operator-=(Duration d) noexcept {
         val_ -= d.val_;
         return *this;
     }
-    OPENXR_HPP_CONSTEXPR Duration& operator+=(Duration d) noexcept {
+    Duration& operator+=(Duration d) noexcept {
         val_ += d.val_;
         return *this;
     }
 
-	static OPENXR_HPP_CONSTEXPR Duration infinite() noexcept{
-		return Duration{ XR_INFINITE_DURATION };
-	}
+    static OPENXR_HPP_CONSTEXPR Duration infinite() noexcept { return Duration{XR_INFINITE_DURATION}; }
 
-	static OPENXR_HPP_CONSTEXPR Duration minHaptic() noexcept{
-		return Duration{ XR_MIN_HAPTIC_DURATION };
-	}
+    static OPENXR_HPP_CONSTEXPR Duration minHaptic() noexcept { return Duration{XR_MIN_HAPTIC_DURATION}; }
 
    private:
     XrDuration val_{};
@@ -170,8 +167,8 @@ class Duration {
 OPENXR_HPP_CONSTEXPR inline XrDuration get(Duration d) noexcept { return d.get(); }
 
 inline XrDuration* put(Duration& d) noexcept { return d.put(); }
-OPENXR_HPP_CONSTEXPR inline Duration operator+(Duration lhs, Duration rhs) noexcept { return lhs += rhs; }
-OPENXR_HPP_CONSTEXPR inline Duration operator-(Duration lhs, Duration rhs) noexcept { return lhs -= rhs; }
+OPENXR_HPP_CONSTEXPR inline Duration operator+(Duration lhs, Duration rhs) noexcept { return Duration{lhs.get() + rhs.get()}; }
+OPENXR_HPP_CONSTEXPR inline Duration operator-(Duration lhs, Duration rhs) noexcept { return Duration{lhs.get() - rhs.get()}; }
 
 class Time {
    public:
@@ -186,11 +183,11 @@ class Time {
         return &val_;
     }
 
-    OPENXR_HPP_CONSTEXPR Time& operator-=(Duration d) noexcept {
+    Time& operator-=(Duration d) noexcept {
         val_ -= d.get();
         return *this;
     }
-    OPENXR_HPP_CONSTEXPR Time& operator+=(Duration d) noexcept {
+    Time& operator+=(Duration d) noexcept {
         val_ += d.get();
         return *this;
     }
@@ -205,8 +202,24 @@ inline XrTime* put(Time& t) noexcept { return t.put(); }
 
 OPENXR_HPP_CONSTEXPR inline Duration operator-(Time lhs, Time rhs) noexcept { return Duration{lhs.get() - rhs.get()}; }
 
-OPENXR_HPP_CONSTEXPR inline Time operator-(Time lhs, Duration rhs) noexcept { return lhs -= rhs; }
+OPENXR_HPP_CONSTEXPR inline Time operator-(Time lhs, Duration rhs) noexcept { return Time{lhs.get() - rhs.get()}; }
 
-OPENXR_HPP_CONSTEXPR inline Time operator+(Time lhs, Duration rhs) noexcept { return lhs += rhs; }
+OPENXR_HPP_CONSTEXPR inline Time operator+(Time lhs, Duration rhs) noexcept { return Time{lhs.get() + rhs.get()}; }
+
+//# for type in ("Duration", "Time")
+//# set raw_type = "Xr" + type
+//# for op in ('<', '>', '<=', '>=', '==', '!=')
+//! @brief /*{op}*/ comparison between /*{type}*/.
+//! @relates /*{type}*/
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{type}*/ const &lhs, /*{type}*/ const &rhs) { return lhs.get() /*{- op -}*/ rhs.get(); }
+//! @brief /*{op}*/ comparison between /*{type}*/ and raw /*{raw_type}*/.
+//! @relates /*{type}*/
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{type}*/ const &lhs, /*{raw_type}*/ rhs) { return lhs.get() /*{- op -}*/ rhs; }
+//! @brief /*{op}*/ comparison between raw /*{raw_type}*/ and /*{type}*/.
+//! @relates /*{type}*/
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{raw_type}*/ lhs, /*{type}*/ const &rhs) { return lhs /*{- op -}*/ rhs.get(); }
+//# endfor
+//# endfor
+
 
 }  // namespace OPENXR_HPP_NAMESPACE
