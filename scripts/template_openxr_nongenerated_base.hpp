@@ -146,14 +146,22 @@ class Duration {
         return &val_;
     }
 
-    Duration& operator-=(Duration d) noexcept {
+    OPENXR_HPP_CONSTEXPR Duration& operator-=(Duration d) noexcept {
         val_ -= d.val_;
         return *this;
     }
-    Duration& operator+=(Duration d) noexcept {
+    OPENXR_HPP_CONSTEXPR Duration& operator+=(Duration d) noexcept {
         val_ += d.val_;
         return *this;
     }
+
+	static OPENXR_HPP_CONSTEXPR Duration infinite() noexcept{
+		return Duration{ XR_INFINITE_DURATION };
+	}
+
+	static OPENXR_HPP_CONSTEXPR Duration minHaptic() noexcept{
+		return Duration{ XR_MIN_HAPTIC_DURATION };
+	}
 
    private:
     XrDuration val_{};
@@ -178,11 +186,11 @@ class Time {
         return &val_;
     }
 
-    Time& operator-=(Duration d) noexcept {
+    OPENXR_HPP_CONSTEXPR Time& operator-=(Duration d) noexcept {
         val_ -= d.get();
         return *this;
     }
-    Time& operator+=(Duration d) noexcept {
+    OPENXR_HPP_CONSTEXPR Time& operator+=(Duration d) noexcept {
         val_ += d.get();
         return *this;
     }
@@ -196,5 +204,9 @@ OPENXR_HPP_CONSTEXPR inline XrTime get(Time t) noexcept { return t.get(); }
 inline XrTime* put(Time& t) noexcept { return t.put(); }
 
 OPENXR_HPP_CONSTEXPR inline Duration operator-(Time lhs, Time rhs) noexcept { return Duration{lhs.get() - rhs.get()}; }
+
+OPENXR_HPP_CONSTEXPR inline Time operator-(Time lhs, Duration rhs) noexcept { return lhs -= rhs; }
+
+OPENXR_HPP_CONSTEXPR inline Time operator+(Time lhs, Duration rhs) noexcept { return lhs += rhs; }
 
 }  // namespace OPENXR_HPP_NAMESPACE

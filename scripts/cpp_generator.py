@@ -419,7 +419,16 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             elif param.pointer_count == 1 and not is_two_call:
                 # Output struct
                 method.decl_dict[name] = "{}& {}".format(cpp_type, name)
-                method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
+                method.access_dict[name] = "OPENXR_HPP_NAMESPACE::put({})".format(name.strip())
+
+        # Convert XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
+        for param in method.decl_params:
+            if param.type != 'XrTime' and param.type != 'XrDuration':
+                continue
+            name = param.name
+            cpp_type = _project_type_name(param.type)
+            method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
+            method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
 
     def _update_enhanced_return_type(self, method):
         """Set the return type based on the bare return type.
@@ -712,8 +721,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def _project_cppdecl(self, struct, member, defaulted=False, suffix="", input=False):
         result = member.cdecl.strip() + suffix
+        # Kind of hacky, perhaps switch _project_type_name to a regex based approach?
+        if (member.is_const):
+            result = _strip_prefix(result, "const").strip()
         if member.type.startswith("Xr"):
             result = _project_type_name(result)
+        if (member.is_const):
+            result = "const " + result
 
         if input:
             if member.type == 'char' and member.is_array and member.pointer_count == 0:

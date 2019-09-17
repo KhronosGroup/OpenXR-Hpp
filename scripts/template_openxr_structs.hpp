@@ -105,7 +105,7 @@ struct /*{projected_type }*/ : public /*{ parent_type }*/ {
     };
     static_assert(sizeof(/*{projected_type }*/) == sizeof(/*{struct.name}*/), "struct and wrapper have different size!");
 
-    //! @brief Free function accessor for /*{projected_type}*/ as a raw /*{struct.name}*/
+    //! @brief Free function accessor for /*{projected_type}*/ const reference as a raw /*{struct.name}*/ const pointer
     //! @relates /*{projected_type}*/
     OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{projected_type}*/ const& h) {
         return &(h./*{"operator " + struct.name}*/ const&());
