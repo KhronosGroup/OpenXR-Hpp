@@ -1,6 +1,7 @@
 
 namespace OPENXR_HPP_NAMESPACE {
 
+//# include "template_openxr_version.hpp"
 //# include "template_openxr_duration.hpp"
 //# include "template_openxr_time.hpp"
 
