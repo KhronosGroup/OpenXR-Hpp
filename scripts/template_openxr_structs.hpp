@@ -52,7 +52,7 @@ protected:
         StructureType type_,
         const CompositionLayerFlags& layerFlags_,
         const Space& space_)
-        : Parent(type_), layerFlags(layerFlags_), space(space) { }
+        : Parent(type_), layerFlags(layerFlags_), space(space_) { }
 
 public:
     CompositionLayerFlags layerFlags;
