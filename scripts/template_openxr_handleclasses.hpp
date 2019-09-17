@@ -27,7 +27,7 @@ class /*{ project_type_name(handle.name) }*/;
 //
 //# if enhanced.bare_return_type == "void" and enhanced.successes_arg
 //## No return value, has non-Success success codes
-// - Returns Result (which may be Result::Success, or a non-Result::Success success code)
+// - Returns Result (which may be /*{ enhanced.successes_arg[2:] }*/)
 
 //# elif enhanced.bare_return_type == "void"
 //## No return value, only Result::Success or errors
@@ -36,7 +36,7 @@ class /*{ project_type_name(handle.name) }*/;
 //# elif enhanced.successes_arg
 //## Some return value, has non-Success success codes
 // - Returns ResultValue</*{enhanced.bare_return_type}*/>, containing both a Result (which may be
-// Result::Success, or a non-Result::Success success code) and /*{enhanced.prose_bare_return}*/.
+// /*{ enhanced.successes_arg[2:] }*/) and /*{enhanced.prose_bare_return}*/.
 
 //# else
 //## Some return value, only Result::Success or errors
