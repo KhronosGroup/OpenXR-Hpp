@@ -17,10 +17,15 @@
 
 """Provides functionality to use Jinja2 when generating C/C++ code, while eliminating the need to import Jinja2 from any other file."""
 
+import os
 import re
 from pathlib import Path
 
 _ADDED_TO_PATH = False
+
+OPENXR = os.getenv("OPENXR_REPO")
+if not OPENXR:
+    OPENXR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'OpenXR-SDK-Source'))
 
 
 def _add_to_path():
@@ -30,8 +35,7 @@ def _add_to_path():
         # Find Jinja2 in source tree, as last resort.
         sys.path.append(
             str(
-                Path(__file__).resolve().parent.parent.parent / "external"
-                / "python"))
+                Path(OPENXR).resolve() / "external" / "python"))
         _ADDED_TO_PATH = True
 
 

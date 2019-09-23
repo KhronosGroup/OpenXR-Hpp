@@ -2,10 +2,11 @@
 #define XR_USE_GRAPHICS_API_VULKAN
 
 #include "xr_dependencies.h"
+
 #include "openxr/openxr.hpp"
 
 static void bla() {
-    xr::Instance inst;
-    xr::DispatchLoaderDynamic d;
-    inst.getVulkanDeviceExtensionsKHR(XR_NULL_SYSTEM_ID, d);
+  xr::Instance inst;
+  xr::DispatchLoaderDynamic d;
+  inst.getVulkanDeviceExtensionsKHR(XR_NULL_SYSTEM_ID, d);
 }

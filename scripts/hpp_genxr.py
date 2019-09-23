@@ -23,7 +23,6 @@ import time
 OPENXR = os.getenv("OPENXR_REPO")
 if not OPENXR:
     OPENXR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'OpenXR-SDK-Source'))
-print(OPENXR)
 sys.path.append(os.path.join(OPENXR, 'src', 'scripts'))
 sys.path.append(os.path.join(OPENXR, 'specification', 'scripts'))
 

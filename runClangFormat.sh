@@ -36,9 +36,8 @@ set -e
     # The "-and -not" lines exclude the Jinja2 templates which are almost but not quite C++-parseable.
     # The trailing + means that find will pass more than one file to a clang-format call,
     # to reduce overhead.
-    find . \( -wholename ./src/\* \) \
-        -and -not \( -wholename ./src/external/\* \) \
-        -and -not \( -wholename ./src/scripts/\* \) \
+    find . \( -wholename ./tests/\* \) \
+        -and -not \( -wholename ./scripts/\* \) \
         -and \( -name \*.hpp -or -name \*.h -or -name \*.cpp -or -name \*.c \) \
         -exec ${CLANGFORMAT} -i -style=file {} +
 
