@@ -15,8 +15,9 @@
 # Author:
 #
 
-add_subdirectory(list)
-add_subdirectory(hello_xr)
-if(BUILD_LOADER)
-add_subdirectory(loader_test)
-endif()
+foreach(FN a b c d)
+    add_library(${FN} STATIC ${FN}.cpp)
+    target_link_libraries(${FN} PRIVATE OpenXR::Headers)
+    target_include_directories(${FN} PRIVATE ${PROJECT_BINARY_DIR}/include)
+    add_dependencies(${FN} generate_openxr_header)
+endforeach()
