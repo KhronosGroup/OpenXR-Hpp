@@ -13,18 +13,21 @@ struct cpp_type;
 class /*{ project_type_name(handle.name) }*/;
 //# endfor
 
-/*% macro shared_comments(cur_cmd, method) -%*/
+/*% macro shared_comments(cur_cmd, method) %*/
 //!
 //! See the related specification text at /*{ make_spec_url(cur_cmd.name) }*/
 /*% if not method.is_core %*/
 //!
 //! @note No default dispatch is provided as this is a non-core function,
 //! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic)
-/*%- endif -%*/
-/*%- endmacro -%*/
+/*% endif %*/
+/*% endmacro %*/
 
 //# macro enhanced_method_behavior(enhanced)
 //
+// If OPENXR_HPP_NO_EXCEPTIONS is not defined:
+//
+// - Throws an appropriate exception on failure.
 //# if enhanced.bare_return_type == "void" and enhanced.successes_arg
 //## No return value, has non-Success success codes
 // - Returns Result (which may be /*{ enhanced.successes_arg[2:] }*/)
@@ -68,8 +71,8 @@ class /*{ project_type_name(handle.name) }*/;
 
 //# macro method_prototypes(cur_cmd, context)
 
-/*{- protect_begin(cur_cmd, context) }*/
-/*{- discouraged_begin(cur_cmd) }*/
+/*{ protect_begin(cur_cmd, context) }*/
+/*{ discouraged_begin(cur_cmd) }*/
 //#     set method = basic_cmds[cur_cmd.name]
 //#     set enhanced = enhanced_cmds[cur_cmd.name]
 
@@ -81,7 +84,7 @@ class /*{ project_type_name(handle.name) }*/;
 //# endif
 
 //# filter block_doxygen_comment
-//! @brief /*{cur_cmd.name}*/ wrapper.
+//! @brief /*{cur_cmd.name}*/ wrapper (basic).
 /*{ shared_comments(cur_cmd, method) }*/
 //# endfilter
 template </*{ method.template_decls }*/>
@@ -95,8 +98,10 @@ template </*{ method.template_decls }*/>
 //# endif
 
 //# filter block_doxygen_comment
-    //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode/*% if hide_simple %*/ (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined)/*% endif %*/. /*%- if enhanced.is_two_call %*/Performs two-call idiom./*% endif %*/
+    //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode/*% if hide_simple %*/ (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined)/*% endif %*/. /*% if enhanced.is_two_call %*/Performs two-call idiom./*% endif %*/
+
     /*{ enhanced_method_behavior(enhanced) }*/
+
     /*{ shared_comments(cur_cmd, enhanced) }*/
 //# endfilter
     template </*{ enhanced.template_decls }*/>
@@ -106,7 +111,9 @@ template </*{ method.template_decls }*/>
 //# if enhanced.is_two_call
 //# filter block_doxygen_comment
     //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode. Performs two-call idiom with a stateful allocator.
+    //!
     /*{ enhanced_method_behavior(enhanced) }*/
+
     /*{ shared_comments(cur_cmd, enhanced) }*/
 //# endfilter
     template </*{ enhanced.template_decls }*/>
@@ -121,6 +128,7 @@ template </*{ method.template_decls }*/>
 
 //# filter block_doxygen_comment
     //! @brief /*{cur_cmd.name}*/ wrapper returning a smart handle.
+    //!
     /*{ enhanced_method_behavior(uniq) }*/
     /*{ shared_comments(cur_cmd, uniq) }*/
 //# endfilter
@@ -150,7 +158,7 @@ template </*{ method.template_decls }*/>
 //# for handle in gen.api_handles
 //# set shortname = project_type_name(handle.name)
 
-/*{- protect_begin(handle) }*/
+/*{ protect_begin(handle) }*/
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
 namespace traits {
@@ -183,14 +191,14 @@ struct cpp_type<ObjectType::/*{shortname}*/> {
 };
 } // namespace traits
 
-/*{- protect_end(handle) }*/
+/*{ protect_end(handle) }*/
 
 //# endfor
 
 //## Generate free-function prototypes
 /*!
  * @defgroup api_free_functions OpenXR API free functions
- *
+ * 
  * Equivalent to the method wrappers in the handle classes,
  * but for the few functions that don't take (or don't require)
  * a handle as their first argument.
