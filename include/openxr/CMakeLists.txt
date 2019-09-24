@@ -20,17 +20,16 @@
 
 set(GENERATED_HEADER "${CMAKE_CURRENT_BINARY_DIR}/openxr.hpp")
 
+set(SCRIPT_DIR ${PROJECT_SOURCE_DIR}/scripts)
 set(XR_ROOT ${PROJECT_SOURCE_DIR}/../OpenXR-SDK-Source)
-
+file(GLOB GENERATION_DEPS ${PROJECT_SOURCE_DIR}/scripts/*.py ${PROJECT_SOURCE_DIR}/scripts/*.hpp)
 # Generate the header files and place it in the binary (build) directory.
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/openxr.hpp
     COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/hpp_genxr.py
         -registry ${XR_ROOT}/specification/registry/xr.xml
         -o ${CMAKE_CURRENT_BINARY_DIR} openxr.hpp
     DEPENDS
-        ${PROJECT_SOURCE_DIR}/scripts/cpp_generator.py
-        ${PROJECT_SOURCE_DIR}/scripts/hpp_genxr.py
-        ${PROJECT_SOURCE_DIR}/scripts/jinja_helpers.py
+        ${GENERATION_DEPS}
         ${XR_ROOT}/specification/registry/xr.xml
         ${XR_ROOT}/specification/scripts/conventions.py
         ${XR_ROOT}/specification/scripts/generator.py
