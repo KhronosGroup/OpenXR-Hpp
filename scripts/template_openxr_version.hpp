@@ -1,56 +1,55 @@
-struct Version
+//# set type = "Version"
+//# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
+//# set invalid = ""
+//# extends "template_openxr_wrapperclass.hpp"
+
+//## No validity methods
+//# block validity
+//# endblock
+
+//# block extra_methods
+//! Get the major component.
+OPENXR_HPP_CONSTEXPR uint32_t major() const noexcept
 {
-    OPENXR_HPP_CONSTEXPR Version() noexcept = default;
+    return static_cast<uint32_t>(val_ >> 32);
+}
+//! Set the major component.
+void major(uint32_t val) noexcept
+{
+    // blank the top 32 bits
+    val_ &= 0xffffffff;
+    val_ |= uint64_t(val) << 32;
+}
 
-    OPENXR_HPP_CONSTEXPR explicit Version(uint64_t version) noexcept : value(version)
-    {
-    }
+//! Get the minor component.
+OPENXR_HPP_CONSTEXPR uint16_t minor() const noexcept
+{
+    return static_cast<uint16_t>((val_ >> 16) & 0xffff);
+}
+//! Set the minor component.
+void minor(uint16_t val) noexcept
+{
+    // blank the correct 16 bits
+    val_ &= 0xffffffff0000ffff;
+    val_ |= uint64_t(val) << 16;
+}
 
-    uint64_t value{0};
+//! Get the patch component.
+OPENXR_HPP_CONSTEXPR uint16_t patch() const noexcept
+{
+    return static_cast<uint16_t>(val_ & 0xffff);
+}
+//! Set the patch component.
+void patch(uint16_t val) noexcept
+{
+    // blank the least-significant 16 bits
+    val_ &= 0xffffffffffff0000;
+    val_ |= val;
+}
 
-    //! Get the major component.
-    OPENXR_HPP_CONSTEXPR uint32_t major() const noexcept
-    {
-        return static_cast<uint32_t>(value >> 32);
-    }
-    //! Set the major component.
-    void major(uint32_t val) noexcept
-    {
-        // blank the top 32 bits
-        value &= 0xffffffff;
-        value |= uint64_t(val) << 32;
-    }
-
-    //! Get the minor component.
-    OPENXR_HPP_CONSTEXPR uint16_t minor() const noexcept
-    {
-        return static_cast<uint16_t>((value >> 16) & 0xffff);
-    }
-    //! Set the minor component.
-    void minor(uint16_t val) noexcept
-    {
-        // blank the correct 16 bits
-        value &= 0xffffffff0000ffff;
-        value |= uint64_t(val) << 16;
-    }
-
-    //! Get the patch component.
-    OPENXR_HPP_CONSTEXPR uint16_t patch() const noexcept
-    {
-        return static_cast<uint16_t>(value & 0xffff);
-    }
-    //! Set the patch component.
-    void patch(uint16_t val) noexcept
-    {
-        // blank the least-significant 16 bits
-        value &= 0xffffffffffff0000;
-        value |= val;
-    }
-
-    //! Get the current version.
-    static OPENXR_HPP_CONSTEXPR Version current() noexcept
-    {
-        return Version{XR_CURRENT_API_VERSION};
-    }
-};
-static_assert(sizeof(Version) == sizeof(XrVersion), "handle and wrapper have different size!");
+//! Get the current version.
+static OPENXR_HPP_CONSTEXPR Version current() noexcept
+{
+    return Version{XR_CURRENT_API_VERSION};
+}
+//# endblock
