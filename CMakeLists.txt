@@ -19,8 +19,22 @@
 # It should contain only definitions that are applicable to the
 # entire project and includes for the sub-directories.
 
-cmake_minimum_required(VERSION 3.0)
-project(OPENXR)
+cmake_minimum_required(VERSION 3.12)
+
+option(BUILD_TESTS "Build tests" ON)
+MESSAGE(STATUS "Build tests:           " ${BUILD_TESTS})
+
+if (BUILD_TESTS OR BUILD_TOOLS)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ezvcpkg.cmake)
+    ezvcpkg_fetch(
+        PACKAGES gtest
+        OUTPUT EZVCPKG_DIR
+        UPDATE_TOOLCHAIN
+        USE_HOST_VCPKG
+    )
+endif()
+
+project(OpenXR_hpp)
 
 find_package(PythonInterp 3 REQUIRED)
 
@@ -35,6 +49,18 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(OpenXR REQUIRED)
 
 add_subdirectory(include)
-add_subdirectory(tests)
+
+if (BUILD_TESTS)
+    include(CTest)
+    enable_testing()
+    find_package(GTest REQUIRED)
+    find_package(GTest MODULE REQUIRED)                                      
+    add_subdirectory(tests)
+endif()
+
 
 #install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE" DESTINATION share/doc/openxr)
+
+
+
+
