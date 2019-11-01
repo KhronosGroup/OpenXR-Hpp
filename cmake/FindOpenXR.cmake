@@ -144,7 +144,9 @@ find_library(OPENXR_loader_LIBRARY
     openxr_loader
     openxr_loader-0_90 # TODO put version elsewhere
     PATHS
-    ${_oxr_loader_search_dirs})
+    ${_oxr_loader_search_dirs}
+    PATH_SUFFIXES 
+    "" Release)
 
 find_path(OPENXR_SPECSCRIPTS_DIR
     NAMES
@@ -269,10 +271,10 @@ find_package_handle_standard_args(OpenXR
 
 # Component: headers
 if(OpenXR_headers_FOUND)
-    set(OPENXR_INCLUDE_DIRS
+    set(_oxr_include_dirs
         ${OPENXR_OPENXR_INCLUDE_DIR}
         ${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR})
-        list(REMOVE_DUPLICATES OPENXR_INCLUDE_DIRS)
+    list(REMOVE_DUPLICATES _oxr_include_dirs)
 
     # This target just provides the headers with prototypes.
     # You may have linker errors if you try using this
@@ -280,8 +282,7 @@ if(OpenXR_headers_FOUND)
     if(NOT TARGET OpenXR::Headers)
         add_library(OpenXR::Headers INTERFACE IMPORTED)
     endif()
-    set_target_properties(OpenXR::Headers PROPERTIES
-        INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${_oxr_include_dirs}")
+    target_include_directories(OpenXR::Headers INTERFACE "${_oxr_include_dirs}")
 
     # This target just provides the headers, without any prototypes.
     # Finding and loading the loader at runtime is your problem.
