@@ -26,10 +26,10 @@ directory of this one.
 
 ## Building
 
-If you just want to generate the header, run `./generate-openxr-hpp.sh`. If your
-OpenXR-SDK-Source (or internal gitlab) repo isn't in a directory named that
-parallel to this one, you can set OPENXR_REPO environment variable before
-running. Requires clang-format, preferably 6.0.
+If you just want to generate the header, run `./generate-openxr-hpp.sh` or
+`./generate-openxr-hpp.bat`. If your OpenXR-SDK-Source (or internal gitlab) repo
+isn't in a directory named that parallel to this one, you can set OPENXR_REPO
+environment variable before running. Requires clang-format, preferably 6.0.
 
 If you'd like to build the tests (making sure the header can compile),
 use CMake to generate a build system, like:
