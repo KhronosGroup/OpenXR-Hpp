@@ -40,3 +40,39 @@ cd build
 cmake ..
 make
 ```
+
+## Development
+
+To improve/maintain consistent code style and code quality,
+we strongly recommend setting up the pre-commit hooks,
+which check/correct:
+
+- line endings
+- trailing whitespace
+- large file additions
+- [cmake-format][]
+- autopep8
+
+Using these hooks involves the following steps:
+
+**Install** [pre-commit][] - available thru pip or your
+preferred package manager.
+
+```sh
+pip3 install --user pre-commit
+```
+
+**Setup** the git hook scripts by running this script.
+
+```sh
+pre-commit install
+```
+
+Optionally, you can **run** the hooks over all files manually, before a commit:
+
+```sh
+pre-commit run --all-files
+```
+
+[cmake-format]: https://cmake-format.readthedocs.io
+[pre-commit]: https://pre-commit.com/
