@@ -33,7 +33,7 @@ OPENXR_HPP_INLINE /*{projected_type }*/ operator|( /*{projected_bits_type }*/ bi
 }
 
 OPENXR_HPP_INLINE /*{projected_type }*/ operator~( /*{projected_bits_type }*/ bits ) {
-    return ~( /*{projected_bits_type }*/( bits ) );
+    return ~( /*{projected_type }*/( bits ) );
 }
 
 /*{ protect_end(flags) }*/
