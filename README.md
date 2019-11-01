@@ -47,11 +47,16 @@ To improve/maintain consistent code style and code quality,
 we strongly recommend setting up the pre-commit hooks,
 which check/correct:
 
+- large file additions
+- byte-order marker
+- case conflicts
+- unresolved merge conflicts
+- broken symlinks
+- file endings
 - line endings
 - trailing whitespace
-- large file additions
-- [cmake-format][]
 - autopep8
+- [cmake-format][]
 
 Using these hooks involves the following steps:
 
@@ -62,7 +67,9 @@ preferred package manager.
 pip3 install --user pre-commit
 ```
 
-**Setup** the git hook scripts by running this script.
+**Setup** the git hook scripts by running this script. This will configure the
+current git repo working directory to run the hooks, as well as cloning and
+building (if required) the various tools used by the hooks.
 
 ```sh
 pre-commit install
