@@ -194,11 +194,11 @@ foreach(_comp IN LISTS OpenXR_FIND_COMPONENTS)
     if(${_comp} STREQUAL "headers")
         list(APPEND _oxr_component_required_vars OPENXR_OPENXR_INCLUDE_DIR
                     OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
+        # Using this variable to just shorten the name and avoid wrapping.
+        set(_oxr_platdef_dir "${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR}")
         if(EXISTS "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr.h"
            AND EXISTS "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr_platform.h"
-           AND EXISTS
-               "${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR}/openxr/openxr_platform_defines.h"
-        )
+           AND EXISTS "${_oxr_platdef_dir}/openxr/openxr_platform_defines.h")
             set(OpenXR_headers_FOUND TRUE)
             mark_as_advanced(OPENXR_OPENXR_INCLUDE_DIR
                              OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
