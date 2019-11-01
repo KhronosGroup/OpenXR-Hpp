@@ -44,12 +44,21 @@ foreach(PATHVAR OPENXR_ROOT_SRC_DIR OPENXR_ROOT_BUILD_DIR OPENXR_ROOT_DOCS_DIR)
 endforeach()
 
 # Set up cache variables
-set(OPENXR_ROOT_SRC_DIR "${OPENXR_ROOT_SRC_DIR}"
-    CACHE PATH "The root of your OpenXR/OpenXR-SDK source directory - see https://github.com/KhronosGroup/OpenXR-SDK")
-set(OPENXR_ROOT_BUILD_DIR "${OPENXR_ROOT_BUILD_DIR}"
+set(OPENXR_ROOT_SRC_DIR
+    "${OPENXR_ROOT_SRC_DIR}"
+    CACHE
+        PATH
+        "The root of your OpenXR/OpenXR-SDK source directory - see https://github.com/KhronosGroup/OpenXR-SDK"
+)
+set(OPENXR_ROOT_BUILD_DIR
+    "${OPENXR_ROOT_BUILD_DIR}"
     CACHE PATH "The root of your OpenXR/OpenXR-SDK build directory.")
-set(OPENXR_ROOT_DOCS_DIR "${OPENXR_ROOT_DOCS_DIR}"
-    CACHE PATH "The root of your OpenXR-Docs repository - see https://github.com/KhronosGroup/OpenXR-Docs")
+set(OPENXR_ROOT_DOCS_DIR
+    "${OPENXR_ROOT_DOCS_DIR}"
+    CACHE
+        PATH
+        "The root of your OpenXR-Docs repository - see https://github.com/KhronosGroup/OpenXR-Docs"
+)
 
 # Currently only explicitly supporting 0.90
 set(OPENXR_MAJOR_VER 0)
@@ -68,29 +77,22 @@ set(_oxr_registry_search_dirs)
 
 # Macro to extend search locations given a source dir.
 macro(_oxr_handle_potential_root_src_dir _dir)
-    list(APPEND _oxr_include_search_dirs
-        "${_dir}/include"
-        "${_dir}/specification/out/${OPENXR_OUT_DIR}")
-    list(APPEND _oxr_registry_search_dirs
-        "${_dir}/specification/registry/")
-    list(APPEND _oxr_specscripts_search_dirs
-        "${_dir}/specification/scripts/")
-    list(APPEND _oxr_sdkscripts_search_dirs
-        "${_dir}/src/scripts/")
+    list(APPEND _oxr_include_search_dirs "${_dir}/include"
+                "${_dir}/specification/out/${OPENXR_OUT_DIR}")
+    list(APPEND _oxr_registry_search_dirs "${_dir}/specification/registry/")
+    list(APPEND _oxr_specscripts_search_dirs "${_dir}/specification/scripts/")
+    list(APPEND _oxr_sdkscripts_search_dirs "${_dir}/src/scripts/")
 endmacro()
 
 # Macro to extend search locations given a build dir.
 macro(_oxr_handle_potential_root_build_dir _dir)
-    list(APPEND _oxr_include_search_dirs
-        "${_dir}/include")
-    list(APPEND _oxr_loader_search_dirs
-        "${_dir}/src/loader")
+    list(APPEND _oxr_include_search_dirs "${_dir}/include")
+    list(APPEND _oxr_loader_search_dirs "${_dir}/src/loader")
 endmacro()
 
 # Macro to extend search locations given a docs dir.
 macro(_oxr_handle_potential_root_docs_dir _dir)
-    list(APPEND _oxr_include_search_dirs
-        "${_dir}/include")
+    list(APPEND _oxr_include_search_dirs "${_dir}/include")
 endmacro()
 
 # User-supplied directories
@@ -110,7 +112,8 @@ if(OPENXR_ROOT_SRC_DIR)
 endif()
 
 # Guesses of sibling directories by name - last resort.
-foreach(_dir "${CMAKE_SOURCE_DIR}/../OpenXR-SDK" "${CMAKE_SOURCE_DIR}/../openxr")
+foreach(_dir "${CMAKE_SOURCE_DIR}/../OpenXR-SDK"
+        "${CMAKE_SOURCE_DIR}/../openxr")
     _oxr_handle_potential_root_src_dir(${_dir})
     _oxr_handle_potential_root_build_dir(${_dir}/build)
 endforeach()
@@ -121,49 +124,40 @@ _oxr_handle_potential_root_docs_dir("${CMAKE_SOURCE_DIR}/../OpenXR-Docs")
 ###
 
 # This must also contain openxr/openxr_platform.h
-find_path(OPENXR_OPENXR_INCLUDE_DIR
-    NAMES
-    openxr/openxr.h
-    PATHS
-    ${_oxr_include_search_dirs}
-)
+find_path(
+    OPENXR_OPENXR_INCLUDE_DIR
+    NAMES openxr/openxr.h
+    PATHS ${_oxr_include_search_dirs})
 
-find_path(OPENXR_PLATFORM_DEFINES_INCLUDE_DIR
-    NAMES
-    openxr/openxr_platform_defines.h
-    PATHS
-    ${_oxr_include_search_dirs}
-)
+find_path(
+    OPENXR_PLATFORM_DEFINES_INCLUDE_DIR
+    NAMES openxr/openxr_platform_defines.h
+    PATHS ${_oxr_include_search_dirs})
 
 ###
 # Search for other parts
 ###
-find_library(OPENXR_loader_LIBRARY
-    NAMES
-    libopenxr_loader
-    openxr_loader
-    openxr_loader-0_90 # TODO put version elsewhere
-    PATHS
-    ${_oxr_loader_search_dirs}
-    PATH_SUFFIXES 
-    "" Release)
+find_library(
+    OPENXR_loader_LIBRARY
+    NAMES libopenxr_loader openxr_loader
+          openxr_loader-0_90 # TODO put version elsewhere
+    PATHS ${_oxr_loader_search_dirs}
+    PATH_SUFFIXES "" Release)
 
-find_path(OPENXR_SPECSCRIPTS_DIR
-    NAMES
-    reg.py
-    PATHS
-    ${_oxr_specscripts_search_dirs})
+find_path(
+    OPENXR_SPECSCRIPTS_DIR
+    NAMES reg.py
+    PATHS ${_oxr_specscripts_search_dirs})
 
-find_path(OPENXR_SDKSCRIPTS_DIR
-    NAMES
-    automatic_source_generator.py
-    PATHS
-    ${_oxr_sdkscripts_search_dirs})
+find_path(
+    OPENXR_SDKSCRIPTS_DIR
+    NAMES automatic_source_generator.py
+    PATHS ${_oxr_sdkscripts_search_dirs})
 
-find_file(OPENXR_REGISTRY
+find_file(
+    OPENXR_REGISTRY
     NAMES xr.xml
-    PATHS
-    ${_oxr_registry_search_dirs})
+    PATHS ${_oxr_registry_search_dirs})
 
 ###
 # Fix up list of requested components
@@ -173,17 +167,20 @@ if(NOT OpenXR_FIND_COMPONENTS)
     set(OpenXR_FIND_COMPONENTS headers loader)
 endif()
 
-if("${OpenXR_FIND_COMPONENTS}" MATCHES "scripts" AND NOT "${OpenXR_FIND_COMPONENTS}" MATCHES "registry")
+if("${OpenXR_FIND_COMPONENTS}" MATCHES "scripts"
+   AND NOT "${OpenXR_FIND_COMPONENTS}" MATCHES "registry")
     # scripts depend on registry (mostly).
     list(APPEND OpenXR_FIND_COMPONENTS registry)
 endif()
 
-if("${OpenXR_FIND_COMPONENTS}" MATCHES "loader" AND NOT "${OpenXR_FIND_COMPONENTS}" MATCHES "headers")
+if("${OpenXR_FIND_COMPONENTS}" MATCHES "loader"
+   AND NOT "${OpenXR_FIND_COMPONENTS}" MATCHES "headers")
     # loader depends on headers.
     list(APPEND OpenXR_FIND_COMPONENTS headers)
 endif()
 
-if("${OpenXR_FIND_COMPONENTS}" MATCHES "sdkscripts" AND NOT "${OpenXR_FIND_COMPONENTS}" MATCHES "specscripts")
+if("${OpenXR_FIND_COMPONENTS}" MATCHES "sdkscripts"
+   AND NOT "${OpenXR_FIND_COMPONENTS}" MATCHES "specscripts")
     # source scripts depend on spec scripts.
     list(APPEND OpenXR_FIND_COMPONENTS specscripts)
 endif()
@@ -195,14 +192,16 @@ set(_oxr_component_required_vars)
 foreach(_comp IN LISTS OpenXR_FIND_COMPONENTS)
 
     if(${_comp} STREQUAL "headers")
-        list(APPEND _oxr_component_required_vars
-            OPENXR_OPENXR_INCLUDE_DIR
-            OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
+        list(APPEND _oxr_component_required_vars OPENXR_OPENXR_INCLUDE_DIR
+                    OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
         if(EXISTS "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr.h"
-                AND EXISTS "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr_platform.h"
-                AND EXISTS "${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR}/openxr/openxr_platform_defines.h")
+           AND EXISTS "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr_platform.h"
+           AND EXISTS
+               "${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR}/openxr/openxr_platform_defines.h"
+        )
             set(OpenXR_headers_FOUND TRUE)
-            mark_as_advanced(OPENXR_OPENXR_INCLUDE_DIR OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
+            mark_as_advanced(OPENXR_OPENXR_INCLUDE_DIR
+                             OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
         else()
             set(OpenXR_headers_FOUND FALSE)
         endif()
@@ -228,8 +227,8 @@ foreach(_comp IN LISTS OpenXR_FIND_COMPONENTS)
     elseif(${_comp} STREQUAL "specscripts")
         list(APPEND _oxr_component_required_vars OPENXR_SPECSCRIPTS_DIR)
         if(EXISTS "${OPENXR_SPECSCRIPTS_DIR}/generator.py"
-                AND EXISTS "${OPENXR_SPECSCRIPTS_DIR}/reg.py"
-                AND EXISTS "${OPENXR_SPECSCRIPTS_DIR}/genxr.py")
+           AND EXISTS "${OPENXR_SPECSCRIPTS_DIR}/reg.py"
+           AND EXISTS "${OPENXR_SPECSCRIPTS_DIR}/genxr.py")
             set(OpenXR_specscripts_FOUND TRUE)
             mark_as_advanced(OPENXR_SPECSCRIPTS_DIR)
         else()
@@ -239,7 +238,7 @@ foreach(_comp IN LISTS OpenXR_FIND_COMPONENTS)
     elseif(${_comp} STREQUAL "sdkscripts")
         list(APPEND _oxr_component_required_vars OPENXR_SDKSCRIPTS_DIR)
         if(EXISTS "${OPENXR_SDKSCRIPTS_DIR}/automatic_source_generator.py"
-                AND EXISTS "${OPENXR_SDKSCRIPTS_DIR}/src_genxr.py")
+           AND EXISTS "${OPENXR_SDKSCRIPTS_DIR}/src_genxr.py")
             set(OpenXR_sdkscripts_FOUND TRUE)
             mark_as_advanced(OPENXR_SDKSCRIPTS_DIR)
         else()
@@ -257,7 +256,8 @@ unset(_comp)
 # FPHSA call
 ###
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(OpenXR
+find_package_handle_standard_args(
+    OpenXR
     REQUIRED_VARS
     ${_oxr_component_required_vars}
     HANDLE_COMPONENTS
@@ -271,9 +271,8 @@ find_package_handle_standard_args(OpenXR
 
 # Component: headers
 if(OpenXR_headers_FOUND)
-    set(_oxr_include_dirs
-        ${OPENXR_OPENXR_INCLUDE_DIR}
-        ${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR})
+    set(_oxr_include_dirs ${OPENXR_OPENXR_INCLUDE_DIR}
+                          ${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR})
     list(REMOVE_DUPLICATES _oxr_include_dirs)
 
     # This target just provides the headers with prototypes.
@@ -289,9 +288,10 @@ if(OpenXR_headers_FOUND)
     if(NOT TARGET OpenXR::HeadersNoPrototypes)
         add_library(OpenXR::HeadersNoPrototypes INTERFACE IMPORTED)
     endif()
-    set_target_properties(OpenXR::HeadersNoPrototypes PROPERTIES
-        INTERFACE_COMPILE_DEFINITIONS "XR_NO_PROTOTYPES"
-        INTERFACE_LINK_LIBRARIES "OpenXR::Headers")
+    set_target_properties(
+        OpenXR::HeadersNoPrototypes
+        PROPERTIES INTERFACE_COMPILE_DEFINITIONS "XR_NO_PROTOTYPES"
+                   INTERFACE_LINK_LIBRARIES "OpenXR::Headers")
 
 endif()
 
@@ -310,8 +310,9 @@ if(OpenXR_loader_FOUND AND OpenXR_headers_FOUND)
     if(NOT TARGET OpenXR::Loader)
         add_library(OpenXR::Loader UNKNOWN IMPORTED)
     endif()
-    set_target_properties(OpenXR::Loader PROPERTIES
-        IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-        IMPORTED_LOCATION "${OPENXR_loader_LIBRARY}"
-        INTERFACE_LINK_LIBRARIES "${_oxr_loader_interface_libs}")
+    set_target_properties(
+        OpenXR::Loader
+        PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "C" IMPORTED_LOCATION
+                   "${OPENXR_loader_LIBRARY}" INTERFACE_LINK_LIBRARIES
+                   "${_oxr_loader_interface_libs}")
 endif()

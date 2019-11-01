@@ -15,22 +15,21 @@
 # Author:
 #
 
-# Note: This is the top-level CMake file for the OpenXR project.
-# It should contain only definitions that are applicable to the
-# entire project and includes for the sub-directories.
+# Note: This is the top-level CMake file for the OpenXR project. It should
+# contain only definitions that are applicable to the entire project and
+# includes for the sub-directories.
 
 cmake_minimum_required(VERSION 3.12)
 
 option(BUILD_TESTS "Build tests" ON)
-MESSAGE(STATUS "Build tests:           " ${BUILD_TESTS})
+message(STATUS "Build tests:           " ${BUILD_TESTS})
 
-if (BUILD_TESTS OR BUILD_TOOLS)
+if(BUILD_TESTS OR BUILD_TOOLS)
     include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ezvcpkg.cmake)
     ezvcpkg_fetch(
         PACKAGES gtest
         OUTPUT EZVCPKG_DIR
-        UPDATE_TOOLCHAIN
-        USE_HOST_VCPKG
+        UPDATE_TOOLCHAIN USE_HOST_VCPKG
     )
 endif()
 
@@ -38,9 +37,12 @@ project(OpenXR_hpp)
 
 find_package(PythonInterp 3 REQUIRED)
 
-# Enable IDE GUI folders.  "Helper targets" that don't have interesting source code should set their FOLDER property to this
+# Enable IDE GUI folders.  "Helper targets" that don't have interesting source
+# code should set their FOLDER property to this
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake predefined targets")
+set_property(
+    GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake predefined targets"
+)
 set(HELPER_FOLDER "Helpers")
 set(CODEGEN_FOLDER "Generated")
 set(TESTS_FOLDER "Tests")
@@ -50,17 +52,13 @@ find_package(OpenXR REQUIRED)
 
 add_subdirectory(include)
 
-if (BUILD_TESTS)
+if(BUILD_TESTS)
     include(CTest)
     enable_testing()
     find_package(GTest REQUIRED)
-    find_package(GTest MODULE REQUIRED)                                      
+    find_package(GTest MODULE REQUIRED)
     add_subdirectory(tests)
 endif()
 
-
-#install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE" DESTINATION share/doc/openxr)
-
-
-
-
+# install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE" DESTINATION
+# share/doc/openxr)
