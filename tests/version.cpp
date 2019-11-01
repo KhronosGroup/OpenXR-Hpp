@@ -65,4 +65,3 @@ TEST_F(OpenXrVersionTest, versionTest) {
 		EXPECT_EQ(v.patch(), 0x00000000);
 	}
 }
-
