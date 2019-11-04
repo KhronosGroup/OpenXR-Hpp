@@ -60,6 +60,14 @@ enum class /*{projected_bits_type }*/ : XrFlags64 {
 
 using /*{projected_type }*/ = Flags</*{projected_bits_type }*/, /*{flags.name}*/>;
 
+OPENXR_HPP_INLINE /*{projected_type }*/ operator|( /*{projected_bits_type }*/ bit0, /*{projected_bits_type }*/ bit1 ) {
+    return /*{projected_type }*/( bit0 ) | bit1;
+}
+
+OPENXR_HPP_INLINE /*{projected_type }*/ operator~( /*{projected_bits_type }*/ bits ) {
+    return ~( /*{projected_type }*/( bits ) );
+}
+
 /*{ protect_end(flags) }*/
 //# endfor
 
