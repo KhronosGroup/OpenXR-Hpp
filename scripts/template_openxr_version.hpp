@@ -34,6 +34,18 @@
 //# set invalid = ""
 //# extends "template_openxr_wrapperclass.hpp"
 
+//## Add component-wise constructor
+//# block extra_constructors_conversion_assign
+
+//! Constructor from version components
+Version(uint16_t major_, uint16_t minor_, uint32_t patch_) noexcept {
+    major(major_);
+    minor(minor_);
+    patch(patch_);
+}
+
+//# endblock extra_constructors_conversion_assign
+
 //## No validity methods
 //# block validity
 //# endblock
