@@ -26,10 +26,10 @@ directory of this one.
 
 ## Building
 
-If you just want to generate the header, run `./generate-openxr-hpp.sh`. If your
-OpenXR-SDK-Source (or internal gitlab) repo isn't in a directory named that
-parallel to this one, you can set OPENXR_REPO environment variable before
-running. Requires clang-format, preferably 6.0.
+If you just want to generate the header, run `./generate-openxr-hpp.sh` or
+`./generate-openxr-hpp.bat`. If your OpenXR-SDK-Source (or internal gitlab) repo
+isn't in a directory named that parallel to this one, you can set OPENXR_REPO
+environment variable before running. Requires clang-format, preferably 6.0.
 
 If you'd like to build the tests (making sure the header can compile),
 use CMake to generate a build system, like:
@@ -40,3 +40,46 @@ cd build
 cmake ..
 make
 ```
+
+## Development
+
+To improve/maintain consistent code style and code quality,
+we strongly recommend setting up the pre-commit hooks,
+which check/correct:
+
+- large file additions
+- byte-order marker
+- case conflicts
+- unresolved merge conflicts
+- broken symlinks
+- file endings
+- line endings
+- trailing whitespace
+- autopep8
+- [cmake-format][]
+
+Using these hooks involves the following steps:
+
+**Install** [pre-commit][] - available thru pip or your
+preferred package manager.
+
+```sh
+pip3 install --user pre-commit
+```
+
+**Setup** the git hook scripts by running this script. This will configure the
+current git repo working directory to run the hooks, as well as cloning and
+building (if required) the various tools used by the hooks.
+
+```sh
+pre-commit install
+```
+
+Optionally, you can **run** the hooks over all files manually, before a commit:
+
+```sh
+pre-commit run --all-files
+```
+
+[cmake-format]: https://cmake-format.readthedocs.io
+[pre-commit]: https://pre-commit.com/

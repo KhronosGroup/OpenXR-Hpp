@@ -35,9 +35,11 @@ from xrconventions import OpenXRConventions
 # Simple timer functions
 startTime = None
 
+
 def startTimer(timeit):
     global startTime
     startTime = time.process_time()
+
 
 def endTimer(timeit, msg):
     global startTime
@@ -45,6 +47,7 @@ def endTimer(timeit, msg):
     if timeit:
         write(msg, endTime - startTime, file=sys.stderr)
         startTime = None
+
 
 def makeREstring(strings, default=None):
     """Turn a list of strings into a regexp string matching exactly those strings."""
@@ -57,6 +60,8 @@ def makeREstring(strings, default=None):
 # parameters:
 #
 # args is an parsed argument object; see below for the fields that are used.
+
+
 def makeGenOpts(args):
     global genOpts
     genOpts = {}
@@ -72,11 +77,11 @@ def makeGenOpts(args):
 
     # Descriptive names for various regexp patterns used to select
     # versions and extensions
-    allFeatures     = allExtensions = '.*'
+    allFeatures = allExtensions = '.*'
 
     # Turn lists of names/patterns into matching regular expressions
-    emitExtensionsPat    = makeREstring(emitExtensions, allExtensions)
-    featuresPat          = makeREstring(features, allFeatures)
+    emitExtensionsPat = makeREstring(emitExtensions, allExtensions)
+    featuresPat = makeREstring(features, allFeatures)
 
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
@@ -133,19 +138,19 @@ def makeGenOpts(args):
         #     apientryp         = 'XRAPI_PTR *',
         #     alignFuncParam    = 48)
 
-          AutomaticSourceGeneratorOptions(
-            conventions       = conventions,
-            filename          = 'openxr.hpp',
-            directory         = directory,
-            apiname           = 'openxr',
-            profile           = None,
-            versions          = featuresPat,
-            emitversions      = featuresPat,
-            defaultExtensions = 'openxr',
-            addExtensions     = None,
-            removeExtensions  = None,
-            emitExtensions    = emitExtensionsPat)
-        ]
+        AutomaticSourceGeneratorOptions(
+            conventions=conventions,
+            filename='openxr.hpp',
+            directory=directory,
+            apiname='openxr',
+            profile=None,
+            versions=featuresPat,
+            emitversions=featuresPat,
+            defaultExtensions='openxr',
+            addExtensions=None,
+            removeExtensions=None,
+            emitExtensions=emitExtensionsPat)
+    ]
 
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.
@@ -156,6 +161,8 @@ def makeGenOpts(args):
 #   protect - True if re-inclusion wrappers should be created
 #   extensions - list of additional extensions to include in generated
 #   interfaces
+
+
 def genTarget(args):
     # Create generator options with specified parameters
     makeGenOpts(args)
@@ -186,6 +193,7 @@ def genTarget(args):
     else:
         write('No generator options for unknown target:',
               args.target, file=sys.stderr)
+
 
 # -feature name
 # -extension name
@@ -256,7 +264,7 @@ if __name__ == '__main__':
 
     if args.dump:
         write('* Dumping registry to regdump.txt', file=sys.stderr)
-        reg.dumpReg(filehandle = open('regdump.txt', 'w', encoding='utf-8'))
+        reg.dumpReg(filehandle=open('regdump.txt', 'w', encoding='utf-8'))
 
     # create error/warning & diagnostic files
     if args.errfile:
