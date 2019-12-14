@@ -10,7 +10,7 @@
 # FindOpenXR
 # ----------
 #
-# Find various parts of OpenXR 0.90.
+# Find various parts of OpenXR 1.0.
 #
 # COMPONENTS
 # ^^^^^^^^^^
@@ -23,46 +23,45 @@
 #
 # The following cache variables may also be set to assist/control the operation of this module:
 #
-# Related to the OpenXR-SDK repo <https://github.com/KhronosGroup/OpenXR-SDK>:
+# Related to the ``OpenXR-SDK`` repo <https://github.com/KhronosGroup/OpenXR-SDK> (this is the repo with pre-built headers),
+# the ``OpenXR-SDK-Source`` repo <https://github.com/KhronosGroup/OpenXR-SDK-Source>, or the internal Khronos GitLab ``openxr`` repo:
 #
-# ``OPENXR_ROOT_SRC_DIR``
-#  Path to the root of the ``openxr`` or ``OpenXR-SDK`` repo source.
-# ``OPENXR_ROOT_BUILD_DIR``
-#  Path to the root of the build directory corresponding to the ``openxr`` or ``OpenXR-SDK`` repos.
-#
-# Related to the OpenXR-Docs repo <https://github.com/KhronosGroup/OpenXR-SDK>:
-#
-# ``OPENXR_ROOT_DOCS_DIR``
-#  Path to the root of your OpenXR-Docs repo, if present - this is the repo with pre-built headers.
+# ``OPENXR_SDK_SRC_DIR``
+#  Path to the root of the ``openxr``, ``OpenXR-SDK``, or ``OpenXR-SDK-Source`` repo source.
+# ``OPENXR_SDK_BUILD_DIR``
+#  Path to the root of the build directory corresponding to the ``openxr``, ``OpenXR-SDK``, or ``OpenXR-SDK-Source`` repo.
 #
 
 # Normalize paths
-foreach(PATHVAR OPENXR_ROOT_SRC_DIR OPENXR_ROOT_BUILD_DIR OPENXR_ROOT_DOCS_DIR)
+foreach(PATHVAR OPENXR_SDK_SRC_DIR OPENXR_SDK_BUILD_DIR)
     if(${${PATHVAR}})
         file(TO_CMAKE_PATH ${${PATHVAR}} ${PATHVAR})
     endif()
 endforeach()
 
 # Set up cache variables
-set(OPENXR_ROOT_SRC_DIR
-    "${OPENXR_ROOT_SRC_DIR}"
+set(OPENXR_SDK_SRC_DIR
+    "${OPENXR_SDK_SRC_DIR}"
     CACHE
         PATH
-        "The root of your OpenXR/OpenXR-SDK source directory - see https://github.com/KhronosGroup/OpenXR-SDK"
+        "The root of your OpenXR-SDK, OpenXR-SDK-Source, or GitLab openxr source directory - see https://github.com/KhronosGroup/OpenXR-SDK"
 )
-set(OPENXR_ROOT_BUILD_DIR
-    "${OPENXR_ROOT_BUILD_DIR}"
-    CACHE PATH "The root of your OpenXR/OpenXR-SDK build directory.")
-set(OPENXR_ROOT_DOCS_DIR
-    "${OPENXR_ROOT_DOCS_DIR}"
+set(OPENXR_SDK_BUILD_DIR
+    "${OPENXR_SDK_BUILD_DIR}"
     CACHE
         PATH
-        "The root of your OpenXR-Docs repository - see https://github.com/KhronosGroup/OpenXR-Docs"
+        "The root of your OpenXR-SDK, OpenXR-SDK-Source, or GitLab openxr build directory."
 )
 
-# Currently only explicitly supporting 0.90
-set(OPENXR_MAJOR_VER 0)
-set(OPENXR_OUT_DIR prerelease)
+# Currently only explicitly supporting 1.0
+set(OPENXR_MAJOR_VER 1)
+set(OPENXR_MINOR_VER 0)
+set(OPENXR_OUT_DIR ${OPENXR_MAJOR_VER}.${OPENXR_MINOR_VER})
+if(WIN32)
+    set(OPENXR_STATIC ON)
+else()
+    set(OPENXR_STATIC OFF)
+endif()
 
 ###
 # Assemble lists of places to look
@@ -90,34 +89,53 @@ macro(_oxr_handle_potential_root_build_dir _dir)
     list(APPEND _oxr_loader_search_dirs "${_dir}/src/loader")
 endmacro()
 
-# Macro to extend search locations given a docs dir.
-macro(_oxr_handle_potential_root_docs_dir _dir)
-    list(APPEND _oxr_include_search_dirs "${_dir}/include")
-endmacro()
+set(_oxr_build_tag)
+if(OPENXR_STATIC)
+    set(_oxr_build_type static)
+else()
+    set(_oxr_build_type dynamic)
+endif()
+if(MSVC_VERSION GREATER 1919)
+    # Can use 2019
+    set(_oxr_build_tag msvs2019_${_oxr_build_type})
+endif()
+
+set(_oxr_lib_path_suffixes)
+if(WIN32)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        list(APPEND _oxr_lib_path_suffixes lib)
+        if(_oxr_build_tag)
+            list(APPEND _oxr_lib_path_suffixes ${_oxr_build_tag}/lib)
+        endif()
+    else()
+        list(APPEND _oxr_lib_path_suffixes lib32)
+        if(_oxr_build_tag)
+            list(APPEND _oxr_lib_path_suffixes ${_oxr_build_tag}/lib32)
+        endif()
+        list(APPEND _oxr_lib_path_suffixes lib)
+    endif()
+endif()
 
 # User-supplied directories
-if(OPENXR_ROOT_SRC_DIR)
-    _oxr_handle_potential_root_src_dir(${OPENXR_ROOT_SRC_DIR})
+if(OPENXR_SDK_SRC_DIR)
+    _oxr_handle_potential_root_src_dir(${OPENXR_SDK_SRC_DIR})
 endif()
 if(OPENXR_ROOT_BUILD_DIR)
     _oxr_handle_potential_root_build_dir(${OPENXR_ROOT_BUILD_DIR})
 endif()
-if(OPENXR_ROOT_DOCS_DIR)
-    _oxr_handle_potential_root_docs_dir(${OPENXR_ROOT_DOCS_DIR})
-endif()
 
 # Guessed build dir based on src dir
-if(OPENXR_ROOT_SRC_DIR)
-    _oxr_handle_potential_root_build_dir("${OPENXR_ROOT_SRC_DIR}/build")
+if(OPENXR_SDK_SRC_DIR)
+    _oxr_handle_potential_root_build_dir("${OPENXR_SDK_SRC_DIR}/build")
 endif()
 
 # Guesses of sibling directories by name - last resort.
 foreach(_dir "${CMAKE_SOURCE_DIR}/../OpenXR-SDK"
+        "${CMAKE_SOURCE_DIR}/../OpenXR-SDK-Source"
         "${CMAKE_SOURCE_DIR}/../openxr")
     _oxr_handle_potential_root_src_dir(${_dir})
     _oxr_handle_potential_root_build_dir(${_dir}/build)
 endforeach()
-_oxr_handle_potential_root_docs_dir("${CMAKE_SOURCE_DIR}/../OpenXR-Docs")
 
 ###
 # Search for includes
@@ -140,9 +158,9 @@ find_path(
 find_library(
     OPENXR_loader_LIBRARY
     NAMES libopenxr_loader openxr_loader
-          openxr_loader-0_90 # TODO put version elsewhere
+          openxr_loader-${OPENXR_MAJOR_VER}_${OPENXR_MINOR_VER}
     PATHS ${_oxr_loader_search_dirs}
-    PATH_SUFFIXES "" Release)
+    PATH_SUFFIXES ${_oxr_lib_path_suffixes})
 
 find_path(
     OPENXR_SPECSCRIPTS_DIR
@@ -194,11 +212,13 @@ foreach(_comp IN LISTS OpenXR_FIND_COMPONENTS)
     if(${_comp} STREQUAL "headers")
         list(APPEND _oxr_component_required_vars OPENXR_OPENXR_INCLUDE_DIR
                     OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
-        # Using this variable to just shorten the name and avoid wrapping.
-        set(_oxr_platdef_dir "${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR}")
         if(EXISTS "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr.h"
            AND EXISTS "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr_platform.h"
-           AND EXISTS "${_oxr_platdef_dir}/openxr/openxr_platform_defines.h")
+           AND EXISTS
+               "${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR}/openxr/openxr_platform_defines.h"
+           AND EXISTS
+               "${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR}/openxr/openxr_reflection.h"
+        )
             set(OpenXR_headers_FOUND TRUE)
             mark_as_advanced(OPENXR_OPENXR_INCLUDE_DIR
                              OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
@@ -262,7 +282,7 @@ find_package_handle_standard_args(
     ${_oxr_component_required_vars}
     HANDLE_COMPONENTS
     FAIL_MESSAGE
-    "Could NOT find the requested OpenXR components, try setting one or more of OPENXR_ROOT_SRC_DIR, OPENXR_ROOT_BUILD_DIR, OPENXR_ROOT_DOCS_DIR"
+    "Could NOT find the requested OpenXR components, try setting OPENXR_SDK_SRC_DIR and/or OPENXR_SDK_BUILD_DIR"
 )
 
 ###
@@ -271,9 +291,9 @@ find_package_handle_standard_args(
 
 # Component: headers
 if(OpenXR_headers_FOUND)
-    set(_oxr_include_dirs ${OPENXR_OPENXR_INCLUDE_DIR}
-                          ${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR})
-    list(REMOVE_DUPLICATES _oxr_include_dirs)
+    set(OPENXR_INCLUDE_DIRS ${OPENXR_OPENXR_INCLUDE_DIR}
+                            ${OPENXR_PLATFORM_DEFINES_INCLUDE_DIR})
+    list(REMOVE_DUPLICATES OPENXR_INCLUDE_DIRS)
 
     # This target just provides the headers with prototypes.
     # You may have linker errors if you try using this
@@ -281,7 +301,12 @@ if(OpenXR_headers_FOUND)
     if(NOT TARGET OpenXR::Headers)
         add_library(OpenXR::Headers INTERFACE IMPORTED)
     endif()
-    target_include_directories(OpenXR::Headers INTERFACE "${_oxr_include_dirs}")
+    # This is not duplication: interface system dirs just marks as system.
+    set_target_properties(
+        OpenXR::Headers
+        PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES
+                   "${OPENXR_INCLUDE_DIRS}" INTERFACE_INCLUDE_DIRECTORIES
+                   "${OPENXR_INCLUDE_DIRS}")
 
     # This target just provides the headers, without any prototypes.
     # Finding and loading the loader at runtime is your problem.
