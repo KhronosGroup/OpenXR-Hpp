@@ -22,9 +22,11 @@
 cmake_minimum_required(VERSION 3.12)
 
 option(BUILD_TESTS "Build tests" ON)
+option(SKIP_EZVCPKG "Skip using ezvcpkg" OFF)
 message(STATUS "Build tests:           " ${BUILD_TESTS})
+message(STATUS "Skip using ezvcpkg:    " ${SKIP_EZVCPKG})
 
-if(BUILD_TESTS OR BUILD_TOOLS)
+if((BUILD_TESTS OR BUILD_TOOLS) AND NOT SKIP_EZVCPKG)
     include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ezvcpkg.cmake)
     ezvcpkg_fetch(
         PACKAGES gtest
