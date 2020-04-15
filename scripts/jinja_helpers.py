@@ -62,21 +62,27 @@ def _collapse_whitespace(s):
 
 
 def _protect_begin(entity, parent=None):
+    lines = []
+    if hasattr(entity, 'ext_name') and not entity.ext_name.startswith("XR_VERSION"):
+        if not parent or not hasattr(parent, 'ext_name') or parent.ext_name != entity.ext_name:
+            lines.append("#ifdef {}".format(entity.ext_name))
     if entity.protect_value:
-        if parent and parent.protect_string == entity.protect_string:
+        if not parent or parent.protect_string != entity.protect_string:
             # No need to double-protect if condition the same
-            return ""
-        return "#if {}".format(entity.protect_string)
-    return ""
+            lines.append("#if {}".format(entity.protect_string))
+    return "\n".join(lines)
 
 
 def _protect_end(entity, parent=None):
+    lines = []
     if entity.protect_value:
-        if parent and parent.protect_string == entity.protect_string:
+        if not parent or parent.protect_string != entity.protect_string:
             # No need to double-protect if condition the same
-            return ""
-        return "#endif // {}".format(entity.protect_string)
-    return ""
+            lines.append("#endif // {}".format(entity.protect_string))
+    if hasattr(entity, 'ext_name') and not entity.ext_name.startswith("XR_VERSION"):
+        if not parent or not hasattr(parent, 'ext_name') or parent.ext_name != entity.ext_name:
+            lines.append("#endif  // {}".format(entity.ext_name))
+    return "\n".join(lines)
 
 
 def make_jinja_environment(file_with_templates_as_sibs=None, search_path=None):
