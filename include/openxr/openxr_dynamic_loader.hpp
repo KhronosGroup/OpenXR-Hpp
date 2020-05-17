@@ -59,7 +59,7 @@ public:
 
 #ifndef OPENXR_HPP_NO_EXCEPTIONS
         if (!m_library) {
-            throw exceptions::InitializationFailedError("Failed to load vulkan library.");
+            throw exceptions::InitializationFailedError("Failed to load OpenXR library.");
         }
 #endif
     }
