@@ -29,8 +29,6 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-
-
 namespace OPENXR_HPP_NAMESPACE {
 
 /*% macro make_pfn_name(cur_cmd) -%*/ /*{cur_cmd.name | replace("xr", "pfn")}*/ /*%- endmacro %*/
@@ -44,8 +42,7 @@ namespace OPENXR_HPP_NAMESPACE {
  * This is safer to use, especially in large/multi-module applications, than DispatchLoaderStatic, and is thus recommended.
  *
  * By default, it is lazy-populating: only populating a function pointer when it is attempted to be called (if this object is not
- * const). You can early-populate it using the createFullyPopulated() factory method, providing an Instance and optionally a
- * xrGetInstanceProcAddr function pointer.
+ * const). You can early-populate it using the populateFully() method, providing an Instance.
  *
  * This class stores all function pointers as type-erased PFN_xrVoidFunction, casting at time of call. This allows the same memory
  * representation to be used across translation units that may not share the same platform defines. Only the member function
@@ -59,30 +56,52 @@ class DispatchLoaderDynamic {
      * @name Constuctor/Factory functions
      * @{
      */
+/*{protect_proto_begin()}*/
     /*!
      * @brief Create a lazy-populating dispatch table.
      *
      * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr will be used.
      */
-    explicit DispatchLoaderDynamic(Instance instance = nullptr, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr)
+    explicit DispatchLoaderDynamic(Instance instance = nullptr, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr) noexcept
         : m_instance(instance), pfnGetInstanceProcAddr(reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr)) {
         if (pfnGetInstanceProcAddr == nullptr) {
             pfnGetInstanceProcAddr = reinterpret_cast<PFN_xrVoidFunction>(&::xrGetInstanceProcAddr);
         }
     }
+#else
+    /*!
+     * @brief Create a lazy-populating dispatch table.
+     */
+    DispatchLoaderDynamic() noexcept = default;
 
     /*!
-     * @brief Create a fully-populated dispatch table given a non-null XrInstance and an optional getInstanceProcAddr.
-     *
-     * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr will be used.
+     * @brief Create a lazy-populating dispatch table and populates the functions that do not need an instance.
      */
-    static DispatchLoaderDynamic createFullyPopulated(Instance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr) {
+    DispatchLoaderDynamic(PFN_xrGetInstanceProcAddr getInstanceProcAddr) noexcept {
+        populateBase(getInstanceProcAddr);
+    }
+
+    /*!
+     * @brief Populates the functions that do not need an instance.
+     */
+    void populateBase(PFN_xrGetInstanceProcAddr getInstanceProcAddr) noexcept {
+        OPENXR_HPP_ASSERT( getInstanceProcAddr );
+        pfnGetInstanceProcAddr = reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr);
+        getInstanceProcAddr(XR_NULL_HANDLE, "xrCreateInstance", &pfnCreateInstance);
+        getInstanceProcAddr(XR_NULL_HANDLE, "xrEnumerateApiLayerProperties", &pfnEnumerateApiLayerProperties);
+        getInstanceProcAddr(XR_NULL_HANDLE, "xrEnumerateInstanceExtensionProperties", &pfnEnumerateInstanceExtensionProperties);
+    }
+#endif
+
+    /*!
+     * @brief Create a fully-populated dispatch table given a non-null XrInstance.
+     */
+    void populateFully(Instance instance) noexcept {
         OPENXR_HPP_ASSERT(instance != nullptr);
-        DispatchLoaderDynamic dispatch{instance, getInstanceProcAddr};
+        m_instance = instance;
         //# for cur_cmd in sorted_cmds
-        dispatch.populate_(/*{cur_cmd.name | quote_string}*/, dispatch./*{make_pfn_name(cur_cmd)}*/);
+        populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
         //# endfor
-        return dispatch;
     }
 
     //! @}
@@ -125,7 +144,7 @@ class DispatchLoaderDynamic {
     //! @}
    private:
     //! @brief Internal utility function to populate a function pointer if it is nullptr.
-    XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
+    XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) noexcept {
         if (pfn == nullptr) {
             return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance.get(), function_name, &pfn);
         }

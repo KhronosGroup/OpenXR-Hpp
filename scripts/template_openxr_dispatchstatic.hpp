@@ -50,6 +50,8 @@ namespace OPENXR_HPP_NAMESPACE {
  *
  * @ingroup dispatch
  */
+
+/*{protect_proto_begin()}*/
 class DispatchLoaderStatic {
    public:
     /*!
@@ -65,5 +67,5 @@ class DispatchLoaderStatic {
 
     //! @}
 };
-
+#endif
 }  // namespace OPENXR_HPP_NAMESPACE

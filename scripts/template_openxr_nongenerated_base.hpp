@@ -132,6 +132,24 @@ enum Side : uint32_t {
     Right = 1,
 };
 
+#if !defined(OPENXR_HPP_DISPATCH_LOADER_DYNAMIC)
+/*{protect_proto_begin()}*/
+#  define OPENXR_HPP_DISPATCH_LOADER_DYNAMIC 0
+# else
+#  define OPENXR_HPP_DISPATCH_LOADER_DYNAMIC 1
+# endif
+#endif
+
+#if !defined(OPENXR_HPP_DEFAULT_DISPATCHER)
+# if OPENXR_HPP_DISPATCH_LOADER_DYNAMIC == 1
+#  define OPENXR_HPP_DEFAULT_DISPATCHER ::OPENXR_HPP_NAMESPACE::defaultDispatchLoaderDynamic
+#  define OPENXR_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE namespace OPENXR_HPP_NAMESPACE { DispatchLoaderDynamic defaultDispatchLoaderDynamic; }
+  extern DispatchLoaderDynamic defaultDispatchLoaderDynamic;
+# else
+#  define OPENXR_HPP_DEFAULT_DISPATCHER ::OPENXR_HPP_NAMESPACE::DispatchLoaderStatic()
+# endif
+#endif
+
 constexpr uint32_t SIDE_COUNT = 2;
 
 constexpr char const* const reserved_paths[] = {
