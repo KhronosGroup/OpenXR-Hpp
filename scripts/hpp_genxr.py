@@ -149,7 +149,9 @@ def makeGenOpts(args):
             defaultExtensions='openxr',
             addExtensions=None,
             removeExtensions=None,
-            emitExtensions=emitExtensionsPat)
+            emitExtensions=emitExtensionsPat,
+            protectProto='#ifndef',
+            protectProtoStr='XR_NO_PROTOTYPES')
     ]
 
 # Generate a target based on the options in the matching genOpts{} object.

@@ -201,12 +201,10 @@ class MethodProjection:
         self.returns = ['result']
         self.return_template_params = []
 
-        self.dispatch = "Dispatch&& d"
-        self.suppress_default_dispatch_arg = not self.is_core
-        self.template_decl_list = ["typename Dispatch"]
-        self.template_defn_list = self.template_decl_list[:]
-        if self.is_core:
-            self.template_decl_list[0] = self.template_decl_list[0] + " = DispatchLoaderStatic"
+        self.dispatch = "Dispatch d"
+        self.suppress_default_dispatch_arg = False
+        self.template_decl_list = ["typename Dispatch = decltype((OPENXR_HPP_DEFAULT_DISPATCHER))"]
+        self.template_defn_list = ["typename Dispatch"]
 
     def _declparams(self, replacements=None):
         def find_decl(name):
@@ -239,7 +237,7 @@ class MethodProjection:
         params.append(self.dispatch)
         if not self.suppress_default_dispatch_arg \
                 and not suppress_default_dispatch_arg:
-            params[-1] = params[-1] + " = Dispatch{}"
+            params[-1] = params[-1] + " = OPENXR_HPP_DEFAULT_DISPATCHER"
         return params
 
     def get_definition_params(self, replacements=None, extras=None):
@@ -717,6 +715,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             return False
         return tag_member[0].values is None
 
+    def _protect_proto_begin(self):
+        if self.genOpts.protectProto and self.genOpts.protectProtoStr:
+            return self.genOpts.protectProto + " " + self.genOpts.protectProtoStr
+        return ""
+
     def _cpp_hidden_member(self, member):
         return member.name == "type" or member.name == "next"
 
@@ -851,7 +854,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             struct_children=self.struct_children,
             struct_fields=self.struct_fields,
             get_tag=self._get_tag,
-            is_base_only=self._is_base_only
+            is_base_only=self._is_base_only,
+            protect_proto_begin=self._protect_proto_begin
         )
         write(file_data, file=self.outFile)
 
