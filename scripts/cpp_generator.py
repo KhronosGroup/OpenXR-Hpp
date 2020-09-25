@@ -24,7 +24,8 @@ from jinja_helpers import JinjaTemplate, make_jinja_environment
 VALID_FOR_NULL_INSTANCE = set((
     'xrEnumerateInstanceExtensionProperties',
     'xrEnumerateApiLayerProperties',
-    'xrCreateInstance'
+    'xrCreateInstance',
+    'xrLoaderInitKHR',
 ))
 
 DISCOURAGED = set((
