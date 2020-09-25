@@ -51,7 +51,7 @@
 
 namespace OPENXR_HPP_NAMESPACE {
 
-//# for cur_cmd in sorted_cmds
+//# for cur_cmd in sorted_cmds if cur_cmd.name not in skip
 //## /*{ cur_cmd }*/
 
 /*{ protect_begin(cur_cmd) }*/
