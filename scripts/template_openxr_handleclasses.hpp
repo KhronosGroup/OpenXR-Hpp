@@ -29,6 +29,13 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+#if !defined(OPENXR_HPP_TYPESAFE_EXPLICIT)
+#if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
+#define OPENXR_HPP_TYPESAFE_EXPLICIT
+#else
+#define OPENXR_HPP_TYPESAFE_EXPLICIT explicit
+#endif
+#endif // !OPENXR_HPP_TYPESAFE_EXPLICIT
 
 namespace OPENXR_HPP_NAMESPACE {
 

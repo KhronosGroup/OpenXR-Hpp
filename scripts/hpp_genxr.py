@@ -114,43 +114,32 @@ def makeGenOpts(args):
 
     # An API style conventions object
     conventions = OpenXRConventions()
+    headers = (
+        'openxr.hpp',
+        'openxr_static_dispatch.hpp',
+        'openxr_dynamic_dispatch.hpp',
+        'openxr_version.hpp',
+        'openxr_time.hpp',
+        'openxr_duration.hpp',
+        'openxr_enums.hpp',
+    )
 
-    genOpts['openxr.hpp'] = [
-        CppGenerator,
-        # AutomaticSourceGeneratorOptions(
-        #     conventions       = conventions,
-        #     filename          = 'openxr.hpp',
-        #     directory         = directory,
-        #     apiname           = 'openxr',
-        #     profile           = None,
-        #     versions          = featuresPat,
-        #     emitversions      = featuresPat,
-        #     defaultExtensions = 'openxr',
-        #     addExtensions     = None,
-        #     removeExtensions  = None,
-        #     emitExtensions    = emitExtensionsPat,
-        #     prefixText        = prefixStrings + xrPrefixStrings,
-        #     protectFeature    = False,
-        #     protectProto      = '#ifndef',
-        #     protectProtoStr   = 'XR_NO_PROTOTYPES',
-        #     apicall           = 'XRAPI_ATTR ',
-        #     apientry          = 'XRAPI_CALL ',
-        #     apientryp         = 'XRAPI_PTR *',
-        #     alignFuncParam    = 48)
-
-        AutomaticSourceGeneratorOptions(
-            conventions=conventions,
-            filename='openxr.hpp',
-            directory=directory,
-            apiname='openxr',
-            profile=None,
-            versions=featuresPat,
-            emitversions=featuresPat,
-            defaultExtensions='openxr',
-            addExtensions=None,
-            removeExtensions=None,
-            emitExtensions=emitExtensionsPat)
-    ]
+    for header in headers:
+        genOpts[header] = [
+            CppGenerator,
+            AutomaticSourceGeneratorOptions(
+                conventions=conventions,
+                filename=header,
+                directory=directory,
+                apiname='openxr',
+                profile=None,
+                versions=featuresPat,
+                emitversions=featuresPat,
+                defaultExtensions='openxr',
+                addExtensions=None,
+                removeExtensions=None,
+                emitExtensions=emitExtensionsPat)
+        ]
 
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.

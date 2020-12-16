@@ -40,13 +40,12 @@
 **
 */
 
-/*% macro make_spec_url(name) %*//*{ "<https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#" + name + ">" }*//*% endmacro %*/
-
-/*% macro forwardCommandArgs(cur_cmd) %*/ /*{ cur_cmd.params | map(attribute="name") | join(", ") }*/ /*% endmacro %*/
-
+/*% from 'template_macros.hpp' import forwardCommandArgs, make_spec_url %*/
 /*% include('template_openxr_nongenerated_base.hpp')%*/
 /*% include('template_openxr_manualprojections.hpp')%*/
-/*% include('template_openxr_dispatchstatic.hpp')%*/
+#include "openxr_time.hpp"
+#include "openxr_version.hpp"
+#include "openxr_static_dispatch.hpp"
 
 //## These includes are currently unused
 //## /*% include('template_openxr_nongenerated_chains.hpp')%*/
@@ -54,13 +53,13 @@
 
 /*% include('template_openxr_nongenerated_flags.hpp')%*/
 /*% include('template_openxr_nongenerated_unique.hpp')%*/
-/*% include('template_openxr_enums.hpp')%*/
+#include "openxr_enums.hpp"
 /*% include('template_openxr_flags.hpp')%*/
 /*% include('template_openxr_exceptions.hpp')%*/
 /*% include('template_openxr_structs_forward.hpp')%*/
 /*% include('template_openxr_handleclasses.hpp')%*/
 /*% include('template_openxr_structs.hpp')%*/
-/*% include('template_openxr_dispatchdynamic.hpp')%*/
+#include "openxr_dynamic_dispatch.hpp"
 
 /*
  * Inline implementations of all trampoline methods and free functions follow.

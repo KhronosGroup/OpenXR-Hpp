@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2019 The Khronos Group Inc.
-//## Copyright (c) 2019 Collabora, Ltd.
+//## Copyright (c) 2017-2020 The Khronos Group Inc.
+//## Copyright (c) 2020 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,48 +29,6 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+/*% macro make_spec_url(name) %*//*{ "<https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#" + name + ">" }*//*% endmacro %*/
 
-//# set type = "Duration"
-//# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
-//# set invalid = ""
-//# set filename = "openxr_duration"
-//# extends "template_wrapperclass_header.hpp"
-
-//# block includes
-#include <openxr/openxr.h>
-//# endblock
-
-//## No validity methods
-//# block validity
-//# endblock
-
-//# block extra_methods
-//! Add a Duration to the current Duration
-Duration& operator+=(Duration d) noexcept {
-    val_ += d.val_;
-    return *this;
-}
-
-//! Subtract a Duration from the current Duration
-Duration& operator-=(Duration d) noexcept {
-    val_ -= d.val_;
-    return *this;
-}
-
-//! For timeouts, indicates the timeout is immediate
-static OPENXR_HPP_CONSTEXPR Duration noDuration() noexcept { return Duration{XR_NO_DURATION}; }
-
-//! For timeouts, indicates the timeout never occurs.
-static OPENXR_HPP_CONSTEXPR Duration infinite() noexcept { return Duration{XR_INFINITE_DURATION}; }
-
-//! For haptic vibration, the shortest pulse possible for the device
-static OPENXR_HPP_CONSTEXPR Duration minHaptic() noexcept { return Duration{XR_MIN_HAPTIC_DURATION}; }
-//# endblock
-
-//# block extra_free_functions
-//! Add two Duration values
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE Duration operator+(Duration lhs, Duration rhs) noexcept { return Duration{lhs.get() + rhs.get()}; }
-
-//! Subtract two Duration values
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE Duration operator-(Duration lhs, Duration rhs) noexcept { return Duration{lhs.get() - rhs.get()}; }
-//# endblock
+/*% macro forwardCommandArgs(cur_cmd) %*/ /*{ cur_cmd.params | map(attribute="name") | join(", ") }*/ /*% endmacro %*/

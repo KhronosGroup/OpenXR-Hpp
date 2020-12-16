@@ -30,12 +30,11 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 
+#include "openxr_version.hpp"
+#include "openxr_duration.hpp"
+#include "openxr_time.hpp"
 
 namespace OPENXR_HPP_NAMESPACE {
-
-//# include "template_openxr_version.hpp"
-//# include "template_openxr_duration.hpp"
-//# include "template_openxr_time.hpp"
 
 //## loop over atoms
 //# set comparison_operators = ('==', '!=')

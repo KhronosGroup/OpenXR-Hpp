@@ -29,45 +29,24 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# extends 'template_openxr_wrapperclass.hpp'
+
+//# set includeGuard = filename.upper() + "_HPP_"
+//# block prefix
+#ifndef /*{ includeGuard }*/
+#define /*{ includeGuard }*/
+
+//# block includes
+//# endblock includes
+
+/*% include('template_preproc.hpp')%*/
 
 namespace OPENXR_HPP_NAMESPACE {
+//# endblock prefix
 
-/*!
- * @defgroup dispatch Dispatch classes
- * @brief Classes providing a method or function pointer member for OpenXR APIs.
- *
- * The classes provided here are useful basic classes, but all places that can take a dispatch class are templated to be able to
- * accept any class that meets the requirements.
- */
+//# block suffix
 
-#ifndef XR_NO_PROTOTYPES
+} // OPENXR_HPP_NAMESPACE
 
-/*!
- * @brief Dispatch class for OpenXR core functions that uses exported, statically-available symbols.
- *
- * Not for use in game engines or other multi-module software where different modules might want newer OpenXR APIs. If this is used,
- * all parts of an application must build against and use the same loader library.
- *
- * Does not provide extension functions because those are not exported from the loader library.
- *
- * @ingroup dispatch
- */
-class DispatchLoaderStatic {
-   public:
-    /*!
-     * @name Core Commands
-     * @{
-     */
-
-    //# for cur_cmd in gen.core_commands
-    /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
-        return ::/*{cur_cmd.name}*/ (/*{ forwardCommandArgs(cur_cmd) }*/);
-    }
-    //# endfor
-
-    //! @}
-};
-
-#endif // ifndef XR_NO_PROTOTYPES
-
-}  // namespace OPENXR_HPP_NAMESPACE
+#endif // !/*{ includeGuard }*/
+//# endblock suffix

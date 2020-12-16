@@ -33,7 +33,12 @@
 //# set type = "Time"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
-//# extends "template_openxr_wrapperclass.hpp"
+//# set filename = "openxr_time"
+//# extends "template_wrapperclass_header.hpp"
+
+//# block includes
+#include "openxr_duration.hpp"
+//# endblock
 
 //# block conversion_explicit_bool
 //! True if this time is valid (positive)

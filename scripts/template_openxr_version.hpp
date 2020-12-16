@@ -32,7 +32,12 @@
 //# set type = "Version"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
-//# extends "template_openxr_wrapperclass.hpp"
+//# set filename = "openxr_version"
+//# extends "template_wrapperclass_header.hpp"
+
+//# block includes
+#include <openxr/openxr.h>
+//# endblock
 
 //## Add component-wise constructor
 //# block extra_constructors_conversion_assign

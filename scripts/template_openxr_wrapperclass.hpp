@@ -29,6 +29,10 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# from 'template_macros.hpp' import make_spec_url
+
+//# block prefix
+//# endblock prefix
 
 //## This file is typically used by extending: see e.g. time and duration
 //# set raw_type = "Xr" + type
@@ -175,3 +179,6 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{raw_type}*/ 
 
 //# block extra_free_functions
 //# endblock extra_free_functions
+
+//# block suffix
+//# endblock suffix
