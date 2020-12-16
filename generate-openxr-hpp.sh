@@ -15,6 +15,11 @@ fi
 generate openxr_duration.hpp
 generate openxr_dynamic_dispatch.hpp
 generate openxr_enums.hpp
+generate openxr_exceptions.hpp
+generate openxr_handles_forward.hpp
+generate openxr_handles.hpp
+generate openxr_helpers_opengl.hpp
+generate openxr_method_impls.inl
 generate openxr_static_dispatch.hpp
 generate openxr_time.hpp
 generate openxr_version.hpp
