@@ -147,7 +147,8 @@ def makeGenOpts(args):
                 emitversions=featuresPat,
                 defaultExtensions='openxr',
                 addExtensions=None,
-                removeExtensions=removeExtensions,
+                # Always generate all extensions for the dispatchers.
+                removeExtensions=(None if 'dispatch' in header else removeExtensions),
                 emitExtensions=emitExtensionsPat)
         ]
 
