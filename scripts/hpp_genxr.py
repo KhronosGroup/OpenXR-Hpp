@@ -69,6 +69,16 @@ def makeGenOpts(args):
     # Extensions to emit (list of extensions)
     emitExtensions = args.emitExtensions
 
+    removeExtensions = makeREstring((
+        # Structs misbehave
+        "XR_KHR_loader_init",
+        "XR_KHR_loader_init_android",
+        "XR_MSFT_controller_model",
+        # Method projections misbehave
+        "XR_MSFT_spatial_graph_bridge",
+        "XR_KHR_android_surface_swapchain",
+    ))
+
     # Features to include (list of features)
     features = args.feature
 
@@ -137,7 +147,7 @@ def makeGenOpts(args):
                 emitversions=featuresPat,
                 defaultExtensions='openxr',
                 addExtensions=None,
-                removeExtensions=None,
+                removeExtensions=removeExtensions,
                 emitExtensions=emitExtensionsPat)
         ]
 
