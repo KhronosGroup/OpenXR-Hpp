@@ -43,22 +43,6 @@ MANUALLY_PROJECTED = set((
     "XrPath",
 ))
 
-# Determining this heuristically appears to be impossible
-INHERITANCE = {
-    'XrSwapchainImageBaseHeader': set((
-        'XrSwapchainImageOpenGLKHR',
-        'XrSwapchainImageOpenGLESKHR',
-        'XrSwapchainImageVulkanKHR',
-        'XrSwapchainImageD3D11KHR',
-        'XrSwapchainImageD3D12KHR'
-    )),
-    'XrCompositionLayerBaseHeader': set((
-        'XrCompositionLayerProjectionView',
-        'XrCompositionLayerProjection',
-        'XrCompositionLayerQuad',
-    )),
-}
-
 TWO_CALL_STRING_NAME = "buffer"
 
 CAPACITY_INPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CapacityInput')
