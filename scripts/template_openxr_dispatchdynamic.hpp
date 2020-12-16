@@ -61,31 +61,51 @@ class DispatchLoaderDynamic {
      */
     /*!
      * @brief Create a lazy-populating dispatch table.
-     *
-     * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr will be used.
      */
-    explicit DispatchLoaderDynamic(Instance instance = nullptr, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr)
+    explicit DispatchLoaderDynamic(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr)
         : m_instance(instance), pfnGetInstanceProcAddr(reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr)) {
-        if (pfnGetInstanceProcAddr == nullptr) {
-            pfnGetInstanceProcAddr = reinterpret_cast<PFN_xrVoidFunction>(&::xrGetInstanceProcAddr);
-        }
     }
+    
+#ifndef XR_NO_PROTOTYPES
+    /*!
+     * @brief Create a lazy-populating dispatch table using the static ::xrGetInstanceProcAddr.
+     */
+    explicit DispatchLoaderDynamic(XrInstance instance = XR_NULL_HANDLE)
+        : DispatchLoaderDynamic(instance, &::xrGetInstanceProcAddr) {}
+#endif // !XR_NO_PROTOTYPES
 
     /*!
-     * @brief Create a fully-populated dispatch table given a non-null XrInstance and an optional getInstanceProcAddr.
-     *
-     * If getInstanceProcAddr is not supplied, the static ::xrGetInstanceProcAddr will be used.
+     * @brief Create a fully-populated dispatch table given a non-null XrInstance and a getInstanceProcAddr.
      */
-    static DispatchLoaderDynamic createFullyPopulated(Instance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr = nullptr) {
-        OPENXR_HPP_ASSERT(instance != nullptr);
+    static DispatchLoaderDynamic createFullyPopulated(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr)
+    {
+        OPENXR_HPP_ASSERT(instance != XR_NULL_HANDLE);
         DispatchLoaderDynamic dispatch{instance, getInstanceProcAddr};
-        //# for cur_cmd in sorted_cmds
-        dispatch.populate_(/*{cur_cmd.name | quote_string}*/, dispatch./*{make_pfn_name(cur_cmd)}*/);
-        //# endfor
+        dispatch.populateFully();
         return dispatch;
     }
-
     //! @}
+
+    /*!
+     * @brief Fully populate a dispatch table given a non-null XrInstance and a getInstanceProcAddr.
+     */
+    void populateFully()
+    {
+        OPENXR_HPP_ASSERT(m_instance != XR_NULL_HANDLE);
+        OPENXR_HPP_ASSERT(pfnGetInstanceProcAddr != nullptr);
+        //# for cur_cmd in sorted_cmds
+        populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
+        //# endfor
+    }
+    /*!
+     * @brief Fully populate a dispatch table given a non-null XrInstance and a getInstanceProcAddr.
+     */
+    void populateFully(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr)
+    {
+        m_instance = instance;
+        pfnGetInstanceProcAddr = reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr);
+        populateFully();
+    }
 
     /*!
      * @name Entry points
@@ -127,11 +147,11 @@ class DispatchLoaderDynamic {
     //! @brief Internal utility function to populate a function pointer if it is nullptr.
     XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
         if (pfn == nullptr) {
-            return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance.get(), function_name, &pfn);
+            return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance, function_name, &pfn);
         }
         return XR_SUCCESS;
     }
-    Instance m_instance;
+    XrInstance m_instance;
     //# for cur_cmd in sorted_cmds
     PFN_xrVoidFunction /*{ make_pfn_name(cur_cmd) }*/ {};
     //# endfor
