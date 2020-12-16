@@ -805,7 +805,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             members = struct.members
             return set(field.name for field in members if not self._cpp_hidden_member(field))
 
-        self.struct_fields = {parent: fields_of(parent) for parent in self.parents}
+        self.struct_fields = {parent: fields_of(parent) for parent in self.parents
+                              if parent in self.dict_structs}
 
         basic_cmds = {}
         enhanced_cmds = {}
