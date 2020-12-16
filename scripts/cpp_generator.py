@@ -143,6 +143,67 @@ def _block_doxygen_comment(s):
 # def _make_dummy_param(name, typename, cdecl):
 #     return MemberOrParam(typename, False, True, False, False, False, 0, False, [], None, None, 0, None, False, True, name, None, cdecl)
 
+class StructProjection:
+    """Stores the struct details implementation."""
+
+    def __init__(self, struct, gen):
+        self.struct = struct
+        self.conventions = gen.genOpts.conventions
+        self.name = struct.name
+        self.cpp_name = _project_type_name(struct.name)
+        self.qualified_name = self.cpp_name
+        self.is_core = gen.isCoreExtensionName(struct.ext_name)
+        self.typed_struct = gen._is_tagged_type(struct.name)
+        self.is_base_only = gen._is_base_only(struct)
+        self.has_type_enum_value = self.typed_struct and not self.is_base_only
+
+        self.is_derived_type = struct.name in gen.struct_parents
+        self.parent_fields = []
+        self.is_output = gen._is_struct_output(struct)
+
+        if self.typed_struct:
+            self.is_abstract = self.is_base_only
+            if self.is_output:
+                self.parent_cpp_type = "impl::OutputStructBase"
+                self.next_chain_type = "void *"
+            else:
+                self.parent_cpp_type = "impl::InputStructBase"
+                self.next_chain_type = "const void *"
+
+            if self.is_derived_type:
+                self.parent_cpp_type = _project_type_name(gen.struct_parents[struct.name])
+                self.parent_fields = gen.struct_fields[gen.struct_parents[struct.name]]
+        else:
+            self.is_abstract = False
+            self.parent_cpp_type = None
+            self.next_chain_type = None
+
+        self.struct_type_enum = gen._get_tag(struct.name) if self.has_type_enum_value else None
+
+    @property
+    def struct_parent_decl(self):
+        if self.typed_struct:
+            return f": public {self.parent_cpp_type}"
+        return ""
+
+    @property
+    def next_param_decl_with_default(self):
+        if self.typed_struct:
+            return self.next_param_decl + " = nullptr"
+        return None
+
+    @property
+    def next_param_decl(self):
+        if self.typed_struct:
+            return f"{self.next_chain_type} {self.next_param_name}"
+        return None
+
+    @property
+    def next_param_name(self):
+        if self.typed_struct:
+            return "next_"
+        return None
+
 
 class MethodProjection:
     """Stores the method declaration and implementation."""
@@ -688,6 +749,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def beginFile(self, genOpts):
         AutomaticSourceOutputGenerator.beginFile(self, genOpts)
         self.conventions = self.genOpts.conventions
+        self.env.tests['cpp_hidden_member'] = self._cpp_hidden_member
+        self.env.tests['struct_output'] = self._is_struct_output
+        self.env.tests['struct_input'] = self._is_struct_input
         self.template = JinjaTemplate(
             self.env, "template_{}".format(genOpts.filename))
 
@@ -716,6 +780,39 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def _bitmask_for_flags(self, flags):
         return self.dict_bitmasks[flags.valid_flags]
 
+    def _is_struct_input(self, struct):
+        nextptr = [x.cdecl for x in struct.members
+                   if x.name == 'next']
+        return nextptr and 'const' in nextptr[0]
+
+    def _is_struct_output(self, struct):
+        if struct.returned_only:
+            return True
+        nextptr = [x.cdecl for x in struct.members
+                   if x.name == 'next']
+        if not nextptr:
+            return False
+        return 'const' not in nextptr[0]
+
+    def _is_member_defaultable(self, member):
+        if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
+            return True
+        if member.type.startswith("uint") or member.type.startswith("int") or member.type.startswith("float"):
+            return True
+        if member.type == "XrBool32":
+            return True
+        if not self._is_tagged_type(member.type):
+            # Might be an exaggeration?
+            return True
+        if member.type in self.dict_structs:
+            member_struct = self.dict_structs[member.type]
+
+            if self._is_struct_output(member_struct):
+                return True
+
+            return False
+        # assert(False)
+        return True
 
     def _get_default_for_member(self, member, struct_name=None):
         defaultValue = None
@@ -731,13 +828,22 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 defaultValue = '0.0f'
         elif member.type == "XrBool32":
             defaultValue = "XR_FALSE"
+        elif not self._is_tagged_type(member.type):
+            defaultValue = "{}"
         elif member.type in self.dict_structs:
             member_struct = self.dict_structs[member.type]
-            if member_struct.returned_only:
+            if self._is_struct_output(member_struct):
                 defaultValue = "{}"
         else:
             defaultValue = "{}"
         return defaultValue
+
+    def _index0_of_first_visible_defaultable_member(self, members):
+        for i, member in reversed(tuple(enumerate(x for x in members if not self._cpp_hidden_member(x)))):
+            if not self._is_member_defaultable(member):
+                return i + 1
+        return 0
+
     def _project_cppdecl(self, struct, member, defaulted=False, suffix="", input=False):
         result = member.cdecl.strip() + suffix
         # Kind of hacky, perhaps switch _project_type_name to a regex based approach?
@@ -825,6 +931,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 self._unique_method_projection(unique)
                 unique_cmds[cmd.name] = unique
 
+        # Verify
+        self.selftests()
+
         file_data = self.template.render(
             gen=self,
             registry=self.registry,
@@ -843,18 +952,31 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             generate_structure_type_from_name=self.conventions.generate_structure_type_from_name,
             is_tagged_type=self._is_tagged_type,
             project_cppdecl=self._project_cppdecl,
-            cpp_hidden_member=self._cpp_hidden_member,
-            struct_member_count=self._struct_member_count,
             bitmask_for_flags=self._bitmask_for_flags,
             is_static_length_string=_is_static_length_string,
-            parents=self.parents,
             struct_parents=self.struct_parents,
             struct_children=self.struct_children,
             struct_fields=self.struct_fields,
-            get_tag=self._get_tag,
-            is_base_only=self._is_base_only
+            project_struct=(lambda s: StructProjection(s, self)),
+            get_default_for_member=self._get_default_for_member,
+            index0_of_first_visible_defaultable_member=self._index0_of_first_visible_defaultable_member,
         )
         write(file_data, file=self.outFile)
 
         # Finish processing in superclass
         AutomaticSourceOutputGenerator.endFile(self)
+
+    def selftests(self):
+        assert(self._is_struct_input(self.dict_structs['XrCompositionLayerProjection']))
+        assert(self._is_struct_input(self.dict_structs['XrCompositionLayerBaseHeader']))
+        assert(not self._is_struct_input(self.dict_structs['XrApplicationInfo']))
+        assert(not self._is_struct_output(self.dict_structs['XrApplicationInfo']))
+        index = self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'].members)
+        # print(index)
+        assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'].members) == 0)
+        index = self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members)
+        # print(index)
+        # assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members) == 2)
+        members = self.dict_structs['XrInstanceCreateInfo'].members
+        # for i, member in enumerate(members):
+        #     print(i, member.name, self._is_member_defaultable(member))

@@ -29,166 +29,207 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-
+//# from 'template_macros.hpp' import wrapperSizeStaticAssert
 
 // BLOCK Structure Impl definitions
 namespace OPENXR_HPP_NAMESPACE {
 
-namespace traits {
+    namespace impl
+    {
 
-template <typename Type>
-class TypedStructTraits {
-   protected:
-    TypedStructTraits(StructureType type_) : type(type_) {}
-
-   public:
-    StructureType type;
-    const void* next{nullptr};
-};
-
-}  // namespace traits
-
-struct EventDataBaseHeader : public traits::TypedStructTraits<EventDataBaseHeader> {
-private:
-    using Parent = traits::TypedStructTraits<EventDataBaseHeader>;
-
-protected:
-    EventDataBaseHeader(StructureType type_) : Parent(type_) { }
-};
-static_assert(sizeof(EventDataBaseHeader) == sizeof(XrEventDataBaseHeader), "struct and wrapper have different size!");
-
-struct SwapchainImageBaseHeader : public traits::TypedStructTraits<SwapchainImageBaseHeader> {
-private:
-    using Parent = traits::TypedStructTraits<SwapchainImageBaseHeader>;
-
-protected:
-    SwapchainImageBaseHeader(StructureType type_) : Parent(type_) { }
-};
-static_assert(sizeof(SwapchainImageBaseHeader) == sizeof(XrSwapchainImageBaseHeader), "struct and wrapper have different size!");
-
-struct HapticBaseHeader : public traits::TypedStructTraits<HapticBaseHeader> {
-private:
-    using Parent = traits::TypedStructTraits<HapticBaseHeader>;
-
-protected:
-    HapticBaseHeader(StructureType type_) : Parent(type_) { }
-};
-static_assert(sizeof(HapticBaseHeader) == sizeof(XrHapticBaseHeader), "struct and wrapper have different size!");
-
-struct CompositionLayerBaseHeader : public traits::TypedStructTraits<CompositionLayerBaseHeader> {
-private:
-    using Parent = traits::TypedStructTraits<CompositionLayerBaseHeader>;
-
-protected:
-    CompositionLayerBaseHeader(
-        StructureType type_,
-        const CompositionLayerFlags& layerFlags_,
-        const Space& space_)
-        : Parent(type_), layerFlags(layerFlags_), space(space_) { }
-
-public:
-    CompositionLayerFlags layerFlags;
-    Space space;
-};
-static_assert(sizeof(CompositionLayerBaseHeader) == sizeof(XrCompositionLayerBaseHeader),
-    "struct and wrapper have different size!");
-
-//# for struct in gen.api_structures if not struct.name.startswith("XrBase") and not struct.name.endswith("BaseHeader")
-//#     set projected_type = project_type_name(struct.name)
-//#     set typed_struct = is_tagged_type(struct.name)
-//#     set member_count = struct_member_count(struct)
-//#     set intermediate_type = is_base_only(struct)
-//#     set derived_type = struct.name in struct_parents
-//#     set parent_type = "traits::TypedStructTraits<" + projected_type + ">"
-//#     set parent_fields = {}
-//#     if derived_type
-//#         set parent_type = project_type_name(struct_parents[struct.name])
-//#         set parent_fields = struct_fields[struct_parents[struct.name]]
-//#     endif
-/*{ protect_begin(struct) }*/
-//#  if typed_struct
-struct /*{projected_type }*/ : public /*{ parent_type }*/ {
-   private:
-    using Parent = /*{ parent_type }*/;
-
-   public:
-    //# else
-    struct /*{projected_type }*/ {
-        //# endif
-
-        //# if typed_struct
-        //#     set struct_type = get_tag(struct.name)
-        //# endif
-
-        // ctor
-        //# if struct.returned_only
-        /*{projected_type }*/ ()
-            : Parent(/*{struct_type}*/){}
-
-              //# elif struct.name == 'XrEventDataBuffer'
-              /*{projected_type }*/ ()
-            : Parent(StructureType::EventDataBuffer){}
-
-              //# elif struct.intermediate_type
-              /*{projected_type }*/ (StructureType type_)
-            : Parent(type_){}
-
-              //# else
-              /*{projected_type }*/ (
-                  //# for member in struct.members if not cpp_hidden_member(member)
-                  //# set projected_member_type = project_type_name(member.type)
-                  //# set param_decl = project_cppdecl(struct, member, defaulted=True, suffix="_", input=True)
-                  /*{param_decl}*/ /*{- "," if not loop.last }*/
-                  //# endfor
-                  )
-            :
-
-        //# if typed_struct
-
-              Parent(/*{ struct_type }*/
-        //# for member in struct.members if not cpp_hidden_member(member) and not is_static_length_string(member) and member.name in parent_fields
-              , /*{ member.name + "_"}*/
-        //# endfor
-              ) /*{ "," if member_count > 2 }*/
-
-        //# endif
-        //# for member in struct.members if not cpp_hidden_member(member) and not is_static_length_string(member) and member.name not in parent_fields
-              /*{ member.name }*/ {/*{ member.name + "_"}*/} /*{ "," if not loop.last }*/
-        //# endfor
+        class XR_MAY_ALIAS InputStructBase
         {
-            //# for member in struct.members if not cpp_hidden_member(member) and is_static_length_string(member)
+        protected:
+            InputStructBase(StructureType type_, const void* next_ = nullptr) : type(type_), next(next_)
+            {
+            }
+
+        public:
+            StructureType type;
+            const void* next;
+        };
+        /*{ wrapperSizeStaticAssert('::XrBaseInStructure', 'InputStructBase') }*/
+
+        class XR_MAY_ALIAS OutputStructBase
+        {
+        protected:
+            OutputStructBase(StructureType type_, void* next_ = nullptr) : type(type_), next(next_)
+            {
+            }
+
+        public:
+            StructureType type;
+            void* next;
+        };
+        /*{ wrapperSizeStaticAssert('::XrBaseOutStructure', 'OutputStructBase') }*/
+    }  // namespace impl
+
+    struct XR_MAY_ALIAS EventDataBaseHeader : public impl::InputStructBase
+    {
+    private:
+        using Parent = impl::InputStructBase;
+
+    protected:
+        EventDataBaseHeader(StructureType type_, const void* next_ = nullptr) : Parent(type_, next_)
+        {
+        }
+    };
+    /*{ wrapperSizeStaticAssert('::XrEventDataBaseHeader', 'EventDataBaseHeader') }*/
+
+    struct XR_MAY_ALIAS SwapchainImageBaseHeader : public impl::OutputStructBase
+    {
+    private:
+        using Parent = impl::OutputStructBase;
+
+    protected:
+        SwapchainImageBaseHeader(StructureType type_, void* next_ = nullptr) : Parent(type_, next_)
+        {
+        }
+    };
+    /*{ wrapperSizeStaticAssert('::XrSwapchainImageBaseHeader', 'SwapchainImageBaseHeader') }*/
+
+    struct XR_MAY_ALIAS HapticBaseHeader : public impl::InputStructBase
+    {
+    private:
+        using Parent = impl::InputStructBase;
+
+    protected:
+        HapticBaseHeader(StructureType type_, const void* next_ = nullptr) : Parent(type_, next_)
+        {
+        }
+    };
+    /*{ wrapperSizeStaticAssert('::XrHapticBaseHeader', 'HapticBaseHeader') }*/
+
+    struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase
+    {
+    private:
+        using Parent = impl::InputStructBase;
+
+    protected:
+        CompositionLayerBaseHeader(StructureType type_, const CompositionLayerFlags& layerFlags_, const Space& space_,
+                                   const void* next_ = nullptr)
+            : Parent(type_, next_), layerFlags(layerFlags_), space(space_)
+        {
+        }
+
+    public:
+        CompositionLayerFlags layerFlags;
+        Space space;
+    };
+    /*{ wrapperSizeStaticAssert('::XrCompositionLayerBaseHeader', 'CompositionLayerBaseHeader') }*/
+
+//# macro _makeProtectedAbstractConstructor(s)
+    protected:
+        //! Protected constructor: this type is abstract.
+        explicit /*{s.cpp_name }*/ (StructureType type_, /*{s.next_param_decl_with_default}*/)
+            : Parent(type_, /*{s.next_param_name}*/) {}
+    public:
+//# endmacro
+
+//# macro _makeReturnOnlyConstructor(s)
+        //! Empty constructor for a type that is marked as "returnonly"
+        explicit /*{s.cpp_name }*/ (
+            
+            /*{s.next_param_decl_with_default if s.typed_struct}*/)
+//#     if s.typed_struct
+            : Parent(/*{s.struct_type_enum}*/, /*{s.next_param_name}*/) 
+//#     endif
+            {}
+//# endmacro
+
+//# macro _makeFullInitializingConstructor(struct, s)
+        //! Constructor initializing all members.
+        /*{ s.cpp_name }*/ (
+//#     set arg_comma = joiner(", ")
+//#     set visible_members = struct.members | reject('cpp_hidden_member') | list
+//#     set first_defaultable_index0 = index0_of_first_visible_defaultable_member(visible_members)
+//#     for member in visible_members
+                  /*{ arg_comma() }*/ /*{project_cppdecl(struct, member, defaulted=(loop.index0 >= first_defaultable_index0), suffix="_", input=True)}*/
+//#     endfor
+//#     if s.typed_struct
+                  /*{ arg_comma() }*/ /*{s.next_param_decl_with_default}*/
+//#     endif
+                  ) :
+//#     set initializer_comma = joiner(",")
+//##
+//#     if s.typed_struct
+//#         set arg_comma = joiner(",")
+              /*{ initializer_comma() }*/ Parent(
+                /*{ arg_comma() }*/ /*{ s.struct_type_enum }*/
+//#         for member in visible_members if member.name in s.parent_fields and not is_static_length_string(member) 
+                /*{ arg_comma() }*/ /*{ member.name + "_"}*/
+//#         endfor
+                /*{ arg_comma() }*/ /*{s.next_param_name}*/
+              )
+//#     endif
+//##
+//#     for member in visible_members if member.name not in s.parent_fields and not is_static_length_string(member)
+              /*{ initializer_comma() }*/
+              /*{ member.name }*/ {/*{ member.name + "_"}*/}
+//#     endfor
+        {
+//#     for member in visible_members if is_static_length_string(member)
             if (nullptr != /*{ member.name + "_" }*/) {
                 // FIXME what is the safe way to do this?
                 strncpy(/*{ member.name }*/, /*{ member.name + "_" }*/, /*{member.array_count_var}*/);
             }
-            //# endfor
+//#     endfor
         }
-        //# endif
+//# endmacro
 
-        operator const /*{ struct.name }*/&() const { return *reinterpret_cast<const /*{ struct.name }*/*>(this); }
+
+//# for struct in gen.api_structures if not struct.name.startswith("XrBase") and not struct.name.endswith("BaseHeader") and not struct.name.endswith("EventDataBuffer")
+//#     set s = project_struct(struct)
+    /*{ protect_begin(struct) }*/
+    struct XR_MAY_ALIAS /*{ s.cpp_name }*/ /*{ s.struct_parent_decl }*/
+    {
+//#     if s.typed_struct
+    private:
+        using Parent = /*{ s.parent_cpp_type }*/;
+//#         if not s.is_abstract
+    public:
+//#         endif
+//#     endif
+
+//#     if s.is_abstract
+        /*{ _makeProtectedAbstractConstructor(s) }*/
+//#     elif struct is struct_output
+        /*{ _makeReturnOnlyConstructor(s) }*/
+//#     else
+        /*{ _makeFullInitializingConstructor(struct, s) }*/
+//#     endif
+
+        //! Default copy constructor
+        /*{ s.cpp_name }*/(const /*{ s.cpp_name }*/& rhs) = default;
+
+        //! Conversion operator to a reference to const of the original OpenXR type.
+        /*{ "operator const " + struct.name }*/ &() const { return *reinterpret_cast<const /*{ struct.name }*/*>(this); }
+
+        //! Conversion operator to a reference to the original OpenXR type.
         /*{ "operator " + struct.name }*/ &() {
             return *reinterpret_cast</*{ struct.name }*/*>(this);
         }
 
-        // member decl
-        //# for member in struct.members if not cpp_hidden_member(member) and member.name not in parent_fields
-        /*{ project_cppdecl(struct, member) }*/;
-        //# endfor
-    };
-    static_assert(sizeof(/*{projected_type }*/) == sizeof(/*{struct.name}*/), "struct and wrapper have different size!");
 
-    //! @brief Free function accessor for /*{projected_type}*/ const reference as a raw /*{struct.name}*/ const pointer
-    //! @relates /*{projected_type}*/
-    OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{projected_type}*/ const& h) {
+
+//#     for member in struct.members if not member is cpp_hidden_member and member.name not in s.parent_fields
+        /*{ project_cppdecl(struct, member) }*/;
+//#     endfor
+    };
+    /*{ wrapperSizeStaticAssert(struct.name, s.cpp_name) }*/
+
+    //! @brief Free function accessor for /*{s.cpp_name}*/ const reference as a raw /*{struct.name}*/ const pointer
+    //! @relates /*{s.cpp_name}*/
+    OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{s.cpp_name}*/ const& h) {
         return &(h./*{"operator " + struct.name}*/ const&());
     }
 
-    //! @brief Free function accessor for passing /*{projected_type}*/ as the address of a raw /*{struct.name}*/
-    //! @relates /*{projected_type}*/
-    OPENXR_HPP_INLINE /*{struct.name}*/* put(/*{projected_type}*/ &h) { return &(h./*{"operator " + struct.name}*/&()); }
+    //! @brief Free function accessor for passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
+    //! @relates /*{s.cpp_name}*/
+    OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &h) { return &(h./*{"operator " + struct.name}*/&()); }
 
     /*{ protect_end(struct) }*/
 
-    //# endfor
+//# endfor
 
 }  // namespace OPENXR_HPP_NAMESPACE
