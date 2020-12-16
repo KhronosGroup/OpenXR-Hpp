@@ -40,6 +40,8 @@ namespace OPENXR_HPP_NAMESPACE {
  * accept any class that meets the requirements.
  */
 
+#ifndef XR_NO_PROTOTYPES
+
 /*!
  * @brief Dispatch class for OpenXR core functions that uses exported, statically-available symbols.
  *
@@ -65,5 +67,7 @@ class DispatchLoaderStatic {
 
     //! @}
 };
+
+#endif // ifndef XR_NO_PROTOTYPES
 
 }  // namespace OPENXR_HPP_NAMESPACE
