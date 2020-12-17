@@ -231,6 +231,12 @@ struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
             return *reinterpret_cast</*{ struct.name }*/*>(this);
         }
 
+//#     if s.is_derived_type
+        //! Accessor for this as a raw, base /*{s.parent_type}*/ const pointer
+        /*{s.parent_type}*/ const* get_base() const noexcept {
+            return reinterpret_cast</*{s.parent_type}*/ const*>(this);
+        }
+//#     endif
 
 
 //#     for member in struct.members if not member is cpp_hidden_member and member.name not in s.parent_fields
@@ -248,6 +254,17 @@ struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
     //! @brief Free function accessor for passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
     //! @relates /*{s.cpp_name}*/
     OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &h) { return &(h./*{"operator " + struct.name}*/&()); }
+
+//#     if s.is_derived_type
+//#         filter block_doxygen_comment
+    //! @brief Free function accessor for a reference to const /*{s.cpp_name}*/ as a raw, pointer to const /*{s.parent_type}*/ (the base type)
+    //! @relates /*{s.cpp_name}*/
+    //! @relates /*{s.parent_cpp_type}*/
+//#         endfilter
+    OPENXR_HPP_INLINE /*{s.parent_type}*/ const* get_base(/*{s.cpp_name}*/ const& h) {
+        return h.get_base();
+    }
+//#     endif
 
     /*{ protect_end(struct) }*/
 

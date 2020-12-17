@@ -162,6 +162,7 @@ class StructProjection:
         self.parent_fields = []
         self.is_output = gen._is_struct_output(struct)
 
+        self.parent_type = None
         if self.typed_struct:
             self.is_abstract = self.is_base_only
             if self.is_output:
@@ -172,7 +173,8 @@ class StructProjection:
                 self.next_chain_type = "const void *"
 
             if self.is_derived_type:
-                self.parent_cpp_type = _project_type_name(gen.struct_parents[struct.name])
+                self.parent_type = gen.struct_parents[struct.name]
+                self.parent_cpp_type = _project_type_name(self.parent_type)
                 self.parent_fields = gen.struct_fields[gen.struct_parents[struct.name]]
         else:
             self.is_abstract = False
