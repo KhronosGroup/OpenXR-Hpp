@@ -35,117 +35,61 @@ namespace OPENXR_HPP_NAMESPACE {
 
 namespace impl {
 
-        class XR_MAY_ALIAS InputStructBase {
-               protected:
-                InputStructBase(StructureType type_,
-                                const void* next_ = nullptr)
-                    : type(type_), next(next_) {}
+    class XR_MAY_ALIAS InputStructBase {
+    protected:
+        InputStructBase(StructureType type_,
+                        const void* next_ = nullptr)
+            : type(type_), next(next_) {}
 
-               public:
-                StructureType type;
-                const void* next;
-        };
-        /*{ wrapperSizeStaticAssert('::XrBaseInStructure', 'InputStructBase') }*/
+    public:
+        StructureType type;
+        const void* next;
+    };
+    /*{ wrapperSizeStaticAssert('::XrBaseInStructure', 'InputStructBase') }*/
 
-        class XR_MAY_ALIAS OutputStructBase {
-               protected:
-                OutputStructBase(StructureType type_, void* next_ = nullptr)
-                    : type(type_), next(next_) {}
+    class XR_MAY_ALIAS OutputStructBase {
+    protected:
+        OutputStructBase(StructureType type_, void* next_ = nullptr)
+            : type(type_), next(next_) {}
 
-               public:
-                StructureType type;
-                void* next;
-        };
-        /*{ wrapperSizeStaticAssert('::XrBaseOutStructure', 'OutputStructBase') }*/
+    public:
+        StructureType type;
+        void* next;
+    };
+    /*{ wrapperSizeStaticAssert('::XrBaseOutStructure', 'OutputStructBase') }*/
 }  // namespace impl
 
-struct XR_MAY_ALIAS EventDataBaseHeader : public impl::InputStructBase {
-       private:
-        using Parent = impl::InputStructBase;
-
-       protected:
-        EventDataBaseHeader(StructureType type_, const void* next_ = nullptr)
-            : Parent(type_, next_) {}
-};
-/*{ wrapperSizeStaticAssert('::XrEventDataBaseHeader', 'EventDataBaseHeader') }*/
-
 struct XR_MAY_ALIAS EventDataBuffer : public impl::InputStructBase {
-       private:
-        using Parent = impl::InputStructBase;
+private:
+    using Parent = impl::InputStructBase;
 
-       protected:
-        EventDataBuffer(StructureType type_, const void* next_ = nullptr)
-            : Parent(type_, next_), varying{} {}
+protected:
+    EventDataBuffer(StructureType type_, const void* next_ = nullptr)
+        : Parent(type_, next_), varying{} {}
 
-       public:
-        EventDataBuffer() : Parent(StructureType::EventDataBuffer), varying{} {
-            (void)varying;
-        }
-        XrEventDataBuffer* put() noexcept {
-                *this = {};
-                return reinterpret_cast<XrEventDataBuffer*>(this);
-        }
-        XrEventDataBuffer* get() noexcept {
-                return reinterpret_cast<XrEventDataBuffer*>(this);
-        }
-        XrEventDataBuffer const* get() const noexcept {
-                return reinterpret_cast<XrEventDataBuffer const*>(this);
-        }
+public:
+    EventDataBuffer() : Parent(StructureType::EventDataBuffer), varying{} {
+        (void)varying;
+    }
+    XrEventDataBuffer* put() noexcept {
+            *this = {};
+            return reinterpret_cast<XrEventDataBuffer*>(this);
+    }
+    XrEventDataBuffer* get() noexcept {
+            return reinterpret_cast<XrEventDataBuffer*>(this);
+    }
+    XrEventDataBuffer const* get() const noexcept {
+            return reinterpret_cast<XrEventDataBuffer const*>(this);
+    }
 
-     private:
-     uint8_t varying[4000];
+private:
+    uint8_t varying[4000];
 };
 /*{ wrapperSizeStaticAssert('::XrEventDataBuffer', 'EventDataBuffer') }*/
 
 OPENXR_HPP_INLINE XrEventDataBuffer* put(EventDataBuffer& v) noexcept {
-        return v.put();
+    return v.put();
 }
-
-struct XR_MAY_ALIAS SwapchainImageBaseHeader : public impl::OutputStructBase {
-       private:
-        using Parent = impl::OutputStructBase;
-
-       protected:
-        SwapchainImageBaseHeader(StructureType type_, void* next_ = nullptr)
-            : Parent(type_, next_) {}
-};
-/*{ wrapperSizeStaticAssert('::XrSwapchainImageBaseHeader', 'SwapchainImageBaseHeader') }*/
-
-struct XR_MAY_ALIAS HapticBaseHeader : public impl::InputStructBase {
-       private:
-        using Parent = impl::InputStructBase;
-
-       protected:
-        HapticBaseHeader(StructureType type_, const void* next_ = nullptr)
-            : Parent(type_, next_) {}
-};
-/*{ wrapperSizeStaticAssert('::XrHapticBaseHeader', 'HapticBaseHeader') }*/
-
-struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
-       private:
-        using Parent = impl::InputStructBase;
-
-       protected:
-        CompositionLayerBaseHeader(StructureType type_,
-                                   const CompositionLayerFlags& layerFlags_,
-                                   const Space& space_,
-                                   const void* next_ = nullptr)
-            : Parent(type_, next_), layerFlags(layerFlags_), space(space_) {}
-
-       public:
-        CompositionLayerFlags layerFlags;
-        Space space;
-};
-
-/*{ wrapperSizeStaticAssert('::XrCompositionLayerBaseHeader', 'CompositionLayerBaseHeader') }*/
-
-//# macro _makeProtectedAbstractConstructor(s)
-    protected:
-        //! Protected constructor: this type is abstract.
-        explicit /*{s.cpp_name }*/ (StructureType type_, /*{s.next_param_decl_with_default}*/)
-            : Parent(type_, /*{s.next_param_name}*/) {}
-    public:
-//# endmacro
 
 //# macro _makeReturnOnlyConstructor(s)
         //! Empty constructor for a type that is marked as "returnonly"
@@ -159,34 +103,40 @@ struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
 //# endmacro
 
 //# macro _makeFullInitializingConstructor(struct, s)
+
+//#     if s.is_abstract
+    protected:
+        //! Protected constructor: this type is abstract.
+//#     else
         //! Constructor initializing all members.
+//#     endif
         /*{ s.cpp_name }*/ (
-//#     set arg_comma = joiner(", ")
 //#     set visible_members = struct.members | reject('cpp_hidden_member') | list
 //#     set first_defaultable_index0 = index0_of_first_visible_defaultable_member(visible_members)
+//#     set arg_comma = joiner(", ")
+                  /*%- if s.is_abstract %*/ /*{ arg_comma() }*/ StructureType type_ /*% endif -%*/
 //#     for member in visible_members
-                  /*{ arg_comma() }*/ /*{project_cppdecl(struct, member, defaulted=(loop.index0 >= first_defaultable_index0), suffix="_", input=True)}*/
+                  /*{- arg_comma() }*/ /*{ project_cppdecl(struct, member, defaulted=(loop.index0 >= first_defaultable_index0), suffix="_", input=True) -}*/
 //#     endfor
 //#     if s.typed_struct
-                  /*{ arg_comma() }*/ /*{s.next_param_decl_with_default}*/
+                  /*{- arg_comma() }*/ /*{ s.next_param_decl_with_default -}*/
 //#     endif
                   ) :
 //#     set initializer_comma = joiner(",")
-//##
+
 //#     if s.typed_struct
 //#         set arg_comma = joiner(",")
-              /*{ initializer_comma() }*/ Parent(
-                /*{ arg_comma() }*/ /*{ s.struct_type_enum }*/
+              /*{- initializer_comma() }*/ Parent(
+                /*{- arg_comma() -}*/ /*% if s.is_abstract %*/type_ /*% else %*/ /*{- s.struct_type_enum -}*/ /*% endif %*/
 //#         for member in visible_members if member.name in s.parent_fields and not is_static_length_string(member)
-                /*{ arg_comma() }*/ /*{ member.name + "_"}*/
+                /*{- arg_comma() }*/ /*{ member.name + "_" -}*/
 //#         endfor
-                /*{ arg_comma() }*/ /*{s.next_param_name}*/
+                /*{- arg_comma() }*/ /*{ s.next_param_name -}*/
               )
 //#     endif
-//##
+
 //#     for member in visible_members if member.name not in s.parent_fields and not is_static_length_string(member)
-              /*{ initializer_comma() }*/
-              /*{ member.name }*/ {/*{ member.name + "_"}*/}
+              /*{- initializer_comma() }*/ /*{ member.name }*/ {/*{ member.name + "_"}*/}
 //#     endfor
         {
 //#     for member in visible_members if is_static_length_string(member)
@@ -196,10 +146,14 @@ struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
             }
 //#     endfor
         }
+
+//#     if s.is_abstract
+    public:
+//#     endif
 //# endmacro
 
 
-//# for struct in gen.api_structures if not struct.name.startswith("XrBase") and not struct.name.endswith("BaseHeader") and not struct.name.endswith("EventDataBuffer")
+//# for struct in gen.api_structures if not struct.name.endswith("EventDataBuffer")
 //#     set s = project_struct(struct)
     /*{ protect_begin(struct) }*/
     struct XR_MAY_ALIAS /*{ s.cpp_name }*/ /*{ s.struct_parent_decl }*/
@@ -212,16 +166,18 @@ struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
 //#         endif
 //#     endif
 
-//#     if s.is_abstract
-        /*{ _makeProtectedAbstractConstructor(s) }*/
-//#     elif struct is struct_output
+//#     if struct is struct_output and not s.is_abstract
         /*{ _makeReturnOnlyConstructor(s) }*/
 //#     else
         /*{ _makeFullInitializingConstructor(struct, s) }*/
 //#     endif
 
+
+//#     if not s.is_abstract
         //! Default copy constructor
         /*{ s.cpp_name }*/(const /*{ s.cpp_name }*/& rhs) = default;
+//#     endif
+
 
         //! Conversion operator to a reference to const of the original OpenXR type.
         /*{ "operator const " + struct.name }*/ &() const { return *reinterpret_cast<const /*{ struct.name }*/*>(this); }
@@ -253,9 +209,11 @@ struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
         return &(h./*{"operator " + struct.name}*/ const&());
     }
 
+//#     if not s.is_abstract
     //! @brief Free function accessor for passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
     //! @relates /*{s.cpp_name}*/
     OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &h) { return &(h./*{"operator " + struct.name}*/&()); }
+//#     endif
 
 //#     if s.is_derived_type
 //#         filter block_doxygen_comment
@@ -272,4 +230,4 @@ struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
 
 //# endfor
 
-    }  // namespace OPENXR_HPP_NAMESPACE
+}  // namespace OPENXR_HPP_NAMESPACE
