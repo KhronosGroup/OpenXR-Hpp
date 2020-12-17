@@ -245,8 +245,10 @@ struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
     };
     /*{ wrapperSizeStaticAssert(struct.name, s.cpp_name) }*/
 
-    //! @brief Free function accessor for /*{s.cpp_name}*/ const reference as a raw /*{struct.name}*/ const pointer
+//#     filter block_doxygen_comment
+    //! @brief Free function accessor for /*{s.cpp_name}*/ const reference as a raw /*{struct.name}*/ pointer to const
     //! @relates /*{s.cpp_name}*/
+//#     endfilter
     OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{s.cpp_name}*/ const& h) {
         return &(h./*{"operator " + struct.name}*/ const&());
     }
