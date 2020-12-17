@@ -1,0 +1,26 @@
+---
+# Copyright (c) 2017-2020 The Khronos Group Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# To dump the google format, execute: clang-format -style=google -dump-config > .clang-format
+Language:             Cpp
+BasedOnStyle:         Google
+Standard:             Auto
+FixNamespaceComments: true
+
+# Spacing and Blank Lines
+MaxEmptyLinesToKeep:    2
+
+# Includes
+SortIncludes:         false
+
+# Indentation
+IndentWidth:          8
+NamespaceIndentation: Inner
+
+# Line length/reflow
+ColumnLimit:          80
+ReflowComments:       False
+...
+
