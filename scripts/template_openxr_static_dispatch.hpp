@@ -70,7 +70,7 @@ class DispatchLoaderStatic {
      */
 
     //# for cur_cmd in gen.core_commands
-    /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
+    OPENXR_HPP_INLINE /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
         return ::/*{cur_cmd.name}*/ (/*{ forwardCommandArgs(cur_cmd) }*/);
     }
     //# endfor

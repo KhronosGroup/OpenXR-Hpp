@@ -34,7 +34,9 @@
 //# from 'macros.hpp' import forwardCommandArgs, include_guard_begin, include_guard_end
 /*{ include_guard_begin() }*/
 
-//# include('defines.hpp')
+//# include('define_assert.hpp')
+//# include('define_inline_constexpr.hpp')
+//# include('define_namespace.hpp')
 
 #include <openxr/openxr.h>
 
@@ -128,7 +130,7 @@ class DispatchLoaderDynamic {
     //# for cur_cmd in sorted_cmds
     /*{ protect_begin(cur_cmd) }*/
     //! @brief Call /*{cur_cmd.name}*/, populating function pointer if required.
-    /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ {
+    OPENXR_HPP_INLINE /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ {
         //## Populate
         XrResult result = populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
         if (XR_FAILED(result)) {
@@ -140,7 +142,7 @@ class DispatchLoaderDynamic {
     }
 
     //! @brief Call /*{cur_cmd.name}*/ (const overload - does not populate function pointer)
-    /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
+    OPENXR_HPP_INLINE /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
         //## Cast and call
         return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/))(
             /*{ forwardCommandArgs(cur_cmd) }*/);
@@ -152,7 +154,7 @@ class DispatchLoaderDynamic {
     //! @}
    private:
     //! @brief Internal utility function to populate a function pointer if it is nullptr.
-    XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
+    OPENXR_HPP_INLINE XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
         if (pfn == nullptr) {
             return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance, function_name, &pfn);
         }
