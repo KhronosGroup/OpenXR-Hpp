@@ -19,7 +19,9 @@ AllowShortFunctionsOnASingleLine: All
 SortIncludes: false
 
 # Indentation
-IndentWidth: 8
+IndentWidth: 2
+TabWidth: 2
+AccessModifierOffset: -2
 NamespaceIndentation: Inner
 
 # Line length/reflow

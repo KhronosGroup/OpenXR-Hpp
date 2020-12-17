@@ -69,11 +69,11 @@ namespace OPENXR_HPP_NAMESPACE {
 //!
 //! See the related specification text at /*{ make_spec_url(enum.name) }*/
 enum class /*{projected_type -}*/ : /*{ 'int32_t' if enum.name == 'XrResult' else 'uint32_t' }*/ {
-    //# for val in enum.values
+//#     for val in enum.values
     /*{ protect_begin(val, enum) }*/
     /*{create_enum_value(val.name, enum.name)}*/ = /*{val.name}*/,
     /*{ protect_end(val, enum) }*/
-    //# endfor
+//#     endfor
 };
 
 //! @brief Free function for retrieving the raw /*{enum.name}*/ value from a /*{projected_type}*/
@@ -86,13 +86,13 @@ OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{enum.name}*/ get(/*{projected_type}*/ 
 //! @relates /*{projected_type}*/
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char* to_string_literal(/*{projected_type}*/ value) {
     switch (value) {
-            //# for val in enum.values
+//#     for val in enum.values
         /*{ protect_begin(val, enum) }*/
-        //# set valname = create_enum_value(val.name, enum.name)
+//#         set valname = create_enum_value(val.name, enum.name)
         case /*{projected_type -}*/ ::/*{- valname }*/:
             return /*{ valname | quote_string }*/;
             /*{ protect_end(val, enum) }*/
-            //# endfor
+//#     endfor
         default:
             return "invalid";
     }

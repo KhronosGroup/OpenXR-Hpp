@@ -30,7 +30,6 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 
-
 namespace OPENXR_HPP_NAMESPACE {
 
 template <typename RefType>

@@ -30,23 +30,22 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 
-
 namespace OPENXR_HPP_NAMESPACE {
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
 
 namespace traits {
 
-template <typename Type, typename Dispatch>
-class UniqueHandleTraits;
+    template <typename Type, typename Dispatch>
+    class UniqueHandleTraits;
 
 }  // namespace traits
 
 namespace impl {
 
-// Used when returning unique handles.
-template <typename T>
-using RemoveRefConst = typename std::remove_const<typename std::remove_reference<T>::type>::type;
+    // Used when returning unique handles.
+    template <typename T>
+    using RemoveRefConst = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 }  // namespace impl
 
 /*!
@@ -61,7 +60,8 @@ class UniqueHandle : public traits::UniqueHandleTraits<Type, Dispatch>::deleter 
     using Deleter = typename traits::UniqueHandleTraits<Type, Dispatch>::deleter;
 
    public:
-    explicit UniqueHandle(Type const &value = Type(), Deleter const &deleter = Deleter()) : Deleter(deleter), m_value(value) {}
+    explicit UniqueHandle(Type const &value = Type(), Deleter const &deleter = Deleter())
+        : Deleter(deleter), m_value(value) {}
 
     UniqueHandle(UniqueHandle const &) = delete;
 
@@ -134,41 +134,47 @@ OPENXR_HPP_INLINE void swap(UniqueHandle<Type, Dispatch> &lhs, UniqueHandle<Type
 //! @brief Equality comparison between two UniqueHandles, potentially of different dispatch.
 //! @relates UniqueHandle
 template <typename Type, typename D1, typename D2>
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(UniqueHandle<Type, D1> const &lhs, UniqueHandle<Type, D2> const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(UniqueHandle<Type, D1> const &lhs,
+                                                       UniqueHandle<Type, D2> const &rhs) {
     return lhs.get() == rhs.get();
 }
 //! @brief Inequality comparison between two UniqueHandles, potentially of different dispatch.
 //! @relates UniqueHandle
 template <typename Type, typename D1, typename D2>
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(UniqueHandle<Type, D1> const &lhs, UniqueHandle<Type, D2> const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(UniqueHandle<Type, D1> const &lhs,
+                                                       UniqueHandle<Type, D2> const &rhs) {
     return lhs.get() != rhs.get();
 }
 //! @brief Equality comparison between UniqueHandle and nullptr: true if the handle is
 //! null.
 //! @relates UniqueHandle
 template <typename Type, typename Dispatch>
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(UniqueHandle<Type, Dispatch> const &lhs, std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(UniqueHandle<Type, Dispatch> const &lhs,
+                                                       std::nullptr_t /* unused */) {
     return lhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Equality comparison between nullptr and UniqueHandle: true if the handle is
 //! null.
 //! @relates UniqueHandle
 template <typename Type, typename Dispatch>
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, UniqueHandle<Type, Dispatch> const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */,
+                                                       UniqueHandle<Type, Dispatch> const &rhs) {
     return rhs.get() == XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between UniqueHandle and nullptr: true if the handle
 //! is not null.
 //! @relates UniqueHandle
 template <typename Type, typename Dispatch>
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(UniqueHandle<Type, Dispatch> const &lhs, std::nullptr_t /* unused */) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(UniqueHandle<Type, Dispatch> const &lhs,
+                                                       std::nullptr_t /* unused */) {
     return lhs.get() != XR_NULL_HANDLE;
 }
 //! @brief Inequality comparison between nullptr and UniqueHandle: true if the handle
 //! is not null.
 //! @relates UniqueHandle
 template <typename Type, typename Dispatch>
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, UniqueHandle<Type, Dispatch> const &rhs) {
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */,
+                                                       UniqueHandle<Type, Dispatch> const &rhs) {
     return rhs.get() != XR_NULL_HANDLE;
 }
 #endif

@@ -16,11 +16,12 @@ MaxEmptyLinesToKeep:    2
 SortIncludes:         false
 
 # Indentation
-IndentWidth:          8
+IndentWidth:          4
+TabWidth:          4
 NamespaceIndentation: Inner
 
 # Line length/reflow
-ColumnLimit:          80
-ReflowComments:       False
+ColumnLimit:          120
+ReflowComments:       false
 ...
 
