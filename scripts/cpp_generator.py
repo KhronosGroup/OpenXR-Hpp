@@ -341,7 +341,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def createEnumException(self, name):
         enum_val = self.createEnumValue(name, 'XrResult')
-        return enum_val.replace('Error', '') + 'Error'
+        suffix = self.findVendorSuffix(name)
+        if suffix:
+            enum_val = _strip_suffix(enum_val, suffix)
+        result = enum_val.replace('Error', '') + 'Error'
+        if suffix:
+            result += suffix
+        return result
 
     def _basic_method_projection(self, method):
         """Perform the basic manipulation of a MethodProjection to convert it from C to C++."""
