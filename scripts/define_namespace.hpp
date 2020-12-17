@@ -29,25 +29,6 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# extends 'valuewrapperclass.hpp'
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
-
-//# block prefix
-//# include 'copyright_header.hpp'
-
-/*{ include_guard_begin() }*/
-
-//#     block includes
-//#     endblock includes
-
-//#     include('defines.hpp')
-
-namespace OPENXR_HPP_NAMESPACE {
-//# endblock prefix
-
-//# block suffix
-
-} // OPENXR_HPP_NAMESPACE
-
-/*{ include_guard_end() }*/
-//# endblock suffix
+#if !defined(OPENXR_HPP_NAMESPACE)
+#define OPENXR_HPP_NAMESPACE xr
+#endif  // !OPENXR_HPP_NAMESPACE

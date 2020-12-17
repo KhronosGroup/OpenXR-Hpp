@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2019 The Khronos Group Inc.
-//## Copyright (c) 2019 Collabora, Ltd.
+//## Copyright (c) 2017-2020 The Khronos Group Inc.
+//## Copyright (c) 2019-2020 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'template_macros.hpp' import wrapperSizeStaticAssert
+//# from 'macros.hpp' import wrapperSizeStaticAssert
 
 namespace OPENXR_HPP_NAMESPACE {
 

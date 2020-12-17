@@ -1,5 +1,5 @@
 //## Copyright (c) 2017-2020 The Khronos Group Inc.
-//## Copyright (c) 2020 Collabora, Ltd.
+//## Copyright (c) 2019-2020 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,21 +29,6 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-#if !defined(OPENXR_HPP_ASSERT)
-#include <cassert>
-#define OPENXR_HPP_ASSERT assert
-#endif
-
-// 32-bit OpenXR is not typesafe for handles, so don't allow copy constructors
-// on this platform by default. To enable this feature on 32-bit platforms
-// please define OPENXR_HPP_TYPESAFE_CONVERSION
-#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__)) || defined(_M_X64) || defined(__ia64) || \
-    defined(_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
-#if !defined(OPENXR_HPP_TYPESAFE_CONVERSION)
-#define OPENXR_HPP_TYPESAFE_CONVERSION
-#endif
-#endif
-
 #if !defined(OPENXR_HPP_INLINE)
 #if defined(__clang___)
 #if __has_attribute(always_inline)
@@ -72,13 +57,3 @@
 //! @todo set this to constexpr in c++14
 #define OPENXR_HPP_SWITCH_CONSTEXPR
 #endif  // !OPENXR_HPP_SWITCH_CONSTEXPR
-
-#if !defined(OPENXR_HPP_NAMESPACE)
-#define OPENXR_HPP_NAMESPACE xr
-#endif  // !OPENXR_HPP_NAMESPACE
-
-#if !defined(OPENXR_HPP_STRINGIFY)
-#define OPENXR_HPP_STRINGIFY2(text) #text
-#define OPENXR_HPP_STRINGIFY(text) OPENXR_HPP_STRINGIFY2(text)
-#define OPENXR_HPP_NAMESPACE_STRING OPENXR_HPP_STRINGIFY(OPENXR_HPP_NAMESPACE)
-#endif  // !OPENXR_HPP_STRINGIFY

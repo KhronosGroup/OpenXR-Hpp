@@ -49,7 +49,7 @@
 #include <vector>
 #endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
 
-/*% include('template_preproc.hpp') %*/
+//# include('defines.hpp')
 
 /*!
  * @brief Namespace containing all openxr.hpp entities.

@@ -29,25 +29,19 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# extends 'valuewrapperclass.hpp'
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
+/*% macro make_spec_url(name) %*//*{ "<https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#" + name + ">" }*//*% endmacro %*/
 
-//# block prefix
-//# include 'copyright_header.hpp'
+/*% macro forwardCommandArgs(cur_cmd) %*/ /*{ cur_cmd.params | map(attribute="name") | join(", ") }*/ /*% endmacro %*/
 
-/*{ include_guard_begin() }*/
+/*% macro wrapperSizeStaticAssert(orig, wrapper) %*/ static_assert(sizeof(/*{ orig }*/) == sizeof(/*{ wrapper }*/), "Original type and wrapper have different size!"); /*% endmacro %*/
 
-//#     block includes
-//#     endblock includes
+/*% macro _include_guard_symbol() %*//*{ filename.replace('.', '_').upper() + '_' }*//*% endmacro %*/
 
-//#     include('defines.hpp')
+//# macro include_guard_begin()
+#ifndef /*{_include_guard_symbol()}*/
+#define /*{_include_guard_symbol()}*/
+//# endmacro
 
-namespace OPENXR_HPP_NAMESPACE {
-//# endblock prefix
-
-//# block suffix
-
-} // OPENXR_HPP_NAMESPACE
-
-/*{ include_guard_end() }*/
-//# endblock suffix
+//# macro include_guard_end()
+#endif  // ifndef /*{_include_guard_symbol()}*/
+//# endmacro

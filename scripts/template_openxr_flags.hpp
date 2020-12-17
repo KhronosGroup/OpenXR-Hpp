@@ -29,7 +29,17 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
 
+//# include('copyright_header.hpp')
+
+/*{ include_guard_begin() }*/
+
+#include <openxr/openxr.h>
+
+//# include('defines.hpp')
+
+//# include('nongenerated_flags.hpp')
 
 namespace OPENXR_HPP_NAMESPACE {
 
@@ -49,13 +59,13 @@ namespace OPENXR_HPP_NAMESPACE {
 //! See the related specification text at /*{ make_spec_url(flags.name) }*/
 enum class /*{projected_bits_type }*/ : XrFlags64 {
     None = 0,
-    //# for val in bitmask.values
+//# for val in bitmask.values
     /*{ create_flag_value(val.name, flags.valid_flags) }*/ = /*{val.name}*/,
-    //# endfor
+//# endfor
     AllBits = 0
-              //# for val in bitmask.values
-              | /*{ val.name}*/
-    //# endfor
+//# for val in bitmask.values
+              | /*{- val.name -}*/
+//# endfor
 };
 
 using /*{projected_type }*/ = Flags</*{projected_bits_type }*/, /*{flags.name}*/>;
@@ -74,3 +84,5 @@ OPENXR_HPP_INLINE /*{projected_type }*/ operator~( /*{projected_bits_type }*/ bi
 //! @}
 
 }  // namespace OPENXR_HPP_NAMESPACE
+
+/*{ include_guard_end() }*/

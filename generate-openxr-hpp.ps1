@@ -4,16 +4,23 @@ param (
     [string]
     $OpenXRRepo = (Join-Path (Get-Item "$PSScriptRoot").parent "OpenXR-SDK-Source"),
 
-    
+
     [Parameter()]
     [string]
     $Python = "python3",
-    
+
     [Parameter()]
     [string]
     $ClangFormat = "clang-format"
 )
-$Headers = "openxr.hpp", "openxr_version.hpp", "openxr_static_dispatch.hpp", "openxr_dynamic_dispatch.hpp", "openxr_time.hpp", "openxr_duration.hpp", "openxr_enums.hpp"
+$Headers = "openxr.hpp",
+    "openxr_duration.hpp",
+    "openxr_dynamic_dispatch.hpp",
+    "openxr_enums.hpp",
+    "openxr_flags.hpp",
+    "openxr_static_dispatch.hpp",
+    "openxr_time.hpp",
+    "openxr_version.hpp"
 
 # if ($OpenXRRepo.Length == 0) {
 #     $OpenXRRepo = Join-Path "$PSScriptRoot" ".." ".." "OpenXR-SDK-Source"

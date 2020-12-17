@@ -29,25 +29,12 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# extends 'valuewrapperclass.hpp'
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
-
-//# block prefix
-//# include 'copyright_header.hpp'
-
-/*{ include_guard_begin() }*/
-
-//#     block includes
-//#     endblock includes
-
-//#     include('defines.hpp')
-
-namespace OPENXR_HPP_NAMESPACE {
-//# endblock prefix
-
-//# block suffix
-
-} // OPENXR_HPP_NAMESPACE
-
-/*{ include_guard_end() }*/
-//# endblock suffix
+// 32-bit OpenXR is not typesafe for handles, so don't allow copy constructors
+// on this platform by default. To enable this feature on 32-bit platforms
+// please define OPENXR_HPP_TYPESAFE_CONVERSION
+#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__)) || defined(_M_X64) || defined(__ia64) || \
+    defined(_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+#if !defined(OPENXR_HPP_TYPESAFE_CONVERSION)
+#define OPENXR_HPP_TYPESAFE_CONVERSION
+#endif
+#endif

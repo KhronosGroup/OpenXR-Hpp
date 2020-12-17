@@ -31,7 +31,7 @@
 
 //## This file is typically used by extending: see e.g. time and duration
 
-//# from 'template_macros.hpp' import make_spec_url, wrapperSizeStaticAssert
+//# from 'macros.hpp' import make_spec_url, wrapperSizeStaticAssert
 
 
 //# if raw_type is not defined

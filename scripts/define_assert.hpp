@@ -1,5 +1,5 @@
 //## Copyright (c) 2017-2020 The Khronos Group Inc.
-//## Copyright (c) 2020 Collabora, Ltd.
+//## Copyright (c) 2019-2020 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,19 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-/*% macro make_spec_url(name) %*//*{ "<https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#" + name + ">" }*//*% endmacro %*/
-
-/*% macro forwardCommandArgs(cur_cmd) %*/ /*{ cur_cmd.params | map(attribute="name") | join(", ") }*/ /*% endmacro %*/
-
-/*% macro wrapperSizeStaticAssert(orig, wrapper) %*/ static_assert(sizeof(/*{ orig }*/) == sizeof(/*{ wrapper }*/), "Original type and wrapper have different size!"); /*% endmacro %*/
-
-/*% macro _include_guard_symbol() %*//*{ filename.replace('.', '_').upper() + '_' }*//*% endmacro %*/
-
-//# macro include_guard_begin()
-#ifndef /*{_include_guard_symbol()}*/
-#define /*{_include_guard_symbol()}*/
-//# endmacro
-
-//# macro include_guard_end()
-#endif  // ifndef /*{_include_guard_symbol()}*/
-//# endmacro
+#if !defined(OPENXR_HPP_ASSERT)
+#include <cassert>
+#define OPENXR_HPP_ASSERT assert
+#endif
