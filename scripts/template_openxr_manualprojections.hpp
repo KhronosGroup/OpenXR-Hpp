@@ -39,7 +39,7 @@ namespace OPENXR_HPP_NAMESPACE {
 //## loop over atoms
 //# set comparison_operators = ('==', '!=')
 //# for type, invalid in (("SystemId", "XR_NULL_SYSTEM_ID"), ("Path", "XR_NULL_PATH"))
-//#     include "template_openxr_wrapperclass.hpp"
+//#     include "valuewrapperclass.hpp"
 //# endfor
 
 using BilateralPaths = std::array<Path, SIDE_COUNT>;

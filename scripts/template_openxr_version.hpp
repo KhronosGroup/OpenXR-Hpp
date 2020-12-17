@@ -33,7 +33,7 @@
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
 //# set filename = "openxr_version"
-//# extends "template_wrapperclass_header.hpp"
+//# extends "valuewrapperclass_header.hpp"
 
 //# block includes
 #include <openxr/openxr.h>

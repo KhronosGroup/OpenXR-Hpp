@@ -34,7 +34,7 @@
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
 //# set filename = "openxr_time"
-//# extends "template_wrapperclass_header.hpp"
+//# extends "valuewrapperclass_header.hpp"
 
 //# block includes
 #include "openxr_duration.hpp"

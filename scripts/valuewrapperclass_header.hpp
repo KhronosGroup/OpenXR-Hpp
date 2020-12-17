@@ -29,17 +29,16 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# extends 'template_openxr_wrapperclass.hpp'
+//# extends 'valuewrapperclass.hpp'
 //# from 'template_macros.hpp' import include_guard_begin, include_guard_end
 
-//# set includeGuard = filename.upper() + "_HPP_"
 //# block prefix
 /*{ include_guard_begin() }*/
 
-//# block includes
-//# endblock includes
+//#     block includes
+//#     endblock includes
 
-/*% include('template_preproc.hpp')%*/
+//#     include('template_preproc.hpp')
 
 namespace OPENXR_HPP_NAMESPACE {
 //# endblock prefix

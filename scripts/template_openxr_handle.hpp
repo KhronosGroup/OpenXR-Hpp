@@ -36,7 +36,7 @@
 //# set invalid = "XR_NULL_HANDLE"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 
-//# extends "template_openxr_wrapperclass.hpp"
+//# extends "valuewrapperclass.hpp"
 
 //# block comment_class
 //! @brief Handle class - wrapping /*{raw_type}*/
