@@ -29,8 +29,11 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('define_assert.hpp') without context
-//# include('define_conversion.hpp') without context
-//# include('define_inline_constexpr.hpp') without context
-//# include('define_namespace.hpp') without context
-//# include('define_namespace_string.hpp') without context
+template </*{ method.template_defns }*/>
+OPENXR_HPP_INLINE /*{method.return_type}*/ /*{method.qualified_name}*/ (
+    /*{ method.get_definition_params() | join(", ")}*/) /*{ method.qualifiers }*/ {
+    /*{ method.pre_statements | join("\n") | indent}*/
+    /*{ method.get_main_invoke() | indent}*/
+    /*{ method.post_statements | join("\n") | indent}*/
+    /*{ method.return_statement }*/
+}

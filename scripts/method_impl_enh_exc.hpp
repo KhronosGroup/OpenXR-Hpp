@@ -29,8 +29,33 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('define_assert.hpp') without context
-//# include('define_conversion.hpp') without context
-//# include('define_inline_constexpr.hpp') without context
-//# include('define_namespace.hpp') without context
-//# include('define_namespace_string.hpp') without context
+//# from 'method_impl_macros.hpp' import make_two_call, make_enhanced
+
+//#     set exceptions_allowed = true
+
+//# if enhanced.explicit_result_elided
+//#     if enhanced.is_two_call
+/*{ make_two_call(enhanced) }*/
+//#     else
+/*{ make_enhanced(enhanced, exceptions_allowed) }*/
+//#     endif
+
+//# endif
+
+//# if enhanced.is_create and unique_cmds[cur_cmd.name].explicit_result_elided
+//#     set uniq = unique_cmds[cur_cmd.name]
+
+#ifndef OPENXR_HPP_NO_SMART_HANDLE
+
+/*{ make_enhanced(uniq, exceptions_allowed) }*/
+//## template </*{ method.template_defns }*/>
+//## OPENXR_HPP_INLINE /*{method.return_type}*/ /*{method.qualified_name}*/ (
+//##     /*{ uniq.get_definition_params() | join(", ")}*/) /*{method.qualifiers}*/ {
+//##     /*{ method.pre_statements | join("\n") | indent}*/
+//##     /*{ method.get_main_invoke() | indent}*/
+//##     /*{ method.post_statements | join("\n") | indent}*/
+//##     /*{ method.return_statement }*/
+//## }
+#endif  // !OPENXR_HPP_NO_SMART_HANDLE
+
+//# endif

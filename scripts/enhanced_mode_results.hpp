@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2020 The Khronos Group Inc.
-//## Copyright (c) 2019-2020 Collabora, Ltd.
+//## Copyright (c) 2017-2019 The Khronos Group Inc.
+//## Copyright (c) 2019 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,8 +29,36 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('define_assert.hpp') without context
-//# include('define_conversion.hpp') without context
-//# include('define_inline_constexpr.hpp') without context
-//# include('define_namespace.hpp') without context
-//# include('define_namespace_string.hpp') without context
+namespace OPENXR_HPP_NAMESPACE {
+
+/*!
+ * @defgroup return_results Returning results
+ * @brief Types used by API call wrappers to return output in a friendly, C++ manner.
+ *
+ * @{
+ */
+
+/*!
+ * @brief Contains a Result enumerant and a returned value.
+ *
+ * Implicitly convertible to std::tuple<> so you can do `std::tie(result, value)
+ * = callThatReturnsResultValue()`
+ *
+ * @ingroup utilities
+ */
+template <typename T>
+struct ResultValue {
+    ResultValue(Result r, T const& v) : result(r), value(v) {}
+
+    ResultValue(Result r, T&& v) : result(r), value(std::move(v)) {}
+
+    Result result;
+    T value;
+
+    operator std::tuple<Result&, T&>() { return std::tuple<Result&, T&>(result, value); }
+    operator std::tuple<Result const&, T const&>() const { return std::tuple<Result const&, T const&>(result, value); }
+};
+
+//! @}
+
+}  // namespace OPENXR_HPP_NAMESPACE

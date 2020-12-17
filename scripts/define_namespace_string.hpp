@@ -29,8 +29,8 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('define_assert.hpp') without context
-//# include('define_conversion.hpp') without context
-//# include('define_inline_constexpr.hpp') without context
-//# include('define_namespace.hpp') without context
-//# include('define_namespace_string.hpp') without context
+#if !defined(OPENXR_HPP_STRINGIFY)
+#define OPENXR_HPP_STRINGIFY2(text) #text
+#define OPENXR_HPP_STRINGIFY(text) OPENXR_HPP_STRINGIFY2(text)
+#define OPENXR_HPP_NAMESPACE_STRING OPENXR_HPP_STRINGIFY(OPENXR_HPP_NAMESPACE)
+#endif  // !OPENXR_HPP_STRINGIFY

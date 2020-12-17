@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2019 The Khronos Group Inc.
-//## Copyright (c) 2019 Collabora, Ltd.
+//## Copyright (c) 2017-2020 The Khronos Group Inc.
+//## Copyright (c) 2019-2020 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -31,15 +31,15 @@
 
 //# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
 
-//# include('copyright_header.hpp')
+//# include('copyright_header.hpp') without context
 
 /*{ include_guard_begin() }*/
 
 #include <openxr/openxr.h>
 
-//# include('defines.hpp')
+//# include('defines.hpp') without context
 
-//# include('nongenerated_flags.hpp')
+//# include('nongenerated_flags.hpp') without context
 
 namespace OPENXR_HPP_NAMESPACE {
 

@@ -29,73 +29,71 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# include('copyright_header.hpp') without context
 
+//# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
+//# from 'method_decl_macros.hpp' import method_prototypes with context
+/*{ include_guard_begin() }*/
+
+#include "openxr_atoms.hpp"
+#include "openxr_enums.hpp"
+#include "openxr_exceptions.hpp"
+#include "openxr_flags.hpp"
+#include "openxr_handles_forward.hpp"
+#include "openxr_structs_forward.hpp"
+#include "openxr_time.hpp"
 
 #include <openxr/openxr.h>
-#include <openxr/openxr_platform.h>
-
-#include <algorithm>
-#include <array>
-#include <cstddef>
-#include <cstring>
-#include <initializer_list>
-#include <string>
-#include <system_error>
-#include <tuple>
-#include <type_traits>
 
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-#include <memory>
 #include <vector>
-#endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
+#endif  // !OPENXR_HPP_DISABLE_ENHANCED_MODE
 
-//# include('defines.hpp')
+//# include('define_inline_constexpr.hpp') without context
+//# include('define_conversion.hpp') without context
 
-/*!
- * @brief Namespace containing all openxr.hpp entities.
- *
- * If the default namespace `xr` isn't suitable, you can define OPENXR_HPP_NAMESPACE to a different name before including this
- * header.
- */
+#if !defined(OPENXR_HPP_TYPESAFE_EXPLICIT)
+#if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
+#define OPENXR_HPP_TYPESAFE_EXPLICIT
+#else
+#define OPENXR_HPP_TYPESAFE_EXPLICIT explicit
+#endif
+#endif  // !OPENXR_HPP_TYPESAFE_EXPLICIT
+
+//# include('enhanced_mode_results.hpp') without context
+
 namespace OPENXR_HPP_NAMESPACE {
-// Forward declaration
-class DispatchLoaderDynamic;
 
 // The generalization of std::string with user-specifiable allocator types.
 template <typename Allocator = std::allocator<char>>
 using string_with_allocator = std::basic_string<char, std::char_traits<char>, Allocator>;
 
-using Bool32 = XrBool32;
+//# for handle in gen.api_handles
+//#     set shortname = project_type_name(handle.name)
 
-enum Side : uint32_t {
-    Left = 0,
-    Right = 1,
-};
+/*{ protect_begin(handle) }*/
+//#     include "handle.hpp"
+/*{ protect_end(handle) }*/
 
-constexpr uint32_t SIDE_COUNT = 2;
+//# endfor
 
-constexpr char const* const reserved_paths[] = {
-    "/user/hand/left", "/user/hand/right", "/user/head", "/user/gamepad", "/user/treadmill",
-};
+//## Generate free-function prototypes
+/*!
+ * @defgroup api_free_functions OpenXR API free functions
+ *
+ * Equivalent to the method wrappers in the handle classes,
+ * but for the few functions that don't take (or don't require)
+ * a handle as their first argument.
+ * @{
+ */
+// Declarations - implementations are out of line.
 
-constexpr char const* const interaction_profiles[] = {
-    "/interaction_profiles/khr/simple_controller",       "/interaction_profiles/google/daydream_controller",
-    "/interaction_profiles/htc/vive_controller",         "/interaction_profiles/htc/vive_pro",
-    "/interaction_profiles/microsoft/motion_controller", "/interaction_profiles/microsoft/xbox_controller",
-    "/interaction_profiles/oculus/go_controller",        "/interaction_profiles/oculus/touch_controller",
-    "/interaction_profiles/valve/index_controller",
-};
+//# for cur_cmd in sorted_cmds if not cur_cmd.handle
+/*{ method_prototypes(cur_cmd, none) }*/
+//# endfor
 
-template <typename SideHandler>
-static inline void for_each_side(SideHandler&& handler) {
-    handler(Left);
-    handler(Right);
-}
-
-template <typename IndexHandler>
-static inline void for_each_side_index(IndexHandler&& handler) {
-    handler(0);
-    handler(1);
-}
+//! @}
 
 }  // namespace OPENXR_HPP_NAMESPACE
+
+/*{ include_guard_end() }*/

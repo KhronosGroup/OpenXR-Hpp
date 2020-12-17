@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-
+//# from 'method_decl_macros.hpp' import method_prototypes with context
 //# set type = shortname
 //# set raw_type = handle.name
 //# set input_param_type = type + " const&"
@@ -39,10 +39,12 @@
 //# extends "valuewrapperclass.hpp"
 
 //# block comment_class
-//! @brief Handle class - wrapping /*{raw_type}*/
+//#     filter block_doxygen_comment
+//! @brief Handle class - wrapping /*{raw_type}*/ without indicating ownership.
 //!
 //! See the related specification text at /*{ make_spec_url(raw_type) }*/
 //! @ingroup handles
+//#     endfilter
 //# endblock
 
 //# block member_types
@@ -67,32 +69,39 @@ OPENXR_HPP_TYPESAFE_EXPLICIT /*{ type }*/ (RawHandleType handle) noexcept : val_
 OPENXR_HPP_CONSTEXPR /*{ type }*/ (std::nullptr_t /* unused */) noexcept : val_(XR_NULL_HANDLE) {}
 
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
+//#     filter block_doxygen_comment
 //! @brief Assignment operator from the raw /*{raw_type}*/
 //!
 //! Does *not* destroy any contained non-null handle first! For that, see UniqueHandle<>.
 //!
 //! Only provided if OPENXR_HPP_TYPESAFE_CONVERSION is defined (defaults to only on 64-bit).
+//#     endfilter
 Type &operator=(RawHandleType handle) noexcept {
     val_ = handle;
     return *this;
 }
 #endif
 
+//#     filter block_doxygen_comment
 //! @brief Assignment operator from nullptr - assigns to empty/null handle.
 //!
 //! Does *not* destroy any contained non-null handle first! For that, see UniqueHandle<>.
+//#     endfilter
 Type &operator=(std::nullptr_t /* unused */) noexcept {
     val_ = XR_NULL_HANDLE;
     return *this;
 }
 
+//#     filter block_doxygen_comment
 //! @brief Conversion operator to the raw /*{raw_type}*/ type
 //!
 //! Explicit on 32-bit platforms by default unless OPENXR_HPP_TYPESAFE_CONVERSION is defined.
+//#     endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const noexcept { return val_; }
 //# endblock extra_constructors_conversion_assign
 
 //# block method_put
+//#     filter block_doxygen_comment
 //! @brief "Put" function for assigning as null then getting the address of the raw pointer to pass to creation functions.
 //!
 //! e.g.
@@ -102,6 +111,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const
 //! ```
 //!
 //! See also OPENXR_HPP_NAMESPACE::put()
+//#     endfilter
 RawHandleType *put() noexcept {
     val_ = XR_NULL_HANDLE;
     return &val_;

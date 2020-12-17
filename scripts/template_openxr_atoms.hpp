@@ -29,8 +29,25 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('define_assert.hpp') without context
-//# include('define_conversion.hpp') without context
+//# include('copyright_header.hpp') without context
+
+//# from 'macros.hpp' import include_guard_begin, include_guard_end
+/*{ include_guard_begin() }*/
+
+#include <openxr/openxr.h>
+
 //# include('define_inline_constexpr.hpp') without context
 //# include('define_namespace.hpp') without context
 //# include('define_namespace_string.hpp') without context
+
+namespace OPENXR_HPP_NAMESPACE {
+
+//## loop over atoms
+//# set comparison_operators = ('==', '!=')
+//# for type, invalid in (("SystemId", "XR_NULL_SYSTEM_ID"), ("Path", "XR_NULL_PATH"))
+//#     include "valuewrapperclass.hpp"
+//# endfor
+
+} // namespace OPENXR_HPP_NAMESPACE
+
+/*{ include_guard_end() }*/

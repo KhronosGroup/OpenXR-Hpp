@@ -29,8 +29,39 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('define_assert.hpp') without context
-//# include('define_conversion.hpp') without context
-//# include('define_inline_constexpr.hpp') without context
-//# include('define_namespace.hpp') without context
-//# include('define_namespace_string.hpp') without context
+
+//# from 'macros.hpp' import include_guard_begin, include_guard_end
+
+//# include('copyright_header.hpp') without context
+
+/*{ include_guard_begin() }*/
+
+#ifndef OPENXR_HANDLES_HPP_
+#error "This is not meant to be included on its own."
+#endif
+
+#if !defined(OPENXR_HPP_DISABLE_ENHANCED_MODE) && !defined(OPENXR_HPP_NO_EXCEPTIONS)
+
+//# from 'method_impl_macros.hpp' import make_two_call, make_enhanced
+
+namespace OPENXR_HPP_NAMESPACE {
+
+//# for cur_cmd in sorted_cmds if cur_cmd.name in enhanced_cmds and enhanced_cmds[cur_cmd.name].explicit_result_elided
+
+/*{ protect_begin(cur_cmd) }*/
+/*{ discouraged_begin(cur_cmd) }*/
+
+//#     set method = basic_cmds[cur_cmd.name]
+//#     set enhanced = enhanced_cmds[cur_cmd.name]
+
+//#     include('method_impl_enh_exc.hpp')
+
+/*{ discouraged_end(cur_cmd) }*/
+/*{ protect_end(cur_cmd) }*/
+//# endfor
+
+
+}  // namespace OPENXR_HPP_NAMESPACE
+
+#endif  // !OPENXR_HPP_DISABLE_ENHANCED_MODE
+/*{ include_guard_end() }*/

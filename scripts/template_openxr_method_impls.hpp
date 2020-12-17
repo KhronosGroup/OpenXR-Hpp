@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2020 The Khronos Group Inc.
-//## Copyright (c) 2019-2020 Collabora, Ltd.
+//## Copyright (c) 2017-2019 The Khronos Group Inc.
+//## Copyright (c) 2019 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,8 +29,25 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('define_assert.hpp') without context
-//# include('define_conversion.hpp') without context
-//# include('define_inline_constexpr.hpp') without context
-//# include('define_namespace.hpp') without context
-//# include('define_namespace_string.hpp') without context
+//# include('copyright_header.hpp') without context
+
+//# from 'macros.hpp' import include_guard_begin, include_guard_end
+/*{ include_guard_begin() }*/
+
+#include "openxr_handles.hpp"
+
+
+#include "openxr_method_impls_simple.inl"
+
+#if !defined(OPENXR_HPP_DISABLE_ENHANCED_MODE)
+#include "openxr_method_impls_enhanced.inl"
+
+
+#if !defined(OPENXR_HPP_NO_EXCEPTIONS)
+#include "openxr_method_impls_enhanced_exceptions.inl"
+#endif  // !defined(OPENXR_HPP_NO_EXCEPTIONS)
+
+#endif  // !defined(OPENXR_HPP_DISABLE_ENHANCED_MODE)
+
+
+/*{ include_guard_end() }*/

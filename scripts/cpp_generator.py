@@ -250,13 +250,19 @@ class MethodProjection:
 
         self.masks_simple = False
 
-        self.returns = ['result']
+        self.result_name = 'result'
+        self.returns = [self.result_name]
         self.return_template_params = []
 
         self.dispatch = "Dispatch&& d"
         self.suppress_default_dispatch_arg = not self.is_core
         self.template_decl_list = ["typename Dispatch"]
         self.template_defn_list = self.template_decl_list[:]
+
+        self.exceptions_permitted = True
+        self.explicit_result_elided = False
+        """If true, our most advanced enhanced wrapper doesn't have an XrResult anywhere."""
+
         if self.is_core:
             self.template_decl_list[0] = self.template_decl_list[0] + " = DispatchLoaderStatic"
 
@@ -499,24 +505,37 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         """Set the return type based on the bare return type.
 
         Used by _enhanced_method_projection and _unique_method_projection."""
-        if method.successes_arg:
+        if method.multiple_success_codes or not method.exceptions_permitted:
+            # If we aren't allowed exceptions, or have some extra success results,
+            # we always have to return the Result.
             if method.bare_return_type == "void":
                 method.return_type = "Result"
+                method.return_statement = 'return {};'.format(method.returns[0])
             else:
                 method.return_type = "ResultValue<{}>".format(method.bare_return_type)
+                method.return_statement = 'return { %s, std::move(%s) };' % (method.returns[0], method.returns[1])
         else:
-            method.return_type = "ResultValueType<{}>::type".format(method.bare_return_type)
-            if method.bare_return_type != "void":
-                method.return_type = "typename " + method.return_type
+            # OK, we will throw an exception if allowed and just directly return the output.
+            method.explicit_result_elided = True
+            method.return_type = method.bare_return_type
+            if method.bare_return_type == "void":
+                method.return_statement = 'return;'
+            else:
+                method.return_statement = 'return {};'.format(method.returns[1])
 
         if method.return_template_params:
-            tmpl = "<{}>".format(",".join(method.return_template_params))
-        else:
-            tmpl = ""
-        method.return_statement = 'return impl::createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
-            tmpl=tmpl,
-            rets=",".join(method.returns),
-            name=method.qualified_name, successes=method.successes_arg)
+            # tmpl = "<{}>".format(",".join(method.return_template_params))
+            return_val = "{}({})".format(method.bare_return_type, ", ".join(method.returns[1:]))
+            if method.multiple_success_codes or not method.exceptions_permitted:
+                method.return_statement = 'return { %s, %s };' % (method.returns[0], return_val)
+            else:
+                method.return_statement = 'return %s;' % return_val
+        # method.return_statement = 'return impl::createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
+        #     tmpl=tmpl,
+        #     rets=",".join(method.returns),
+        #     name=method.qualified_name, successes=method.successes_arg)
+        # else:
+        #     tmpl = ""
 
     def _is_tagged_type(self, typename):
         if typename not in self.dict_structs:
@@ -678,6 +697,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self._basic_method_projection(method)
         method.bare_return_type = "void"
         successes = method.get_success_codes()
+        method.multiple_success_codes = len(successes) > 1
+
         if len(successes) > 1:
             method.successes_arg = ", {%s}" % (", ".join(successes))
         else:
@@ -694,6 +715,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.pre_statements.append("{} handle;".format(cpp_outtype))
             method.access_dict[outparam.name] = "handle.put()"
             method.returns.append("handle")
+
         elif self._method_has_single_output(method):
             method.masks_simple = False
             outparam = method.decl_params[-1]
@@ -733,9 +755,12 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.qualified_name = method.cpp_name
 
         method.returns.append("deleter")
+
         method.return_template_params = [method.bare_return_type, "impl::RemoveRefConst<Dispatch>"]
         method.post_statements.append('ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};')
+        method.handle_return_type = method.bare_return_type
         method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
+        # method.returns[1] = "{}({}, {})"
         self._update_enhanced_return_type(method)
 
     def outputGeneratedHeaderWarning(self):
@@ -864,6 +889,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         if input:
             if member.type == 'char' and member.is_array and member.pointer_count == 0:
+                # We'll initialize a fixed-size string with a cstring.
                 result = "const char* " + member.name + suffix
             elif member.type.startswith("Xr") and member.pointer_count == 0:
                 result = "const " + _project_type_name(member.type) + "& " + member.name + suffix
@@ -924,7 +950,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         basic_cmds = {}
         enhanced_cmds = {}
+        enhanced_cmds_no_exceptions = {}
         unique_cmds = {}
+        unique_cmds_no_exceptions = {}
         for cmd in sorted_cmds:
             basic = MethodProjection(cmd, self)
             self._basic_method_projection(basic)
@@ -933,12 +961,29 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             enhanced = MethodProjection(cmd, self)
             self._enhanced_method_projection(enhanced)
             enhanced_cmds[cmd.name] = enhanced
+            if enhanced.explicit_result_elided:
+
+                # Now try again to make one without exceptions.
+                enhanced_noexcept = MethodProjection(cmd, self)
+                enhanced_noexcept.exceptions_permitted = False
+                self._enhanced_method_projection(enhanced_noexcept)
+                enhanced_cmds_no_exceptions[cmd.name] = enhanced_noexcept
 
             if enhanced.is_create:
                 unique = MethodProjection(cmd, self)
                 self._unique_method_projection(unique)
                 unique_cmds[cmd.name] = unique
 
+                # Now try again to make one without exceptions,
+                if unique.explicit_result_elided:
+                    # all creation calls can elide the result.
+                    unique_noexcept = MethodProjection(cmd, self)
+                    unique_noexcept.exceptions_permitted = False
+                    self._unique_method_projection(unique_noexcept)
+                    unique_cmds_no_exceptions[cmd.name] = unique_noexcept
+                else:
+                    # assumption violated
+                    assert(False)
         # Verify
         self.selftests()
 
@@ -954,7 +999,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             create_enum_exception=self.createEnumException,
             basic_cmds=basic_cmds,
             enhanced_cmds=enhanced_cmds,
+            enhanced_cmds_no_exceptions=enhanced_cmds_no_exceptions,
             unique_cmds=unique_cmds,
+            unique_cmds_no_exceptions=unique_cmds_no_exceptions,
             discouraged_begin=_discouraged_begin,
             discouraged_end=_discouraged_end,
             generate_structure_type_from_name=self.conventions.generate_structure_type_from_name,

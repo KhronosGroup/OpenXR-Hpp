@@ -118,7 +118,7 @@
 //# endblock raw_methods
     //! @}
 
-//# block extra_methods
+//# block extra_methods scoped
 //# endblock extra_methods
 
    private:

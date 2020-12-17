@@ -33,29 +33,30 @@
 
 //# from 'macros.hpp' import forwardCommandArgs, make_spec_url, include_guard_begin, include_guard_end
 /*{ include_guard_begin() }*/
-//# include('template_openxr_nongenerated_base.hpp')
-//# include('template_openxr_manualprojections.hpp')
+//# include('nongenerated_base.hpp') without context
+
+#include "openxr_atoms.hpp"
+
+namespace OPENXR_HPP_NAMESPACE {
+using BilateralPaths = std::array<Path, SIDE_COUNT>;
+}  // namespace OPENXR_HPP_NAMESPACE
+
 #include "openxr_time.hpp"
 #include "openxr_version.hpp"
 #include "openxr_static_dispatch.hpp"
+#include "openxr_dynamic_dispatch.hpp"
 
 //## These includes are currently unused
-//## //# include('template_openxr_nongenerated_chains.hpp')
-//## //# include('template_openxr_nongenerated_enhanced.hpp')
+//## //# include('template_openxr_nongenerated_chains.hpp') without context
+//## //# include('template_openxr_nongenerated_enhanced.hpp') without context
 
-//# include('template_openxr_nongenerated_unique.hpp')
-#include "openxr_enums.hpp"
-#include "openxr_flags.hpp"
-//# include('template_openxr_exceptions.hpp')
-//# include('template_openxr_structs_forward.hpp')
-//# include('template_openxr_handleclasses.hpp')
-//# include('template_openxr_structs.hpp')
-#include "openxr_dynamic_dispatch.hpp"
+#include "openxr_handles.hpp"
+#include "openxr_structs.hpp"
 
 /*
  * Inline implementations of all trampoline methods and free functions follow.
  * Prototypes may be found above, either in the associated handle class, or immediately following the section of handle classes.
  */
-//# include('template_openxr_methodimpls.hpp')
+#include "openxr_method_impls.hpp"
 
 /*{ include_guard_end() }*/

@@ -32,5 +32,6 @@ foreach ($header in $Headers) {
         Remove-Item $OutFile
     }
     & $Python "$Script" -registry "$Registry" -o "$OutputLocation" $header
+    & $ClangFormat -style=file -i $OutFile
 }
-& $ClangFormat -style=file -i (Get-ChildItem $OutputLocation -Filter "*.hpp")
+# & $ClangFormat -style=file -i (Get-ChildItem $OutputLocation -Filter "*.hpp")

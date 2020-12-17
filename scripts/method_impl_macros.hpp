@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2019 The Khronos Group Inc.
-//## Copyright (c) 2019 Collabora, Ltd.
+//## Copyright (c) 2017-2020 The Khronos Group Inc.
+//## Copyright (c) 2019-2020 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,44 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-
-
-namespace OPENXR_HPP_NAMESPACE {
-
-//# for cur_cmd in sorted_cmds
-//## /*{ cur_cmd }*/
-
-/*{ protect_begin(cur_cmd) }*/
-/*{ discouraged_begin(cur_cmd) }*/
-
-//#     set method = basic_cmds[cur_cmd.name]
-//#     set enhanced = enhanced_cmds[cur_cmd.name]
-
-//## Should we hide the result-returning function in enhanced mode?
-//#     set hide_simple = enhanced.masks_simple
-
-//# if hide_simple
-#ifdef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//# endif
-template </*{ method.template_defns }*/>
-OPENXR_HPP_INLINE /*{method.return_type}*/ /*{method.qualified_name}*/ (
-    /*{ method.get_definition_params() | join(", ")}*/) /*{ method.qualifiers }*/ {
-    /*{ method.get_invocation() | join("\n") | indent}*/
-}
-//# if hide_simple
-#else /* OPENXR_HPP_DISABLE_ENHANCED_MODE */
-//# else
-#ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
-//# endif
-
-
-//# if enhanced.is_two_call
-template </*{ enhanced.template_defns }*/>
-OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
-    /*{ enhanced.get_definition_params() | join(", ")}*/) /*{enhanced.qualifiers}*/ {
-    // Two-call idiom
-    /*{ enhanced.vec_type }*/ /*{ enhanced.array_param_name }*/;
-    /*% set twocallbody %*/
+//# macro twocallbody(enhanced, exceptions_allowed)
     uint32_t /*{ enhanced.count_output_param_name }*/ = 0;
     uint32_t /*{ enhanced.capacity_input_param_name }*/ = 0;
 
@@ -77,6 +40,7 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     /*{ enhanced.get_main_invoke({enhanced.array_param_name: "nullptr"}) }*/
     if (!unqualifiedSuccess(result) || /*{ enhanced.count_output_param_name }*/ == 0) {
 
+        /*{ make_error_handling(enhanced, exceptions_allowed) }*/
         /*{ enhanced.return_statement }*/
     }
     do {
@@ -94,9 +58,18 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     //# if enhanced.item_type == 'char'
     str.assign(/*{ enhanced.array_param_name }*/.begin(), /*{ enhanced.array_param_name }*/.end());
     //# endif
+    /*{ make_error_handling(enhanced, exceptions_allowed) }*/
     /*{ enhanced.return_statement }*/
-    /*% endset %*/
-    /*{ twocallbody |replace('vectorAllocator', '{}') }*/
+//# endmacro
+
+//# macro make_two_call(enhanced, exceptions_allowed)
+template </*{ enhanced.template_defns }*/>
+OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
+    /*{ enhanced.get_definition_params() | join(", ")}*/) /*{enhanced.qualifiers}*/ {
+    // Two-call idiom
+    /*{ enhanced.vec_type }*/ /*{ enhanced.array_param_name }*/;
+
+    /*{ twocallbody(enhanced, exceptions_allowed) |replace('vectorAllocator', '{}') }*/
 }
 
 template </*{ enhanced.template_defns }*/>
@@ -105,36 +78,71 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     /*{ params | join(", ")}*/) /*{enhanced.qualifiers}*/ {
     // Two-call idiom
     /*{ enhanced.vec_type }*/ /*{ enhanced.array_param_name }*/{vectorAllocator};
-    /*{ twocallbody }*/
+    /*{ twocallbody(enhanced, exceptions_allowed) }*/
 }
-//# else
-//## Not two-call
+//# endmacro
+
+//# macro _make_success_code_list(successes)
+//#     if successes | length > 1
+static std::initializer_list<Result> successCodes = { /*{ successes | join(", ")}*/ };
+//#     endif
+//# endmacro
+
+//# macro _make_success_predicate(method, successes)
+//#     if successes | length > 1
+std::find(successCodes.begin(), successCodes.end(), /*{method.result_name}*/) != successCodes.end()
+//#     else
+succeeded(/*{method.result_name}*/)
+//#     endif
+//# endmacro
+
+//# macro _make_error_handling_no_exceptions(method)
+//#     set successes = method.get_success_codes()
+    /*{ _make_success_code_list(successes) }*/
+    OPENXR_HPP_ASSERT( /*{_make_success_predicate(method, successes)}*/ );
+//# endmacro
+
+//# macro _make_error_handling_exceptions(method)
+//#     set successes = method.get_success_codes()
+    /*{ _make_success_code_list(successes) }*/
+    if (!(/*{_make_success_predicate(method, successes)}*/)) {
+        exceptions::throwResultException(/*{method.result_name}*/, OPENXR_HPP_NAMESPACE_STRING "::/*{method.qualified_name}*/");
+    }
+//# endmacro
+
+//# macro _make_error_handling_maybe_exceptions(method)
+//#     set successes = method.get_success_codes()
+    /*{ _make_success_code_list(successes) }*/
+#ifdef OPENXR_HPP_NO_EXCEPTIONS
+    OPENXR_HPP_ASSERT( /*{_make_success_predicate(method, successes)}*/ );
+#else
+    if (!(/*{_make_success_predicate(method, successes)}*/)) {
+        exceptions::throwResultException(/*{method.result_name}*/, OPENXR_HPP_NAMESPACE_STRING "::/*{method.qualified_name}*/");
+    }
+#endif
+
+//# endmacro
+
+//# macro make_error_handling(enhanced, exceptions_allowed)
+//#     if exceptions_allowed == "maybe"
+    /*{ _make_error_handling_maybe_exceptions(enhanced) }*/
+//#     elif exceptions_allowed
+    /*{ _make_error_handling_exceptions(enhanced) }*/
+//#     else
+    /*{ _make_error_handling_no_exceptions(enhanced) }*/
+//#     endif
+//# endmacro
+
+//# macro make_enhanced(enhanced, exceptions_allowed)
 
 template </*{ enhanced.template_defns }*/>
 OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     /*{ enhanced.get_definition_params() | join(", ")}*/) /*{enhanced.qualifiers}*/ {
-    /*{ enhanced.get_invocation() | join("\n") | indent}*/
+
+    /*{ enhanced.pre_statements | join("\n") | indent}*/
+    /*{ enhanced.get_main_invoke() }*/
+    /*{ enhanced.post_statements | join("\n") | indent }*/
+    /*{ make_error_handling(enhanced, exceptions_allowed) }*/
+    /*{ enhanced.return_statement }*/
 }
-//# endif
-
-
-//# if enhanced.is_create
-#ifndef OPENXR_HPP_NO_SMART_HANDLE
-
-//#     set uniq = unique_cmds[cur_cmd.name]
-template </*{ uniq.template_defns }*/>
-OPENXR_HPP_INLINE /*{uniq.return_type}*/ /*{uniq.qualified_name}*/ (
-    /*{ uniq.get_definition_params() | join(", ")}*/) /*{uniq.qualifiers}*/ {
-    /*{ uniq.get_invocation() | join("\n") | indent}*/
-}
-
-#endif /*OPENXR_HPP_NO_SMART_HANDLE*/
-//# endif
-#endif /*OPENXR_HPP_DISABLE_ENHANCED_MODE*/
-
-/*{ discouraged_end(cur_cmd) }*/
-/*{ protect_end(cur_cmd) }*/
-//# endfor
-
-
-}  // namespace OPENXR_HPP_NAMESPACE
+//# endmacro

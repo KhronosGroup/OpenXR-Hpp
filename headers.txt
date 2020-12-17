@@ -13,9 +13,13 @@ openxr_flags.hpp
 openxr_handles_forward.hpp
 openxr_handles.hpp
 openxr_helpers_opengl.hpp
-openxr_method_impls.inl
+openxr_method_impls_enhanced_exceptions.inl
+openxr_method_impls_enhanced.inl
+openxr_method_impls_simple.inl
+openxr_method_impls.hpp
 openxr_static_dispatch.hpp
 openxr_structs_forward.hpp
+openxr_structs.hpp
 openxr_time.hpp
 openxr_version.hpp
 openxr.hpp

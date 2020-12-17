@@ -31,12 +31,14 @@
 
 //# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
 
-//# include('copyright_header.hpp')
+//# include('copyright_header.hpp') without context
 
 /*{ include_guard_begin() }*/
 
 
 #include <openxr/openxr.h>
+
+#include <string>
 
 // Fix name collisions from noisy includes
 #ifdef Success
@@ -46,8 +48,8 @@
 #undef None
 #endif
 
-//# include('define_inline_constexpr.hpp')
-//# include('define_namespace.hpp')
+//# include('define_inline_constexpr.hpp') without context
+//# include('define_namespace.hpp') without context
 
 namespace OPENXR_HPP_NAMESPACE {
 /*!
@@ -108,6 +110,35 @@ OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected
 //# endfor
 
 //! @}
+
+
+/*!
+ * @defgroup result_helpers Result helper free functions
+ * @{
+ */
+//! @brief Return true if the Result is negative, indicating a failure.
+//! Equivalent of XR_FAILED()
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) { return static_cast<int>(v) < 0; }
+
+//! @brief Return true if the result is non-negative, indicating a success or non-error result.
+//! Equivalent of XR_SUCCEEDED()
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool succeeded(Result v) { return static_cast<int>(v) >= 0; }
+
+//! @brief Return true if the result is exactly equal to Result::Success.
+//! Equivalent of XR_UNQUALIFIED_SUCCESS()
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool unqualifiedSuccess(Result v) { return v == Result::Success; }
+//! @}
+
+//# for op in ('<', '>', '<=', '>=', '==', '!=')
+//! @brief `/*{op}*/` comparison between Result and integer, for compatibility with the XR_ function-type macros and XrResult.
+//! @relates Result
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(Result lhs, int rhs) { return get(lhs) /*{- op -}*/ rhs; }
+
+//! @brief `/*{op}*/` comparison between integer and Result, for compatibility with the XR_ function-type macros and XrResult.
+//! @relates Result
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(int lhs, Result rhs) { return lhs /*{- op -}*/ get(rhs); }
+
+//# endfor
 
 }  // namespace OPENXR_HPP_NAMESPACE
 

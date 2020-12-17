@@ -29,7 +29,11 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# from 'macros.hpp' import include_guard_begin, include_guard_end
 
+//# include('copyright_header.hpp') without context
+
+/*{ include_guard_begin() }*/
 
 namespace OPENXR_HPP_NAMESPACE {
 
@@ -38,3 +42,5 @@ struct /*{project_type_name(struct.name)}*/;
 //# endfor
 
 }  // namespace OPENXR_HPP_NAMESPACE
+
+/*{ include_guard_end() }*/

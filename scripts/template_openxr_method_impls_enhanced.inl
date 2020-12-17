@@ -30,18 +30,37 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 
-#include "openxr_version.hpp"
-#include "openxr_duration.hpp"
-#include "openxr_time.hpp"
+//# from 'macros.hpp' import include_guard_begin, include_guard_end
+
+//# include('copyright_header.hpp') without context
+
+/*{ include_guard_begin() }*/
+
+#ifndef OPENXR_HANDLES_HPP_
+#error "This is not meant to be included on its own."
+#endif
+
+#ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 
 namespace OPENXR_HPP_NAMESPACE {
 
-//## loop over atoms
-//# set comparison_operators = ('==', '!=')
-//# for type, invalid in (("SystemId", "XR_NULL_SYSTEM_ID"), ("Path", "XR_NULL_PATH"))
-//#     include "valuewrapperclass.hpp"
+//# for cur_cmd in sorted_cmds
+//## /*{ cur_cmd }*/
+
+/*{ protect_begin(cur_cmd) }*/
+/*{ discouraged_begin(cur_cmd) }*/
+
+//#     set method = basic_cmds[cur_cmd.name]
+//#     set enhanced = enhanced_cmds[cur_cmd.name]
+
+//#     include('method_impl_enh.hpp')
+
+/*{ discouraged_end(cur_cmd) }*/
+/*{ protect_end(cur_cmd) }*/
 //# endfor
 
-using BilateralPaths = std::array<Path, SIDE_COUNT>;
 
 }  // namespace OPENXR_HPP_NAMESPACE
+
+#endif  // !OPENXR_HPP_DISABLE_ENHANCED_MODE
+/*{ include_guard_end() }*/
