@@ -710,6 +710,28 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def _bitmask_for_flags(self, flags):
         return self.dict_bitmasks[flags.valid_flags]
 
+
+    def _get_default_for_member(self, member, struct_name=None):
+        defaultValue = None
+        if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
+            defaultValue = "nullptr"
+        elif member.type.startswith("uint") or member.type.startswith("int"):
+            defaultValue = "0"
+        elif member.type.startswith("float"):
+            # special case XrQuaternionf::w so a default constructor xr::Quaternionf is an identity
+            if struct_name == 'XrQuaternionf' and member.name == 'w':
+                defaultValue = '1.0f'
+            else:
+                defaultValue = '0.0f'
+        elif member.type == "XrBool32":
+            defaultValue = "XR_FALSE"
+        elif member.type in self.dict_structs:
+            member_struct = self.dict_structs[member.type]
+            if member_struct.returned_only:
+                defaultValue = "{}"
+        else:
+            defaultValue = "{}"
+        return defaultValue
     def _project_cppdecl(self, struct, member, defaulted=False, suffix="", input=False):
         result = member.cdecl.strip() + suffix
         # Kind of hacky, perhaps switch _project_type_name to a regex based approach?
@@ -727,19 +749,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 result = "const " + _project_type_name(member.type) + "& " + member.name + suffix
 
         if defaulted:
-            defaultValue = "{}"
-            if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
-                defaultValue = "nullptr"
-            elif member.type.startswith("uint") or member.type.startswith("int"):
-                defaultValue = "0"
-            elif member.type.startswith("float"):
-                # special case XrQuaternionf::w so a default constructor xr::Quaternionf is an identity
-                if struct.name == 'XrQuaternionf' and member.name == 'w':
-                    defaultValue = '1.0f'
-                else:
-                    defaultValue = '0.0f'
-            elif member.type == "XrBool32":
-                defaultValue = "XR_FALSE"
+            defaultValue = self._get_default_for_member(member, struct.name)
             result = result + " = " + defaultValue
         return result
 
