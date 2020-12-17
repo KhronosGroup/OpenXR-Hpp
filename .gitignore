@@ -29,3 +29,11 @@ out/build/
 # VS misc
 *.sln
 *.pyproj
+
+!.gitignore
+!.gitattributes
+!.clang-format
+!.appveyor.yml
+!.cmake-format.json
+!.editorconfig
+
