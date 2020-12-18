@@ -43,5 +43,5 @@
 //# endmacro
 
 //# macro include_guard_end()
-#endif // ifndef /*{_include_guard_symbol()}*/
+#endif  // ifndef /*{_include_guard_symbol()}*/
 //# endmacro

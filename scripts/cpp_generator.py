@@ -133,6 +133,7 @@ def _block_comment(s, doxygen=False):
     lines = [(' * ' + line).rstrip() for line in lines]
     lines.insert(0, "/*!" if doxygen else "/*")
     lines.append(' */')
+    lines.append('')
     return '\n'.join(lines)
 
 
@@ -326,7 +327,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.env = make_jinja_environment(file_with_templates_as_sibs=__file__)
+        self.env = make_jinja_environment(file_with_templates_as_sibs=__file__, trim_blocks=False)
         self.env.filters['block_doxygen_comment'] = _block_doxygen_comment
 
     def outputGeneratedAuthorNote(self):

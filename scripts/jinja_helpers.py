@@ -85,7 +85,7 @@ def _protect_end(entity, parent=None):
     return "\n".join(lines)
 
 
-def make_jinja_environment(file_with_templates_as_sibs=None, search_path=None):
+def make_jinja_environment(file_with_templates_as_sibs=None, search_path=None, trim_blocks=True):
     """Create a Jinja2 environment customized to generate C/C++ headers/code for Khronos APIs.
 
     Delimiters have been changed from Jinja2 defaults to permit better interoperability with
@@ -100,7 +100,7 @@ def make_jinja_environment(file_with_templates_as_sibs=None, search_path=None):
 
     - autoescape is turned off because this isn't HTML.
     - trailing newline kept
-    - blocks are trimmed for easier markup.
+    - blocks are trimmed (by default) for easier markup.
     - the loader is a file system loader, building a search path from file_with_templates_as_sibs
       (if your template is a sibling of your source file, just pass file_with_templates_as_sibs=__file__),
       and search_path (an iterable if you want more control)
@@ -131,7 +131,7 @@ def make_jinja_environment(file_with_templates_as_sibs=None, search_path=None):
     if search_path:
         search_paths.extend(search_path)
     env = Environment(keep_trailing_newline=True,
-                      trim_blocks=True,
+                      trim_blocks=trim_blocks,
                       block_start_string="/*%",
                       block_end_string="%*/",
                       variable_start_string="/*{",

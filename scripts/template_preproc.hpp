@@ -58,7 +58,7 @@
 #else
 #define OPENXR_HPP_INLINE inline
 #endif
-#endif // !OPENXR_HPP_INLINE
+#endif  // !OPENXR_HPP_INLINE
 
 #if !defined(OPENXR_HPP_CONSTEXPR)
 #if defined(_MSC_VER) && (_MSC_VER <= 1800)
@@ -66,19 +66,19 @@
 #else
 #define OPENXR_HPP_CONSTEXPR constexpr
 #endif
-#endif // !OPENXR_HPP_CONSTEXPR
+#endif  // !OPENXR_HPP_CONSTEXPR
 
 #if !defined(OPENXR_HPP_SWITCH_CONSTEXPR)
 //! @todo set this to constexpr in c++14
 #define OPENXR_HPP_SWITCH_CONSTEXPR
-#endif // !OPENXR_HPP_SWITCH_CONSTEXPR
+#endif  // !OPENXR_HPP_SWITCH_CONSTEXPR
 
 #if !defined(OPENXR_HPP_NAMESPACE)
 #define OPENXR_HPP_NAMESPACE xr
-#endif
+#endif  // !OPENXR_HPP_NAMESPACE
 
 #if !defined(OPENXR_HPP_STRINGIFY)
 #define OPENXR_HPP_STRINGIFY2(text) #text
 #define OPENXR_HPP_STRINGIFY(text) OPENXR_HPP_STRINGIFY2(text)
 #define OPENXR_HPP_NAMESPACE_STRING OPENXR_HPP_STRINGIFY(OPENXR_HPP_NAMESPACE)
-#endif
+#endif  // !OPENXR_HPP_STRINGIFY

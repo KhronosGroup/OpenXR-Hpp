@@ -31,92 +31,113 @@
 
 //# from 'template_macros.hpp' import wrapperSizeStaticAssert
 
-// BLOCK Structure Impl definitions
 namespace OPENXR_HPP_NAMESPACE {
 
-    namespace impl
-    {
+namespace impl {
 
-        class XR_MAY_ALIAS InputStructBase
-        {
-        protected:
-            InputStructBase(StructureType type_, const void* next_ = nullptr) : type(type_), next(next_)
-            {
-            }
+        class XR_MAY_ALIAS InputStructBase {
+               protected:
+                InputStructBase(StructureType type_,
+                                const void* next_ = nullptr)
+                    : type(type_), next(next_) {}
 
-        public:
-            StructureType type;
-            const void* next;
+               public:
+                StructureType type;
+                const void* next;
         };
         /*{ wrapperSizeStaticAssert('::XrBaseInStructure', 'InputStructBase') }*/
 
-        class XR_MAY_ALIAS OutputStructBase
-        {
-        protected:
-            OutputStructBase(StructureType type_, void* next_ = nullptr) : type(type_), next(next_)
-            {
-            }
+        class XR_MAY_ALIAS OutputStructBase {
+               protected:
+                OutputStructBase(StructureType type_, void* next_ = nullptr)
+                    : type(type_), next(next_) {}
 
-        public:
-            StructureType type;
-            void* next;
+               public:
+                StructureType type;
+                void* next;
         };
         /*{ wrapperSizeStaticAssert('::XrBaseOutStructure', 'OutputStructBase') }*/
-    }  // namespace impl
+}  // namespace impl
 
-    struct XR_MAY_ALIAS EventDataBaseHeader : public impl::InputStructBase
-    {
-    private:
+struct XR_MAY_ALIAS EventDataBaseHeader : public impl::InputStructBase {
+       private:
         using Parent = impl::InputStructBase;
 
-    protected:
-        EventDataBaseHeader(StructureType type_, const void* next_ = nullptr) : Parent(type_, next_)
-        {
-        }
-    };
-    /*{ wrapperSizeStaticAssert('::XrEventDataBaseHeader', 'EventDataBaseHeader') }*/
+       protected:
+        EventDataBaseHeader(StructureType type_, const void* next_ = nullptr)
+            : Parent(type_, next_) {}
+};
+/*{ wrapperSizeStaticAssert('::XrEventDataBaseHeader', 'EventDataBaseHeader') }*/
 
-    struct XR_MAY_ALIAS SwapchainImageBaseHeader : public impl::OutputStructBase
-    {
-    private:
+struct XR_MAY_ALIAS EventDataBuffer : public impl::InputStructBase {
+       private:
+        using Parent = impl::InputStructBase;
+
+       protected:
+        EventDataBuffer(StructureType type_, const void* next_ = nullptr)
+            : Parent(type_, next_), varying{} {}
+
+       public:
+        EventDataBuffer() : Parent(StructureType::EventDataBuffer), varying{} {
+            (void)varying;
+        }
+        XrEventDataBuffer* put() noexcept {
+                *this = {};
+                return reinterpret_cast<XrEventDataBuffer*>(this);
+        }
+        XrEventDataBuffer* get() noexcept {
+                return reinterpret_cast<XrEventDataBuffer*>(this);
+        }
+        XrEventDataBuffer const* get() const noexcept {
+                return reinterpret_cast<XrEventDataBuffer const*>(this);
+        }
+
+     private:
+     uint8_t varying[4000];
+};
+/*{ wrapperSizeStaticAssert('::XrEventDataBuffer', 'EventDataBuffer') }*/
+
+OPENXR_HPP_INLINE XrEventDataBuffer* put(EventDataBuffer& v) noexcept {
+        return v.put();
+}
+
+struct XR_MAY_ALIAS SwapchainImageBaseHeader : public impl::OutputStructBase {
+       private:
         using Parent = impl::OutputStructBase;
 
-    protected:
-        SwapchainImageBaseHeader(StructureType type_, void* next_ = nullptr) : Parent(type_, next_)
-        {
-        }
-    };
-    /*{ wrapperSizeStaticAssert('::XrSwapchainImageBaseHeader', 'SwapchainImageBaseHeader') }*/
+       protected:
+        SwapchainImageBaseHeader(StructureType type_, void* next_ = nullptr)
+            : Parent(type_, next_) {}
+};
+/*{ wrapperSizeStaticAssert('::XrSwapchainImageBaseHeader', 'SwapchainImageBaseHeader') }*/
 
-    struct XR_MAY_ALIAS HapticBaseHeader : public impl::InputStructBase
-    {
-    private:
+struct XR_MAY_ALIAS HapticBaseHeader : public impl::InputStructBase {
+       private:
         using Parent = impl::InputStructBase;
 
-    protected:
-        HapticBaseHeader(StructureType type_, const void* next_ = nullptr) : Parent(type_, next_)
-        {
-        }
-    };
-    /*{ wrapperSizeStaticAssert('::XrHapticBaseHeader', 'HapticBaseHeader') }*/
+       protected:
+        HapticBaseHeader(StructureType type_, const void* next_ = nullptr)
+            : Parent(type_, next_) {}
+};
+/*{ wrapperSizeStaticAssert('::XrHapticBaseHeader', 'HapticBaseHeader') }*/
 
-    struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase
-    {
-    private:
+struct XR_MAY_ALIAS CompositionLayerBaseHeader : public impl::InputStructBase {
+       private:
         using Parent = impl::InputStructBase;
 
-    protected:
-        CompositionLayerBaseHeader(StructureType type_, const CompositionLayerFlags& layerFlags_, const Space& space_,
+       protected:
+        CompositionLayerBaseHeader(StructureType type_,
+                                   const CompositionLayerFlags& layerFlags_,
+                                   const Space& space_,
                                    const void* next_ = nullptr)
-            : Parent(type_, next_), layerFlags(layerFlags_), space(space_)
-        {
-        }
+            : Parent(type_, next_), layerFlags(layerFlags_), space(space_) {}
 
-    public:
+       public:
         CompositionLayerFlags layerFlags;
         Space space;
-    };
-    /*{ wrapperSizeStaticAssert('::XrCompositionLayerBaseHeader', 'CompositionLayerBaseHeader') }*/
+};
+
+/*{ wrapperSizeStaticAssert('::XrCompositionLayerBaseHeader', 'CompositionLayerBaseHeader') }*/
 
 //# macro _makeProtectedAbstractConstructor(s)
     protected:
@@ -129,10 +150,10 @@ namespace OPENXR_HPP_NAMESPACE {
 //# macro _makeReturnOnlyConstructor(s)
         //! Empty constructor for a type that is marked as "returnonly"
         explicit /*{s.cpp_name }*/ (
-            
+
             /*{s.next_param_decl_with_default if s.typed_struct}*/)
 //#     if s.typed_struct
-            : Parent(/*{s.struct_type_enum}*/, /*{s.next_param_name}*/) 
+            : Parent(/*{s.struct_type_enum}*/, /*{s.next_param_name}*/)
 //#     endif
             {}
 //# endmacro
@@ -156,7 +177,7 @@ namespace OPENXR_HPP_NAMESPACE {
 //#         set arg_comma = joiner(",")
               /*{ initializer_comma() }*/ Parent(
                 /*{ arg_comma() }*/ /*{ s.struct_type_enum }*/
-//#         for member in visible_members if member.name in s.parent_fields and not is_static_length_string(member) 
+//#         for member in visible_members if member.name in s.parent_fields and not is_static_length_string(member)
                 /*{ arg_comma() }*/ /*{ member.name + "_"}*/
 //#         endfor
                 /*{ arg_comma() }*/ /*{s.next_param_name}*/
@@ -232,4 +253,4 @@ namespace OPENXR_HPP_NAMESPACE {
 
 //# endfor
 
-}  // namespace OPENXR_HPP_NAMESPACE
+    }  // namespace OPENXR_HPP_NAMESPACE
