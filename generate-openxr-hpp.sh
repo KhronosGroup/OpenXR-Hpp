@@ -12,18 +12,10 @@ if [ ! "$OPENXR_REPO" ]; then
     export OPENXR_REPO=$(cd .. && pwd)/OpenXR-SDK-Source
 fi
 
-generate openxr_duration.hpp
-generate openxr_dynamic_dispatch.hpp
-generate openxr_enums.hpp
-generate openxr_exceptions.hpp
-generate openxr_handles_forward.hpp
-generate openxr_handles.hpp
-generate openxr_helpers_opengl.hpp
-generate openxr_method_impls.inl
-generate openxr_static_dispatch.hpp
-generate openxr_time.hpp
-generate openxr_version.hpp
-generate openxr.hpp
 
-clang-format-6.0 -style=file -i include/openxr/*.hpp
+grep "^openxr" headers.txt | while read fn; do
+    generate "$fn"
+done
+
+clang-format-6.0 -style=file -i include/openxr/*.hpp include/openxr/*.inl
 )

@@ -1,4 +1,4 @@
-# Copyright (c) 2017 The Khronos Group Inc.
+# Copyright (c) 2017-2020 The Khronos Group Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ foreach(FILE_NAME ${TEST_FILES})
     set_target_properties(${FN} PROPERTIES FOLDER "Tests")
     target_link_libraries(${FN} PRIVATE OpenXR::Headers)
     target_include_directories(${FN} PRIVATE ${PROJECT_BINARY_DIR}/include)
-    add_dependencies(${FN} generate_openxr_header)
+    add_dependencies(${FN} generate_headers)
     if(TEST_SOURCE MATCHES "XR_USE_GRAPHICS_API_VULKAN")
         target_link_libraries(${FN} PRIVATE Vulkan::Vulkan)
     endif()

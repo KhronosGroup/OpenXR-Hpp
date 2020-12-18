@@ -13,22 +13,14 @@ param (
     [string]
     $ClangFormat = "clang-format"
 )
-$Headers = "openxr.hpp",
-    "openxr_duration.hpp",
-    "openxr_dynamic_dispatch.hpp",
-    "openxr_enums.hpp",
-    "openxr_flags.hpp",
-    "openxr_handles_forward.hpp",
-    "openxr_handles.hpp",
-    "openxr_helpers_opengl.hpp",
-    "openxr_method_impls.inl",
-    "openxr_static_dispatch.hpp",
-    "openxr_time.hpp",
-    "openxr_version.hpp"
 
-# if ($OpenXRRepo.Length == 0) {
-#     $OpenXRRepo = Join-Path "$PSScriptRoot" ".." ".." "OpenXR-SDK-Source"
-# }
+$Headers = foreach($line in Get-Content (Join-Path $PSScriptRoot headers.txt)) {
+    $line = $line.Trim()
+    # if (($line.Length -ne 0) -and ($line  -notmatch "^#")) {
+    if ($line -match "^openxr") {
+        Write-Output $line
+    }
+}
 
 $Registry = Join-Path "$OpenXRRepo" "specification" "registry" "xr.xml"
 $OutputLocation = Join-Path "$PSScriptRoot" "include" "openxr"
