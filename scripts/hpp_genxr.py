@@ -55,145 +55,71 @@ def makeREstring(strings, default=None):
         return '^(' + '|'.join((re.escape(s) for s in strings)) + ')$'
     return default
 
-# Returns a directory of [ generator function, generator options ] indexed
-# by specified short names. The generator options incorporate the following
-# parameters:
-#
-# args is an parsed argument object; see below for the fields that are used.
-
-
-def makeGenOpts(args):
-    global genOpts
-    genOpts = {}
-
-    # Extensions to emit (list of extensions)
-    emitExtensions = args.emitExtensions
-
-    removeExtensions = makeREstring((
-        # Structs misbehave
-        "XR_KHR_loader_init",
-        "XR_KHR_loader_init_android",
-        "XR_MSFT_controller_model",
-        # Method projections misbehave
-        "XR_MSFT_spatial_graph_bridge",
-        "XR_KHR_android_surface_swapchain",
-    ))
-
-    # Features to include (list of features)
-    features = args.feature
-
-    # Output target directory
-    directory = args.directory
-
-    # Descriptive names for various regexp patterns used to select
-    # versions and extensions
-    allFeatures = allExtensions = '.*'
-
-    # Turn lists of names/patterns into matching regular expressions
-    emitExtensionsPat = makeREstring(emitExtensions, allExtensions)
-    featuresPat = makeREstring(features, allFeatures)
-
-    # Copyright text prefixing all headers (list of strings).
-    prefixStrings = [
-        '/*',
-        '** Copyright (c) 2017-2019 The Khronos Group Inc.',
-        '**',
-        '** Licensed under the Apache License, Version 2.0 (the "License");',
-        '** you may not use this file except in compliance with the License.',
-        '** You may obtain a copy of the License at',
-        '**',
-        '**     http://www.apache.org/licenses/LICENSE-2.0',
-        '**',
-        '** Unless required by applicable law or agreed to in writing, software',
-        '** distributed under the License is distributed on an "AS IS" BASIS,',
-        '** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
-        '** See the License for the specific language governing permissions and',
-        '** limitations under the License.',
-        '*/',
-        ''
-    ]
-
-    # Text specific to OpenXR headers
-    xrPrefixStrings = [
-        '/*',
-        '** This header is generated from the Khronos OpenXR XML API Registry.',
-        '**',
-        '*/',
-        ''
-    ]
-
-    # An API style conventions object
-    conventions = OpenXRConventions()
-    headers = (
-        'openxr_duration.hpp',
-        'openxr_dynamic_dispatch.hpp',
-        'openxr_enums.hpp',
-        'openxr_flags.hpp',
-        'openxr_static_dispatch.hpp',
-        'openxr_time.hpp',
-        'openxr_version.hpp',
-        'openxr.hpp',
-    )
-
-    for header in headers:
-        genOpts[header] = [
-            CppGenerator,
-            AutomaticSourceGeneratorOptions(
-                conventions=conventions,
-                filename=header,
-                directory=directory,
-                apiname='openxr',
-                profile=None,
-                versions=featuresPat,
-                emitversions=featuresPat,
-                defaultExtensions='openxr',
-                addExtensions=None,
-                # Always generate all extensions for the dispatchers.
-                removeExtensions=(None if 'dispatch' in header else removeExtensions),
-                emitExtensions=emitExtensionsPat)
-        ]
-
-# Generate a target based on the options in the matching genOpts{} object.
-# This is encapsulated in a function so it can be profiled and/or timed.
-# The args parameter is an parsed argument object containing the following
-# fields that are used:
-#   target - target to generate
-#   directory - directory to generate it in
-#   protect - True if re-inclusion wrappers should be created
-#   extensions - list of additional extensions to include in generated
-#   interfaces
-
 
 def genTarget(args):
+    """
+    Generate a target based on the options in the matching genOpts{} object.
+
+    This is encapsulated in a function so it can be profiled and/or timed.
+    The args parameter is an parsed argument object containing the following
+    fields that are used:
+    target - target to generate
+    directory - directory to generate it in
+    protect - True if re-inclusion wrappers should be created
+    extensions - list of additional extensions to include in generated
+    interfaces
+    """
     # Create generator options with specified parameters
-    makeGenOpts(args)
-
-    if args.target in genOpts.keys():
-        createGenerator = genOpts[args.target][0]
-        options = genOpts[args.target][1]
-
-        if not args.quiet:
-            write('* Building', options.filename, file=sys.stderr)
-            write('* options.versions          =', options.versions, file=sys.stderr)
-            write('* options.emitversions      =', options.emitversions, file=sys.stderr)
-            write('* options.defaultExtensions =', options.defaultExtensions, file=sys.stderr)
-            write('* options.addExtensions     =', options.addExtensions, file=sys.stderr)
-            write('* options.removeExtensions  =', options.removeExtensions, file=sys.stderr)
-            write('* options.emitExtensions    =', options.emitExtensions, file=sys.stderr)
-
-        startTimer(args.time)
-        gen = createGenerator(errFile=errWarn,
-                              warnFile=errWarn,
-                              diagFile=diag)
-        reg.setGenerator(gen)
-        reg.apiGen(options)
-
-        if not args.quiet:
-            write('* Generated', options.filename, file=sys.stderr)
-        endTimer(args.time, '* Time to generate ' + options.filename + ' =')
+    header = args.target
+    if 'dispatch' in args.target:
+        # Don't omit anything when generating dispatchers.
+        removeExtensions = None
     else:
-        write('No generator options for unknown target:',
-              args.target, file=sys.stderr)
+        removeExtensions = makeREstring((
+            # Structs misbehave
+            "XR_KHR_loader_init",
+            "XR_KHR_loader_init_android",
+            "XR_MSFT_controller_model",
+            # Method projections misbehave
+            "XR_MSFT_spatial_graph_bridge",
+            "XR_KHR_android_surface_swapchain",
+        ))
+
+    # Turn lists of names/patterns into matching regular expressions
+    emitExtensionsPat = makeREstring(args.emitExtensions, '.*')
+    featuresPat = makeREstring(args.feature, '.*')
+    options = AutomaticSourceGeneratorOptions(
+        conventions=OpenXRConventions(),
+        filename=header,
+        directory=args.directory,
+        apiname='openxr',
+        profile=None,
+        versions=featuresPat,
+        emitversions=featuresPat,
+        defaultExtensions='openxr',
+        addExtensions=None,
+        removeExtensions=removeExtensions,
+        emitExtensions=emitExtensionsPat)
+
+    if not args.quiet:
+        write('* Building', options.filename, file=sys.stderr)
+        write('* options.versions          =', options.versions, file=sys.stderr)
+        write('* options.emitversions      =', options.emitversions, file=sys.stderr)
+        write('* options.defaultExtensions =', options.defaultExtensions, file=sys.stderr)
+        write('* options.addExtensions     =', options.addExtensions, file=sys.stderr)
+        write('* options.removeExtensions  =', options.removeExtensions, file=sys.stderr)
+        write('* options.emitExtensions    =', options.emitExtensions, file=sys.stderr)
+
+    startTimer(args.time)
+    gen = CppGenerator(errFile=errWarn,
+                       warnFile=errWarn,
+                       diagFile=diag)
+    reg.setGenerator(gen)
+    reg.apiGen(options)
+
+    if not args.quiet:
+        write('* Generated', options.filename, file=sys.stderr)
+    endTimer(args.time, '* Time to generate ' + options.filename + ' =')
 
 
 # -feature name
