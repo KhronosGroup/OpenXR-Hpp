@@ -29,8 +29,9 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-#ifndef OPENXR_ENUMS_HPP_
-#define OPENXR_ENUMS_HPP_
+//# from 'template_macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
+
+/*{ include_guard_begin() }*/
 
 
 #include <openxr/openxr.h>
@@ -43,7 +44,6 @@
 #undef None
 #endif
 
-/*% from 'template_macros.hpp' import make_spec_url %*/
 /*% include('template_preproc.hpp') %*/
 
 namespace OPENXR_HPP_NAMESPACE {
@@ -108,4 +108,4 @@ OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected
 
 }  // namespace OPENXR_HPP_NAMESPACE
 
-#endif // ifndef OPENXR_ENUMS_HPP_
+/*{ include_guard_end() }*/

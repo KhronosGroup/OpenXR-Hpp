@@ -749,6 +749,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def beginFile(self, genOpts):
         AutomaticSourceOutputGenerator.beginFile(self, genOpts)
         self.conventions = self.genOpts.conventions
+        self.env.globals['filename'] = genOpts.filename
         self.env.tests['cpp_hidden_member'] = self._cpp_hidden_member
         self.env.tests['struct_output'] = self._is_struct_output
         self.env.tests['struct_input'] = self._is_struct_input

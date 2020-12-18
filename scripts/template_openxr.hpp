@@ -1,6 +1,3 @@
-#ifndef OPENXR_HPP_
-#define OPENXR_HPP_ 1
-
 /*
 ** Copyright (c) 2017-2019 The Khronos Group Inc.
 ** Copyright (c) 2019 Collabora, Ltd.
@@ -40,7 +37,8 @@
 **
 */
 
-/*% from 'template_macros.hpp' import forwardCommandArgs, make_spec_url %*/
+/*% from 'template_macros.hpp' import forwardCommandArgs, make_spec_url, include_guard_begin, include_guard_end %*/
+/*{ include_guard_begin() }*/
 /*% include('template_openxr_nongenerated_base.hpp')%*/
 /*% include('template_openxr_manualprojections.hpp')%*/
 #include "openxr_time.hpp"
@@ -67,4 +65,4 @@
  */
 /*% include('template_openxr_methodimpls.hpp')%*/
 
-#endif
+/*{ include_guard_end() }*/

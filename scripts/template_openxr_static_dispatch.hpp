@@ -29,10 +29,8 @@
 // choose to deem waived or otherwise exclude such Section(s) of the License,
 // but only in their entirety and only with respect to the Combined Software.
 
-#ifndef OPENXR_STATIC_DISPATCH_HPP_
-#define OPENXR_STATIC_DISPATCH_HPP_
-
-/*% from 'template_macros.hpp' import forwardCommandArgs %*/
+/*% from 'template_macros.hpp' import forwardCommandArgs, include_guard_begin, include_guard_end %*/
+/*{ include_guard_begin() }*/
 /*% include('template_preproc.hpp') %*/
 
 #include <openxr/openxr.h>
@@ -81,4 +79,4 @@ class DispatchLoaderStatic {
 }  // namespace OPENXR_HPP_NAMESPACE
 
 
-#endif // ifndef OPENXR_STATIC_DISPATCH_HPP_
+/*{ include_guard_end() }*/

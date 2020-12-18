@@ -30,11 +30,11 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# extends 'template_openxr_wrapperclass.hpp'
+//# from 'template_macros.hpp' import include_guard_begin, include_guard_end
 
 //# set includeGuard = filename.upper() + "_HPP_"
 //# block prefix
-#ifndef /*{ includeGuard }*/
-#define /*{ includeGuard }*/
+/*{ include_guard_begin() }*/
 
 //# block includes
 //# endblock includes
@@ -48,5 +48,5 @@ namespace OPENXR_HPP_NAMESPACE {
 
 } // OPENXR_HPP_NAMESPACE
 
-#endif // !/*{ includeGuard }*/
+/*{ include_guard_end() }*/
 //# endblock suffix

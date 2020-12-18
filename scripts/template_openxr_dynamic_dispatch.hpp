@@ -29,10 +29,10 @@
 // choose to deem waived or otherwise exclude such Section(s) of the License,
 // but only in their entirety and only with respect to the Combined Software.
 
-#ifndef OPENXR_DYNAMIC_DISPATCH_HPP_
-#define OPENXR_DYNAMIC_DISPATCH_HPP_
+/*% from 'template_macros.hpp' import forwardCommandArgs, include_guard_begin, include_guard_end %*/
 
-/*% from 'template_macros.hpp' import forwardCommandArgs %*/
+/*{ include_guard_begin() }*/
+
 /*% include('template_preproc.hpp') %*/
 
 #include <openxr/openxr.h>
@@ -165,4 +165,4 @@ class DispatchLoaderDynamic {
 
 }  // namespace OPENXR_HPP_NAMESPACE
 
-#endif // !OPENXR_DYNAMIC_DISPATCH_HPP_
+/*{ include_guard_end() }*/
