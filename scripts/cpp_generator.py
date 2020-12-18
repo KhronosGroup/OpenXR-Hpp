@@ -36,12 +36,16 @@ TEMPLATED_TWO_CALL = set([
     'xrEnumerateSwapchainImages'
 ])
 
-MANUALLY_PROJECTED = set((
+MANUALLY_PROJECTED_SCALARS = set((
     "XrTime",
     "XrDuration",
     "XrSystemId",
     "XrPath",
 ))
+
+MANUALLY_PROJECTED = set((
+    "XrEventDataBuffer",
+)).union(MANUALLY_PROJECTED_SCALARS)
 
 TWO_CALL_STRING_NAME = "buffer"
 
@@ -484,7 +488,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         # Convert XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
         for param in method.decl_params:
-            if param.type not in MANUALLY_PROJECTED:
+            if param.type not in MANUALLY_PROJECTED_SCALARS:
                 continue
             name = param.name
             cpp_type = _project_type_name(param.type)
@@ -964,6 +968,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             project_struct=(lambda s: StructProjection(s, self)),
             get_default_for_member=self._get_default_for_member,
             index0_of_first_visible_defaultable_member=self._index0_of_first_visible_defaultable_member,
+            manually_projected=MANUALLY_PROJECTED,
         )
         write(file_data, file=self.outFile)
 
