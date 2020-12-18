@@ -40,3 +40,24 @@ foreach(FILE_NAME ${TEST_FILES})
         target_link_libraries(${FN} PRIVATE Vulkan::Vulkan)
     endif()
 endforeach()
+
+# Make sure each .hpp file can compile cleanly on its own.
+foreach(FN ${GENERATED_HEADER_FILENAMES})
+    if(FN MATCHES "[.]hpp")
+        string(REPLACE ".hpp" "" TARGET_NAME "buildcleanly_${FN}")
+        configure_file(
+            build_cleanly.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.cpp
+            @ONLY
+        )
+        add_library(
+            ${TARGET_NAME} STATIC
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.cpp
+        )
+        set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Tests")
+        target_link_libraries(${TARGET_NAME} PRIVATE OpenXR::Headers)
+        target_include_directories(
+            ${TARGET_NAME} PRIVATE ${PROJECT_BINARY_DIR}/include
+        )
+        add_dependencies(${TARGET_NAME} generate_headers)
+    endif()
+endforeach()
