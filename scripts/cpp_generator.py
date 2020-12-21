@@ -264,7 +264,10 @@ class MethodProjection:
         """If true, our most advanced enhanced wrapper doesn't have an XrResult anywhere."""
 
         if self.is_core:
-            self.template_decl_list[0] = self.template_decl_list[0] + " = DispatchLoaderStatic"
+            # self.template_decl_list[0] = self.template_decl_list[0] + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG"
+            pass
+        else:
+            self.template_decl_list[0] += " OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG"
 
     def _declparams(self, replacements=None):
         def find_decl(name):
@@ -295,9 +298,11 @@ class MethodProjection:
             params.extend(extras)
 
         params.append(self.dispatch)
-        if not self.suppress_default_dispatch_arg \
-                and not suppress_default_dispatch_arg:
-            params[-1] = params[-1] + " = Dispatch{}"
+        if not suppress_default_dispatch_arg:
+            if self.is_core:
+                params[-1] = params[-1] + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG"
+            else:
+                params[-1] = params[-1] + " OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG"
         return params
 
     def get_definition_params(self, replacements=None, extras=None):

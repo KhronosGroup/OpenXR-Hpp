@@ -108,13 +108,26 @@
  * @brief Define to the expression you'd like to use as the default dispatcher for extension API functions.
  *
  * This has no default value: by default, you need to provide a dispatcher explicitly for extension functions.
- * If you define this, however, `OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_ARGUMENT` will be set to `=` and your definition.
+ * If you define this and `OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE`, however,
+ * `OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG` will be set to `=` and your definition.
  *
  * A globally-accesible instance of xr::DispatchLoaderDynamic would be suitable.
  *
  * @ingroup config
  */
 
+/*!
+ * @def OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE
+ * @brief Define to the type expression you'd like to use as the type of the default dispatcher for extension API functions.
+ *
+ * This has no default value: by default, you need to provide a dispatcher explicitly for extension functions.
+ * If you define this and `OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER`, however,
+ * `OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE_ARGUMENT` will be set to `=` and your definition.
+ *
+ * xr::DispatchLoaderDynamic would be suitable.
+ *
+ * @ingroup config
+ */
 /*!
  * @def OPENXR_HPP_DISABLE_ENHANCED_MODE
  * @brief Define in order to disable the more complete C++ projections of OpenXR methods, leaving only the most C-like prototypes behind.
@@ -141,23 +154,30 @@
 
 #ifndef OPENXR_HPP_NO_DEFAULT_DISPATCH
 
-#ifndef OPENXR_HPP_DEFAULT_CORE_DISPATCHER
+#if !defined(XR_NO_PROTOTYPES) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER)
 #define OPENXR_HPP_DEFAULT_CORE_DISPATCHER DispatchLoaderStatic()
+#include "openxr_static_dispatch.hpp"
+#endif  // !defined(XR_NO_PROTOTYPES) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER)
+
+#ifdef OPENXR_HPP_DEFAULT_CORE_DISPATCHER
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG = OPENXR_HPP_DEFAULT_CORE_DISPATCHER
 #endif
 
-#define OPENXR_HPP_DEFAULT_CORE_DISPATCHER_ARGUMENT = OPENXR_HPP_DEFAULT_CORE_DISPATCHER
-
-#ifdef OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
-#define OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_ARGUMENT = OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
+#if defined(OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER) && defined(OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE)
+#define OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG = OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
+#define OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG = OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE
 #endif
 
 #endif  // !OPENXR_HPP_NO_DEFAULT_DISPATCH
 
-#ifndef OPENXR_HPP_DEFAULT_CORE_DISPATCHER_ARGUMENT
-#define OPENXR_HPP_DEFAULT_CORE_DISPATCHER_ARGUMENT
+#ifndef OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG
 #endif
-#ifndef OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_ARGUMENT
-#define OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_ARGUMENT
+#ifndef OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG
+#define OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG
+#endif
+#ifndef OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG
+#define OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG
 #endif
 
 
