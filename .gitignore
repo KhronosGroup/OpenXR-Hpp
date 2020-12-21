@@ -9,6 +9,7 @@ CMakeLists.txt.user
 *.log
 pregen/
 doc/
+doxygen/
 
 # Cached python scripts in bytecode form
 *.pyc
