@@ -45,3 +45,16 @@
 //# macro include_guard_end()
 #endif  // ifndef /*{_include_guard_symbol()}*/
 //# endmacro
+
+//## NOTE: requires #define __STDC_WANT_LIB_EXT1__ 1
+//## before including <string.h>
+//# macro initializeStaticLengthString(src, dst, size)
+if (nullptr != /*{ src }*/) {
+#if defined(__STDC_LIB_EXT1__) || defined(_MSC_VER)
+    strncpy_s(/*{ dst }*/, /*{ size }*/, /*{ src }*/, /*{ size }*/ );
+#else
+    strncpy(/*{ dst }*/, /*{src}*/, /*{ size}*/ - 1);
+    /*{dst}*/[/*{ size}*/ - 1] = '\0';
+#endif
+}
+//# endmacro

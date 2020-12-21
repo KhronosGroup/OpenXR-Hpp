@@ -47,6 +47,12 @@
  * @ingroup typedstructs
  */
 
+// for strncpy_s
+#ifndef __STDC_WANT_LIB_EXT1__
+#define __STDC_WANT_LIB_EXT1__ 1
+#endif
+#include <string.h>
+
 #include "openxr_enums.hpp"
 #include "openxr_flags.hpp"
 #include "openxr_version.hpp"

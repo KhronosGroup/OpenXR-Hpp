@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import wrapperSizeStaticAssert
+//# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString
 
 //# macro _makeReturnOnlyConstructor(s)
         //! Empty constructor for a type that is marked as "returnonly"
@@ -80,10 +80,7 @@
 //#     endfor
         {
 //#     for member in visible_members if is_static_length_string(member)
-            if (nullptr != /*{ member.name + "_" }*/) {
-                // FIXME what is the safe way to do this?
-                strncpy(/*{ member.name }*/, /*{ member.name + "_" }*/, /*{member.array_count_var}*/);
-            }
+            /*{ initializeStaticLengthString(member.name + "_", member.name, member.array_count_var) }*/
 //#     endfor
         }
 
