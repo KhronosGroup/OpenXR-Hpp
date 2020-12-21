@@ -30,12 +30,9 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# extends 'valuewrapperclass.hpp'
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
 
 //# block prefix
-//# include 'copyright_header.hpp'
-
-/*{ include_guard_begin() }*/
+//# include 'file_header.hpp'
 
 //#     block includes
 //#     endblock includes
@@ -49,5 +46,5 @@ namespace OPENXR_HPP_NAMESPACE {
 
 } // OPENXR_HPP_NAMESPACE
 
-/*{ include_guard_end() }*/
+//# include 'file_footer.hpp'
 //# endblock suffix

@@ -29,10 +29,10 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include 'copyright_header.hpp'
+//# include 'file_header.hpp'
 
-//# from 'macros.hpp' import forwardCommandArgs, make_spec_url, include_guard_begin, include_guard_end
-/*{ include_guard_begin() }*/
+//# from 'macros.hpp' import forwardCommandArgs, make_spec_url
+
 
 /*!
  * @defgroup config Configuration Options
@@ -72,4 +72,5 @@ using BilateralPaths = std::array<Path, SIDE_COUNT>;
  */
 #include "openxr_method_impls.hpp"
 
-/*{ include_guard_end() }*/
+
+//# include 'file_footer.hpp'

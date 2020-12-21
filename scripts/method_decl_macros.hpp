@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
+//# from 'macros.hpp' import make_spec_url
 
 /*% macro shared_comments(cur_cmd, method) %*/
 //!

@@ -31,6 +31,8 @@
 
 //# from 'macros.hpp' import wrapperSizeStaticAssert, make_spec_url
 
+//# include('file_header.hpp')
+
 /*!
  * @defgroup structs Struct wrappers
  * @brief C++ projections of OpenXR structure types, with easier init but identical layout.
@@ -146,3 +148,5 @@ OPENXR_HPP_INLINE XrEventDataBuffer* put(EventDataBuffer& v) noexcept {
 //# endfor
 
 }  // namespace OPENXR_HPP_NAMESPACE
+
+//# include('file_footer.hpp')

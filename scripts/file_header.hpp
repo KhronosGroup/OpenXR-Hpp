@@ -36,3 +36,6 @@
 ** This header is generated from the Khronos OpenXR XML API Registry.
 **
 */
+//# from 'macros.hpp' import include_guard_symbol
+#ifndef /*{include_guard_symbol()}*/
+#define /*{include_guard_symbol()}*/

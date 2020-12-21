@@ -30,9 +30,7 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
-
-//# include('copyright_header.hpp') without context
+//# include('file_header.hpp')
 /*!
  * @file
  * @brief Inline implementations - include @ref openxr_method_impls.hpp instead!
@@ -40,7 +38,6 @@
  * Contains inline implementations of simple method wrappers.
  */
 
-/*{ include_guard_begin() }*/
 #ifdef OPENXR_HPP_DOXYGEN
 //# include('define_namespace.hpp')
 #include "openxr_handles.hpp"
@@ -81,4 +78,4 @@ namespace OPENXR_HPP_NAMESPACE {
 
 }  // namespace OPENXR_HPP_NAMESPACE
 
-/*{ include_guard_end() }*/
+//# include('file_footer.hpp')

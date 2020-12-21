@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('copyright_header.hpp') without context
+//# include('file_header.hpp')
 
 /**
  * @file
@@ -40,9 +40,8 @@
  * Does not include the implementations of the functions: for that, see @ref openxr_method_impls.hpp
  */
 
-//# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
+//# from 'macros.hpp' import make_spec_url
 //# from 'method_decl_macros.hpp' import method_prototypes with context
-/*{ include_guard_begin() }*/
 
 #include "openxr_atoms.hpp"
 #include "openxr_enums.hpp"
@@ -200,4 +199,4 @@ using string_with_allocator = std::basic_string<char, std::char_traits<char>, Al
 
 }  // namespace OPENXR_HPP_NAMESPACE
 
-/*{ include_guard_end() }*/
+//# include('file_footer.hpp')

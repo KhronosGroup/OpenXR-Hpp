@@ -29,16 +29,13 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('copyright_header.hpp') without context
+//# include('file_header.hpp')
 /**
  * @file
  * @brief Includes the appropriate subset of method implementations based on chosen configuration.
  *
  * @see config
  */
-
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
-/*{ include_guard_begin() }*/
 
 #include "openxr_handles.hpp"
 
@@ -55,5 +52,4 @@
 
 #endif  // !defined(OPENXR_HPP_DISABLE_ENHANCED_MODE)
 
-
-/*{ include_guard_end() }*/
+//# include('file_footer.hpp')

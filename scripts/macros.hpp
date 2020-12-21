@@ -35,16 +35,7 @@
 
 /*% macro wrapperSizeStaticAssert(orig, wrapper) %*/ static_assert(sizeof(/*{ orig }*/) == sizeof(/*{ wrapper }*/), "Original type and wrapper have different size!"); /*% endmacro %*/
 
-/*% macro _include_guard_symbol() %*//*{ filename.replace('.', '_').upper() + '_' }*//*% endmacro %*/
-
-//# macro include_guard_begin()
-#ifndef /*{_include_guard_symbol()}*/
-#define /*{_include_guard_symbol()}*/
-//# endmacro
-
-//# macro include_guard_end()
-#endif  // ifndef /*{_include_guard_symbol()}*/
-//# endmacro
+/*% macro include_guard_symbol() %*//*{ filename.replace('.', '_').upper() + '_' }*//*% endmacro %*/
 
 //## NOTE: requires #define __STDC_WANT_LIB_EXT1__ 1
 //## before including <string.h>

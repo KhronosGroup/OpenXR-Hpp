@@ -29,10 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('copyright_header.hpp') without context
-
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
-/*{ include_guard_begin() }*/
+//# include('file_header.hpp')
 
 #include <openxr/openxr.h>
 
@@ -53,4 +50,4 @@ namespace OPENXR_HPP_NAMESPACE {
 
 } // namespace OPENXR_HPP_NAMESPACE
 
-/*{ include_guard_end() }*/
+//# include('file_footer.hpp')

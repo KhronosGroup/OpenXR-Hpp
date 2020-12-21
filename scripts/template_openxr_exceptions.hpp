@@ -29,9 +29,9 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
+//# from 'macros.hpp' import make_spec_url
 
-//# include('copyright_header.hpp') without context
+//# include('file_header.hpp')
 /**
  * @file
  * @brief C++ exceptions for the OpenXR error result codes.
@@ -39,7 +39,6 @@
  * @see OPENXR_HPP_NO_EXCEPTIONS
  */
 
-/*{ include_guard_begin() }*/
 
 /*!
  * @def OPENXR_HPP_NO_EXCEPTIONS
@@ -217,4 +216,4 @@ struct is_error_code_enum<OPENXR_HPP_NAMESPACE::Result> : public true_type {};
 #endif  // !defined(OPENXR_HPP_DOXYGEN)
 #endif  // !defined(OPENXR_HPP_NO_EXCEPTIONS)
 
-/*{ include_guard_end() }*/
+//# include('file_footer.hpp')

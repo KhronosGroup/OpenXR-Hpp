@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('copyright_header.hpp') without context
+//# include('file_header.hpp')
 /**
  * @file
  * @brief A dynamically-loaded dispatcher class: loads entry points with xrGetInstanceProcAddr, optionally lazily.
@@ -37,8 +37,7 @@
  * @see OPENXR_HPP_NO_EXCEPTIONS
  */
 
-//# from 'macros.hpp' import forwardCommandArgs, include_guard_begin, include_guard_end
-/*{ include_guard_begin() }*/
+//# from 'macros.hpp' import forwardCommandArgs
 
 //# include('define_assert.hpp') without context
 //# include('define_inline_constexpr.hpp') without context
@@ -174,4 +173,4 @@ class DispatchLoaderDynamic {
 
 }  // namespace OPENXR_HPP_NAMESPACE
 
-/*{ include_guard_end() }*/
+//# include('file_footer.hpp')

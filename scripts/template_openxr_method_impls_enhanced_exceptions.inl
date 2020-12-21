@@ -29,10 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
-
-//# include('copyright_header.hpp') without context
+//# include('file_header.hpp')
 /*!
  * @file
  * @brief Inline implementations - include @ref openxr_method_impls.hpp instead!
@@ -40,7 +37,6 @@
  * Contains inline implementations of "enhanced mode" method wrappers whose signature is only available when exceptions are permitted.
  */
 
-/*{ include_guard_begin() }*/
 
 #ifdef OPENXR_HPP_DOXYGEN
 //# include('define_namespace.hpp')
@@ -75,4 +71,5 @@ namespace OPENXR_HPP_NAMESPACE {
 }  // namespace OPENXR_HPP_NAMESPACE
 
 #endif  // !OPENXR_HPP_DISABLE_ENHANCED_MODE
-/*{ include_guard_end() }*/
+
+//# include('file_footer.hpp')

@@ -29,10 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('copyright_header.hpp') without context
-
-//# from 'macros.hpp' import include_guard_begin, include_guard_end
-/*{ include_guard_begin() }*/
+//# include('file_header.hpp')
 
 #include "openxr_version.hpp"
 #if (defined(GL_MAJOR_VERSION) && defined(GL_MINOR_VERSION)) || defined(OPENXR_HPP_DOXYGEN)
@@ -50,5 +47,4 @@ OPENXR_HPP_INLINE Version getOpenGLVersion() noexcept {
 }
 #endif  // (defined(GL_MAJOR_VERSION) && defined(GL_MINOR_VERSION)) || defined(OPENXR_HPP_DOXYGEN)
 
-
-/*{ include_guard_end() }*/
+//# include('file_footer.hpp')
