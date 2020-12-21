@@ -153,7 +153,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{ raw_type }*/ get(/*{input_param_type}
 //! @see /*{type}*/::put( )
 //! @relates /*{type}*/
 //#     endfilter
-OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return v.put(); }
+static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return v.put(); }
 //# endblock free_put
 
 //# block comparisons scoped

@@ -157,14 +157,14 @@
     //! @brief Free function accessor for /*{s.cpp_name}*/ const reference as a raw /*{struct.name}*/ pointer to const
     //! @relates /*{s.cpp_name}*/
 //# endfilter
-    OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{s.cpp_name}*/ const& h) {
+    static OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{s.cpp_name}*/ const& h) {
         return &(h./*{"operator " + struct.name}*/ const&());
     }
 
 //# if not s.is_abstract
     //! @brief Free function accessor for passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
     //! @relates /*{s.cpp_name}*/
-    OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &h) { return &(h./*{"operator " + struct.name}*/&()); }
+    static OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &h) { return &(h./*{"operator " + struct.name}*/&()); }
 //# endif
 
 //# if s.is_derived_type
@@ -173,7 +173,7 @@
     //! @relates /*{s.cpp_name}*/
     //! @relates /*{s.parent_cpp_type}*/
 //#     endfilter
-    OPENXR_HPP_INLINE /*{s.parent_type}*/ const* get_base(/*{s.cpp_name}*/ const& h) {
+    static OPENXR_HPP_INLINE /*{s.parent_type}*/ const* get_base(/*{s.cpp_name}*/ const& h) {
         return h.get_base();
     }
 //# endif
