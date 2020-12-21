@@ -113,7 +113,8 @@ def genTarget(args):
     startTimer(args.time)
     gen = CppGenerator(errFile=errWarn,
                        warnFile=errWarn,
-                       diagFile=diag)
+                       diagFile=diag,
+                       quiet=args.quiet)
     reg.setGenerator(gen)
     reg.apiGen(options)
 

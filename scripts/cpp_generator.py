@@ -338,6 +338,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     """Generate C++ wrapper header using XML element attributes from registry"""
 
     def __init__(self, *args, **kwargs):
+        self.quiet = kwargs.pop('quiet', False)
         super().__init__(*args, **kwargs)
         self.env = make_jinja_environment(file_with_templates_as_sibs=__file__, trim_blocks=False)
         self.env.filters['block_doxygen_comment'] = _block_doxygen_comment
@@ -672,7 +673,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.returns.append(array_param_name)
         self._update_enhanced_return_type(method)
 
-        print(method.name, "is a two-call")
+        if not self.quiet:
+            print(method.name, "is a two-call")
 
     def _method_has_single_output(self, method):
         if len(method.get_success_codes()) > 1:
@@ -688,7 +690,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.pointer_count > 0 and not param.is_const:
                 return False
 
-        print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
+        if not self.quiet:
+            print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
         return True
 
     def _enhanced_method_projection(self, method):
