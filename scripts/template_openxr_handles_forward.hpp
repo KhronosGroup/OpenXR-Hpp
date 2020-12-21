@@ -34,6 +34,13 @@
 //# from 'macros.hpp' import include_guard_begin, include_guard_end
 /*{ include_guard_begin() }*/
 
+/**
+ * @file
+ * @brief Forward declarations of OpenXR handle wrapper types.
+ *
+ * @see openxr_handles.hpp
+ */
+
 #include "openxr_enums.hpp"
 
 //# include('define_namespace.hpp') without context

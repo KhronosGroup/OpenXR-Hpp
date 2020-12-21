@@ -95,6 +95,22 @@
 
 //# set s = project_struct(struct)
     /*{ protect_begin(struct) }*/
+//# filter block_doxygen_comment
+    //! C++ projection of the /*{ s.name }*/
+    //!
+    //! Guaranteed to have the same bit representation as the underlying type, despite having its own type, parent type(s), etc.
+    //!
+    //! See the related specification text at /*{ make_spec_url(s.name) }*/
+    //!
+    //! @xrentity{/*{ s.name }*/}
+//#     if s.typed_struct and s.is_abstract
+    //! @ingroup abstracttypedstructs
+//#     elif s.typed_struct
+    //! @ingroup typedstructs
+//#     else
+    //! @ingroup structs
+//#     endif
+//# endfilter
     struct XR_MAY_ALIAS /*{ s.cpp_name }*/ /*{ s.struct_parent_decl }*/
     {
 //# if s.typed_struct

@@ -33,8 +33,19 @@
 //# from 'macros.hpp' import include_guard_begin, include_guard_end
 
 //# include('copyright_header.hpp') without context
+/*!
+ * @file
+ * @brief Inline implementations - include @ref openxr_method_impls.hpp instead!
+ *
+ * Contains inline implementations of "enhanced mode" method wrappers whose signature is the same whether or not exceptions are permitted.
+ */
 
 /*{ include_guard_begin() }*/
+
+#ifdef OPENXR_HPP_DOXYGEN
+//# include('define_namespace.hpp')
+#include "openxr_handles.hpp"
+#endif
 
 #ifndef OPENXR_HANDLES_HPP_
 #error "This is not meant to be included on its own."

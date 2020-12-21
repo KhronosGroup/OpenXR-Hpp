@@ -33,6 +33,19 @@
 
 //# from 'macros.hpp' import forwardCommandArgs, make_spec_url, include_guard_begin, include_guard_end
 /*{ include_guard_begin() }*/
+
+/*!
+ * @defgroup config Configuration Options
+ * @brief Preprocessor macros that may be set to control the behavior of OpenXR-Hpp
+ */
+
+/**
+ * @def OPENXR_HPP_NAMESPACE
+ * @brief Define to the namespace you wish to place OpenXR-Hpp in: defaults to `xr`.
+ *
+ * @ingroup config
+ */
+
 //# include('nongenerated_base.hpp') without context
 
 #include "openxr_atoms.hpp"

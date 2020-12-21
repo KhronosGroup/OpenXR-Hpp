@@ -32,8 +32,27 @@
 //# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
 
 //# include('copyright_header.hpp') without context
+/**
+ * @file
+ * @brief C++ exceptions for the OpenXR error result codes.
+ *
+ * @see OPENXR_HPP_NO_EXCEPTIONS
+ */
 
 /*{ include_guard_begin() }*/
+
+/*!
+ * @def OPENXR_HPP_NO_EXCEPTIONS
+ * @brief Define in order to disable throwing of exceptions from C++ projections of OpenXR methods.
+ *
+ * Enhanced mode calls can throw on receiving an error code, allowing only success codes to come back through the normal path.
+ * Some can even omit the Result return value entirely, if there are no particularly useful success codes besides Result::Success.
+ *
+ * @see OPENXR_HPP_DISABLE_ENHANCED_MODE
+ * @see openxr_exceptions.hpp
+ *
+ * @ingroup config
+ */
 
 #if !defined(OPENXR_HPP_NO_EXCEPTIONS)
 

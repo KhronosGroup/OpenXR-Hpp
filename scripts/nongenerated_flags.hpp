@@ -30,7 +30,6 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 
-
 namespace OPENXR_HPP_NAMESPACE {
 
 template <typename FlagBitsType>
@@ -38,85 +37,137 @@ struct FlagTraits {
     enum { allFlags = 0 };
 };
 
+/**
+ * @brief Base type for bit flag projection
+ *
+ * @tparam BitType The projected enum that contains the bits
+ * @tparam MaskType The type of the combined flags, typically the default, XrFlags64.
+ */
 template <typename BitType, typename MaskType = XrFlags64>
 class Flags {
    public:
+    //! Default constructor
     OPENXR_HPP_CONSTEXPR Flags() : m_mask(0) {}
 
+    //! Implicit constructor from a single bit
     Flags(BitType bit) : m_mask(static_cast<MaskType>(bit)) {}
 
+    //! Copy constructor
     Flags(Flags<BitType> const &rhs) : m_mask(rhs.m_mask) {}
 
+    //! Explicit constructor from flags value
     explicit Flags(MaskType flags) : m_mask(flags) {}
 
+    //! Assignment operator
     Flags<BitType> &operator=(Flags<BitType> const &rhs) {
         m_mask = rhs.m_mask;
         return *this;
     }
-
+    //! OR update operator - commonly used for combining flags
     Flags<BitType> &operator|=(Flags<BitType> const &rhs) {
         m_mask |= rhs.m_mask;
         return *this;
     }
 
+    //! AND update operator
     Flags<BitType> &operator&=(Flags<BitType> const &rhs) {
         m_mask &= rhs.m_mask;
         return *this;
     }
 
+    //! XOR update operator
     Flags<BitType> &operator^=(Flags<BitType> const &rhs) {
         m_mask ^= rhs.m_mask;
         return *this;
     }
 
+    //! OR operator, often used for combining flags.
     Flags<BitType> operator|(Flags<BitType> const &rhs) const {
         Flags<BitType> result(*this);
         result |= rhs;
         return result;
     }
 
+    //! AND operator, often used for testing the value of certain bits.
     Flags<BitType> operator&(Flags<BitType> const &rhs) const {
         Flags<BitType> result(*this);
         result &= rhs;
         return result;
     }
 
+    //! XOR operator
     Flags<BitType> operator^(Flags<BitType> const &rhs) const {
         Flags<BitType> result(*this);
         result ^= rhs;
         return result;
     }
 
+    //! Unary negation: true if all bits were false.
     bool operator!() const { return !m_mask; }
 
+    //! Bitwise negation (complement) operator
     Flags<BitType> operator~() const {
         Flags<BitType> result(*this);
         result.m_mask ^= FlagTraits<BitType>::allFlags;
         return result;
     }
 
+    //! Equality comparison
     bool operator==(Flags<BitType> const &rhs) const { return m_mask == rhs.m_mask; }
 
+    //! Inequality comparison
     bool operator!=(Flags<BitType> const &rhs) const { return m_mask != rhs.m_mask; }
 
+    //! Explicit bool conversion: true if any bits are true.
     explicit operator bool() const { return !!m_mask; }
 
+    //! Explicit conversion operator to the underlying mask type.
     explicit operator MaskType() const { return m_mask; }
 
    private:
     MaskType m_mask;
 };
 
+/**
+ * @brief Bitwise OR between a Flags<> value and a single bit.
+ *
+ * @tparam BitType The projected bit type
+ * @param bit The single bit
+ * @param flags The Flags<> value
+ * @return Flags<BitType>
+ *
+ * @relates Flags
+ */
 template <typename BitType>
 Flags<BitType> operator|(BitType bit, Flags<BitType> const &flags) {
     return flags | bit;
 }
 
+/**
+ * @brief Bitwise AND between a Flags<> value and a single bit.
+ *
+ * @tparam BitType The projected bit type
+ * @param bit The single bit
+ * @param flags The Flags<> value
+ * @return Flags<BitType>
+ *
+ * @relates Flags
+ */
 template <typename BitType>
 Flags<BitType> operator&(BitType bit, Flags<BitType> const &flags) {
     return flags & bit;
 }
 
+/**
+ * @brief Bitwise XOR between a Flags<> value and a single bit.
+ *
+ * @tparam BitType The projected bit type
+ * @param bit The single bit
+ * @param flags The Flags<> value
+ * @return Flags<BitType>
+ *
+ * @relates Flags
+ */
 template <typename BitType>
 Flags<BitType> operator^(BitType bit, Flags<BitType> const &flags) {
     return flags ^ bit;

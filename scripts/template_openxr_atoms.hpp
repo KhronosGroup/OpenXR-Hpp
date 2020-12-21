@@ -39,7 +39,10 @@
 //# include('define_inline_constexpr.hpp') without context
 //# include('define_namespace.hpp') without context
 //# include('define_namespace_string.hpp') without context
-
+/*!
+ * @defgroup Atoms Atom wrappers
+ * @brief C++ projections of OpenXR atoms: opaque values with no explicit lifetime, but that are only valid within the session they are retrieved from.
+ */
 namespace OPENXR_HPP_NAMESPACE {
 
 //## loop over atoms

@@ -30,6 +30,12 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# include('copyright_header.hpp') without context
+/**
+ * @file
+ * @brief Includes the appropriate subset of method implementations based on chosen configuration.
+ *
+ * @see config
+ */
 
 //# from 'macros.hpp' import include_guard_begin, include_guard_end
 /*{ include_guard_begin() }*/

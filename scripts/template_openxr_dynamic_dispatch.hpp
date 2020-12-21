@@ -30,6 +30,12 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# include('copyright_header.hpp') without context
+/**
+ * @file
+ * @brief A dynamically-loaded dispatcher class: loads entry points with xrGetInstanceProcAddr, optionally lazily.
+ *
+ * @see OPENXR_HPP_NO_EXCEPTIONS
+ */
 
 //# from 'macros.hpp' import forwardCommandArgs, include_guard_begin, include_guard_end
 /*{ include_guard_begin() }*/
@@ -77,7 +83,7 @@ class DispatchLoaderDynamic {
 
 #ifndef XR_NO_PROTOTYPES
     /*!
-     * @brief Create a lazy-populating dispatch table using the static ::xrGetInstanceProcAddr.
+     * @brief Create a lazy-populating dispatch table using the static xrGetInstanceProcAddr.
      */
     explicit DispatchLoaderDynamic(XrInstance instance = XR_NULL_HANDLE)
         : DispatchLoaderDynamic(instance, &::xrGetInstanceProcAddr) {}

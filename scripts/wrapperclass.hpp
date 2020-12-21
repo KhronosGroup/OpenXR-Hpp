@@ -56,9 +56,11 @@
 
 //# block comment_class scoped
 //#     filter block_doxygen_comment
-//! /*{ raw_type }*/ wrapper class
+//! @brief /*{ raw_type }*/ wrapper class
 //!
-//! See the related specification text at /*{ make_spec_url(type) }*/
+//! See the related specification text at /*{ make_spec_url(raw_type) }*/
+//!
+//! @xrentity{/*{ raw_type }*/}
 //#     endfilter
 //# endblock comment_class
 /*% block compound_type %*/class/*% endblock%*/ /*{ type }*/ /*% block parent_decl%*//*% endblock %*/ {

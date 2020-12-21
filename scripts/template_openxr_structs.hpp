@@ -29,7 +29,23 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import wrapperSizeStaticAssert
+//# from 'macros.hpp' import wrapperSizeStaticAssert, make_spec_url
+
+/*!
+ * @defgroup structs Struct wrappers
+ * @brief C++ projections of OpenXR structure types, with easier init but identical layout.
+ */
+/*!
+ * @defgroup typedstructs Typed/Chainable struct wrappers
+ * @brief C++ projections of those OpenXR structure types with a `type` and `next` field.
+ * @ingroup structs
+ */
+/*!
+ * @defgroup abstracttypedstructs Abstract typed structs
+ * @brief C++ projections of those OpenXR structure types with a `type` and `next` field,
+ * but no specific type enum value of their own: these are the "base structs" in OpenXR.
+ * @ingroup typedstructs
+ */
 
 #include "openxr_enums.hpp"
 #include "openxr_flags.hpp"
@@ -70,6 +86,14 @@ namespace impl {
     /*{ wrapperSizeStaticAssert('::XrBaseOutStructure', 'OutputStructBase') }*/
 }  // namespace impl
 
+//# filter block_doxygen_comment
+//! @brief Wrapper for XrEventDataBuffer
+//!
+//! See the related specification text at /*{ make_spec_url("XrEventDataBuffer") }*/
+//!
+//! @xrentity{XrEventDataBuffer}
+//! @ingroup typedstructs
+//# endfilter
 struct XR_MAY_ALIAS EventDataBuffer : public impl::InputStructBase {
 private:
     using Parent = impl::InputStructBase;
@@ -79,16 +103,22 @@ protected:
         : Parent(type_, next_), varying{} {}
 
 public:
+    //! Default constructor - use this one.
     EventDataBuffer() : Parent(StructureType::EventDataBuffer), varying{} {
         (void)varying;
     }
+    //! @brief "Put" function for assigning as null then getting the address of the raw pointer to pass as function output parameter.
     XrEventDataBuffer* put() noexcept {
             *this = {};
             return reinterpret_cast<XrEventDataBuffer*>(this);
     }
+
+    //! Gets a pointer to the underlying raw XrEventDataBuffer type.
     XrEventDataBuffer* get() noexcept {
             return reinterpret_cast<XrEventDataBuffer*>(this);
     }
+
+    //! Gets a pointer to the underlying raw XrEventDataBuffer type.
     XrEventDataBuffer const* get() const noexcept {
             return reinterpret_cast<XrEventDataBuffer const*>(this);
     }
@@ -98,6 +128,7 @@ private:
 };
 /*{ wrapperSizeStaticAssert('::XrEventDataBuffer', 'EventDataBuffer') }*/
 
+//! @relates EventDataBuffer
 OPENXR_HPP_INLINE XrEventDataBuffer* put(EventDataBuffer& v) noexcept {
     return v.put();
 }

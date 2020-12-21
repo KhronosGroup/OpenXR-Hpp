@@ -32,6 +32,14 @@
 //# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
 
 //# include('copyright_header.hpp') without context
+/**
+ * @file
+ * @brief C++ projections of OpenXR enum types.
+ *
+ * Does not include the flags (bitmasks).
+ *
+ * @see openxr_flags.hpp
+ */
 
 /*{ include_guard_begin() }*/
 
@@ -62,14 +70,19 @@ namespace OPENXR_HPP_NAMESPACE {
  * - to_string_literal() - returns a const char* containing the C++ name
  * - to_string() - wraps to_string_literal(), returning a std::string
  *
+ * They all should be accessible via argument-dependent lookup, meaning you should not need to explicitly specify the namespace.
  * @{
  */
 //# for enum in gen.api_enums
 //#     set projected_type = project_type_name(enum.name)
 /*{ protect_begin(enum) }*/
+//# filter block_doxygen_comment
 //! @brief Enum class associated with /*{enum.name}*/
 //!
 //! See the related specification text at /*{ make_spec_url(enum.name) }*/
+//!
+//! @xrentity{/*{ enum.name }*/}
+//# endfilter
 enum class /*{projected_type -}*/ : /*{ 'int32_t' if enum.name == 'XrResult' else 'uint32_t' }*/ {
 //#     for val in enum.values
     /*{ protect_begin(val, enum) }*/
@@ -78,18 +91,26 @@ enum class /*{projected_type -}*/ : /*{ 'int32_t' if enum.name == 'XrResult' els
 //#     endfor
 };
 
-//! @brief Free function for retrieving the raw /*{enum.name}*/ value from a /*{projected_type}*/
-//! @relates /*{projected_type}*/
+//# filter block_doxygen_comment
+//! @brief Free function for retrieving the raw /*{enum.name}*/ value from a /*{projected_type}*/.
+//!
+//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @see /*{projected_type}*/
+//# endfilter
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{enum.name}*/ get(/*{projected_type}*/ const& v) {
     return static_cast</*{enum.name}*/>(v);
 }
 
-//! @brief Free function for retrieving the string name of a /*{projected_type}*/ value as a const char *
-//! @relates /*{projected_type}*/
+//# filter block_doxygen_comment
+//! @brief Free function for retrieving the string name of a /*{projected_type}*/ value as a const char *.
+//!
+//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @see /*{projected_type}*/
+//# endfilter
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char* to_string_literal(/*{projected_type}*/ value) {
     switch (value) {
 //#     for val in enum.values
-        /*{ protect_begin(val, enum) }*/
+            /*{ protect_begin(val, enum) }*/
 //#         set valname = create_enum_value(val.name, enum.name)
         case /*{projected_type -}*/ ::/*{- valname }*/:
             return /*{ valname | quote_string }*/;
@@ -100,8 +121,12 @@ OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char* to_string_literal(/*{p
     }
 }
 
-//! @brief Free function for retrieving the string name of a /*{projected_type}*/ value as a std::string
-//! @relates /*{projected_type}*/
+//# filter block_doxygen_comment
+//! @brief Free function for retrieving the string name of a /*{projected_type}*/ value as a std::string.
+//!
+//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @see /*{projected_type}*/
+//# endfilter
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected_type}*/ value) {
     return {to_string_literal(value)};
 }
@@ -116,27 +141,56 @@ OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected
  * @defgroup result_helpers Result helper free functions
  * @{
  */
+//# filter block_doxygen_comment
 //! @brief Return true if the Result is negative, indicating a failure.
-//! Equivalent of XR_FAILED()
+//! Equivalent of XR_FAILED().
+//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @see Result
+//!
+//! See the related specification text at /*{ make_spec_url("XR_FAILED") }*/
+//! @xrentity{XR_FAILED}
+//# endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) { return static_cast<int>(v) < 0; }
 
+//# filter block_doxygen_comment
 //! @brief Return true if the result is non-negative, indicating a success or non-error result.
-//! Equivalent of XR_SUCCEEDED()
+//! Equivalent of XR_SUCCEEDED().
+//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @see Result
+//!
+//! See the related specification text at /*{ make_spec_url("XR_SUCCEEDED") }*/
+//! @xrentity{XR_SUCCEEDED}
+//# endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool succeeded(Result v) { return static_cast<int>(v) >= 0; }
 
+//# filter block_doxygen_comment
 //! @brief Return true if the result is exactly equal to Result::Success.
-//! Equivalent of XR_UNQUALIFIED_SUCCESS()
+//! Equivalent of XR_UNQUALIFIED_SUCCESS().
+//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @see Result
+//!
+//! See the related specification text at /*{ make_spec_url("XR_UNQUALIFIED_SUCCESS") }*/
+//! @xrentity{XR_UNQUALIFIED_SUCCESS}
+//# endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool unqualifiedSuccess(Result v) { return v == Result::Success; }
 //! @}
 
 //# for op in ('<', '>', '<=', '>=', '==', '!=')
+//# filter block_doxygen_comment
 //! @brief `/*{op}*/` comparison between Result and integer, for compatibility with the XR_ function-type macros and XrResult.
-//! @relates Result
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(Result lhs, int rhs) { return get(lhs) /*{- op -}*/ rhs; }
+//! @see Result
+//# endfilter
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(Result lhs, int rhs) {
+    return get(lhs) /*{- op -}*/ rhs;
+}
 
+//# filter block_doxygen_comment
 //! @brief `/*{op}*/` comparison between integer and Result, for compatibility with the XR_ function-type macros and XrResult.
-//! @relates Result
-OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(int lhs, Result rhs) { return lhs /*{- op -}*/ get(rhs); }
+//! @see Result
+//# endfilter
+OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(int lhs, Result rhs) {
+    return lhs /*{- op -}*/ get(rhs);
+}
 
 //# endfor
 

@@ -37,6 +37,12 @@
 //# extends "valuewrapperclass_header.hpp"
 
 //# block includes
+/**
+ * @file
+ * @brief Contains a type-safe C++ projection of XrTime
+ *
+ * @see openxr_duration.hpp
+ */
 #include "openxr_duration.hpp"
 //# endblock
 

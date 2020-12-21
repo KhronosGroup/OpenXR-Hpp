@@ -36,6 +36,12 @@
 //# extends "valuewrapperclass_header.hpp"
 
 //# block includes
+/**
+ * @file
+ * @brief C++ projection of the OpenXR packed version type.
+ *
+ */
+
 #include <openxr/openxr.h>
 //# endblock
 
@@ -56,12 +62,19 @@ Version(uint16_t major_, uint16_t minor_, uint32_t patch_) noexcept {
 //# endblock
 
 //# block extra_methods
-//! Get the major component.
+//# filter block_doxygen_comment
+//! @brief Get the major component.
+//!
+//! /*{ make_spec_url("XR_VERSION_MAJOR") }*/
+//!
+//! @xrentity{XR_VERSION_MAJOR}
+//# endfilter
 OPENXR_HPP_CONSTEXPR uint16_t major() const noexcept
 {
     return static_cast<uint16_t>(val_ >> 48);
 }
-//! Set the major component.
+
+//! Set the major component: 16 bits.
 void major(uint16_t val) noexcept
 {
     // blank the top 16 bits
@@ -69,12 +82,19 @@ void major(uint16_t val) noexcept
     val_ |= uint64_t(val) << 48;
 }
 
-//! Get the minor component.
+
+//# filter block_doxygen_comment
+//! @brief Get the minor component.
+//!
+//! /*{ make_spec_url("XR_VERSION_MINOR") }*/
+//!
+//! @xrentity{XR_VERSION_MINOR}
+//# endfilter
 OPENXR_HPP_CONSTEXPR uint16_t minor() const noexcept
 {
     return static_cast<uint16_t>((val_ >> 32) & 0xffff);
 }
-//! Set the minor component.
+//! Set the minor component: 16 bits.
 void minor(uint16_t val) noexcept
 {
     // blank the correct 16 bits
@@ -82,12 +102,18 @@ void minor(uint16_t val) noexcept
     val_ |= uint64_t(val) << 32;
 }
 
-//! Get the patch component.
+//# filter block_doxygen_comment
+//! @brief Get the patch component.
+//!
+//! /*{ make_spec_url("XR_VERSION_PATCH") }*/
+//!
+//! @xrentity{XR_VERSION_PATCH}
+//# endfilter
 OPENXR_HPP_CONSTEXPR uint32_t patch() const noexcept
 {
     return static_cast<uint32_t>(val_ & 0xffffffff);
 }
-//! Set the patch component.
+//! Set the patch component: 32 bits.
 void patch(uint32_t val) noexcept
 {
     // blank the least-significant 32 bits
@@ -95,7 +121,14 @@ void patch(uint32_t val) noexcept
     val_ |= val;
 }
 
-//! Get the current version.
+
+//# filter block_doxygen_comment
+//! @brief Get the current version of OpenXR, based on the header.
+//!
+//! /*{ make_spec_url("XR_CURRENT_API_VERSION") }*/
+//!
+//! @xrentity{XR_CURRENT_API_VERSION}
+//# endfilter
 static OPENXR_HPP_CONSTEXPR Version current() noexcept
 {
     return Version{XR_CURRENT_API_VERSION};

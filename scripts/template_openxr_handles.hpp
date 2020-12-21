@@ -31,6 +31,15 @@
 
 //# include('copyright_header.hpp') without context
 
+/**
+ * @file
+ * @brief Defines wrappers for OpenXR handle types, with function calls transformed into methods.
+ *
+ * Also includes free functions for those few that do not take a handle as their first argument.
+ *
+ * Does not include the implementations of the functions: for that, see @ref openxr_method_impls.hpp
+ */
+
 //# from 'macros.hpp' import make_spec_url, include_guard_begin, include_guard_end
 //# from 'method_decl_macros.hpp' import method_prototypes with context
 /*{ include_guard_begin() }*/
@@ -51,6 +60,7 @@
 
 //# include('define_inline_constexpr.hpp') without context
 //# include('define_conversion.hpp') without context
+//# include('define_namespace.hpp') without context
 
 #if !defined(OPENXR_HPP_TYPESAFE_EXPLICIT)
 #if defined(OPENXR_HPP_TYPESAFE_CONVERSION)
@@ -60,13 +70,107 @@
 #endif
 #endif  // !OPENXR_HPP_TYPESAFE_EXPLICIT
 
+#ifdef OPENXR_HPP_DOXYGEN
+#define OPENXR_HPP_NO_DEFAULT_DISPATCH
+#define OPENXR_HPP_NO_SMART_HANDLE
+#undef OPENXR_HPP_NO_SMART_HANDLE
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCHER DispatchLoaderStatic()
+#undef OPENXR_HPP_DEFAULT_CORE_DISPATCHER
+#define OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
+#undef OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
+#endif
+
+/*!
+ * @def OPENXR_HPP_TYPESAFE_CONVERSION
+ * @brief Whether to force conversion/implicit constructors.
+ *
+ * Enabled by default on 64-bit platforms.
+ * 32-bit OpenXR is not typesafe for handles, so this is disabled on such platforms by default.
+ * To enable this feature on 32-bit platforms please define OPENXR_HPP_TYPESAFE_CONVERSION
+ *
+ * @ingroup config
+ */
+/*!
+ * @def OPENXR_HPP_NO_DEFAULT_DISPATCH
+ * @brief Define to disable default dispatch arguments.
+ * @ingroup config
+ */
+/*!
+ * @def OPENXR_HPP_DEFAULT_CORE_DISPATCHER
+ * @brief Define to the expression you'd like to use as the default dispatcher for core API functions.
+ *
+ * Defaults to `DispatchLoaderStatic()`
+ *
+ * @see DispatchLoaderStatic
+ * @ingroup config
+ */
+/*!
+ * @def OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
+ * @brief Define to the expression you'd like to use as the default dispatcher for extension API functions.
+ *
+ * This has no default value: by default, you need to provide a dispatcher explicitly for extension functions.
+ * If you define this, however, `OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_ARGUMENT` will be set to `=` and your definition.
+ *
+ * A globally-accesible instance of xr::DispatchLoaderDynamic would be suitable.
+ *
+ * @ingroup config
+ */
+
+/*!
+ * @def OPENXR_HPP_DISABLE_ENHANCED_MODE
+ * @brief Define in order to disable the more complete C++ projections of OpenXR methods, leaving only the most C-like prototypes behind.
+ *
+ * This will disable returning of output parameters (directly and through ReturnType pairs),
+ * wrapping of two-call-idiom methods, functions creating `Unique` handles with ownership, etc.
+ * It slightly reduces the number of files included.
+ *
+ * @ingroup config
+ */
+
+
+/*!
+ * @def OPENXR_HPP_NO_SMART_HANDLE
+ * @brief Define in order to disable the UniqueHandle-creating C++ method projections.
+ *
+ * Enhanced mode creation calls by default include a projection that returns a smart handle representing unique ownership.
+ * Defining this macro will hide those methods.
+ *
+ * @see OPENXR_HPP_DISABLE_ENHANCED_MODE
+ *
+ * @ingroup config
+ */
+
+#ifndef OPENXR_HPP_NO_DEFAULT_DISPATCH
+
+#ifndef OPENXR_HPP_DEFAULT_CORE_DISPATCHER
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCHER DispatchLoaderStatic()
+#endif
+
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCHER_ARGUMENT = OPENXR_HPP_DEFAULT_CORE_DISPATCHER
+
+#ifdef OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
+#define OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_ARGUMENT = OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
+#endif
+
+#endif  // !OPENXR_HPP_NO_DEFAULT_DISPATCH
+
+#ifndef OPENXR_HPP_DEFAULT_CORE_DISPATCHER_ARGUMENT
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCHER_ARGUMENT
+#endif
+#ifndef OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_ARGUMENT
+#define OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_ARGUMENT
+#endif
+
+
 //# include('enhanced_mode_results.hpp') without context
 
 namespace OPENXR_HPP_NAMESPACE {
 
+#ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 // The generalization of std::string with user-specifiable allocator types.
 template <typename Allocator = std::allocator<char>>
 using string_with_allocator = std::basic_string<char, std::char_traits<char>, Allocator>;
+#endif  // !OPENXR_HPP_DISABLE_ENHANCED_MODE
 
 //# for handle in gen.api_handles
 //#     set shortname = project_type_name(handle.name)

@@ -43,6 +43,8 @@
 //! @brief Handle class - wrapping /*{raw_type}*/ without indicating ownership.
 //!
 //! See the related specification text at /*{ make_spec_url(raw_type) }*/
+//!
+//! @xrentity{/*{ raw_type }*/}
 //! @ingroup handles
 //#     endfilter
 //# endblock
@@ -58,9 +60,11 @@ OPENXR_HPP_CONSTEXPR /*{ type }*/ () noexcept : val_(XR_NULL_HANDLE) {}
 //# endblock constructor_default
 
 //# block constructor_explicit
+//#     filter block_doxygen_comment
 //! @brief Conversion constructor from the raw /*{raw_type}*/ type
 //!
-//! Explicit on 32-bit platforms by default unless OPENXR_HPP_TYPESAFE_CONVERSION is defined.
+//! Explicit on 32-bit platforms by default unless @ref OPENXR_HPP_TYPESAFE_CONVERSION is defined.
+//#     endfilter
 OPENXR_HPP_TYPESAFE_EXPLICIT /*{ type }*/ (RawHandleType handle) noexcept : val_(handle) {}
 //# endblock constructor_explicit
 
@@ -72,9 +76,9 @@ OPENXR_HPP_CONSTEXPR /*{ type }*/ (std::nullptr_t /* unused */) noexcept : val_(
 //#     filter block_doxygen_comment
 //! @brief Assignment operator from the raw /*{raw_type}*/
 //!
-//! Does *not* destroy any contained non-null handle first! For that, see UniqueHandle<>.
+//! Does *not* destroy any contained non-null handle first! For that, see @ref UniqueHandle.
 //!
-//! Only provided if OPENXR_HPP_TYPESAFE_CONVERSION is defined (defaults to only on 64-bit).
+//! Only provided if @ref OPENXR_HPP_TYPESAFE_CONVERSION is defined (defaults to only on 64-bit).
 //#     endfilter
 Type &operator=(RawHandleType handle) noexcept {
     val_ = handle;
@@ -85,7 +89,7 @@ Type &operator=(RawHandleType handle) noexcept {
 //#     filter block_doxygen_comment
 //! @brief Assignment operator from nullptr - assigns to empty/null handle.
 //!
-//! Does *not* destroy any contained non-null handle first! For that, see UniqueHandle<>.
+//! Does *not* destroy any contained non-null handle first! For that, see @ref UniqueHandle.
 //#     endfilter
 Type &operator=(std::nullptr_t /* unused */) noexcept {
     val_ = XR_NULL_HANDLE;
@@ -95,7 +99,7 @@ Type &operator=(std::nullptr_t /* unused */) noexcept {
 //#     filter block_doxygen_comment
 //! @brief Conversion operator to the raw /*{raw_type}*/ type
 //!
-//! Explicit on 32-bit platforms by default unless OPENXR_HPP_TYPESAFE_CONVERSION is defined.
+//! Explicit on 32-bit platforms by default unless @ref OPENXR_HPP_TYPESAFE_CONVERSION is defined.
 //#     endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const noexcept { return val_; }
 //# endblock extra_constructors_conversion_assign
@@ -110,7 +114,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const
 //! auto result = d.xrCreate/*{- type -}*/(..., yourHandle.put()));
 //! ```
 //!
-//! See also OPENXR_HPP_NAMESPACE::put()
+//! @see xr::put(/*{type}*/&)
 //#     endfilter
 RawHandleType *put() noexcept {
     val_ = XR_NULL_HANDLE;
@@ -133,29 +137,38 @@ RawHandleType *put() noexcept {
 //# endblock extra_methods
 
 //# block extra_free_functions
+//#     filter block_doxygen_comment
 //! @brief Equality comparison between /*{type}*/ and nullptr: true if the handle is null.
 //! @relates /*{type}*/
+//#     endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(/*{type}*/ const &lhs, std::nullptr_t /* unused */) noexcept {
     return lhs.get() == XR_NULL_HANDLE;
 }
+//#     filter block_doxygen_comment
 //! @brief Equality comparison between nullptr and /*{type}*/: true if the handle is null.
 //! @relates /*{type}*/
+//#     endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator==(std::nullptr_t /* unused */, /*{type}*/ const &rhs) noexcept {
     return rhs.get() == XR_NULL_HANDLE;
 }
+//#     filter block_doxygen_comment
 //! @brief Inequality comparison between /*{type}*/ and nullptr: true if the handle is not null.
 //! @relates /*{type}*/
+//#     endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(/*{type}*/ const &lhs, std::nullptr_t /* unused */) noexcept {
     return lhs.get() != XR_NULL_HANDLE;
 }
+//#     filter block_doxygen_comment
 //! @brief Inequality comparison between nullptr and /*{type}*/: true if the handle is not null.
 //! @relates /*{type}*/
+//#     endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused */, /*{type}*/ const &rhs) noexcept {
     return rhs.get() != XR_NULL_HANDLE;
 }
 //# endblock extra_free_functions
 
 //# block free_put
+//#     filter block_doxygen_comment
 //! @brief Free "put" function for clearing and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
 //! reference).
 //!
@@ -167,8 +180,10 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused 
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
 //! @relates /*{type}*/
+//#     endfilter
 OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return v.put(); }
 
+//#     filter block_doxygen_comment
 //! @brief Free "put" function for clearing and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
 //! pointer).
 //!
@@ -182,6 +197,7 @@ OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return v.put()
 //!
 //! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
 //! @relates /*{type}*/
+//#     endfilter
 OPENXR_HPP_INLINE /*{raw_type}*/ *put(/*{type}*/ *h) noexcept {
     OPENXR_HPP_ASSERT(h != nullptr);
     return h->put();

@@ -33,6 +33,13 @@
 
 //# include('copyright_header.hpp') without context
 
+/**
+ * @file
+ * @brief C++ projections of OpenXR flag (bitmask) types.
+ *
+ * @see openxr_enums.hpp
+ */
+
 /*{ include_guard_begin() }*/
 
 #include <openxr/openxr.h>
@@ -44,7 +51,7 @@
 namespace OPENXR_HPP_NAMESPACE {
 
 /*!
- * @defgroup enums Flags
+ * @defgroup flags Flags
  * @brief C++ flags classes corresponding to OpenXR C flags and flagbits, plus associated utility functions.
  * @{
  */
@@ -54,26 +61,53 @@ namespace OPENXR_HPP_NAMESPACE {
 //#     set bitmask = bitmask_for_flags(flags)
 //#     set projected_bits_type = project_type_name(flags.valid_flags)
 /*{ protect_begin(flags) }*/
-//! @brief Flags class associated with /*{flags.name}*/
+//# filter block_doxygen_comment
+//! @brief Flag bits associated with /*{flags.name}*/
 //!
-//! See the related specification text at /*{ make_spec_url(flags.name) }*/
+//! See the related specification text at /*{ make_spec_url(flags.valid_flags) }*/
+//!
+//! @xrentity{/*{ flags.valid_flags }*/}
+//! @see /*{ projected_type }*/
+//# endfilter
 enum class /*{projected_bits_type }*/ : XrFlags64 {
     None = 0,
 //# for val in bitmask.values
     /*{ create_flag_value(val.name, flags.valid_flags) }*/ = /*{val.name}*/,
 //# endfor
-    AllBits = 0
-//# for val in bitmask.values
-              | /*{- val.name -}*/
-//# endfor
+    AllBits =
+//# if bitmask.values
+//#     set pipe = joiner(' | ')
+//#     for val in bitmask.values
+              /*{- pipe() }*/ /*{- val.name -}*/
+//#     endfor
+//# else
+ 0
+//# endif
 };
 
+//# filter block_doxygen_comment
+//! @brief Flags class projection of /*{flags.name}*/
+//!
+//! See the related specification text at /*{ make_spec_url(flags.name) }*/
+//!
+//! @xrentity{/*{ flags.valid_flags }*/}
+//! @see /*{ projected_bits_type }*/, Flags<>
+//# endfilter
 using /*{projected_type }*/ = Flags</*{projected_bits_type }*/, /*{flags.name}*/>;
 
+
+//# filter block_doxygen_comment
+//! @brief Bitwise OR operator between two /*{projected_bits_type }*/ flag bits.
+//! @see /*{projected_bits_type }*/, /*{projected_type }*/, Flags<>
+//# endfilter
 OPENXR_HPP_INLINE /*{projected_type }*/ operator|( /*{projected_bits_type }*/ bit0, /*{projected_bits_type }*/ bit1 ) {
     return /*{projected_type }*/( bit0 ) | bit1;
 }
 
+//# filter block_doxygen_comment
+//! @brief Bitwise negation operator of a /*{projected_bits_type }*/ flag bit.
+//! @see /*{projected_bits_type }*/, /*{projected_type }*/, Flags<>
+//# endfilter
 OPENXR_HPP_INLINE /*{projected_type }*/ operator~( /*{projected_bits_type }*/ bits ) {
     return ~( /*{projected_type }*/( bits ) );
 }
