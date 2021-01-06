@@ -39,6 +39,11 @@
 //#     set comparison_operators = ('==', '!=')
 //# endif
 
+//# if object_instance_desc is not defined
+//#     set object_instance_desc = "value"
+//# endif
+
+
 //# extends 'wrapperclass.hpp'
 
 //# block constructors scoped
@@ -51,7 +56,7 @@
 
 //#     block constructor_explicit scoped
 
-    //! Explicit constructor from raw /*{ raw_type }*/
+    //! Explicit constructor from raw /*{ raw_type }*/ value
     OPENXR_HPP_CONSTEXPR explicit /*{ type }*/ (/*{ raw_type }*/ v) noexcept : val_(v) {}
 
 //#     endblock constructor_explicit
@@ -70,7 +75,7 @@
 
 //#     block conversion_explicit_bool
 //#         if invalid
-    //! Returns true in conditionals if this /*{ type }*/ is valid
+    //! Returns true in conditionals if this /*{ type }*/ /*{ object_instance_desc }*/ is valid
     OPENXR_HPP_CONSTEXPR explicit operator bool() const noexcept { return val_ != /*{ invalid }*/; }
 
 //#         endif
@@ -78,7 +83,7 @@
 
 //#     block operator_negation
 //#         if invalid
-    //! Unary negation: True if this /*{ type }*/ is invalid
+    //! Unary negation: True if this /*{ type }*/ /*{ object_instance_desc }*/ is invalid
     OPENXR_HPP_CONSTEXPR bool operator!() const noexcept { return val_ == /*{ invalid }*/; }
 
 //#         endif

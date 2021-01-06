@@ -46,6 +46,10 @@
 //#     set input_param_type = type
 //# endif
 
+//# if object_instance_desc is not defined
+//#     set object_instance_desc = "instance"
+//# endif
+
 //## Default to no comparisons
 //# if comparison_operators is not defined
 //#     set comparison_operators = {}
@@ -99,7 +103,7 @@
 
 //#     block method_get
 
-    //! Gets the raw /*{ raw_type }*/ type.
+    //! Gets the raw /*{ raw_type }*/ value.
     OPENXR_HPP_CONSTEXPR /*{ raw_type }*/ get() const noexcept {
 //#         block method_get_body scoped
 #error "Must override block method_get_body"
@@ -110,7 +114,7 @@
 
 //#     block method_put
 //#         filter block_doxygen_comment
-    //! @brief Clears this value, then returns the address of the raw /*{ raw_type }*/ type,
+    //! @brief Clears this /*{ object_instance_desc }*/, then returns the address of the raw /*{ raw_type }*/ value,
     //! for use in creation/assignment.
 //#         endfilter
     /*{ raw_type }*/ *put() noexcept {
@@ -139,9 +143,9 @@
 //# block free_get scoped
 
 //#     filter block_doxygen_comment
-//! @brief Free function for getting the raw /*{ raw_type }*/ from /*{type}*/.
+//! @brief Free function for getting the raw /*{ raw_type }*/ from an /*{type}*/ /*{ object_instance_desc }*/.
 //!
-//! Should be found via argument-dependent lookup and thus not need explicit namespace qualification.
+//! Should not need explicit namespace qualification (found via ADL).
 //! @see /*{type}*/::get()
 //! @relates /*{type}*/
 //#     endfilter
@@ -150,9 +154,9 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{ raw_type }*/ get(/*{input_param_type}
 
 //# block free_put scoped
 //#     filter block_doxygen_comment
-//! @brief Free function for clearing and getting the raw /*{ raw_type }*/ from /*{type}*/.
+//! @brief Free function for clearing and getting the address of the raw /*{ raw_type }*/ from an /*{type}*/ /*{ object_instance_desc }*/.
 //!
-//! Should be found via argument-dependent lookup and thus not need explicit namespace qualification.
+//! Should not need explicit namespace qualification (found via ADL).
 //! @see /*{type}*/::put( )
 //! @relates /*{type}*/
 //#     endfilter
@@ -163,7 +167,7 @@ static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return 
 
 //#     block compare_self
 //#         for op in comparison_operators
-//! @brief `/*{op}*/` comparison between /*{type}*/ instances.
+//! @brief `/*{op}*/` comparison between /*{type}*/ /*{ object_instance_desc + "s" }*/.
 //! @relates /*{type}*/
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{input_param_type}*/ lhs, /*{input_param_type}*/ rhs) noexcept {
     return lhs.get() /*{- op -}*/ rhs.get();

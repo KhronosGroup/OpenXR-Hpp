@@ -30,8 +30,12 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# include 'file_header.hpp'
-
-//# from 'macros.hpp' import forwardCommandArgs
+/*!
+ * @file
+ * @brief Meta-header including all OpenXR-Hpp headers.
+ *
+ * It is usually recommended to include just those headers you specifically need.
+ */
 
 /*!
  * @defgroup config Configuration Options
@@ -45,6 +49,7 @@
  * @ingroup config
  */
 
+//# include('define_namespace.hpp') without context
 //# include('nongenerated_base.hpp') without context
 
 #include "openxr_atoms.hpp"
@@ -62,7 +67,7 @@ using BilateralPaths = std::array<Path, SIDE_COUNT>;
 
 /*
  * Inline implementations of all trampoline methods and free functions follow.
- * Prototypes may be found above, either in the associated handle class, or immediately following the section of handle classes.
+ * Prototypes may be found in openxr_handles.hpp, either in the associated handle class, or immediately following the section of handle classes.
  */
 #include "openxr_method_impls.hpp"
 
