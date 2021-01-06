@@ -33,6 +33,10 @@
 
 #include <openxr/openxr.h>
 
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
+
 //# include('define_inline_constexpr.hpp') without context
 //# include('define_namespace.hpp') without context
 //# include('define_namespace_string.hpp') without context

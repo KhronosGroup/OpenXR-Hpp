@@ -45,6 +45,10 @@
 
 #include <openxr/openxr.h>
 
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
+
 namespace OPENXR_HPP_NAMESPACE {
 
 /*% macro make_pfn_name(cur_cmd) -%*/ /*{cur_cmd.name | replace("xr", "pfn")}*/ /*%- endmacro %*/

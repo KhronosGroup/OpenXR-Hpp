@@ -64,6 +64,10 @@
 
 #include <openxr/openxr.h>
 
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
+
 namespace OPENXR_HPP_NAMESPACE {
 
 using Bool32 = XrBool32;

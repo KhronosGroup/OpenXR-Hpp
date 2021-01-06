@@ -157,7 +157,7 @@ class SystemError : public Error, public std::system_error {
  * @defgroup result_exceptions Result-specific exceptions
  * @{
  */
-//! @todo identify which errors would be considered LogicError and subclass that instead. Add to XML?
+//## @todo identify which errors would be considered LogicError and subclass that instead. Add to XML?
 //# for val in result_enum.values if "XR_ERROR" in val.name
 /*{ protect_begin(val, enum) }*/
 //#     set valname = create_enum_value(val.name, 'XrResult')

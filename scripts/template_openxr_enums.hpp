@@ -43,6 +43,10 @@
 
 #include <openxr/openxr.h>
 
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
+
 #include <string>
 
 // Fix name collisions from noisy includes
@@ -78,6 +82,9 @@ namespace OPENXR_HPP_NAMESPACE {
 //!
 //! See the related specification text at /*{ make_spec_url(enum.name) }*/
 //!
+//# if enum.name == "XrResult"
+//! @see failed(), succeeded(), unqualifiedSuccess()
+//# endif
 //! @xrentity{/*{ enum.name }*/}
 //# endfilter
 enum class /*{projected_type -}*/ : /*{ 'int32_t' if enum.name == 'XrResult' else 'uint32_t' }*/ {

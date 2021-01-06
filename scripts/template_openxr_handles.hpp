@@ -53,6 +53,10 @@
 
 #include <openxr/openxr.h>
 
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
+
 #ifndef OPENXR_HPP_DISABLE_ENHANCED_MODE
 #include <vector>
 #endif  // !OPENXR_HPP_DISABLE_ENHANCED_MODE

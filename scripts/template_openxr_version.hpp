@@ -43,6 +43,10 @@
  */
 
 #include <openxr/openxr.h>
+
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
 //# endblock
 
 //## Add component-wise constructor

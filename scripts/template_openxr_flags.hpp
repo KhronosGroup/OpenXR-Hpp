@@ -42,6 +42,10 @@
 
 #include <openxr/openxr.h>
 
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
+
 //# include('defines.hpp') without context
 
 //# include('nongenerated_flags.hpp') without context
@@ -89,24 +93,24 @@ enum class /*{projected_bits_type }*/ : XrFlags64 {
 //! See the related specification text at /*{ make_spec_url(flags.name) }*/
 //!
 //! @xrentity{/*{ flags.valid_flags }*/}
-//! @see /*{ projected_bits_type }*/, Flags<>
+//! @see /*{ projected_bits_type }*/, xr::Flags
 //# endfilter
 using /*{projected_type }*/ = Flags</*{projected_bits_type }*/, /*{flags.name}*/>;
 
 
 //# filter block_doxygen_comment
 //! @brief Bitwise OR operator between two /*{projected_bits_type }*/ flag bits.
-//! @see /*{projected_bits_type }*/, /*{projected_type }*/, Flags<>
+//! @see /*{projected_bits_type }*/, /*{projected_type }*/, xr::Flags
 //# endfilter
-OPENXR_HPP_INLINE /*{projected_type }*/ operator|( /*{projected_bits_type }*/ bit0, /*{projected_bits_type }*/ bit1 ) {
+OPENXR_HPP_INLINE /*{projected_type }*/ operator|( /*{projected_bits_type }*/ bit0, /*{projected_bits_type }*/ bit1) {
     return /*{projected_type }*/( bit0 ) | bit1;
 }
 
 //# filter block_doxygen_comment
 //! @brief Bitwise negation operator of a /*{projected_bits_type }*/ flag bit.
-//! @see /*{projected_bits_type }*/, /*{projected_type }*/, Flags<>
+//! @see /*{projected_bits_type }*/, /*{projected_type }*/, xr::Flags
 //# endfilter
-OPENXR_HPP_INLINE /*{projected_type }*/ operator~( /*{projected_bits_type }*/ bits ) {
+OPENXR_HPP_INLINE /*{projected_type }*/ operator~( /*{projected_bits_type }*/ bits) {
     return ~( /*{projected_type }*/( bits ) );
 }
 
