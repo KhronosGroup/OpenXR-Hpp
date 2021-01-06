@@ -34,10 +34,10 @@
  * @file
  * @brief Includes the appropriate subset of method implementations based on chosen configuration.
  *
- * @see config
  */
 
 #include "openxr_handles.hpp"
+#include "openxr_structs.hpp"
 
 
 #include "openxr_method_impls_simple.inl"
