@@ -30,6 +30,10 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# include('file_header.hpp')
+/**
+ * @file
+ * @brief C++ projections of OpenXR atom types.
+ */
 
 #include <openxr/openxr.h>
 
@@ -41,15 +45,14 @@
 //# include('define_namespace.hpp') without context
 //# include('define_namespace_string.hpp') without context
 /*!
- * @defgroup Atoms Atom wrappers
+ * @defgroup atoms Atoms
  * @brief C++ projections of OpenXR atoms: opaque values with no explicit lifetime, but that are only valid within the session they are retrieved from.
  */
 namespace OPENXR_HPP_NAMESPACE {
 
 //## loop over atoms
-//# set comparison_operators = ('==', '!=')
 //# for type, invalid in (("SystemId", "XR_NULL_SYSTEM_ID"), ("Path", "XR_NULL_PATH"))
-//#     include "valuewrapperclass.hpp"
+//#     include "atom.hpp"
 //# endfor
 
 } // namespace OPENXR_HPP_NAMESPACE

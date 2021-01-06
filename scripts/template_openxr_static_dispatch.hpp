@@ -30,6 +30,12 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# include('file_header.hpp')
+/**
+ * @file
+ * @brief Contains a "static" dispatcher class: provides only core entry points directly provided by linking against the loader.
+ *
+ * @ingroup dispatch
+ */
 
 //# from 'macros.hpp' import forwardCommandArgs, make_pfn_type, make_pfn_getter_name
 

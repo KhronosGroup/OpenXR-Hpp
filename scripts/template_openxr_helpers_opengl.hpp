@@ -30,6 +30,12 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# include('file_header.hpp')
+/**
+ * @file
+ * @brief Contains a helper function specific to OpenGL/OpenGL ES.
+ *
+ * @see xr::getOpenGLVersion, xr::Version
+ */
 
 #include "openxr_version.hpp"
 

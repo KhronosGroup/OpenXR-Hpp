@@ -41,7 +41,7 @@
  * @file
  * @brief Contains a type-safe C++ projection of XrTime
  *
- * @see openxr_duration.hpp
+ * @see openxr_duration.hpp, xr::Time
  */
 #include "openxr_duration.hpp"
 //# endblock

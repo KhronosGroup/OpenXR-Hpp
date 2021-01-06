@@ -40,7 +40,7 @@
 //# block includes
 /**
  * @file
- * @brief C++ projection of the OpenXR packed version type.
+ * @brief Contains a type-safe C++ projection of the OpenXR packed version type.
  *
  */
 

@@ -29,7 +29,6 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-
 //# set type = "Duration"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
@@ -41,7 +40,7 @@
  * @file
  * @brief Contains a type-safe C++ projection of XrDuration
  *
- * @see openxr_time.hpp
+ * @see openxr_time.hpp, xr::Duration
  */
 
 #include <openxr/openxr.h>

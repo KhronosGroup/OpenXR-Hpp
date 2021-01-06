@@ -56,11 +56,14 @@
 
 //# block comment_class scoped
 //#     filter block_doxygen_comment
-//! @brief /*{ raw_type }*/ wrapper class
+//! @brief /*% block comment_brief %*//*{ raw_type }*/ wrapper class/*% endblock comment_brief %*/
 //!
 //! /*{ make_spec_ref(raw_type) }*/
 //!
 //! @xrentity{/*{ raw_type }*/}
+//#         if doc_group
+//! @ingroup /*{ doc_group }*/
+//#         endif
 //#     endfilter
 //# endblock comment_class
 /*% block compound_type %*/class/*% endblock%*/ /*{ type }*/ /*% block parent_decl%*//*% endblock %*/ {
@@ -160,7 +163,7 @@ static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return 
 
 //#     block compare_self
 //#         for op in comparison_operators
-//! @brief `/*{op}*/` comparison between /*{type}*/.
+//! @brief `/*{op}*/` comparison between /*{type}*/ instances.
 //! @relates /*{type}*/
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator/*{- op -}*/(/*{input_param_type}*/ lhs, /*{input_param_type}*/ rhs) noexcept {
     return lhs.get() /*{- op -}*/ rhs.get();

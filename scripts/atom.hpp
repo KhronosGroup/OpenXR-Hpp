@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2020 The Khronos Group Inc.
-//## Copyright (c) 2019-2020 Collabora, Ltd.
+//## Copyright (c) 2017-2019 The Khronos Group Inc.
+//## Copyright (c) 2019 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,18 +29,11 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# include('file_header.hpp')
-/**
- * @file
- * @brief Forward declarations of all C++ projections of OpenXR structure types.
- */
+//# set comparison_operators = ('==', '!=')
+//# set doc_group = "atoms"
 
-namespace OPENXR_HPP_NAMESPACE {
+//# extends "valuewrapperclass.hpp"
 
-//# for struct in gen.api_structures
-struct /*{project_type_name(struct.name)}*/;
-//# endfor
+/*% block comment_brief %*/Type-safe wrapper for an /*{raw_type}*/ atom./*% endblock comment_brief %*/
 
-}  // namespace OPENXR_HPP_NAMESPACE
 
-//# include('file_footer.hpp')

@@ -32,6 +32,10 @@
 //# from 'macros.hpp' import wrapperSizeStaticAssert, make_spec_ref
 
 //# include('file_header.hpp')
+/**
+ * @file
+ * @brief C++ projections of OpenXR structure types.
+ */
 
 /*!
  * @defgroup structs Struct wrappers

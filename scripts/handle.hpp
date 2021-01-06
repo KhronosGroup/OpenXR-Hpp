@@ -37,19 +37,11 @@
 //# set input_param_type = type + " const&"
 //# set invalid = "XR_NULL_HANDLE"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
+//# set doc_group = "handles"
 
 //# extends "valuewrapperclass.hpp"
 
-//# block comment_class
-//#     filter block_doxygen_comment
-//! @brief Handle class - wrapping /*{raw_type}*/ without indicating ownership.
-//!
-//! /*{ make_spec_ref(raw_type) }*/
-//!
-//! @xrentity{/*{ raw_type }*/}
-//! @ingroup handles
-//#     endfilter
-//# endblock
+/*% block comment_brief %*/Handle class - wrapping /*{raw_type}*/ without indicating ownership./*% endblock comment_brief %*/
 
 //# block member_types
 using Type = /*{ type }*/;
@@ -101,7 +93,7 @@ Type &operator=(std::nullptr_t /* unused */) noexcept {
 //#     filter block_doxygen_comment
 //! @brief Conversion operator to the raw /*{raw_type}*/ type
 //!
-//! Explicit on 32-bit platforms by default unless @ref OPENXR_HPP_TYPESAFE_CONVERSION is defined.
+//! Explicit on 32-bit platforms by default unless `OPENXR_HPP_TYPESAFE_CONVERSION` is defined.
 //#     endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const noexcept { return val_; }
 //# endblock extra_constructors_conversion_assign
