@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString, make_spec_ref
+//# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString, make_spec_ref, extension_comment
 
 //# macro _makeReturnOnlyConstructor(s)
         //! Empty constructor for a type that is marked as "returnonly"
@@ -93,12 +93,12 @@
 //# set s = project_struct(struct)
     /*{ protect_begin(struct) }*/
 //# filter block_doxygen_comment
-    //! C++ projection of the /*{ s.name }*/
+    //! C++ projection of /*{ s.name }*/
+    //!
+    //! /*{ extension_comment(struct.ext_name, gen) }*/
     //!
     //! Guaranteed to have the same bit representation as the underlying type, despite having its own type, parent type(s), etc.
-    //!
     //! /*{ make_spec_ref(s.name) }*/
-    //!
     //! @xrentity{/*{ s.name }*/}
 //#     if s.typed_struct and s.is_abstract
     //! @ingroup abstracttypedstructs

@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_ref
+//# from 'macros.hpp' import make_spec_ref, extension_comment
 
 //# include('file_header.hpp')
 /**
@@ -81,6 +81,7 @@ namespace OPENXR_HPP_NAMESPACE {
 //# filter block_doxygen_comment
 //! @brief Enum class for /*{enum.name}*/
 //!
+//! /*{ extension_comment(enum.ext_name, gen) }*/
 //! /*{ make_spec_ref(enum.name) }*/
 //!
 //# if enum.name == "XrResult"

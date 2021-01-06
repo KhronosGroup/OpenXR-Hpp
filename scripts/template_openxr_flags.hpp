@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_ref
+//# from 'macros.hpp' import make_spec_ref, extension_comment
 
 //# include('file_header.hpp')
 
@@ -67,8 +67,8 @@ namespace OPENXR_HPP_NAMESPACE {
 //# filter block_doxygen_comment
 //! @brief Flag bits for /*{flags.name}*/
 //!
+//! /*{ extension_comment(flags.ext_name, gen) }*/
 //! /*{ make_spec_ref(flags.valid_flags) }*/
-//!
 //! @xrentity{/*{ flags.valid_flags }*/}
 //! @see /*{ projected_type }*/
 //# endfilter
@@ -91,8 +91,8 @@ enum class /*{projected_bits_type }*/ : XrFlags64 {
 //# filter block_doxygen_comment
 //! @brief Flags class projection of /*{flags.name}*/
 //!
+//! /*{ extension_comment(flags.ext_name, gen) }*/
 //! /*{ make_spec_ref(flags.name) }*/
-//!
 //! @xrentity{/*{ flags.valid_flags }*/}
 //! @see /*{ projected_bits_type }*/, xr::Flags
 //# endfilter

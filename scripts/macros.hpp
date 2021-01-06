@@ -43,6 +43,16 @@
 
 /*% macro include_guard_symbol() %*//*{ filename.replace('.', '_').upper() + '_' }*//*% endmacro %*/
 
+/*% macro extension_comment(extname, gen)  -%*/
+/*% if extname and not gen.isCoreExtensionName(extname) %*/
+//! Provided by the `/*{ extname }*/` extension.
+//#         if extname in gen.dict_extensions and gen.dict_extensions[extname].protect_value
+//! Be sure to include `<openxr_platform.h>` before including this header to use it.
+//#         endif
+//!
+/*%- endif %*/
+/*% endmacro %*/
+
 //## NOTE: requires #define __STDC_WANT_LIB_EXT1__ 1
 //## before including <string.h>
 //# macro initializeStaticLengthString(src, dst, size)

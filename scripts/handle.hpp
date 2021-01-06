@@ -34,6 +34,7 @@
 
 //# set type = shortname
 //# set raw_type = handle.name
+//# set extname = handle.ext_name
 //# set input_param_type = type + " const&"
 //# set invalid = "XR_NULL_HANDLE"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')

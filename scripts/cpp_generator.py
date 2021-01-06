@@ -940,11 +940,23 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             result = result + " = " + defaultValue
         return result
 
+    def requires_platform_header(self, entity):
+        if not hasattr(entity, "extname"):
+            return False
+        extname = entity.extname
+        if self.isCoreExtensionName(extname):
+            return False
+        return self.dict_extensions[extname].protect_value is not None
+
     # Write out all the information for the appropriate file,
     # and then call down to the base class to wrap everything up.
     #   self            the ConformanceLayerBaseGenerator object
     def endFile(self):
         sorted_cmds = self.core_commands + self.ext_commands
+
+        self.dict_extensions = {}
+        for ext in self.extensions:
+            self.dict_extensions[ext.name] = ext
 
         self.dict_handles = {}
         for handle in self.api_handles:

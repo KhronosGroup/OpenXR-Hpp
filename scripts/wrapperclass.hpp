@@ -31,7 +31,7 @@
 
 //## This file is typically used by extending: see e.g. time and duration
 
-//# from 'macros.hpp' import make_spec_ref, wrapperSizeStaticAssert
+//# from 'macros.hpp' import make_spec_ref, wrapperSizeStaticAssert, extension_comment
 
 
 //# if raw_type is not defined
@@ -61,7 +61,7 @@
 //# block comment_class scoped
 //#     filter block_doxygen_comment
 //! @brief /*% block comment_brief %*//*{ raw_type }*/ wrapper class/*% endblock comment_brief %*/
-//!
+//! /*{ extension_comment(extname, gen) }*/
 //! /*{ make_spec_ref(raw_type) }*/
 //!
 //! @xrentity{/*{ raw_type }*/}
