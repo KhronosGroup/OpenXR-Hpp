@@ -148,6 +148,13 @@
         }
 //# endif
 
+        //! Accessor for this as the address of a raw /*{struct.name}*/
+        /*{ struct.name }*/ const* get() const noexcept { return reinterpret_cast</*{ struct.name }*/ const *>(this); }
+
+//# if not s.is_abstract
+        //! Accessor for this as the address of a raw /*{struct.name}*/
+        /*{ struct.name }*/ * put() { return reinterpret_cast</*{ struct.name }*/*>(this); }
+//# endif
 
 //# for member in struct.members if not member is cpp_hidden_member and member.name not in s.parent_fields
         /*{ project_cppdecl(struct, member) }*/;
@@ -159,14 +166,14 @@
     //! @brief Free function accessor for /*{s.cpp_name}*/ const reference as a raw /*{struct.name}*/ pointer to const
     //! @relates /*{s.cpp_name}*/
 //# endfilter
-    static OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{s.cpp_name}*/ const& h) {
-        return &(h./*{"operator " + struct.name}*/ const&());
+    static OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{s.cpp_name}*/ const& s) {
+        return s.get();
     }
 
 //# if not s.is_abstract
     //! @brief Free function accessor for passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
     //! @relates /*{s.cpp_name}*/
-    static OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &h) { return &(h./*{"operator " + struct.name}*/&()); }
+    static OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &s) { return s.put(); }
 //# endif
 
 //# if s.is_derived_type
