@@ -50,14 +50,19 @@
  */
 
 //# include('define_namespace.hpp') without context
-//# include('nongenerated_base.hpp') without context
 
-#include "openxr_atoms.hpp"
-
+/*!
+ * @namespace xr
+ * @brief Namespace containing all OpenXR-Hpp entities.
+ *
+ * If the default namespace `xr` isn't suitable, you can define `OPENXR_HPP_NAMESPACE` to a different name before including any OpenXR-Hpp headers.
+ *
+ * @see OPENXR_HPP_NAMESPACE
+ */
 namespace OPENXR_HPP_NAMESPACE {
-using BilateralPaths = std::array<Path, SIDE_COUNT>;
 }  // namespace OPENXR_HPP_NAMESPACE
 
+#include "openxr_atoms.hpp"
 #include "openxr_time.hpp"
 #include "openxr_version.hpp"
 #include "openxr_static_dispatch.hpp"
