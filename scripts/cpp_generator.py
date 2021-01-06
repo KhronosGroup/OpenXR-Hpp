@@ -49,6 +49,16 @@ MANUALLY_PROJECTED = set((
 
 TWO_CALL_STRING_NAME = "buffer"
 
+RULE_BREAKING_ENUMS = {
+    'XrResult': 'XR',
+    'XrStructureType': 'XR_TYPE',
+    # Legacy oopsie that made it in unintentionally.
+    # Won't happen again, scripts guarantee that.
+    'XrPerfSettingsNotificationLevelEXT': 'XR_PERF_SETTINGS_NOTIF_LEVEL_EXT',
+}
+
+SINGLE_LINE_COMMENT_STARTS = ('///', '//!', '//')
+
 CAPACITY_INPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CapacityInput')
 COUNT_OUTPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CountOutput')
 
@@ -105,15 +115,6 @@ def _project_type_name(typename):
 
 def _is_static_length_string(member):
     return member.type == "char" and member.is_array and member.pointer_count == 0
-
-
-RULE_BREAKING_ENUMS = {
-    'XrResult': 'XR',
-    'XrStructureType': 'XR_TYPE',
-}
-
-SINGLE_LINE_COMMENT_STARTS = ('///', '//!', '//')
-
 
 def _block_comment(s, doxygen=False):
     def clean_line(line):
