@@ -31,7 +31,7 @@
 
 //# include('file_header.hpp')
 
-//# from 'macros.hpp' import forwardCommandArgs
+//# from 'macros.hpp' import forwardCommandArgs, make_pfn_type, make_pfn_getter_name
 
 //# include('define_inline_constexpr.hpp') without context
 //# include('define_namespace.hpp') without context
@@ -71,6 +71,11 @@ class DispatchLoaderStatic {
     //# for cur_cmd in gen.core_commands
     OPENXR_HPP_INLINE /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
         return ::/*{cur_cmd.name}*/ (/*{ forwardCommandArgs(cur_cmd) }*/);
+    }
+
+    //! @brief Return the function pointer this dispatcher uses for /*{cur_cmd.name}*/
+    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/()  const {
+        return &::/*{cur_cmd.name}*/;
     }
     //# endfor
 

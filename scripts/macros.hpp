@@ -35,6 +35,10 @@
 
 /*% macro wrapperSizeStaticAssert(orig, wrapper) %*/ static_assert(sizeof(/*{ orig }*/) == sizeof(/*{ wrapper }*/), "Original type and wrapper have different size!"); /*% endmacro %*/
 
+/*% macro make_pfn_type_from_name(name) -%*/ /*{"PFN_" + name}*/ /*%- endmacro %*/
+/*% macro make_pfn_type(cur_cmd) -%*/ /*{make_pfn_type_from_name(cur_cmd.name)}*/ /*%- endmacro %*/
+/*% macro make_pfn_getter_name(cur_cmd) -%*/ /*{"getInstanceProcAddr_" + cur_cmd.name}*/ /*%- endmacro %*/
+
 /*% macro include_guard_symbol() %*//*{ filename.replace('.', '_').upper() + '_' }*//*% endmacro %*/
 
 //## NOTE: requires #define __STDC_WANT_LIB_EXT1__ 1

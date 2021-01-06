@@ -37,7 +37,7 @@
  * @see OPENXR_HPP_NO_EXCEPTIONS
  */
 
-//# from 'macros.hpp' import forwardCommandArgs
+//# from 'macros.hpp' import forwardCommandArgs, make_pfn_type, make_pfn_getter_name
 
 //# include('define_assert.hpp') without context
 //# include('define_inline_constexpr.hpp') without context
@@ -48,8 +48,6 @@
 namespace OPENXR_HPP_NAMESPACE {
 
 /*% macro make_pfn_name(cur_cmd) -%*/ /*{cur_cmd.name | replace("xr", "pfn")}*/ /*%- endmacro %*/
-
-/*% macro make_pfn_type(cur_cmd) -%*/ /*{"PFN_" + cur_cmd.name}*/ /*%- endmacro %*/
 
 /*!
  * @brief Dispatch class for OpenXR that looks up all functions using a provided or statically-available xrGetInstanceProcAddr
@@ -151,6 +149,27 @@ class DispatchLoaderDynamic {
         //## Cast and call
         return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/))(
             /*{ forwardCommandArgs(cur_cmd) }*/);
+    }
+
+    //#     filter block_doxygen_comment
+    //! @brief Return the function pointer for /*{cur_cmd.name}*/, populating function pointer if required.
+    //#     endfilter
+    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/() {
+        //## Populate
+        XrResult result = populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
+        if (XR_FAILED(result)) {
+            return nullptr;
+        }
+        //## Cast and return
+        return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/));
+    }
+
+    //#     filter block_doxygen_comment
+    //! @brief Return the function pointer for /*{cur_cmd.name}*/ (const overload - does not populate function pointer)
+    //#     endfilter
+    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/()  const {
+        //## Cast and return
+        return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/));
     }
     /*{ protect_end(cur_cmd) }*/
 
