@@ -128,6 +128,8 @@
 //# if not s.is_abstract
         //! Default copy constructor
         /*{ s.cpp_name }*/(const /*{ s.cpp_name }*/& rhs) = default;
+        //! Default copy assignment
+        /*{ s.cpp_name }*/& operator=(const /*{ s.cpp_name }*/& rhs) = default;
 //# endif
 
 
