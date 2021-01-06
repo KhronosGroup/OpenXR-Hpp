@@ -145,9 +145,10 @@
 //#     filter block_doxygen_comment
 //! @brief Free function for getting the raw /*{ raw_type }*/ from an /*{type}*/ /*{ object_instance_desc }*/.
 //!
-//! Should not need explicit namespace qualification (found via ADL).
+//! @found_by_adl
 //! @see /*{type}*/::get()
 //! @relates /*{type}*/
+//! @ingroup utility_accessors
 //#     endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{ raw_type }*/ get(/*{input_param_type}*/ v) noexcept { return v.get(); }
 //# endblock free_get
@@ -156,9 +157,10 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{ raw_type }*/ get(/*{input_param_type}
 //#     filter block_doxygen_comment
 //! @brief Free function for clearing (by default) and getting the address of the raw /*{ raw_type }*/ from an /*{type}*/ /*{ object_instance_desc }*/.
 //!
-//! Should not need explicit namespace qualification (found via ADL).
+//! @found_by_adl
 //! @see /*{type}*/::put( )
 //! @relates /*{type}*/
+//! @ingroup utility_accessors
 //#     endfilter
 static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v, bool clear = true) noexcept { return v.put(clear); }
 //# endblock free_put

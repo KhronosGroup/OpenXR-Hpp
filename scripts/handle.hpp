@@ -172,7 +172,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused 
 //! auto result = d.xrCreate/*{- type -}*/(..., put(yourHandle));
 //! ```
 //!
-//! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
+//! @ingroup utility_accessors
 //! @relates /*{type}*/
 //#     endfilter
 static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &h, bool clear = true) noexcept { return h.put(clear); }
@@ -189,8 +189,8 @@ static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &h, bool clear = true)
 //! }
 //! ```
 //!
-//! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
 //! @relates /*{type}*/
+//! @ingroup utility_accessors
 //#     endfilter
 static OPENXR_HPP_INLINE /*{raw_type}*/ *put(/*{type}*/ *h, bool clear = true) noexcept {
     OPENXR_HPP_ASSERT(h != nullptr);

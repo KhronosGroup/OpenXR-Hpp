@@ -178,16 +178,20 @@
     /*{ wrapperSizeStaticAssert(struct.name, s.cpp_name) }*/
 
 //# filter block_doxygen_comment
-    //! @brief Free function accessor for /*{s.cpp_name}*/ const reference as a raw /*{struct.name}*/ pointer to const
+    //! @brief Free function for getting a raw /*{struct.name}*/ pointer to const from a /*{s.cpp_name}*/ reference to const.
     //! @relates /*{s.cpp_name}*/
+    //! @ingroup utility_accessors
 //# endfilter
     static OPENXR_HPP_INLINE /*{struct.name}*/ const* get(/*{s.cpp_name}*/ const& s) {
         return s.get();
     }
 
 //# if not s.is_abstract
+//#     filter block_doxygen_comment
     //! @brief Free function accessor for clearing (by default) and passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
     //! @relates /*{s.cpp_name}*/
+    //! @ingroup utility_accessors
+//# endfilter
     static OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &s, bool clear = true) noexcept { return s.put(clear); }
 //# endif
 
@@ -195,11 +199,12 @@
 //#     filter block_doxygen_comment
     //! @brief Free function accessor for a reference to const /*{s.cpp_name}*/ as a raw, pointer to const /*{s.parent_type}*/ (the base type)
     //! @relates /*{s.cpp_name}*/
-    //! @relates /*{s.parent_cpp_type}*/
+    //! @relatesalso /*{s.parent_cpp_type}*/
+    //! @ingroup utility_accessors
 //#     endfilter
     static OPENXR_HPP_INLINE /*{s.parent_type}*/ const* get_base(/*{s.cpp_name}*/ const& h) {
         return h.get_base();
     }
 //# endif
 
-    /*{ protect_end(struct) }*/
+/*{ protect_end(struct) }*/

@@ -64,6 +64,7 @@ namespace OPENXR_HPP_NAMESPACE {
 /*!
  * @defgroup enums Enumerations
  * @brief C++ enum classes corresponding to OpenXR C enumerations, plus associated utility functions.
+ * @ingroup wrappers
  *
  * All enumerations have three utility functions defined:
  *
@@ -98,8 +99,9 @@ enum class /*{projected_type -}*/ : /*{ 'int32_t' if enum.name == 'XrResult' els
 //# filter block_doxygen_comment
 //! @brief Free function for retrieving the raw /*{enum.name}*/ value from a /*{projected_type}*/.
 //!
-//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @found_by_adl
 //! @see /*{projected_type}*/
+//! @ingroup utility_accessors
 //# endfilter
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{enum.name}*/ get(/*{projected_type}*/ const& v) {
     return static_cast</*{enum.name}*/>(v);
@@ -108,8 +110,9 @@ OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{enum.name}*/ get(/*{projected_type}*/ 
 //# filter block_doxygen_comment
 //! @brief Free function for retrieving the string name of a /*{projected_type}*/ value as a const char *.
 //!
-//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @found_by_adl
 //! @see /*{projected_type}*/
+//! @ingroup utility_accessors
 //# endfilter
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char* to_string_literal(/*{projected_type}*/ value) {
     switch (value) {
@@ -128,8 +131,9 @@ OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char* to_string_literal(/*{p
 //# filter block_doxygen_comment
 //! @brief Free function for retrieving the string name of a /*{projected_type}*/ value as a std::string.
 //!
-//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @found_by_adl
 //! @see /*{projected_type}*/
+//! @ingroup utility_accessors
 //# endfilter
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected_type}*/ value) {
     return {to_string_literal(value)};
@@ -148,7 +152,7 @@ OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected
 //# filter block_doxygen_comment
 //! @brief Return true if the Result is negative, indicating a failure.
 //! Equivalent of XR_FAILED().
-//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @found_by_adl
 //! @see Result
 //!
 //! /*{ make_spec_ref("XR_FAILED") }*/
@@ -159,7 +163,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) { return static_cas
 //# filter block_doxygen_comment
 //! @brief Return true if the result is non-negative, indicating a success or non-error result.
 //! Equivalent of XR_SUCCEEDED().
-//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @found_by_adl
 //! @see Result
 //!
 //! /*{ make_spec_ref("XR_SUCCEEDED") }*/
@@ -170,7 +174,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool succeeded(Result v) { return static_
 //# filter block_doxygen_comment
 //! @brief Return true if the result is exactly equal to Result::Success.
 //! Equivalent of XR_UNQUALIFIED_SUCCESS().
-//! Should be found by argument-dependent lookup, thus no need to specify the namespace.
+//! @found_by_adl
 //! @see Result
 //!
 //! /*{ make_spec_ref("XR_UNQUALIFIED_SUCCESS") }*/

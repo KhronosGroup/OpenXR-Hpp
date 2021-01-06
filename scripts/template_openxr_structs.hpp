@@ -148,7 +148,11 @@ private:
 };
 /*{ wrapperSizeStaticAssert('::XrEventDataBuffer', 'EventDataBuffer') }*/
 
+//# filter block_doxygen_comment
+//! @brief Free "put" function for clearing and getting the address of the raw XrEventDataBuffer in an EventDataBuffer.
 //! @relates EventDataBuffer
+//! @ingroup utility_accessors
+//# endfilter
 OPENXR_HPP_INLINE XrEventDataBuffer* put(EventDataBuffer& v, bool clear = true) noexcept {
     return v.put(clear);
 }
