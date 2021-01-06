@@ -265,9 +265,10 @@ class MethodProjection:
         self.return_template_params = []
 
         self.dispatch = "Dispatch&& d"
-        self.suppress_default_dispatch_arg = not self.is_core
         self.template_decl_list = [DISPATCH_TEMPLATE_DEFN]
+        """Template parameters to use in the method (forward) declaration."""
         self.template_defn_list = self.template_decl_list[:]
+        """Template parameters to use in the method definition - should not include default args."""
 
         self.exceptions_permitted = True
         self.explicit_result_elided = False
