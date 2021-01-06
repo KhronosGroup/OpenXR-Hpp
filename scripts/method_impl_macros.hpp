@@ -37,7 +37,7 @@
     //# if enhanced.item_type == 'char'
     std::basic_string<char, std::char_traits<char>, Allocator> str{vectorAllocator};
     //# endif
-    /*{ enhanced.get_main_invoke({enhanced.array_param_name: "nullptr"}) }*/
+    /*{ enhanced.get_main_invoke(replacements={enhanced.array_param_name: "nullptr"}) }*/
     if (!unqualifiedSuccess(result) || /*{ enhanced.count_output_param_name }*/ == 0) {
 
         /*{ make_error_handling(enhanced, exceptions_allowed) }*/
@@ -48,7 +48,7 @@
         /*{ enhanced.capacity_input_param_name }*/ = static_cast<uint32_t>(/*{enhanced.array_param_name}*/.size());
         //# set raw_array_param = enhanced.array_param_name + ".data()"
         //# set array_param = "reinterpret_cast<" + enhanced.array_param.param.type + "*>(" + raw_array_param + ")"
-        /*{ enhanced.get_main_invoke({ enhanced.array_param_name: array_param }) | replace("Result ", "") }*/
+        /*{ enhanced.get_main_invoke(replacements={ enhanced.array_param_name: array_param }) | replace("Result ", "") }*/
     } while (result == xr::Result::ErrorSizeInsufficient);
     if (result == xr::Result::Success) {
         OPENXR_HPP_ASSERT(/*{ enhanced.count_output_param_name }*/ <= /*{enhanced.array_param_name}*/.size());
@@ -138,7 +138,6 @@ succeeded(/*{method.result_name}*/)
 template </*{ enhanced.template_defns }*/>
 OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     /*{ enhanced.get_definition_params() | join(", ")}*/) /*{enhanced.qualifiers}*/ {
-
     /*{ enhanced.pre_statements | join("\n") | indent}*/
     /*{ enhanced.get_main_invoke() }*/
     /*{ enhanced.post_statements | join("\n") | indent }*/
