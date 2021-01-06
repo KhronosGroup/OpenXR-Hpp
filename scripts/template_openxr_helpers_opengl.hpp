@@ -32,6 +32,11 @@
 //# include('file_header.hpp')
 
 #include "openxr_version.hpp"
+
+//# include('define_namespace.hpp') without context
+
+namespace OPENXR_HPP_NAMESPACE {
+
 #if (defined(GL_MAJOR_VERSION) && defined(GL_MINOR_VERSION)) || defined(OPENXR_HPP_DOXYGEN)
 /**
  * @brief Get the OpenGL major and minor version as a packed Version type.
@@ -46,5 +51,7 @@ OPENXR_HPP_INLINE Version getOpenGLVersion() noexcept {
     return Version{static_cast<uint16_t>(major), static_cast<uint16_t>(minor), 0};
 }
 #endif  // (defined(GL_MAJOR_VERSION) && defined(GL_MINOR_VERSION)) || defined(OPENXR_HPP_DOXYGEN)
+
+}  // namespace OPENXR_HPP_NAMESPACE
 
 //# include('file_footer.hpp')
