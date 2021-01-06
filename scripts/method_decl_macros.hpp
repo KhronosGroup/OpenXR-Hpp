@@ -29,18 +29,16 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_url
+//# from 'macros.hpp' import make_spec_ref
 
 /*% macro shared_comments(cur_cmd, method) %*/
 //!
-//! See the related specification text at /*{ make_spec_url(cur_cmd.name) }*/
+//! /*{ make_spec_ref(cur_cmd.name) }*/
 //!
 //! @xrentity{/*{ cur_cmd.name }*/}
 /*% if not method.is_core %*/
 //!
-//! @note By default, no default dispatch is provided as this is a non-core function,
-//! and thus requires some dynamic dispatch class (like DispatchLoaderDynamic).
-//! See OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER for details.
+//! @note Non-core function: needs a dynamic dispatch.
 /*% endif %*/
 /*% endmacro %*/
 

@@ -31,8 +31,7 @@
 
 //# include 'file_header.hpp'
 
-//# from 'macros.hpp' import forwardCommandArgs, make_spec_url
-
+//# from 'macros.hpp' import forwardCommandArgs
 
 /*!
  * @defgroup config Configuration Options

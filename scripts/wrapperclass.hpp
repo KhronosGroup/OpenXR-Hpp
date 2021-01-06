@@ -31,7 +31,7 @@
 
 //## This file is typically used by extending: see e.g. time and duration
 
-//# from 'macros.hpp' import make_spec_url, wrapperSizeStaticAssert
+//# from 'macros.hpp' import make_spec_ref, wrapperSizeStaticAssert
 
 
 //# if raw_type is not defined
@@ -58,7 +58,7 @@
 //#     filter block_doxygen_comment
 //! @brief /*{ raw_type }*/ wrapper class
 //!
-//! See the related specification text at /*{ make_spec_url(raw_type) }*/
+//! /*{ make_spec_ref(raw_type) }*/
 //!
 //! @xrentity{/*{ raw_type }*/}
 //#     endfilter

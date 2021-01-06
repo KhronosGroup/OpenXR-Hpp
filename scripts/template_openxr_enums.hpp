@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_url
+//# from 'macros.hpp' import make_spec_ref
 
 //# include('file_header.hpp')
 /**
@@ -78,9 +78,9 @@ namespace OPENXR_HPP_NAMESPACE {
 //#     set projected_type = project_type_name(enum.name)
 /*{ protect_begin(enum) }*/
 //# filter block_doxygen_comment
-//! @brief Enum class associated with /*{enum.name}*/
+//! @brief Enum class for /*{enum.name}*/
 //!
-//! See the related specification text at /*{ make_spec_url(enum.name) }*/
+//! /*{ make_spec_ref(enum.name) }*/
 //!
 //# if enum.name == "XrResult"
 //! @see failed(), succeeded(), unqualifiedSuccess()
@@ -151,7 +151,7 @@ OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected
 //! Should be found by argument-dependent lookup, thus no need to specify the namespace.
 //! @see Result
 //!
-//! See the related specification text at /*{ make_spec_url("XR_FAILED") }*/
+//! /*{ make_spec_ref("XR_FAILED") }*/
 //! @xrentity{XR_FAILED}
 //# endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) { return static_cast<int>(v) < 0; }
@@ -162,7 +162,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool failed(Result v) { return static_cas
 //! Should be found by argument-dependent lookup, thus no need to specify the namespace.
 //! @see Result
 //!
-//! See the related specification text at /*{ make_spec_url("XR_SUCCEEDED") }*/
+//! /*{ make_spec_ref("XR_SUCCEEDED") }*/
 //! @xrentity{XR_SUCCEEDED}
 //# endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool succeeded(Result v) { return static_cast<int>(v) >= 0; }
@@ -173,7 +173,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool succeeded(Result v) { return static_
 //! Should be found by argument-dependent lookup, thus no need to specify the namespace.
 //! @see Result
 //!
-//! See the related specification text at /*{ make_spec_url("XR_UNQUALIFIED_SUCCESS") }*/
+//! /*{ make_spec_ref("XR_UNQUALIFIED_SUCCESS") }*/
 //! @xrentity{XR_UNQUALIFIED_SUCCESS}
 //# endfilter
 OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool unqualifiedSuccess(Result v) { return v == Result::Success; }

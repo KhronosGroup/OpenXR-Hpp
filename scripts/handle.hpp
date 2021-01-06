@@ -30,6 +30,8 @@
 //## but only in their entirety and only with respect to the Combined Software.
 
 //# from 'method_decl_macros.hpp' import method_prototypes with context
+//# from 'macros.hpp' import make_spec_ref
+
 //# set type = shortname
 //# set raw_type = handle.name
 //# set input_param_type = type + " const&"
@@ -42,7 +44,7 @@
 //#     filter block_doxygen_comment
 //! @brief Handle class - wrapping /*{raw_type}*/ without indicating ownership.
 //!
-//! See the related specification text at /*{ make_spec_url(raw_type) }*/
+//! /*{ make_spec_ref(raw_type) }*/
 //!
 //! @xrentity{/*{ raw_type }*/}
 //! @ingroup handles

@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import wrapperSizeStaticAssert, make_spec_url
+//# from 'macros.hpp' import wrapperSizeStaticAssert, make_spec_ref
 
 //# include('file_header.hpp')
 
@@ -101,7 +101,7 @@ namespace impl {
 //# filter block_doxygen_comment
 //! @brief Wrapper for XrEventDataBuffer
 //!
-//! See the related specification text at /*{ make_spec_url("XrEventDataBuffer") }*/
+//! /*{ make_spec_ref("XrEventDataBuffer") }*/
 //!
 //! @xrentity{XrEventDataBuffer}
 //! @ingroup typedstructs

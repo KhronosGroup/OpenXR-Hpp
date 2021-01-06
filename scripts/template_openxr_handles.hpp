@@ -40,7 +40,6 @@
  * Does not include the implementations of the functions: for that, see @ref openxr_method_impls.hpp
  */
 
-//# from 'macros.hpp' import make_spec_url
 //# from 'method_decl_macros.hpp' import method_prototypes with context
 
 #include "openxr_atoms.hpp"

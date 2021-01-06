@@ -29,8 +29,6 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_url
-
 //# include('file_header.hpp')
 /**
  * @file
@@ -162,7 +160,7 @@ class SystemError : public Error, public std::system_error {
 /*{ protect_begin(val, enum) }*/
 //#     set valname = create_enum_value(val.name, 'XrResult')
 //#    set classname = create_enum_exception(val.name)
-//! @brief Exception class associated with the Result::/*{valname}*/ aka /*{val.name}*/ result code.
+//! @brief Exception class for the Result::/*{valname}*/ aka /*{val.name}*/ result code.
 class /*{classname}*/ : public SystemError {
    public:
     /*{classname}*/ (std::string const& message)

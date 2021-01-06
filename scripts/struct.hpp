@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString
+//# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString, make_spec_ref
 
 //# macro _makeReturnOnlyConstructor(s)
         //! Empty constructor for a type that is marked as "returnonly"
@@ -97,7 +97,7 @@
     //!
     //! Guaranteed to have the same bit representation as the underlying type, despite having its own type, parent type(s), etc.
     //!
-    //! See the related specification text at /*{ make_spec_url(s.name) }*/
+    //! /*{ make_spec_ref(s.name) }*/
     //!
     //! @xrentity{/*{ s.name }*/}
 //#     if s.typed_struct and s.is_abstract

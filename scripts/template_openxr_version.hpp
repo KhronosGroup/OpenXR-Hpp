@@ -29,6 +29,8 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# from 'macros.hpp' import make_spec_ref
+
 //# set type = "Version"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
@@ -69,7 +71,7 @@ Version(uint16_t major_, uint16_t minor_, uint32_t patch_) noexcept {
 //# filter block_doxygen_comment
 //! @brief Get the major component.
 //!
-//! /*{ make_spec_url("XR_VERSION_MAJOR") }*/
+//! /*{ make_spec_ref("XR_VERSION_MAJOR") }*/
 //!
 //! @xrentity{XR_VERSION_MAJOR}
 //# endfilter
@@ -90,7 +92,7 @@ void major(uint16_t val) noexcept
 //# filter block_doxygen_comment
 //! @brief Get the minor component.
 //!
-//! /*{ make_spec_url("XR_VERSION_MINOR") }*/
+//! /*{ make_spec_ref("XR_VERSION_MINOR") }*/
 //!
 //! @xrentity{XR_VERSION_MINOR}
 //# endfilter
@@ -109,7 +111,7 @@ void minor(uint16_t val) noexcept
 //# filter block_doxygen_comment
 //! @brief Get the patch component.
 //!
-//! /*{ make_spec_url("XR_VERSION_PATCH") }*/
+//! /*{ make_spec_ref("XR_VERSION_PATCH") }*/
 //!
 //! @xrentity{XR_VERSION_PATCH}
 //# endfilter
@@ -129,7 +131,7 @@ void patch(uint32_t val) noexcept
 //# filter block_doxygen_comment
 //! @brief Get the current version of OpenXR, based on the header.
 //!
-//! /*{ make_spec_url("XR_CURRENT_API_VERSION") }*/
+//! /*{ make_spec_ref("XR_CURRENT_API_VERSION") }*/
 //!
 //! @xrentity{XR_CURRENT_API_VERSION}
 //# endfilter
