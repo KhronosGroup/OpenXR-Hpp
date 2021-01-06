@@ -107,7 +107,7 @@ Result
 /*{ enhanced_method_behavior(enhanced, exceptions_allowed) }*/
 /*{ shared_comments(cur_cmd, enhanced) }*/
 //# endfilter
-    template </*{ enhanced.template_decls }*/>
+    template </*{ enhanced.get_template_decls() }*/>
     /*{enhanced.return_type}*/ /*{enhanced.cpp_name}*/ (
         /*{ enhanced.get_declaration_params() | join(", ")}*/) /*{enhanced.qualifiers}*/;
 //# if enhanced.is_two_call
@@ -117,7 +117,7 @@ Result
     /*{ enhanced_method_behavior(enhanced) }*/
     /*{ shared_comments(cur_cmd, enhanced) }*/
 //# endfilter
-    template </*{ enhanced.template_decls }*/>
+    template </*{ enhanced.get_template_decls(suppress_default_dispatch_arg=true) }*/>
     /*{enhanced.return_type}*/ /*{enhanced.cpp_name}*/ (
         /*{ enhanced.get_declaration_params(extras=["Allocator const& vectorAllocator"], suppress_default_dispatch_arg=true) | join(", ")}*/) /*{enhanced.qualifiers}*/;
 
@@ -141,7 +141,7 @@ Result
 //! @brief /*{cur_cmd.name}*/ wrapper (basic).
 /*{ shared_comments(cur_cmd, method) }*/
 //#     endfilter
-template </*{ method.template_decls }*/>
+template </*{ method.get_template_decls() }*/>
 /*{method.return_type}*/ /*{method.cpp_name}*/ (
     /*{ method.get_declaration_params() | join(", ")}*/) /*{method.qualifiers}*/;
 

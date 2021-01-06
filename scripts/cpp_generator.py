@@ -220,6 +220,7 @@ class StructProjection:
             return "next_"
         return None
 
+DISPATCH_TEMPLATE_DEFN = "typename Dispatch"
 
 class MethodProjection:
     """Stores the method declaration and implementation."""
@@ -265,17 +266,12 @@ class MethodProjection:
 
         self.dispatch = "Dispatch&& d"
         self.suppress_default_dispatch_arg = not self.is_core
-        self.template_decl_list = ["typename Dispatch"]
+        self.template_decl_list = [DISPATCH_TEMPLATE_DEFN]
         self.template_defn_list = self.template_decl_list[:]
 
         self.exceptions_permitted = True
         self.explicit_result_elided = False
         """If true, our most advanced enhanced wrapper doesn't have an XrResult anywhere."""
-
-        if self.is_core:
-            self.template_decl_list[0] = self.template_decl_list[0] + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG"
-        else:
-            self.template_decl_list[0] += " OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG"
 
     def _declparams(self, replacements=None):
         def find_decl(name):
@@ -292,9 +288,16 @@ class MethodProjection:
             return "the output string"
         return "the output of type %s" % self.bare_return_type
 
-    @property
-    def template_decls(self):
-        return ", ".join(self.template_decl_list)
+    def get_template_decls(self, suppress_default_dispatch_arg=False):
+        decls = self.template_decl_list[:]
+        if not suppress_default_dispatch_arg:
+            for i, decl in enumerate(decls):
+                if DISPATCH_TEMPLATE_DEFN == decl:
+                    if self.is_core:
+                        decls[i] = decl + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG"
+                    else:
+                        decls[i] = decl + " OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG"
+        return ", ".join(decls)
 
     @property
     def template_defns(self):
