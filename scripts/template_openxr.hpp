@@ -57,11 +57,6 @@ using BilateralPaths = std::array<Path, SIDE_COUNT>;
 #include "openxr_version.hpp"
 #include "openxr_static_dispatch.hpp"
 #include "openxr_dynamic_dispatch.hpp"
-
-//## These includes are currently unused
-//## //# include('template_openxr_nongenerated_chains.hpp') without context
-//## //# include('template_openxr_nongenerated_enhanced.hpp') without context
-
 #include "openxr_handles.hpp"
 #include "openxr_structs.hpp"
 
