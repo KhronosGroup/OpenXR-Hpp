@@ -88,41 +88,45 @@
  *
  * Enabled by default on 64-bit platforms.
  * 32-bit OpenXR is not typesafe for handles, so this is disabled on such platforms by default.
- * To enable this feature on 32-bit platforms please define OPENXR_HPP_TYPESAFE_CONVERSION
+ * To enable this feature on 32-bit platforms please define `OPENXR_HPP_TYPESAFE_CONVERSION`
  *
+ * @ingroup config
+ */
+/*!
+ * @defgroup config_dispatch Default dispatch configuration
  * @ingroup config
  */
 /*!
  * @def OPENXR_HPP_NO_DEFAULT_DISPATCH
  * @brief Define to disable default dispatch arguments.
  * @see OPENXR_HPP_DEFAULT_CORE_DISPATCHER, OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE
- * @ingroup config
+ * @ingroup config_dispatch
  */
 /*!
  * @def OPENXR_HPP_DEFAULT_CORE_DISPATCHER
  * @brief Define to the expression you'd like to use as the default dispatcher for core API functions.
  *
- * Defaults to `DispatchLoaderStatic()` unless OPENXR_HPP_NO_DEFAULT_DISPATCH is defined.
+ * Defaults to `DispatchLoaderStatic()` unless `OPENXR_HPP_NO_DEFAULT_DISPATCH` is defined.
  *
- * If both this and OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE are defined (by you, or by default if OPENXR_HPP_NO_DEFAULT_DISPATCH is not defined),
+ * If both this and `OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE` are defined (by you, or by default if `OPENXR_HPP_NO_DEFAULT_DISPATCH` is not defined),
  * `OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG` will be defined to `= OPENXR_HPP_DEFAULT_CORE_DISPATCHER`.
  *
  * @see DispatchLoaderStatic, OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE, OPENXR_HPP_NO_DEFAULT_DISPATCH
- * @ingroup config
+ * @ingroup config_dispatch
  */
 /*!
  * @def OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE
  * @brief Define to the type of the expression you'd like to use as the default dispatcher for core API functions.
  *
- * This will be used as the default type parameter in functions where OPENXR_HPP_DEFAULT_CORE_DISPATCHER will be the default argument.
+ * This will be used as the default type parameter in functions where `OPENXR_HPP_DEFAULT_CORE_DISPATCHER` will be the default argument.
  *
- * Defaults to `DispatchLoaderStatic` unless OPENXR_HPP_NO_DEFAULT_DISPATCH is defined.
+ * Defaults to `DispatchLoaderStatic` unless `OPENXR_HPP_NO_DEFAULT_DISPATCH` is defined.
  *
- * If both this and OPENXR_HPP_DEFAULT_CORE_DISPATCHER are defined (by you, or by default if OPENXR_HPP_NO_DEFAULT_DISPATCH is not defined),
+ * If both this and `OPENXR_HPP_DEFAULT_CORE_DISPATCHER` are defined (by you, or by default if `OPENXR_HPP_NO_DEFAULT_DISPATCH` is not defined),
  * `OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG` will be defined to `= OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE`.
  *
  * @see DispatchLoaderStatic, OPENXR_HPP_DEFAULT_CORE_DISPATCHER, OPENXR_HPP_NO_DEFAULT_DISPATCH
- * @ingroup config
+ * @ingroup config_dispatch
  */
 /*!
  * @def OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER
@@ -134,7 +138,7 @@
  *
  * A globally-accessible instance of xr::DispatchLoaderDynamic would be suitable.
  *
- * @ingroup config
+ * @ingroup config_dispatch
  */
 
 /*!
@@ -147,7 +151,7 @@
  *
  * xr::DispatchLoaderDynamic would be suitable.
  *
- * @ingroup config
+ * @ingroup config_dispatch
  */
 /*!
  * @def OPENXR_HPP_DISABLE_ENHANCED_MODE

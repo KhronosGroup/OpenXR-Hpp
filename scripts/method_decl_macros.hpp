@@ -55,7 +55,7 @@ Result
 //#     if exceptions_allowed == false
 // Asserts that the result is /*{ "one of the expected success codes." if enhanced.multiple_success_codes else "Result::Success." }*/
 //#     else
-// Throws an appropriate exception on failure /*%- if exceptions_allowed == "maybe" %*/ if OPENXR_HPP_NO_EXCEPTIONS is not defined/*% endif %*/.
+// Throws an appropriate exception on failure /*%- if exceptions_allowed == "maybe" %*/ if `OPENXR_HPP_NO_EXCEPTIONS` is not defined/*% endif %*/.
 //#     endif
 //
 //# if enhanced.return_type.startswith("ResultValue")
@@ -86,11 +86,11 @@ Result
 //#     if brief
 //! @brief /*{cur_cmd.name}*/ wrapper /*{ brief }*/ /*{ brief_suffix }*/
 //#     else
-//! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode/*% if hide_simple %*/ (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined)/*% endif %*/.
+//! @brief /*{cur_cmd.name}*/ enhanced wrapper/*% if hide_simple %*/ (hides basic wrapper unless `OPENXR_HPP_DISABLE_ENHANCED_MODE` defined)/*% endif %*/.
 //#     endif
 //#     if only_no_exceptions
 //!
-//! Will not throw exceptions. Only available when `OPENXR_HPP_NO_EXCEPTIONS` is defined.
+//! Will not throw exceptions. This overload is only available when `OPENXR_HPP_NO_EXCEPTIONS` is defined.
 //#     elif exceptions_allowed == true
 //!
 //! Only available when `OPENXR_HPP_NO_EXCEPTIONS` is not defined.

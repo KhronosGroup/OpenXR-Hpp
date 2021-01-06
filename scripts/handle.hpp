@@ -65,7 +65,7 @@ OPENXR_HPP_CONSTEXPR /*{ type }*/ () noexcept : val_(XR_NULL_HANDLE) {}
 //#     filter block_doxygen_comment
 //! @brief Conversion constructor from the raw /*{raw_type}*/ type
 //!
-//! Explicit on 32-bit platforms by default unless @ref OPENXR_HPP_TYPESAFE_CONVERSION is defined.
+//! Explicit on 32-bit platforms by default unless `OPENXR_HPP_TYPESAFE_CONVERSION` is defined.
 //#     endfilter
 OPENXR_HPP_TYPESAFE_EXPLICIT /*{ type }*/ (RawHandleType handle) noexcept : val_(handle) {}
 //# endblock constructor_explicit
@@ -80,7 +80,7 @@ OPENXR_HPP_CONSTEXPR /*{ type }*/ (std::nullptr_t /* unused */) noexcept : val_(
 //!
 //! Does *not* destroy any contained non-null handle first! For that, see @ref UniqueHandle.
 //!
-//! Only provided if @ref OPENXR_HPP_TYPESAFE_CONVERSION is defined (defaults to only on 64-bit).
+//! Only provided if `OPENXR_HPP_TYPESAFE_CONVERSION` is defined (64-bit platforms by default).
 //#     endfilter
 Type &operator=(RawHandleType handle) noexcept {
     val_ = handle;
