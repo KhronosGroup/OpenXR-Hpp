@@ -62,6 +62,16 @@ SINGLE_LINE_COMMENT_STARTS = ('///', '//!', '//')
 CAPACITY_INPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CapacityInput')
 COUNT_OUTPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CountOutput')
 
+UPPER_TOKENS = set((
+    "API",
+    "CV1",
+    "EGL",
+    "ES",
+    "RGB",
+))
+SPECIAL_TOKENS = {
+    "OPENGL": "OpenGL"
+}
 
 def _discouraged_begin(cmd):
     if cmd.name in DISCOURAGED:
@@ -79,21 +89,30 @@ def _member_function_name(cmdname):
         return 'destroy'
     return base
 
-
 def _to_camel_case(val):
     chars = []
-    keep_upper = True
-    for c in val:
-        if c == '_':
-            keep_upper = True
-        elif str.isdigit(c):
-            keep_upper = True
-            chars.append(c)
-        elif keep_upper:
-            chars.append(c)
-            keep_upper = False
-        else:
-            chars.append(str.lower(c))
+    for token in val.split('_'):
+        if token in UPPER_TOKENS:
+            # We take this token unmodified.
+            chars.extend(token)
+            continue
+        if token in SPECIAL_TOKENS:
+            # We have a special way of camel-casing this.
+            chars.extend(SPECIAL_TOKENS[token])
+            continue
+        next_char_upper = True
+        for c in token:
+            if str.isdigit(c):
+                # A letter immediately following a number should be kept uppercase
+                # for things like 2D, Vector3F, etc.
+                next_char_upper = True
+                chars.append(c)
+            elif next_char_upper:
+                chars.append(c)
+                next_char_upper = False
+            else:
+                chars.append(str.lower(c))
+
     return ''.join(chars)
 
 
