@@ -264,8 +264,7 @@ class MethodProjection:
         """If true, our most advanced enhanced wrapper doesn't have an XrResult anywhere."""
 
         if self.is_core:
-            # self.template_decl_list[0] = self.template_decl_list[0] + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG"
-            pass
+            self.template_decl_list[0] = self.template_decl_list[0] + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG"
         else:
             self.template_decl_list[0] += " OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG"
 

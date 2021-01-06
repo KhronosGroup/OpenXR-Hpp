@@ -92,15 +92,33 @@
 /*!
  * @def OPENXR_HPP_NO_DEFAULT_DISPATCH
  * @brief Define to disable default dispatch arguments.
+ * @see OPENXR_HPP_DEFAULT_CORE_DISPATCHER, OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE
  * @ingroup config
  */
 /*!
  * @def OPENXR_HPP_DEFAULT_CORE_DISPATCHER
  * @brief Define to the expression you'd like to use as the default dispatcher for core API functions.
  *
- * Defaults to `DispatchLoaderStatic()`
+ * Defaults to `DispatchLoaderStatic()` unless OPENXR_HPP_NO_DEFAULT_DISPATCH is defined.
  *
- * @see DispatchLoaderStatic
+ * If both this and OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE are defined (by you, or by default if OPENXR_HPP_NO_DEFAULT_DISPATCH is not defined),
+ * `OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG` will be defined to `= OPENXR_HPP_DEFAULT_CORE_DISPATCHER`.
+ *
+ * @see DispatchLoaderStatic, OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE, OPENXR_HPP_NO_DEFAULT_DISPATCH
+ * @ingroup config
+ */
+/*!
+ * @def OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE
+ * @brief Define to the type of the expression you'd like to use as the default dispatcher for core API functions.
+ *
+ * This will be used as the default type parameter in functions where OPENXR_HPP_DEFAULT_CORE_DISPATCHER will be the default argument.
+ *
+ * Defaults to `DispatchLoaderStatic` unless OPENXR_HPP_NO_DEFAULT_DISPATCH is defined.
+ *
+ * If both this and OPENXR_HPP_DEFAULT_CORE_DISPATCHER are defined (by you, or by default if OPENXR_HPP_NO_DEFAULT_DISPATCH is not defined),
+ * `OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG` will be defined to `= OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE`.
+ *
+ * @see DispatchLoaderStatic, OPENXR_HPP_DEFAULT_CORE_DISPATCHER, OPENXR_HPP_NO_DEFAULT_DISPATCH
  * @ingroup config
  */
 /*!
@@ -111,7 +129,7 @@
  * If you define this and `OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE`, however,
  * `OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG` will be set to `=` and your definition.
  *
- * A globally-accesible instance of xr::DispatchLoaderDynamic would be suitable.
+ * A globally-accessible instance of xr::DispatchLoaderDynamic would be suitable.
  *
  * @ingroup config
  */
@@ -122,7 +140,7 @@
  *
  * This has no default value: by default, you need to provide a dispatcher explicitly for extension functions.
  * If you define this and `OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER`, however,
- * `OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE_ARGUMENT` will be set to `=` and your definition.
+ * `OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG` will be set to `=` and your definition.
  *
  * xr::DispatchLoaderDynamic would be suitable.
  *
@@ -154,13 +172,17 @@
 
 #ifndef OPENXR_HPP_NO_DEFAULT_DISPATCH
 
-#if !defined(XR_NO_PROTOTYPES) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER)
+#if !defined(XR_NO_PROTOTYPES) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE)
 #define OPENXR_HPP_DEFAULT_CORE_DISPATCHER DispatchLoaderStatic()
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE DispatchLoaderStatic
 #include "openxr_static_dispatch.hpp"
 #endif  // !defined(XR_NO_PROTOTYPES) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER)
 
-#ifdef OPENXR_HPP_DEFAULT_CORE_DISPATCHER
+#endif  // !OPENXR_HPP_NO_DEFAULT_DISPATCH
+
+#if defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER) && defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE)
 #define OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG = OPENXR_HPP_DEFAULT_CORE_DISPATCHER
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG = OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE
 #endif
 
 #if defined(OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER) && defined(OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE)
@@ -168,10 +190,11 @@
 #define OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG = OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE
 #endif
 
-#endif  // !OPENXR_HPP_NO_DEFAULT_DISPATCH
-
 #ifndef OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG
 #define OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG
+#endif
+#ifndef OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG
+#define OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG
 #endif
 #ifndef OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG
 #define OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG
