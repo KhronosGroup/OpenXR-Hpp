@@ -128,13 +128,22 @@ def _block_comment(s, doxygen=False):
                 break
         return line
 
-    lines = [clean_line(line) for line in s.split('\n') if line]
+    lines = [clean_line(line).rstrip() for line in s.split('\n') if line]
+
     # Remove leading and trailing empty lines
     while lines and not lines[-1]:
         lines.pop()
     while lines and not lines[0]:
         lines.pop(0)
-    lines = [(' * ' + line).rstrip() for line in lines]
+
+    # if a line is a second+ consecutive blank line,
+    # then both that line, and the preceding one (lined up with zip)
+    # will be false-ish.
+    lines = [line
+             for prev, line in zip([""] + lines, lines)
+             if prev or line]
+    # Prepend the *
+    lines = [' * ' + line for line in lines]
     lines.insert(0, "/*!" if doxygen else "/*")
     lines.append(' */')
     lines.append('')

@@ -85,18 +85,24 @@ Result
 //
 //# endmacro
 
-//# macro method_proto(cur_cmd, enhanced, exceptions_allowed, only_no_exceptions, hide_simple, brief)
-//# filter block_doxygen_comment
+//# macro enhanced_comment_intro(cur_cmd, exceptions_allowed, only_no_exceptions, hide_simple, brief, brief_suffix="")
 //#     if brief
-//! @brief /*{cur_cmd.name}*/ wrapper /*{ brief }*/
+//! @brief /*{cur_cmd.name}*/ wrapper /*{ brief }*/ /*{ brief_suffix }*/
 //#     else
 //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode/*% if hide_simple %*/ (hides basic wrapper unless OPENXR_HPP_DISABLE_ENHANCED_MODE defined)/*% endif %*/.
 //#     endif
 //#     if only_no_exceptions
+//!
 //! Will not throw exceptions. Only available when `OPENXR_HPP_NO_EXCEPTIONS` is defined.
 //#     elif exceptions_allowed == true
+//!
 //! Only available when `OPENXR_HPP_NO_EXCEPTIONS` is not defined.
 //#     endif
+//# endmacro
+
+//# macro method_proto(cur_cmd, enhanced, exceptions_allowed, only_no_exceptions, hide_simple, brief)
+//# filter block_doxygen_comment
+/*{ enhanced_comment_intro(cur_cmd, exceptions_allowed, only_no_exceptions, hide_simple, brief) }*/
 //! /*% if enhanced.is_two_call %*/Performs two-call idiom./*% endif %*/
 /*{ enhanced_method_behavior(enhanced, exceptions_allowed) }*/
 /*{ shared_comments(cur_cmd, enhanced) }*/
@@ -106,7 +112,7 @@ Result
         /*{ enhanced.get_declaration_params() | join(", ")}*/) /*{enhanced.qualifiers}*/;
 //# if enhanced.is_two_call
 //# filter block_doxygen_comment
-    //! @brief /*{cur_cmd.name}*/ wrapper - enhanced mode. Performs two-call idiom with a stateful allocator.
+    /*{ enhanced_comment_intro(cur_cmd, exceptions_allowed, only_no_exceptions, hide_simple, brief, "Performs two-call idiom with a stateful allocator.") }*/
     //!
     /*{ enhanced_method_behavior(enhanced) }*/
     /*{ shared_comments(cur_cmd, enhanced) }*/
@@ -162,12 +168,12 @@ template </*{ method.template_decls }*/>
 //#         set uniq = unique_cmds[cur_cmd.name]
 //#         if uniq.explicit_result_elided
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-/*{ method_proto(cur_cmd, unique_cmds_no_exceptions[uniq.name], false, true, false, "returning a smart handle") }*/
+/*{ method_proto(cur_cmd, unique_cmds_no_exceptions[uniq.name], false, true, false, "returning a smart handle.") }*/
 #else
-/*{ method_proto(cur_cmd, uniq, true, false, false, "returning a smart handle") }*/
+/*{ method_proto(cur_cmd, uniq, true, false, false, "returning a smart handle.") }*/
 #endif
 //#         else
-/*{ method_proto(cur_cmd, uniq, "maybe", false, false, "returning a smart handle") }*/
+/*{ method_proto(cur_cmd, uniq, "maybe", false, false, "returning a smart handle.") }*/
 //#         endif
 
 #endif // !OPENXR_HPP_NO_SMART_HANDLE
