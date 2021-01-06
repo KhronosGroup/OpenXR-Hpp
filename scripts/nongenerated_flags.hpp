@@ -38,7 +38,7 @@ struct FlagTraits {
 };
 
 /**
- * @brief Base type for bit flag projection
+ * @brief Template type for bit flag projection
  *
  * @tparam BitType The projected enum that contains the bits
  * @tparam MaskType The type of the combined flags, typically the default, XrFlags64.
@@ -53,51 +53,49 @@ class Flags {
     Flags(BitType bit) : m_mask(static_cast<MaskType>(bit)) {}
 
     //! Copy constructor
-    Flags(Flags<BitType> const &rhs) : m_mask(rhs.m_mask) {}
+    Flags(Flags const &rhs) = default;
+
+    //! Copy assignment
+    Flags &operator=(Flags const &rhs) = default;
 
     //! Explicit constructor from flags value
     explicit Flags(MaskType flags) : m_mask(flags) {}
 
-    //! Assignment operator
-    Flags<BitType> &operator=(Flags<BitType> const &rhs) {
-        m_mask = rhs.m_mask;
-        return *this;
-    }
     //! OR update operator - commonly used for combining flags
-    Flags<BitType> &operator|=(Flags<BitType> const &rhs) {
+    Flags &operator|=(Flags const &rhs) {
         m_mask |= rhs.m_mask;
         return *this;
     }
 
     //! AND update operator
-    Flags<BitType> &operator&=(Flags<BitType> const &rhs) {
+    Flags &operator&=(Flags const &rhs) {
         m_mask &= rhs.m_mask;
         return *this;
     }
 
     //! XOR update operator
-    Flags<BitType> &operator^=(Flags<BitType> const &rhs) {
+    Flags &operator^=(Flags const &rhs) {
         m_mask ^= rhs.m_mask;
         return *this;
     }
 
     //! OR operator, often used for combining flags.
-    Flags<BitType> operator|(Flags<BitType> const &rhs) const {
-        Flags<BitType> result(*this);
+    Flags operator|(Flags const &rhs) const {
+        Flags result(*this);
         result |= rhs;
         return result;
     }
 
     //! AND operator, often used for testing the value of certain bits.
-    Flags<BitType> operator&(Flags<BitType> const &rhs) const {
-        Flags<BitType> result(*this);
+    Flags operator&(Flags const &rhs) const {
+        Flags result(*this);
         result &= rhs;
         return result;
     }
 
     //! XOR operator
-    Flags<BitType> operator^(Flags<BitType> const &rhs) const {
-        Flags<BitType> result(*this);
+    Flags operator^(Flags const &rhs) const {
+        Flags result(*this);
         result ^= rhs;
         return result;
     }
@@ -106,17 +104,26 @@ class Flags {
     bool operator!() const { return !m_mask; }
 
     //! Bitwise negation (complement) operator
-    Flags<BitType> operator~() const {
-        Flags<BitType> result(*this);
+    Flags operator~() const {
+        Flags result(*this);
         result.m_mask ^= FlagTraits<BitType>::allFlags;
         return result;
     }
 
+    //! Accessor for contained value
+    MaskType get() const noexcept { return m_mask; }
+
     //! Equality comparison
-    bool operator==(Flags<BitType> const &rhs) const { return m_mask == rhs.m_mask; }
+    bool operator==(Flags const &rhs) const { return m_mask == rhs.m_mask; }
 
     //! Inequality comparison
-    bool operator!=(Flags<BitType> const &rhs) const { return m_mask != rhs.m_mask; }
+    bool operator!=(Flags const &rhs) const { return m_mask != rhs.m_mask; }
+
+    //! Equality comparison, mainly intended for compare to 0
+    bool operator==(int rhs) const { return m_mask == static_cast<MaskType>(rhs); }
+
+    //! Inequality comparison, mainly intended for compare to 0
+    bool operator!=(int rhs) const { return m_mask != static_cast<MaskType>(rhs); }
 
     //! Explicit bool conversion: true if any bits are true.
     explicit operator bool() const { return !!m_mask; }
@@ -138,8 +145,8 @@ class Flags {
  *
  * @relates Flags
  */
-template <typename BitType>
-Flags<BitType> operator|(BitType bit, Flags<BitType> const &flags) {
+template <typename BitType, typename MaskType>
+Flags<BitType, MaskType> operator|(BitType bit, Flags<BitType, MaskType> const &flags) {
     return flags | bit;
 }
 
@@ -153,8 +160,8 @@ Flags<BitType> operator|(BitType bit, Flags<BitType> const &flags) {
  *
  * @relates Flags
  */
-template <typename BitType>
-Flags<BitType> operator&(BitType bit, Flags<BitType> const &flags) {
+template <typename BitType, typename MaskType>
+Flags<BitType, MaskType> operator&(BitType bit, Flags<BitType, MaskType> const &flags) {
     return flags & bit;
 }
 
@@ -168,8 +175,8 @@ Flags<BitType> operator&(BitType bit, Flags<BitType> const &flags) {
  *
  * @relates Flags
  */
-template <typename BitType>
-Flags<BitType> operator^(BitType bit, Flags<BitType> const &flags) {
+template <typename BitType, typename MaskType>
+Flags<BitType, MaskType> operator^(BitType bit, Flags<BitType, MaskType> const &flags) {
     return flags ^ bit;
 }
 
