@@ -71,15 +71,14 @@ Result
 //# elif enhanced.return_type == "void"
 //# set return_type = ""
 //# else
-// @returns
 //#     set return_type = enhanced.return_type
-//#     set ret_value_prefix = " "
+//#     set ret_value_prefix = "// @returns "
 //# endif
 //# if return_type
 //#     if return_type.startswith("UniqueHandle")
 /*{- ret_value_prefix }*/ a smart wrapper uniquely owning a /*{ enhanced.handle_return_type }*/
 //#     else
-/*{- ret_value_prefix }*/ a /*{enhanced.prose_bare_return }*/
+/*{- ret_value_prefix }*//*{ enhanced.prose_bare_return  | trim }*/
 //#     endif
 //# endif
 //
