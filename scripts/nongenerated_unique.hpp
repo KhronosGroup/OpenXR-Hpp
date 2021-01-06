@@ -154,6 +154,12 @@ OPENXR_HPP_INLINE void swap(UniqueHandle<Type, Dispatch> &lhs, UniqueHandle<Type
     lhs.swap(rhs);
 }
 
+//! @relates UniqueHandle
+template <typename Type, typename Dispatch>
+OPENXR_HPP_INLINE const Type& get(const UniqueHandle<Type, Dispatch> &h) {
+    return h.get();
+}
+
 //! @brief Equality comparison between two UniqueHandles, potentially of different dispatch.
 //! @relates UniqueHandle
 template <typename Type, typename D1, typename D2>
