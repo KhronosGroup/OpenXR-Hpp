@@ -55,6 +55,7 @@ namespace OPENXR_HPP_NAMESPACE {
 /*!
  * @defgroup flags Flags
  * @brief C++ flags classes corresponding to OpenXR C flags and flagbits, plus associated utility functions.
+ * @ingroup wrappers
  * @{
  */
 

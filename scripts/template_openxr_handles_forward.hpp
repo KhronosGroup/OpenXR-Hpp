@@ -64,13 +64,13 @@ class /*{ project_type_name(handle.name) }*/;
 /*!
  * @defgroup handles Handle types
  * @brief Wrappers for OpenXR handle types, with associated functions mapped as methods.
- * @{
+ * @ingroup wrappers
  */
 /*!
  * @defgroup unique_handle_aliases Aliases for UniqueHandle types
  * @brief Convenience names for specializations of UniqueHandle<>
+ * @ingroup handles
  */
-//! @}
 
 //# for handle in gen.api_handles
 //#     set shortname = project_type_name(handle.name)

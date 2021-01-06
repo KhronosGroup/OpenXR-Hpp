@@ -38,16 +38,17 @@
  */
 
 /*!
- * @defgroup structs Struct wrappers
+ * @defgroup structs Structures
  * @brief C++ projections of OpenXR structure types, with easier init but identical layout.
+ * @ingroup wrappers
  */
 /*!
- * @defgroup typedstructs Typed/Chainable struct wrappers
+ * @defgroup typedstructs Typed/chainable structures
  * @brief C++ projections of those OpenXR structure types with a `type` and `next` field.
  * @ingroup structs
  */
 /*!
- * @defgroup abstracttypedstructs Abstract typed structs
+ * @defgroup abstracttypedstructs Abstract typed structures
  * @brief C++ projections of those OpenXR structure types with a `type` and `next` field,
  * but no specific type enum value of their own: these are the "base structs" in OpenXR.
  * @ingroup typedstructs

@@ -233,6 +233,7 @@ using string_with_allocator = std::basic_string<char, std::char_traits<char>, Al
 //## Generate free-function prototypes
 /*!
  * @defgroup api_free_functions OpenXR API free functions
+ * @ingroup wrappers
  *
  * Equivalent to the method wrappers in the handle classes,
  * but for the few functions that don't take (or don't require)

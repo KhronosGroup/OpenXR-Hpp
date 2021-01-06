@@ -147,6 +147,8 @@ OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected
 
 /*!
  * @defgroup result_helpers Result helper free functions
+ * @brief C++ projections of the XrResult-checking function-style macros as constexpr functions.
+ * @ingroup enums
  * @{
  */
 //# filter block_doxygen_comment

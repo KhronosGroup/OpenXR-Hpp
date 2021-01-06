@@ -99,7 +99,7 @@ OPENXR_HPP_INLINE std::error_condition make_error_condition(Result e) {
 //! OpenXR exceptions
 namespace exceptions {
 /*!
- * @defgroup exceptions Exceptions
+ * @defgroup exceptions Exceptions and error handling
  *
  * @{
  */

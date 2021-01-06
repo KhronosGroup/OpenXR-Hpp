@@ -38,6 +38,10 @@
  */
 
 /*!
+ * @defgroup wrappers Wrappers for OpenXR types and functions
+ * @brief When using OpenXR-Hpp, you can use these instead of their counterparts defined in the specification.
+ */
+/*!
  * @defgroup config Configuration Options
  * @brief Preprocessor macros that may be set to control the behavior of OpenXR-Hpp
  */
