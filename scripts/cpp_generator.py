@@ -73,6 +73,7 @@ SPECIAL_TOKENS = {
     "OPENGL": "OpenGL"
 }
 
+
 def _discouraged_begin(cmd):
     if cmd.name in DISCOURAGED:
         return "\n#ifdef OPENXR_HPP_PROVIDE_DISCOURAGED_FUNCTIONS\n"
@@ -88,6 +89,7 @@ def _member_function_name(cmdname):
     if base.startswith('destroy'):
         return 'destroy'
     return base
+
 
 def _to_camel_case(val):
     chars = []
@@ -134,6 +136,7 @@ def _project_type_name(typename):
 
 def _is_static_length_string(member):
     return member.type == "char" and member.is_array and member.pointer_count == 0
+
 
 def _block_comment(s, doxygen=False):
     def clean_line(line):
@@ -240,7 +243,9 @@ class StructProjection:
             return "next_"
         return None
 
+
 DISPATCH_TEMPLATE_DEFN = "typename Dispatch"
+
 
 class MethodProjection:
     """Stores the method declaration and implementation."""

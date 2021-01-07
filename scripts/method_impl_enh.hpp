@@ -89,4 +89,3 @@
 //# if uniq_only_no_exceptions
 #endif  // OPENXR_HPP_NO_EXCEPTIONS
 //# endif
-

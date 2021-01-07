@@ -24,4 +24,3 @@ NamespaceIndentation: Inner
 ColumnLimit:          120
 ReflowComments:       false
 ...
-

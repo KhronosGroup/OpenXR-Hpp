@@ -35,5 +35,3 @@
 //# extends "valuewrapperclass.hpp"
 
 /*% block comment_brief %*/Type-safe wrapper for an /*{raw_type}*/ atom./*% endblock comment_brief %*/
-
-

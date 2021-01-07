@@ -37,4 +37,3 @@ out/build/
 !.appveyor.yml
 !.cmake-format.json
 !.editorconfig
-
