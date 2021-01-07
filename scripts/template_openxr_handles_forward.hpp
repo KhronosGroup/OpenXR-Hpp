@@ -46,7 +46,6 @@
 
 namespace OPENXR_HPP_NAMESPACE {
 
-//! Type traits
 namespace traits {
     //! Type trait associating an ObjectType enum value with its C++ type.
     template <ObjectType o>
@@ -79,40 +78,47 @@ class /*{ project_type_name(handle.name) }*/;
  * @ingroup handles
  */
 
-//# for handle in gen.api_handles if not handle.alias
-//#     set shortname = project_type_name(handle.name)
-
 #ifndef OPENXR_HPP_NO_SMART_HANDLE
-
+#ifndef OPENXR_HPP_DOXYGEN
 namespace traits {
-//! Traits associating a deleter type with handles of type /*{shortname}*/
+//# for handle in gen.api_handles
+//#     set shortname = project_type_name(handle.name)
 template <typename Dispatch>
 class UniqueHandleTraits</*{shortname}*/, Dispatch> {
    public:
     using deleter = ObjectDestroy<Dispatch>;
 };
+//# endfor
+
 } //namespace traits
+#endif  // !OPENXR_HPP_DOXYGEN
 
 //! @addtogroup unique_handle_aliases
 //! @{
 
 //## TODO use DispatchLoaderDynamic for extension-provided handles!
+//# for handle in gen.api_handles
+//#     set shortname = project_type_name(handle.name)
 //! Shorthand name for unique handles of type /*{shortname}*/, using a static dispatch.
 using /*{'Unique' + shortname}*/ = UniqueHandle</*{shortname}*/, DispatchLoaderStatic>;
 //! Shorthand name for unique handles of type /*{shortname}*/, using a dynamic dispatch.
 using /*{'UniqueDynamic' + shortname}*/ = UniqueHandle</*{shortname}*/, DispatchLoaderDynamic>;
+//# endfor
 //! @}
-#endif /*OPENXR_HPP_NO_SMART_HANDLE*/
+#endif  // !OPENXR_HPP_NO_SMART_HANDLE
 
+#ifndef OPENXR_HPP_DOXYGEN
 namespace traits {
-//! @brief Explicit specialization of cpp_type_from_object_type_enum for /*{shortname}*/
+// Explicit specializations of cpp_type_from_object_type_enum
+//# for handle in gen.api_handles
+//#     set shortname = project_type_name(handle.name)
 template <>
 struct cpp_type_from_object_type_enum<ObjectType::/*{shortname}*/> {
     using type = /*{shortname}*/;
 };
-} // namespace traits
-
 //# endfor
+} // namespace traits
+#endif  // !OPENXR_HPP_DOXYGEN
 
 }  // namespace OPENXR_HPP_NAMESPACE
 
