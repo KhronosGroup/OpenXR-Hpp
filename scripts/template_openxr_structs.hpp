@@ -42,6 +42,8 @@
  * @defgroup structs Structures
  * @brief C++ projections of OpenXR structure types, with easier init but identical layout.
  * @ingroup wrappers
+ *
+ * These are all implicitly convertible to a reference-to-const to their corresponding raw C types, so you can treat them as you otherwise might.
  */
 /*!
  * @defgroup typedstructs Typed/chainable structures
