@@ -50,6 +50,8 @@
 #ifdef OPENXR_HPP_DOXYGEN
 #include <openxr/openxr_platform.h>
 #endif
+
+#include <string>
 //# endblock
 
 //## Add component-wise constructor
@@ -141,3 +143,20 @@ static OPENXR_HPP_CONSTEXPR Version current() noexcept
     return Version{XR_CURRENT_API_VERSION};
 }
 //# endblock
+
+//# block extra_free_functions
+//# filter block_doxygen_comment
+//! @brief Format a version as a string.
+//! @found_by_adl
+//! @ingroup utility_accessors
+//# endfilter
+static inline std::string to_string(Version const& v)
+{
+    auto ret = std::to_string(v.major());
+    ret += ".";
+    ret += std::to_string(v.minor());
+    ret += ".";
+    ret += std::to_string(v.patch());
+    return ret;
+}
+//# endblock extra_free_functions
