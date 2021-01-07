@@ -178,23 +178,4 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused 
 //#     endfilter
 static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &h, bool clear = true) noexcept { return h.put(clear); }
 
-//#     filter block_doxygen_comment
-//! @brief Free "put" function for clearing (by default) and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
-//! pointer).
-//!
-//! e.g.
-//! ```
-//! void yourFunction(/*{type}*/* yourHandle) {
-//!     auto result = d.xrCreate/*{- type -}*/(..., put(yourHandle));
-//!     ....
-//! }
-//! ```
-//!
-//! @relates /*{type}*/
-//! @ingroup utility_accessors
-//#     endfilter
-static OPENXR_HPP_INLINE /*{raw_type}*/ *put(/*{type}*/ *h, bool clear = true) noexcept {
-    OPENXR_HPP_ASSERT(h != nullptr);
-    return h->put(clear);
-}
 //# endblock free_put
