@@ -39,6 +39,7 @@
  * Does not include the flags (bitmasks).
  *
  * @see openxr_flags.hpp
+ * @ingroup enums
  */
 
 #include <openxr/openxr.h>

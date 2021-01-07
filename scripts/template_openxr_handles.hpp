@@ -33,11 +33,12 @@
 
 /**
  * @file
- * @brief Defines wrappers for OpenXR handle types, with function calls transformed into methods.
- *
- * Also includes free functions for those few that do not take a handle as their first argument.
+ * @brief Declares wrappers for OpenXR handle types, with function calls transformed into methods,
+ * as well as free functions for those few that do not take a handle as their first argument.
  *
  * Does not include the implementations of the functions: for that, see @ref openxr_method_impls.hpp
+ * @ingroup handles
+ * @ingroup api_free_functions
  */
 
 //# from 'method_decl_macros.hpp' import method_prototypes with context

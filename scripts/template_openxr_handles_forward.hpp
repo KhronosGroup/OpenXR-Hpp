@@ -36,6 +36,7 @@
  * @brief Forward declarations of OpenXR handle wrapper types.
  *
  * @see openxr_handles.hpp
+ * @ingroup handles
  */
 
 #include "openxr_enums.hpp"

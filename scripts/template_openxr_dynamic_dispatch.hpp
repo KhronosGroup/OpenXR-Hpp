@@ -33,6 +33,7 @@
 /**
  * @file
  * @brief Contains a dynamically-loading dispatcher class: loads entry points with xrGetInstanceProcAddr, optionally lazily.
+ * @ingroup dispatch
  */
 
 //# from 'macros.hpp' import forwardCommandArgs, make_pfn_type, make_pfn_getter_name

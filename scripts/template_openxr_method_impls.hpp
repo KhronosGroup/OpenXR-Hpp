@@ -34,6 +34,8 @@
  * @file
  * @brief Includes the appropriate subset of method implementations based on chosen configuration.
  *
+ * @ingroup handles
+ * @ingroup api_free_functions
  */
 
 #include "openxr_handles.hpp"

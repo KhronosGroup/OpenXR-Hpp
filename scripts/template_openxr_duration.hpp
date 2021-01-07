@@ -33,6 +33,7 @@
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
 //# set filename = "openxr_duration"
+//# set doc_group = "wrappers"
 //# extends "valuewrapperclass_header.hpp"
 
 //# block includes
@@ -41,6 +42,7 @@
  * @brief Contains a type-safe C++ projection of XrDuration
  *
  * @see openxr_time.hpp, xr::Duration
+ * @ingroup wrappers
  */
 
 #include <openxr/openxr.h>

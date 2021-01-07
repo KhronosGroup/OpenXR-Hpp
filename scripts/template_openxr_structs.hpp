@@ -35,6 +35,7 @@
 /**
  * @file
  * @brief C++ projections of OpenXR structure types.
+ * @ingroup structs
  */
 
 /*!

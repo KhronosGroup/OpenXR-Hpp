@@ -35,13 +35,14 @@
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
 //# set filename = "openxr_version"
+//# set doc_group = "wrappers"
 //# extends "valuewrapperclass_header.hpp"
 
 //# block includes
 /**
  * @file
  * @brief Contains a type-safe C++ projection of the OpenXR packed version type.
- *
+ * @ingroup wrappers
  */
 
 #include <openxr/openxr.h>

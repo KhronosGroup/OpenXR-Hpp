@@ -33,6 +33,7 @@
 /**
  * @file
  * @brief Forward declarations of all C++ projections of OpenXR structure types.
+ * @ingroup structs
  */
 
 namespace OPENXR_HPP_NAMESPACE {

@@ -38,6 +38,7 @@
  * @brief C++ projections of OpenXR flag (bitmask) types.
  *
  * @see openxr_enums.hpp
+ * @ingroup flags
  */
 
 #include <openxr/openxr.h>

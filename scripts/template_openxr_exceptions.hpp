@@ -35,6 +35,7 @@
  * @brief C++ exceptions for the OpenXR error result codes.
  *
  * @see OPENXR_HPP_NO_EXCEPTIONS
+ * @ingroup exceptions
  */
 
 

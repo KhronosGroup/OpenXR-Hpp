@@ -42,12 +42,16 @@
  * @brief When using OpenXR-Hpp, you can use these instead of their counterparts defined in the specification.
  */
 /*!
- * @defgroup config Configuration Options
+ * @defgroup config Configuration options
  * @brief Preprocessor macros that may be set to control the behavior of OpenXR-Hpp
  */
 
 /*!
- * @defgroup utility_accessors Utility free-function accessors.
+ * @defgroup utilities Miscellaneous utilities
+ */
+
+/*!
+ * @defgroup utility_accessors Utility free-function accessors
  * @brief Free functions for "getting" or "putting" from/to a wrapped or projected type, etc (see "more" for shared documentation by function name).
  *
  * These have common names, like `get()`, `put()`, and `to_string()`. They should be found by argument-dependent lookup and not need explicit namespace specification, e.g. do `get(myInstance)` not `xr::get(myInstance)`.

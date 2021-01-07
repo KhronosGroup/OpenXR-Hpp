@@ -33,6 +33,7 @@
 /**
  * @file
  * @brief C++ projections of OpenXR atom types.
+ * @ingroup atoms
  */
 
 #include <openxr/openxr.h>

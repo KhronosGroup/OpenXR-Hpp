@@ -35,6 +35,7 @@
  * @brief Contains a helper function specific to OpenGL/OpenGL ES.
  *
  * @see xr::getOpenGLVersion, xr::Version
+ * @ingroup utilities
  */
 
 #include "openxr_version.hpp"
@@ -48,6 +49,7 @@ namespace OPENXR_HPP_NAMESPACE {
  * @brief Get the OpenGL major and minor version as a packed Version type.
  *
  * @return Version
+ * @ingroup utilities
  */
 OPENXR_HPP_INLINE Version getOpenGLVersion() noexcept {
     GLint major = 0;
