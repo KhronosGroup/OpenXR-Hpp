@@ -183,7 +183,7 @@
 #if !defined(XR_NO_PROTOTYPES) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE)
 #define OPENXR_HPP_DEFAULT_CORE_DISPATCHER DispatchLoaderStatic()
 #define OPENXR_HPP_DEFAULT_CORE_DISPATCHER_TYPE DispatchLoaderStatic
-#include "openxr_static_dispatch.hpp"
+#include "openxr_dispatch_static.hpp"
 #endif  // !defined(XR_NO_PROTOTYPES) && !defined(OPENXR_HPP_DEFAULT_CORE_DISPATCHER)
 
 #endif  // !OPENXR_HPP_NO_DEFAULT_DISPATCH
