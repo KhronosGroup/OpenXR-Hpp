@@ -70,7 +70,4 @@ add_custom_target(
 )
 set_target_properties(generate_headers PROPERTIES FOLDER ${CODEGEN_FOLDER})
 
-install(
-    FILES ${GENERATED_HEADERS}
-    DESTINATION include/openxr
-)
+install(FILES ${GENERATED_HEADERS} DESTINATION include/openxr)

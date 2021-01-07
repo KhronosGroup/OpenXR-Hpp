@@ -159,10 +159,9 @@ if(OPENXR_SDK_SRC_DIR)
 endif()
 
 # Guesses of sibling directories by name - last resort.
-foreach(
-    _dir
-    "${CMAKE_SOURCE_DIR}/../OpenXR-SDK"
-    "${CMAKE_SOURCE_DIR}/../OpenXR-SDK-Source" "${CMAKE_SOURCE_DIR}/../openxr")
+foreach(_dir "${CMAKE_SOURCE_DIR}/../OpenXR-SDK"
+        "${CMAKE_SOURCE_DIR}/../OpenXR-SDK-Source"
+        "${CMAKE_SOURCE_DIR}/../openxr")
     _oxr_handle_potential_root_src_dir(${_dir})
     _oxr_handle_potential_root_build_dir(${_dir}/build)
 endforeach()
@@ -246,7 +245,7 @@ foreach(_comp IN LISTS OpenXR_FIND_COMPONENTS)
                              OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
         else()
             list(APPEND _oxr_component_required_vars OPENXR_OPENXR_INCLUDE_DIR
-                 OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
+                        OPENXR_PLATFORM_DEFINES_INCLUDE_DIR)
             if(EXISTS "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr.h"
                AND EXISTS
                    "${OPENXR_OPENXR_INCLUDE_DIR}/openxr/openxr_platform.h"
@@ -345,8 +344,9 @@ if(OpenXR_headers_FOUND AND NOT TARGET OpenXR::headers)
     # This is not duplication: interface system dirs just marks as system.
     set_target_properties(
         OpenXR::headers
-        PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${OPENXR_INCLUDE_DIRS}"
-                   INTERFACE_INCLUDE_DIRECTORIES "${OPENXR_INCLUDE_DIRS}")
+        PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES
+                   "${OPENXR_INCLUDE_DIRS}" INTERFACE_INCLUDE_DIRECTORIES
+                   "${OPENXR_INCLUDE_DIRS}")
 endif()
 
 # Back-compat
@@ -390,9 +390,9 @@ if(OpenXR_loader_FOUND
     add_library(OpenXR::openxr_loader UNKNOWN IMPORTED)
     set_target_properties(
         OpenXR::openxr_loader
-        PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-                   IMPORTED_LOCATION "${OPENXR_loader_LIBRARY}"
-                   INTERFACE_LINK_LIBRARIES "${_oxr_loader_interface_libs}")
+        PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "C" IMPORTED_LOCATION
+                   "${OPENXR_loader_LIBRARY}" INTERFACE_LINK_LIBRARIES
+                   "${_oxr_loader_interface_libs}")
 
 endif()
 
