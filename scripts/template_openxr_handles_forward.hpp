@@ -50,7 +50,7 @@ namespace OPENXR_HPP_NAMESPACE {
 namespace traits {
     //! Type trait associating an ObjectType enum value with its C++ type.
     template <ObjectType o>
-    struct cpp_type;
+    struct cpp_type_from_object_type_enum;
 }  // namespace traits
 
 // forward declarations
@@ -99,9 +99,9 @@ using /*{'UniqueDynamic' + shortname}*/ = UniqueHandle</*{shortname}*/, Dispatch
 #endif /*OPENXR_HPP_NO_SMART_HANDLE*/
 
 namespace traits {
-//! @brief Explicit specialization of cpp_type for /*{shortname}*/
+//! @brief Explicit specialization of cpp_type_from_object_type_enum for /*{shortname}*/
 template <>
-struct cpp_type<ObjectType::/*{shortname}*/> {
+struct cpp_type_from_object_type_enum<ObjectType::/*{shortname}*/> {
     using type = /*{shortname}*/;
 };
 } // namespace traits
