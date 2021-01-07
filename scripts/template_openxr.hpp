@@ -48,7 +48,7 @@
 
 /*!
  * @defgroup utility_accessors Utility free-function accessors.
- * @brief Free functions for "getting" or "putting" from/to a wrapped or projected type. See "more" for shared documentation by function name.
+ * @brief Free functions for "getting" or "putting" from/to a wrapped or projected type, etc (see "more" for shared documentation by function name).
  *
  * These have common names, like `get()`, `put()`, and `to_string()`. They should be found by argument-dependent lookup and not need explicit namespace specification, e.g. do `get(myInstance)` not `xr::get(myInstance)`.
  *

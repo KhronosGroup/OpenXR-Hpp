@@ -34,8 +34,6 @@ namespace OPENXR_HPP_NAMESPACE {
 /*!
  * @defgroup return_results Returning results
  * @brief Types used by API call wrappers to return output in a friendly, C++ manner.
- *
- * @{
  */
 
 /*!
@@ -44,7 +42,7 @@ namespace OPENXR_HPP_NAMESPACE {
  * Implicitly convertible to std::tuple<> so you can do `std::tie(result, value)
  * = callThatReturnsResultValue()`
  *
- * @ingroup utilities
+ * @ingroup return_results
  */
 template <typename T>
 struct ResultValue {
@@ -58,7 +56,5 @@ struct ResultValue {
     operator std::tuple<Result&, T&>() { return std::tuple<Result&, T&>(result, value); }
     operator std::tuple<Result const&, T const&>() const { return std::tuple<Result const&, T const&>(result, value); }
 };
-
-//! @}
 
 }  // namespace OPENXR_HPP_NAMESPACE
