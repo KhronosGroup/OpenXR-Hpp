@@ -36,6 +36,8 @@
  * @ingroup structs
  */
 
+//# include('define_namespace.hpp') without context
+
 namespace OPENXR_HPP_NAMESPACE {
 
 //# for struct in gen.api_structures
