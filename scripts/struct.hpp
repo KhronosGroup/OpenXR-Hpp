@@ -152,8 +152,23 @@
         /*{ struct.name }*/ const* get() const noexcept { return reinterpret_cast</*{ struct.name }*/ const *>(this); }
 
 //# if not s.is_abstract
-        //! Accessor for this as the address of a raw /*{struct.name}*/
-        /*{ struct.name }*/ * put() { return reinterpret_cast</*{ struct.name }*/*>(this); }
+//#     filter block_doxygen_comment
+        //! @brief Accessor for clearing and passing this as the address of a raw /*{struct.name}*/.
+        //!
+        //! /*% if s.typed_struct %*/Only the value of `next` is preserved by default. /*% endif %*/Pass false for the optional argument to skip clearing.
+//# endfilter
+        /*{ struct.name }*/ * put(bool clear = true) noexcept {
+            if (clear) {
+                /*%- if s.typed_struct -%*/
+                auto oldNext = next;
+                /*%- endif -%*/
+                *this = /*{s.cpp_name}*/{};
+                /*%- if s.typed_struct -%*/
+                next = oldNext;
+                /*%- endif -%*/
+            }
+            return reinterpret_cast</*{ struct.name }*/*>(this);
+        }
 //# endif
 
 //# for member in struct.members if not member is cpp_hidden_member and member.name not in s.parent_fields
@@ -171,9 +186,9 @@
     }
 
 //# if not s.is_abstract
-    //! @brief Free function accessor for passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
+    //! @brief Free function accessor for clearing (by default) and passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
     //! @relates /*{s.cpp_name}*/
-    static OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &s) { return s.put(); }
+    static OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &s, bool clear = true) noexcept { return s.put(clear); }
 //# endif
 
 //# if s.is_derived_type

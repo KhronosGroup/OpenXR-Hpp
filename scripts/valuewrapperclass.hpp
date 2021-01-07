@@ -99,7 +99,7 @@
 //# endblock method_get_body
 
 //# block method_put_body
-        val_ = /*{ invalid if invalid else "0"}*/;
+        if (clear) val_ = /*{ invalid if invalid else "0"}*/;
         return &val_;
 //# endblock method_put_body
 

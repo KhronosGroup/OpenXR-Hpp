@@ -124,19 +124,23 @@ public:
         (void)varying;
     }
     //! @brief "Put" function for assigning as null then getting the address of the raw pointer to pass as function output parameter.
-    XrEventDataBuffer* put() noexcept {
+    XrEventDataBuffer* put(bool clear = true) noexcept {
+        if (clear) {
+            auto oldNext = next;
             *this = {};
-            return reinterpret_cast<XrEventDataBuffer*>(this);
+            next = oldNext;
+        }
+        return reinterpret_cast<XrEventDataBuffer*>(this);
     }
 
     //! Gets a pointer to the underlying raw XrEventDataBuffer type.
     XrEventDataBuffer* get() noexcept {
-            return reinterpret_cast<XrEventDataBuffer*>(this);
+        return reinterpret_cast<XrEventDataBuffer*>(this);
     }
 
     //! Gets a pointer to the underlying raw XrEventDataBuffer type.
     XrEventDataBuffer const* get() const noexcept {
-            return reinterpret_cast<XrEventDataBuffer const*>(this);
+        return reinterpret_cast<XrEventDataBuffer const*>(this);
     }
 
 private:
@@ -145,8 +149,8 @@ private:
 /*{ wrapperSizeStaticAssert('::XrEventDataBuffer', 'EventDataBuffer') }*/
 
 //! @relates EventDataBuffer
-OPENXR_HPP_INLINE XrEventDataBuffer* put(EventDataBuffer& v) noexcept {
-    return v.put();
+OPENXR_HPP_INLINE XrEventDataBuffer* put(EventDataBuffer& v, bool clear = true) noexcept {
+    return v.put(clear);
 }
 
 //# for struct in gen.api_structures if struct.name not in manually_projected

@@ -100,7 +100,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const
 
 //# block method_put
 //#     filter block_doxygen_comment
-//! @brief "Put" function for assigning as null then getting the address of the raw pointer to pass to creation functions.
+//! @brief "Put" function for assigning as null (by default) then getting the address of the raw pointer to pass to creation functions.
 //!
 //! e.g.
 //! ```
@@ -108,10 +108,10 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_TYPESAFE_EXPLICIT operator RawHandleType() const
 //! auto result = d.xrCreate/*{- type -}*/(..., yourHandle.put()));
 //! ```
 //!
-//! @see xr::put(/*{type}*/&)
+//! @see xr::put(/*{type}*/&, bool)
 //#     endfilter
-RawHandleType *put() noexcept {
-    val_ = XR_NULL_HANDLE;
+RawHandleType *put(bool clear = true) noexcept {
+    if (clear) val_ = XR_NULL_HANDLE;
     return &val_;
 }
 //# endblock
@@ -163,7 +163,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused 
 
 //# block free_put
 //#     filter block_doxygen_comment
-//! @brief Free "put" function for clearing and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
+//! @brief Free "put" function for clearing (by default) and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
 //! reference).
 //!
 //! e.g.
@@ -175,10 +175,10 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE bool operator!=(std::nullptr_t /* unused 
 //! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
 //! @relates /*{type}*/
 //#     endfilter
-static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return v.put(); }
+static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &h, bool clear = true) noexcept { return h.put(clear); }
 
 //#     filter block_doxygen_comment
-//! @brief Free "put" function for clearing and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
+//! @brief Free "put" function for clearing (by default) and getting the address of the raw /*{raw_type}*/ handle in a /*{type}*/ (by
 //! pointer).
 //!
 //! e.g.
@@ -192,8 +192,8 @@ static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return 
 //! Should be found by argument-dependent lookup and thus not need to have the namespace specified.
 //! @relates /*{type}*/
 //#     endfilter
-static OPENXR_HPP_INLINE /*{raw_type}*/ *put(/*{type}*/ *h) noexcept {
+static OPENXR_HPP_INLINE /*{raw_type}*/ *put(/*{type}*/ *h, bool clear = true) noexcept {
     OPENXR_HPP_ASSERT(h != nullptr);
-    return h->put();
+    return h->put(clear);
 }
 //# endblock free_put

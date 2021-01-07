@@ -117,7 +117,7 @@
     //! @brief Clears this /*{ object_instance_desc }*/, then returns the address of the raw /*{ raw_type }*/ value,
     //! for use in creation/assignment.
 //#         endfilter
-    /*{ raw_type }*/ *put() noexcept {
+    /*{ raw_type }*/ *put(bool clear = true) noexcept {
 //#         block method_put_body scoped
 #error "Must override block method_put_body"
 //#         endblock method_put_body
@@ -154,13 +154,13 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{ raw_type }*/ get(/*{input_param_type}
 
 //# block free_put scoped
 //#     filter block_doxygen_comment
-//! @brief Free function for clearing and getting the address of the raw /*{ raw_type }*/ from an /*{type}*/ /*{ object_instance_desc }*/.
+//! @brief Free function for clearing (by default) and getting the address of the raw /*{ raw_type }*/ from an /*{type}*/ /*{ object_instance_desc }*/.
 //!
 //! Should not need explicit namespace qualification (found via ADL).
 //! @see /*{type}*/::put( )
 //! @relates /*{type}*/
 //#     endfilter
-static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v) noexcept { return v.put(); }
+static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v, bool clear = true) noexcept { return v.put(clear); }
 //# endblock free_put
 
 //# block comparisons scoped
