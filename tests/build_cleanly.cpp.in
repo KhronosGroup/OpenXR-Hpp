@@ -3,6 +3,10 @@
 
 #include "openxr/@FN@"
 
+// Every header should define this directly or indirectly.
+#ifndef OPENXR_HPP_NAMESPACE
+#error
+#endif
 int main() {
     return 0;
 }
