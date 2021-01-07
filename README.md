@@ -1,6 +1,7 @@
 # OpenXR-HPP project
 
-This repository contains build scripts and test files for the `openxr.hpp` header, providing a C++-friendly projection of the OpenXR API.
+This repository contains build scripts and test files for the `openxr.hpp`
+header, providing a C++-friendly projection of the OpenXR API.
 
 The authoritative public repository is located at
 <https://github.com/KhronosGroup/OpenXR-HPP/>. It hosts the public Issue
@@ -27,7 +28,7 @@ directory of this one.
 ## Building
 
 If you just want to generate the header, run `./generate-openxr-hpp.sh` or
-`./generate-openxr-hpp.bat`. If your OpenXR-SDK-Source (or internal gitlab) repo
+`./generate-openxr-hpp.ps1`. If your OpenXR-SDK-Source (or internal gitlab) repo
 isn't in a directory named that parallel to this one, you can set OPENXR_REPO
 environment variable before running. Requires clang-format, preferably 6.0.
 
