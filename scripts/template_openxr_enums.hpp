@@ -119,11 +119,15 @@ OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{enum.name}*/ get(/*{projected_type}*/ 
 OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char* to_string_literal(/*{projected_type}*/ value) {
     switch (value) {
 //#     for val in enum.values
-            /*{ protect_begin(val, enum) }*/
 //#         set valname = create_enum_value(val.name, enum.name)
+//#         if val.alias
+        // /*{ valname }*/ is an alias for /*{ create_enum_value(val.alias, enum.name) }*/
+//#         else
+            /*{ protect_begin(val, enum) }*/
         case /*{projected_type -}*/ ::/*{- valname }*/:
             return /*{ valname | quote_string }*/;
             /*{ protect_end(val, enum) }*/
+//#         endif
 //#     endfor
         default:
             return "invalid";
