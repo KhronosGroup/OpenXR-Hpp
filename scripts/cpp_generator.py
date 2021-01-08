@@ -394,7 +394,7 @@ class MethodProjection:
 
     @property
     def qualifiers(self):
-        if self.handle:
+        if self.handle and not self.is_destroy:
             return "const"
         return ""
 
@@ -786,6 +786,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.pre_statements.append("{} handle;".format(cpp_outtype))
             method.access_dict[outparam.name] = "handle.put()"
             method.returns.append("handle")
+        elif method.is_destroy:
+            # Clear the handle
+            method.post_statements.append("val_ = XR_NULL_HANDLE;")
 
         elif self._method_has_single_output(method):
             method.masks_simple = False
