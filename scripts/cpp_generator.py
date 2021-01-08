@@ -554,11 +554,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.is_const:
                 # Input struct
                 method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
-                method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
+                method.access_dict[name] = "{}.get()".format(name.strip())
             elif param.pointer_count == 1 and not is_two_call:
                 # Output struct
                 method.decl_dict[name] = "{}& {}".format(cpp_type, name)
-                method.access_dict[name] = "OPENXR_HPP_NAMESPACE::put({})".format(name.strip())
+                method.access_dict[name] = "{}.put()".format(name.strip())
 
         # Convert atoms, plus XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
         for param in method.decl_params:
@@ -566,8 +566,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 continue
             name = param.name
             cpp_type = _project_type_name(param.type)
-            method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
-            method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
+            method.decl_dict[name] = "{} {}".format(cpp_type, name)
+            method.access_dict[name] = "{}.get()".format(name.strip())
 
     def _update_enhanced_return_type(self, method):
         """Set the return type based on the bare return type.
