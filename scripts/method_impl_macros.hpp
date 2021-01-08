@@ -78,41 +78,23 @@ OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
 }
 //# endmacro
 
-//# macro _make_success_code_list(successes)
-//#     if successes | length > 1
-static std::initializer_list<Result> successCodes = { /*{ successes | join(", ")}*/ };
-//#     endif
-//# endmacro
-
-//# macro _make_success_predicate(method, successes)
-//#     if successes | length > 1
-std::find(successCodes.begin(), successCodes.end(), /*{method.result_name}*/) != successCodes.end()
-//#     else
-succeeded(/*{method.result_name}*/)
-//#     endif
-//# endmacro
+/*% macro _make_success_predicate(method) -%*/ succeeded(/*{method.result_name}*/) /*%- endmacro %*/
 
 //# macro _make_error_handling_no_exceptions(method)
-//#     set successes = method.get_success_codes()
-    /*{ _make_success_code_list(successes) }*/
-    OPENXR_HPP_ASSERT( /*{_make_success_predicate(method, successes)}*/ );
+    OPENXR_HPP_ASSERT( /*{_make_success_predicate(method)}*/ );
 //# endmacro
 
 //# macro _make_error_handling_exceptions(method)
-//#     set successes = method.get_success_codes()
-    /*{ _make_success_code_list(successes) }*/
-    if (!(/*{_make_success_predicate(method, successes)}*/)) {
+    if (!(/*{_make_success_predicate(method)}*/)) {
         exceptions::throwResultException(/*{method.result_name}*/, OPENXR_HPP_NAMESPACE_STRING "::/*{method.qualified_name}*/");
     }
 //# endmacro
 
 //# macro _make_error_handling_maybe_exceptions(method)
-//#     set successes = method.get_success_codes()
-    /*{ _make_success_code_list(successes) }*/
 #ifdef OPENXR_HPP_NO_EXCEPTIONS
-    OPENXR_HPP_ASSERT( /*{_make_success_predicate(method, successes)}*/ );
+    OPENXR_HPP_ASSERT( /*{_make_success_predicate(method)}*/ );
 #else
-    if (!(/*{_make_success_predicate(method, successes)}*/)) {
+    if (!(/*{_make_success_predicate(method)}*/)) {
         exceptions::throwResultException(/*{method.result_name}*/, OPENXR_HPP_NAMESPACE_STRING "::/*{method.qualified_name}*/");
     }
 #endif
