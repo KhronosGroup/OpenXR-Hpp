@@ -54,7 +54,9 @@
 namespace OPENXR_HPP_NAMESPACE {
 
 //## loop over atoms
-//# for type, invalid in (("SystemId", "XR_NULL_SYSTEM_ID"), ("Path", "XR_NULL_PATH"))
+//# for raw_type in gen.dict_atoms.keys()
+//#     set type = raw_type | replace("Xr", "")
+//#     set invalid = gen.computeNullAtom(raw_type)
 //#     include "atom.hpp"
 //# endfor
 

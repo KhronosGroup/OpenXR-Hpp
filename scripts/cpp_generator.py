@@ -39,8 +39,6 @@ TEMPLATED_TWO_CALL = set([
 MANUALLY_PROJECTED_SCALARS = set((
     "XrTime",
     "XrDuration",
-    "XrSystemId",
-    "XrPath",
 ))
 
 MANUALLY_PROJECTED = set((
@@ -416,6 +414,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         # Disabled - there is one in the template.
         pass
 
+    def computeNullAtom(self, typename):
+        null_atom = self.conventions.generate_structure_type_from_name(typename)
+        return null_atom.replace('XR_TYPE', 'XR_NULL')
+
     def findVendorSuffix(self, name):
         for vendor in self.vendor_tags:
             if name.endswith(vendor):
@@ -558,9 +560,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 method.decl_dict[name] = "{}& {}".format(cpp_type, name)
                 method.access_dict[name] = "OPENXR_HPP_NAMESPACE::put({})".format(name.strip())
 
-        # Convert XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
+        # Convert atoms, plus XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
         for param in method.decl_params:
-            if param.type not in MANUALLY_PROJECTED_SCALARS:
+            if param.type not in MANUALLY_PROJECTED_SCALARS and param.type not in self.dict_atoms:
                 continue
             name = param.name
             cpp_type = _project_type_name(param.type)
@@ -1010,10 +1012,16 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         for bitmask in self.api_bitmasks:
             self.dict_bitmasks[bitmask.name] = bitmask
 
+        self.dict_atoms = {}
+        for basetype in self.api_base_types:
+            if basetype.type == "XR_DEFINE_ATOM":
+                self.dict_atoms[basetype.name] = basetype
+
         self.projected_types = MANUALLY_PROJECTED.union(self.dict_handles.keys())
         self.projected_types.update(self.dict_enums.keys())
         self.projected_types.update(self.dict_structs.keys())
         self.projected_types.update(self.dict_bitmasks.keys())
+        self.projected_types.update(self.dict_atoms.keys())
 
         # Every type mentioned in some other type's parentstruct attribute.
         struct_parents = ((otherType, otherType.elem.get('parentstruct'))
