@@ -97,7 +97,6 @@
     //!
     //! /*{ extension_comment(struct.ext_name, gen) }*/
     //!
-    //! Guaranteed to have the same bit representation as the underlying type, despite having its own type, parent type(s), etc.
     //! /*{ make_spec_ref(s.name) }*/
     //! @xrentity{/*{ s.name }*/}
 //#     if s.typed_struct and s.is_abstract
