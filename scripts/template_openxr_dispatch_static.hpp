@@ -39,8 +39,7 @@
 
 //# from 'macros.hpp' import forwardCommandArgs, make_pfn_type, make_pfn_getter_name
 
-//# include('define_inline_constexpr.hpp') without context
-//# include('define_namespace.hpp') without context
+#include "openxr_dispatch_traits.hpp"
 
 #include <openxr/openxr.h>
 
@@ -48,7 +47,9 @@
 #include <openxr/openxr_platform.h>
 #endif
 
-namespace OPENXR_HPP_NAMESPACE {
+//# include('define_inline_constexpr.hpp') without context
+//# include('define_namespace.hpp') without context
+
 
 /*!
  * @defgroup dispatch Dispatch classes
@@ -61,6 +62,7 @@ namespace OPENXR_HPP_NAMESPACE {
 
 #ifndef XR_NO_PROTOTYPES
 
+namespace OPENXR_HPP_NAMESPACE {
 /*!
  * @brief Dispatch class for OpenXR core functions that uses exported, statically-available symbols.
  *
@@ -84,7 +86,7 @@ class DispatchLoaderStatic {
     }
 
     //! @brief Return the function pointer this dispatcher uses for /*{cur_cmd.name}*/
-    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/()  const {
+    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/ () const {
         return &::/*{cur_cmd.name}*/;
     }
     //# endfor
@@ -92,8 +94,13 @@ class DispatchLoaderStatic {
     //! @}
 };
 
+}  // namespace OPENXR_HPP_NAMESPACE
+
+#ifndef OPENXR_HPP_DOXYGEN
+OPENXR_HPP_CLASS_IS_DISPATCH(OPENXR_HPP_NAMESPACE::DispatchLoaderStatic)
+#endif  // !OPENXR_HPP_DOXYGEN
+
 #endif  // ifndef XR_NO_PROTOTYPES
 
-}  // namespace OPENXR_HPP_NAMESPACE
 
 //# include('file_footer.hpp')

@@ -7,6 +7,7 @@
 openxr_atoms.hpp
 openxr_dispatch_dynamic.hpp
 openxr_dispatch_static.hpp
+openxr_dispatch_traits.hpp
 openxr_duration.hpp
 openxr_enums.hpp
 openxr_exceptions.hpp

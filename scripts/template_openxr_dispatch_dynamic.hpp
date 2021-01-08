@@ -38,15 +38,17 @@
 
 //# from 'macros.hpp' import forwardCommandArgs, make_pfn_type, make_pfn_getter_name
 
-//# include('define_assert.hpp') without context
-//# include('define_inline_constexpr.hpp') without context
-//# include('define_namespace.hpp') without context
+#include "openxr_dispatch_traits.hpp"
 
 #include <openxr/openxr.h>
 
 #ifdef OPENXR_HPP_DOXYGEN
 #include <openxr/openxr_platform.h>
 #endif
+
+//# include('define_assert.hpp') without context
+//# include('define_inline_constexpr.hpp') without context
+//# include('define_namespace.hpp') without context
 
 namespace OPENXR_HPP_NAMESPACE {
 
@@ -194,5 +196,9 @@ class DispatchLoaderDynamic {
 };
 
 }  // namespace OPENXR_HPP_NAMESPACE
+
+#ifndef OPENXR_HPP_DOXYGEN
+OPENXR_HPP_CLASS_IS_DISPATCH(OPENXR_HPP_NAMESPACE::DispatchLoaderDynamic)
+#endif  // !OPENXR_HPP_DOXYGEN
 
 //# include('file_footer.hpp')
