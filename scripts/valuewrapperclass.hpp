@@ -50,7 +50,7 @@
 //#     block constructor_default scoped
 
     //! Default constructor.
-    OPENXR_HPP_CONSTEXPR /*{ type }*/ () = default;
+    OPENXR_HPP_CONSTEXPR /*{ type }*/ () noexcept = default;
 
 //#     endblock constructor_default
 
