@@ -29,8 +29,6 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_ref, extension_comment
-
 //# include('file_header.hpp')
 
 /**
@@ -61,62 +59,7 @@ namespace OPENXR_HPP_NAMESPACE {
  */
 
 //# for flags in gen.api_flags
-//#     set projected_type = project_type_name(flags.name)
-//#     set bitmask = bitmask_for_flags(flags)
-//#     set projected_bits_type = project_type_name(flags.valid_flags)
-/*{ protect_begin(flags) }*/
-//# filter block_doxygen_comment
-//! @brief Flag bits for /*{flags.name}*/
-//!
-//! /*{ extension_comment(flags.ext_name, gen) }*/
-//! /*{ make_spec_ref(flags.valid_flags) }*/
-//! @xrentity{/*{ flags.valid_flags }*/}
-//! @see /*{ projected_type }*/
-//# endfilter
-enum class /*{projected_bits_type }*/ : XrFlags64 {
-    None = 0,
-//# for val in bitmask.values
-    /*{ create_flag_value(val.name, flags.valid_flags) }*/ = /*{val.name}*/,
-//# endfor
-    AllBits =
-//# if bitmask.values
-//#     set pipe = joiner(' | ')
-//#     for val in bitmask.values
-              /*{- pipe() }*/ /*{- val.name -}*/
-//#     endfor
-//# else
- 0
-//# endif
-};
-
-//# filter block_doxygen_comment
-//! @brief Flags class projection of /*{flags.name}*/
-//!
-//! /*{ extension_comment(flags.ext_name, gen) }*/
-//! /*{ make_spec_ref(flags.name) }*/
-//! @xrentity{/*{ flags.valid_flags }*/}
-//! @see /*{ projected_bits_type }*/, xr::Flags
-//# endfilter
-using /*{projected_type }*/ = Flags</*{projected_bits_type }*/, /*{flags.name}*/>;
-
-
-//# filter block_doxygen_comment
-//! @brief Bitwise OR operator between two /*{projected_bits_type }*/ flag bits.
-//! @see /*{projected_bits_type }*/, /*{projected_type }*/, xr::Flags
-//# endfilter
-OPENXR_HPP_INLINE /*{projected_type }*/ operator|( /*{projected_bits_type }*/ bit0, /*{projected_bits_type }*/ bit1) {
-    return /*{projected_type }*/( bit0 ) | bit1;
-}
-
-//# filter block_doxygen_comment
-//! @brief Bitwise negation operator of a /*{projected_bits_type }*/ flag bit.
-//! @see /*{projected_bits_type }*/, /*{projected_type }*/, xr::Flags
-//# endfilter
-OPENXR_HPP_INLINE /*{projected_type }*/ operator~( /*{projected_bits_type }*/ bits) {
-    return ~( /*{projected_type }*/( bits ) );
-}
-
-/*{ protect_end(flags) }*/
+//# include('flag_type.hpp')
 //# endfor
 
 //! @}
