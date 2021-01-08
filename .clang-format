@@ -12,7 +12,7 @@ FixNamespaceComments: true
 # Spacing and Blank Lines
 MaxEmptyLinesToKeep: 1
 KeepEmptyLinesAtTheStartOfBlocks: false
-AllowShortBlocksOnASingleLine: Always
+#AllowShortBlocksOnASingleLine: Always
 AllowShortFunctionsOnASingleLine: All
 
 # Includes
