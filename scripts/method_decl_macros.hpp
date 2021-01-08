@@ -52,7 +52,7 @@ Result
 //# endmacro
 
 //# macro enhanced_method_behavior(enhanced, exceptions_allowed)
-//#     if exceptions_allowed == false
+//#     if not exceptions_allowed
 // Asserts that the result is /*{ "one of the expected success codes." if enhanced.multiple_success_codes else "Result::Success." }*/
 //#     else
 // Throws an appropriate exception on failure /*%- if exceptions_allowed == "maybe" %*/ if `OPENXR_HPP_NO_EXCEPTIONS` is not defined/*% endif %*/.
