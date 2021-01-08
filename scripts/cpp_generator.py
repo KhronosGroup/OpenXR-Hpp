@@ -777,13 +777,22 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         else:
             method.successes_arg = ""
 
+        outhandles = [x for x in reversed(method.decl_params)
+                        if x.is_handle and x.pointer_count]
+
+        if method.is_create and len(outhandles) != 1:
+            # This isn't really a create from our point of view
+            method.is_create = False
+
         if method.is_create:
             method.masks_simple = False
-            outparam = method.decl_params[-1]
+            outparam = outhandles[0]
             cpp_outtype = _project_type_name(outparam.type)
             method.bare_return_type = cpp_outtype
 
-            method.decl_params.pop()
+            # Filter out the one we're returning.
+            method.decl_params = [x for x in method.decl_params
+                                  if x != outparam]
             method.decl_dict[outparam.name] = None
             method.pre_statements.append("{} handle;".format(cpp_outtype))
             method.access_dict[outparam.name] = "handle.put()"
