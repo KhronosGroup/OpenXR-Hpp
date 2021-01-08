@@ -59,7 +59,13 @@ class DispatchLoaderStatic;
 class DispatchLoaderDynamic;
 
 //# for handle in gen.api_handles
+//## Note this won't actually find anything until automatic_source_generator.py is modified
+//## to actually store a value under "alias" for handles, but...
+//#     if handle.alias
+using /*{ project_type_name(handle.name) }*/ = /*{ project_type_name(handle.alias) }*/;
+//#     else
 class /*{ project_type_name(handle.name) }*/;
+//#     endif
 //# endfor
 
 /*!
@@ -73,7 +79,7 @@ class /*{ project_type_name(handle.name) }*/;
  * @ingroup handles
  */
 
-//# for handle in gen.api_handles
+//# for handle in gen.api_handles if not handle.alias
 //#     set shortname = project_type_name(handle.name)
 
 #ifndef OPENXR_HPP_NO_SMART_HANDLE

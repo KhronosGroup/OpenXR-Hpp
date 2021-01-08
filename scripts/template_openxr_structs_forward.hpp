@@ -41,7 +41,11 @@
 namespace OPENXR_HPP_NAMESPACE {
 
 //# for struct in gen.api_structures
+//#     if struct.alias
+using /*{ project_type_name(struct.name) }*/ = /*{ project_type_name(struct.alias) }*/;
+//#     else
 struct /*{project_type_name(struct.name)}*/;
+//#     endif
 //# endfor
 
 }  // namespace OPENXR_HPP_NAMESPACE
