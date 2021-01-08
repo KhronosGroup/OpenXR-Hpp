@@ -197,26 +197,26 @@ described in the "Buffer Size Parameters" part of the specification. In these
 cases, when using the C API in C++ you usually have to write code like this:
 
 ```c++
-std::vector<LayerProperties, Allocator> properties;
+std::vector<XrApiLayerProperties> properties;
 uint32_t propertyCount = 0;
 uint32_t propertyCapacity = 0;
-Result result;
+XrResult result;
 do
 {
   // determine number of elements to query
-  result = xr::enumerateApiLayerProperties( propertyCapacity, &propertyCount, nullptr ) );
-  if ( ( result == Result::Success ) && propertyCount )
+  result = xrEnumerateApiLayerProperties( propertyCapacity, &propertyCount, nullptr ) );
+  if ( ( result == XR_SUCCESS ) && propertyCount )
   {
     // allocate memory & query again
-    properties.resize( propertyCount );
+    properties.resize( propertyCount, {XR_TYPE_API_LAYER_PROPERTIES} );
     propertyCapacity = propertyCount;
-    result = static_cast<xr::Result>( xr::enumerateApiLayerProperties(
-      propertyCapacity, &propertyCount,
-      reinterpret_cast<XrApiLayerProperties*>( properties.data() ) ) );
+    result = xrEumerateApiLayerProperties(
+      propertyCapacity, &propertyCount, properties.data() );
   }
 // it's possible that the count has changed, start again if properties was not big enough
-} while ( result == xr::Result::ErrorSizeInsufficient );
-properties.resize(propertyCount);
+} while ( result == XR_ERROR_SIZE_INSUFFICIENT );
+// Trim off any extra unpopulated entries.
+if (XR_SUCCEEDED(result)) properties.resize(propertyCount);
 ```
 
 Since writing this loop over and over again is tedious and error prone, the C++
@@ -224,8 +224,11 @@ binding takes care of the enumeration so that you can just write:
 
 ```c++
 std::vector<xr::ApiLayerProperties> properties = physicalDevice
-    .enumerateApiLayerProperties();
+    .enumerateApiLayerPropertiesToVector();
 ```
+
+Note the addition of "ToVector" to the method name: this is to avoid some
+ambiguous overloads.
 
 ### Custom assertions
 

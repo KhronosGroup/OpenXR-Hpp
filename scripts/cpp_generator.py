@@ -243,12 +243,14 @@ class StructProjection:
             return "next_"
         return None
 
+
 DISPATCH_TEMPLATE_PARAM_NAME = "Dispatch"
 DISPATCH_TEMPLATE_DEFN = "typename " + DISPATCH_TEMPLATE_PARAM_NAME
 # ENABLE_IF_TEMPLATE_DEFN = "typename std::enable_if<traits::is_dispatch<{}>::value, int>::type".format(DISPATCH_TEMPLATE_PARAM_NAME)
 ENABLE_IF_TEMPLATE_DEFN = "OPENXR_HPP_REQUIRE_DISPATCH({})".format(DISPATCH_TEMPLATE_PARAM_NAME)
 
 ENABLE_IF_TEMPLATE_DECL = ENABLE_IF_TEMPLATE_DEFN + " = 0"
+
 
 class MethodProjection:
     """Stores the method declaration and implementation."""
@@ -692,6 +694,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         method.is_two_call = True
         method.masks_simple = False
+        # Should we put "ToVector" on the method name?
+        needs_name_decoration = True
         item_type = array_param['param'].type
         method.item_type = item_type
 
@@ -730,10 +734,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.bare_return_type = "string_with_allocator<Allocator>"
             method.return_constructor = method.bare_return_type + "{%s.begin(), %s.end(), vectorAllocator}" % (array_param_name, array_param_name)
             method.returns.append("str")
+            needs_name_decoration = False
         else:
             method.bare_return_type = vec_type
             method.return_constructor = array_param_name
             method.returns.append(array_param_name)
+
+        if needs_name_decoration:
+            self._append_to_method_name_before_vendor(method, "ToVector")
         self._update_enhanced_return_type(method)
 
     def _method_has_single_output(self, method):
