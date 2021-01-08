@@ -39,13 +39,13 @@
 
 //# from 'macros.hpp' import forwardCommandArgs, make_pfn_type, make_pfn_getter_name
 
-#include "openxr_dispatch_traits.hpp"
-
 #include <openxr/openxr.h>
 
 #ifdef OPENXR_HPP_DOXYGEN
 #include <openxr/openxr_platform.h>
 #endif
+
+#include <type_traits>
 
 //# include('define_inline_constexpr.hpp') without context
 //# include('define_namespace.hpp') without context
@@ -63,6 +63,7 @@
 #ifndef XR_NO_PROTOTYPES
 
 namespace OPENXR_HPP_NAMESPACE {
+
 /*!
  * @brief Dispatch class for OpenXR core functions that uses exported, statically-available symbols.
  *
@@ -94,11 +95,17 @@ class DispatchLoaderStatic {
     //! @}
 };
 
-}  // namespace OPENXR_HPP_NAMESPACE
-
 #ifndef OPENXR_HPP_DOXYGEN
-OPENXR_HPP_CLASS_IS_DISPATCH(OPENXR_HPP_NAMESPACE::DispatchLoaderStatic)
+// forward declare and manually defining trait to avoid include
+namespace traits {
+    template <typename T>
+    struct is_dispatch;
+    template <>
+    struct is_dispatch<::OPENXR_HPP_NAMESPACE::DispatchLoaderStatic> : std::true_type {};
+}  // namespace traits
 #endif  // !OPENXR_HPP_DOXYGEN
+
+}  // namespace OPENXR_HPP_NAMESPACE
 
 #endif  // ifndef XR_NO_PROTOTYPES
 

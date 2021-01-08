@@ -38,19 +38,20 @@
 
 //# from 'macros.hpp' import forwardCommandArgs, make_pfn_type, make_pfn_getter_name
 
-#include "openxr_dispatch_traits.hpp"
-
 #include <openxr/openxr.h>
 
 #ifdef OPENXR_HPP_DOXYGEN
 #include <openxr/openxr_platform.h>
 #endif
 
+#include <type_traits>
+
 //# include('define_assert.hpp') without context
 //# include('define_inline_constexpr.hpp') without context
 //# include('define_namespace.hpp') without context
 
 namespace OPENXR_HPP_NAMESPACE {
+
 
 /*% macro make_pfn_name(cur_cmd) -%*/ /*{cur_cmd.name | replace("xr", "pfn")}*/ /*%- endmacro %*/
 
@@ -80,8 +81,7 @@ class DispatchLoaderDynamic {
      * @brief Create a lazy-populating dispatch table.
      */
     explicit DispatchLoaderDynamic(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr)
-        : m_instance(instance), pfnGetInstanceProcAddr(reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr)) {
-    }
+        : m_instance(instance), pfnGetInstanceProcAddr(reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr)) {}
 
 #ifndef XR_NO_PROTOTYPES
     /*!
@@ -89,13 +89,13 @@ class DispatchLoaderDynamic {
      */
     explicit DispatchLoaderDynamic(XrInstance instance = XR_NULL_HANDLE)
         : DispatchLoaderDynamic(instance, &::xrGetInstanceProcAddr) {}
-#endif // !XR_NO_PROTOTYPES
+#endif  // !XR_NO_PROTOTYPES
 
     /*!
      * @brief Create a fully-populated dispatch table given a non-null XrInstance and a getInstanceProcAddr.
      */
-    static DispatchLoaderDynamic createFullyPopulated(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr)
-    {
+    static DispatchLoaderDynamic createFullyPopulated(XrInstance instance,
+                                                      PFN_xrGetInstanceProcAddr getInstanceProcAddr) {
         OPENXR_HPP_ASSERT(instance != XR_NULL_HANDLE);
         DispatchLoaderDynamic dispatch{instance, getInstanceProcAddr};
         dispatch.populateFully();
@@ -106,8 +106,7 @@ class DispatchLoaderDynamic {
     /*!
      * @brief Fully populate a dispatch table given a non-null XrInstance and a getInstanceProcAddr.
      */
-    void populateFully()
-    {
+    void populateFully() {
         OPENXR_HPP_ASSERT(m_instance != XR_NULL_HANDLE);
         OPENXR_HPP_ASSERT(pfnGetInstanceProcAddr != nullptr);
         //# for cur_cmd in sorted_cmds
@@ -117,8 +116,7 @@ class DispatchLoaderDynamic {
     /*!
      * @brief Fully populate a dispatch table given a non-null XrInstance and a getInstanceProcAddr.
      */
-    void populateFully(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr)
-    {
+    void populateFully(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr) {
         m_instance = instance;
         pfnGetInstanceProcAddr = reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr);
         populateFully();
@@ -159,7 +157,7 @@ class DispatchLoaderDynamic {
     //#     filter block_doxygen_comment
     //! @brief Return the function pointer for /*{cur_cmd.name}*/, populating function pointer if required.
     //#     endfilter
-    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/() {
+    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/ () {
         //## Populate
         XrResult result = populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
         if (XR_FAILED(result)) {
@@ -172,7 +170,7 @@ class DispatchLoaderDynamic {
     //#     filter block_doxygen_comment
     //! @brief Return the function pointer for /*{cur_cmd.name}*/ (const overload - does not populate function pointer)
     //#     endfilter
-    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/()  const {
+    OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/ () const {
         //## Cast and return
         return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/));
     }
@@ -195,10 +193,16 @@ class DispatchLoaderDynamic {
     //# endfor
 };
 
-}  // namespace OPENXR_HPP_NAMESPACE
-
 #ifndef OPENXR_HPP_DOXYGEN
-OPENXR_HPP_CLASS_IS_DISPATCH(OPENXR_HPP_NAMESPACE::DispatchLoaderDynamic)
+// forward declare and manually defining trait to avoid include
+namespace traits {
+    template <typename T>
+    struct is_dispatch;
+    template <>
+    struct is_dispatch<::OPENXR_HPP_NAMESPACE::DispatchLoaderDynamic> : std::true_type {};
+}  // namespace traits
 #endif  // !OPENXR_HPP_DOXYGEN
+
+}  // namespace OPENXR_HPP_NAMESPACE
 
 //# include('file_footer.hpp')
