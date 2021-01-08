@@ -144,6 +144,16 @@
         /*{ s.cpp_name }*/(const /*{ s.cpp_name }*/& rhs) = default;
         //! Default copy assignment
         /*{ s.cpp_name }*/& operator=(const /*{ s.cpp_name }*/& rhs) = default;
+        //! Copy construct from raw
+        /*{ s.cpp_name }*/(const /*{ s.name }*/& rhs) : /*{ s.cpp_name }*/() {
+            *put() = rhs;
+        }
+        //! Copy assign from raw
+        /*{ s.cpp_name }*/& operator=(const /*{ s.name }*/& rhs) {
+            if ((const void*) this == (const void *)&rhs) return *this;
+            *put() = rhs;
+            return *this;
+        }
 //# endif
 
 
