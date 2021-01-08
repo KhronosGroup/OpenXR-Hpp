@@ -31,62 +31,56 @@
 
 //# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString, make_spec_ref, extension_comment
 
-//# macro _makeReturnOnlyConstructor(s)
-        //! Empty constructor for a type that is marked as "returnonly"
-        explicit /*{s.cpp_name }*/ (
+//# macro _makeDefaultConstructor(s, is_explicit)
+        /*{ "explicit" if is_explicit }*/ /*{s.cpp_name }*/ (
 
             /*{s.next_param_decl_with_default if s.typed_struct}*/)
 //#     if s.typed_struct
-            : Parent(/*{s.struct_type_enum}*/, /*{s.next_param_name}*/)
+            : Parent(/*{s.struct_type_enum -}*/
+//## Default-construct all parent fields
+//#         if s.parent_fields
+              /*%- for _ in s.parent_fields -%*/, {} /*%- endfor -%*/
+//#         endif
+             , /*{s.next_param_name}*/)
 //#     endif
             {}
 //# endmacro
 
-//# macro _makeFullInitializingConstructor(struct, s)
-
-//#     if s.is_abstract
-    protected:
-        //! Protected constructor: this type is abstract.
-//#     else
-        //! Constructor initializing all members.
-//#     endif
+//# macro _makeFullInitializingConstructor(struct, s, visible_members, allowDefaulting)
         /*{ s.cpp_name }*/ (
-//#     set visible_members = struct.members | reject('cpp_hidden_member') | list
-//#     set first_defaultable_index0 = index0_of_first_visible_defaultable_member(visible_members)
-//#     set arg_comma = joiner(", ")
+//#    set first_defaultable_index0 = index0_of_first_visible_defaultable_member(visible_members)
+//#    set arg_comma = joiner(", ")
                   /*%- if s.is_abstract %*/ /*{ arg_comma() }*/ StructureType type_ /*% endif -%*/
-//#     for member in visible_members
-                  /*{- arg_comma() }*/ /*{ project_cppdecl(struct, member, defaulted=(loop.index0 >= first_defaultable_index0), suffix="_", input=True) -}*/
-//#     endfor
-//#     if s.typed_struct
+//#    for member in visible_members
+                  /*{- arg_comma() }*/ /*{ project_cppdecl(struct, member, defaulted=(allowDefaulting and (loop.index0 >= first_defaultable_index0)), suffix="_", input=True) -}*/
+//#    endfor
+//#    if s.typed_struct
                   /*{- arg_comma() }*/ /*{ s.next_param_decl_with_default -}*/
-//#     endif
+//#    endif
                   ) :
-//#     set initializer_comma = joiner(",")
+//#    set initializer_comma = joiner(",")
 
-//#     if s.typed_struct
-//#         set arg_comma = joiner(",")
+//#    if s.typed_struct
+//#        set arg_comma = joiner(",")
               /*{- initializer_comma() }*/ Parent(
                 /*{- arg_comma() -}*/ /*% if s.is_abstract %*/type_ /*% else %*/ /*{- s.struct_type_enum -}*/ /*% endif %*/
-//#         for member in visible_members if member.name in s.parent_fields and not is_static_length_string(member)
+//#        for member in visible_members if member.name in s.parent_fields
+//## commented out and not is_static_length_string(member)
                 /*{- arg_comma() }*/ /*{ member.name + "_" -}*/
-//#         endfor
+//#        endfor
                 /*{- arg_comma() }*/ /*{ s.next_param_name -}*/
               )
-//#     endif
+//#    endif
 
-//#     for member in visible_members if member.name not in s.parent_fields and not is_static_length_string(member)
+//#    for member in visible_members if member.name not in s.parent_fields and not is_static_length_string(member)
               /*{- initializer_comma() }*/ /*{ member.name }*/ {/*{ member.name + "_"}*/}
-//#     endfor
+//#    endfor
         {
-//#     for member in visible_members if is_static_length_string(member)
+//#    for member in visible_members if is_static_length_string(member)
             /*{ initializeStaticLengthString(member.name + "_", member.name, member.array_count_var) }*/
-//#     endfor
+//#    endfor
         }
 
-//#     if s.is_abstract
-    public:
-//#     endif
 //# endmacro
 
 
@@ -112,15 +106,36 @@
 //# if s.typed_struct
     private:
         using Parent = /*{ s.parent_cpp_type }*/;
-//#     if not s.is_abstract
-    public:
-//#     endif
 //# endif
 
-//# if struct is struct_output and not s.is_abstract
-        /*{ _makeReturnOnlyConstructor(s) }*/
+//# if s.is_abstract
+    protected:
 //# else
-        /*{ _makeFullInitializingConstructor(struct, s) }*/
+    public:
+//# endif
+//# if struct is struct_output and not s.is_abstract
+        //! Empty constructor for a type that is marked as "returnonly"
+        /*{ _makeDefaultConstructor(s) }*/
+//# else
+
+//#     set visible_members = struct.members | reject('cpp_hidden_member') | list
+
+//#     if visible_members | count > 0 or s.is_abstract
+//#         if s.is_abstract
+        //! Protected constructor: this type is abstract.
+//#         else
+        //! Constructor initializing all members.
+//#         endif
+//#         set allowDefaulting = false
+        /*{ _makeFullInitializingConstructor(struct, s, visible_members, allowDefaulting) }*/
+//#     endif
+//#     if not s.is_abstract
+        //! Default/empty constructor
+        /*{ _makeDefaultConstructor(s) }*/
+//#     endif
+//# endif
+//# if s.is_abstract
+    public:
 //# endif
 
 
