@@ -35,3 +35,10 @@
 //# extends "valuewrapperclass.hpp"
 
 /*% block comment_brief %*/Type-safe wrapper for an /*{raw_type}*/ atom./*% endblock comment_brief %*/
+
+//# block constructors
+/*{ super() }*/
+
+//! Return a null value.
+static OPENXR_HPP_CONSTEXPR /*{ type }*/ null() noexcept { return {}; }
+//# endblock
