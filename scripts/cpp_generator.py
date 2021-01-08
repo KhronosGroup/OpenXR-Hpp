@@ -243,9 +243,12 @@ class StructProjection:
             return "next_"
         return None
 
+DISPATCH_TEMPLATE_PARAM_NAME = "Dispatch"
+DISPATCH_TEMPLATE_DEFN = "typename " + DISPATCH_TEMPLATE_PARAM_NAME
+# ENABLE_IF_TEMPLATE_DEFN = "typename std::enable_if<traits::is_dispatch<{}>::value, int>::type".format(DISPATCH_TEMPLATE_PARAM_NAME)
+ENABLE_IF_TEMPLATE_DEFN = "OPENXR_HPP_REQUIRE_DISPATCH({})".format(DISPATCH_TEMPLATE_PARAM_NAME)
 
-DISPATCH_TEMPLATE_DEFN = "typename Dispatch"
-
+ENABLE_IF_TEMPLATE_DECL = ENABLE_IF_TEMPLATE_DEFN + " = 0"
 
 class MethodProjection:
     """Stores the method declaration and implementation."""
@@ -289,11 +292,16 @@ class MethodProjection:
         self.returns = [self.result_name]
         self.return_template_params = []
 
-        self.dispatch = "Dispatch&& d"
+        self.dispatch = DISPATCH_TEMPLATE_PARAM_NAME + "&& d"
         self.template_decl_list = [DISPATCH_TEMPLATE_DEFN]
         """Template parameters to use in the method (forward) declaration."""
+
         self.template_defn_list = self.template_decl_list[:]
         """Template parameters to use in the method definition - should not include default args."""
+
+        # Add these to limit what can be deduced as a dispatch.
+        self.template_decl_list.append(ENABLE_IF_TEMPLATE_DECL)
+        self.template_defn_list.append(ENABLE_IF_TEMPLATE_DEFN)
 
         self.exceptions_permitted = True
         self.explicit_result_elided = False

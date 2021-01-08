@@ -50,6 +50,7 @@
 #include "openxr_handles_forward.hpp"
 #include "openxr_structs_forward.hpp"
 #include "openxr_time.hpp"
+#include "openxr_dispatch_traits.hpp"
 
 #include <openxr/openxr.h>
 

@@ -85,4 +85,24 @@ namespace traits {
         }                                                 \
     }
 
+/*!
+ * @brief Implementation detail: Macro for enable_if to verify a type is a dispatch.
+ *
+ * You can ignore the presence of this: you will never need to specify an argument for it.
+ * It exists solely to make sure that only actual dispatch classes are accepted for the Dispatch templated argument.
+ *
+ * In more detail:
+ * This is used in wrapper function template argument lists to prevent overload ambiguity caused by the optional Dispatch parameter to all calls.
+ * It ensures that an overload is available with a type as a dispatch only if that type actually is marked as a dispatch (using traits::is_dispatch).
+ * This macro expands to a type expression: it evaluates to `int` if `TYPE` is a dispatch type, and is a substitution failure otherwise.
+ * Due to the "substitution failure is not an error" (SFINAE) principle, it can thus remove an overload from consideration.
+ *
+ * This macro is defined to shorten repeated uses of this expression.
+ *
+ * @see traits::is_dispatch
+ * @ingroup dispatch
+ */
+#define OPENXR_HPP_REQUIRE_DISPATCH(TYPE) \
+    typename std::enable_if<::OPENXR_HPP_NAMESPACE::traits::is_dispatch<Dispatch>::value, int>::type
+
 //# include('file_footer.hpp')
