@@ -77,7 +77,13 @@ namespace OPENXR_HPP_NAMESPACE {
  * @{
  */
 //# for enum in gen.api_enums
-//#     include("enum.hpp")
+//## Note this won't actually find anything until automatic_source_generator.py is modified
+//## to actually store a value under "alias", but...
+//#     if enum.alias
+using /*{ project_type_name(enum.name) }*/ = /*{ project_type_name(enum.alias) }*/;
+//#     else
+//#         include("enum.hpp")
+//#     endif
 //# endfor
 
 //! @}

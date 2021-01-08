@@ -59,7 +59,15 @@ namespace OPENXR_HPP_NAMESPACE {
  */
 
 //# for flags in gen.api_flags
+//## Note this won't actually find anything until automatic_source_generator.py is modified
+//## to actually store a value under "alias", but...
+//#     if flags.alias
+//#         set alias = gen.dict_bitmasks[flags.alias]
+using /*{ project_type_name(flags.name) }*/ = /*{ project_type_name(alias.name) }*/;
+using /*{ project_type_name(flags.valid_flags) }*/ = /*{ project_type_name(alias.valid_flags) }*/;
+//#     else
 //# include('flag_type.hpp')
+//#     endif
 //# endfor
 
 //! @}
