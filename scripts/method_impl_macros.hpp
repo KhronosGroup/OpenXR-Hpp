@@ -39,7 +39,6 @@
     //# endif
     /*{ enhanced.get_main_invoke(replacements={enhanced.array_param_name: "nullptr"}) }*/
     if (!unqualifiedSuccess(result) || /*{ enhanced.count_output_param_name }*/ == 0) {
-
         /*{ make_error_handling(enhanced, exceptions_allowed) }*/
         /*{ enhanced.return_statement }*/
     }
@@ -50,10 +49,10 @@
         //# set array_param = "reinterpret_cast<" + enhanced.array_param.param.type + "*>(" + raw_array_param + ")"
         /*{ enhanced.get_main_invoke(replacements={ enhanced.array_param_name: array_param }) | replace("Result ", "") }*/
     } while (result == xr::Result::ErrorSizeInsufficient);
-    if (result == xr::Result::Success) {
+    if (succeeded(result)) {
         OPENXR_HPP_ASSERT(/*{ enhanced.count_output_param_name }*/ <= /*{enhanced.array_param_name}*/.size());
         /*{enhanced.array_param_name}*/.resize(/*{ enhanced.count_output_param_name }*/);
-    }
+    } else /*{enhanced.array_param_name}*/.clear();
     /*{ enhanced.post_statements |join("\n") | indent }*/
     //# if enhanced.item_type == 'char'
     str.assign(/*{ enhanced.array_param_name }*/.begin(), /*{ enhanced.array_param_name }*/.end());
@@ -66,9 +65,7 @@
 template </*{ enhanced.template_defns }*/>
 OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     /*{ enhanced.get_definition_params() | join(", ")}*/) /*{enhanced.qualifiers}*/ {
-    // Two-call idiom
     /*{ enhanced.vec_type }*/ /*{ enhanced.array_param_name }*/;
-
     /*{ twocallbody(enhanced, exceptions_allowed) |replace('vectorAllocator', '{}') }*/
 }
 
@@ -76,7 +73,6 @@ template </*{ enhanced.template_defns }*/>
 OPENXR_HPP_INLINE /*{enhanced.return_type}*/ /*{enhanced.qualified_name}*/ (
     //# set params = enhanced.get_definition_params(extras=["Allocator const& vectorAllocator"])
     /*{ params | join(", ")}*/) /*{enhanced.qualifiers}*/ {
-    // Two-call idiom
     /*{ enhanced.vec_type }*/ /*{ enhanced.array_param_name }*/{vectorAllocator};
     /*{ twocallbody(enhanced, exceptions_allowed) }*/
 }
