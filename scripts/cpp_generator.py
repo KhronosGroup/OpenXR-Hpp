@@ -258,7 +258,7 @@ class MethodProjection:
         self.conventions = gen.genOpts.conventions
         self.name = cmd.name
         self.cpp_name = _member_function_name(cmd.name)
-        self.qualified_name = self.cpp_name
+        self.is_member_function = False
         self.is_core = gen.isCoreExtensionName(cmd.ext_name)
         self.params = cmd.params[:]
         self.decl_params = cmd.params[:]
@@ -273,7 +273,14 @@ class MethodProjection:
             self.cpp_handle = None
 
         self.decl_dict = {x.name: x.cdecl.strip() for x in self.params}
+        """
+        Maps an original parameter name to how the corresponding parameter in the projection, if any, should be declared in the prototype.
+        """
+
         self.access_dict = {x.name: x.name.strip() for x in self.params}
+        """
+        Maps an original parameter name to what should be passed as that parameter within the projection.
+        """
 
         self.return_type = "Result"
         self.bare_return_type = self.return_type
@@ -306,6 +313,12 @@ class MethodProjection:
         self.exceptions_permitted = True
         self.explicit_result_elided = False
         """If true, our most advanced enhanced wrapper doesn't have an XrResult anywhere."""
+
+    @property
+    def qualified_name(self):
+        if self.handle and self.is_member_function:
+            return "{}::{}".format(self.cpp_handle, self.cpp_name)
+        return self.cpp_name
 
     def _declparams(self, replacements=None):
         def find_decl(name):
@@ -483,11 +496,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if method.handle:
             handle = method.params[0]
             method.decl_params.pop(0)
+            method.is_member_function = True
             method.decl_dict[handle.name] = None
             method.access_dict[handle.name] = "this->get()"
             # if method.cpp_name.endswith(method.cpp_handle):
             #     method.cpp_name = _strip_suffix(method.cpp_name, method.cpp_handle)
-            method.qualified_name = "{}::{}".format(method.cpp_handle, method.cpp_name)
 
         # Convert handles
         for param in method.decl_params:
@@ -723,9 +736,6 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.returns.append(array_param_name)
         self._update_enhanced_return_type(method)
 
-        if not self.quiet:
-            print(method.name, "is a two-call")
-
     def _method_has_single_output(self, method):
         if len(method.get_success_codes()) > 1:
             return False
@@ -795,17 +805,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         """Perform the manipulation of a MethodProjection for a creation function to convert it from C to C++ returning a UniqueHandle."""
 
         self._enhanced_method_projection(method)
-        vendor = self.findVendorSuffix(method.cpp_name)
-        if vendor:
-            # Keep the vendor suffix on the end.
-            method.cpp_name = _strip_suffix(method.cpp_name, vendor)
-        method.cpp_name += "Unique"
-        if vendor:
-            method.cpp_name += vendor
-        if method.handle:
-            method.qualified_name = "{}::{}".format(method.cpp_handle, method.cpp_name)
-        else:
-            method.qualified_name = method.cpp_name
+        self._append_to_method_name_before_vendor(method, "Unique")
 
         method.returns.append("deleter")
 
@@ -815,6 +815,16 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
         # method.returns[1] = "{}({}, {})"
         self._update_enhanced_return_type(method)
+
+    def _append_to_method_name_before_vendor(self, method, s):
+        "Append a string to the end of the cpp_name of a method, but before any vendor suffix."
+        vendor = self.findVendorSuffix(method.cpp_name)
+        if vendor:
+            # Keep the vendor suffix on the end.
+            method.cpp_name = _strip_suffix(method.cpp_name, vendor)
+        method.cpp_name += s
+        if vendor:
+            method.cpp_name += vendor
 
     def outputGeneratedHeaderWarning(self):
         # File Comment
