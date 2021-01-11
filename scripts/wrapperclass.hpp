@@ -114,10 +114,11 @@
 
 //#     block method_put
 //#         filter block_doxygen_comment
-    //! @brief Clears this /*{ object_instance_desc }*/, then returns the address of the raw /*{ raw_type }*/ value,
+    //! /*% if not cannot_clear %*/@brief Clears this /*{ object_instance_desc }*/, then returns/*% else %*/
+    //! @brief Returns/*% endif %*/ the address of the raw /*{ raw_type }*/ value,
     //! for use in creation/assignment.
 //#         endfilter
-    /*{ raw_type }*/ *put(bool clear = true) noexcept {
+    /*{ raw_type }*/ *put(/*% if not cannot_clear %*/bool clear = true/*% endif %*/) noexcept {
 //#         block method_put_body scoped
 #error "Must override block method_put_body"
 //#         endblock method_put_body
@@ -162,7 +163,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{ raw_type }*/ get(/*{input_param_type}
 //! @relates /*{type}*/
 //! @ingroup utility_accessors
 //#     endfilter
-static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v, bool clear = true) noexcept { return v.put(clear); }
+static OPENXR_HPP_INLINE /*{ raw_type }*/ *put(/*{type}*/ &v/*% if not cannot_clear %*/, bool clear = true/*% endif %*/) noexcept { return v.put(/*% if not cannot_clear %*/clear/*% endif %*/); }
 //# endblock free_put
 
 //# block comparisons scoped

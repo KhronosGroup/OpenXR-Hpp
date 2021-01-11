@@ -37,7 +37,10 @@
 //#     block includes
 //#     endblock includes
 
-//#     include('defines.hpp')
+//#     block defines
+//#     include('define_inline_constexpr.hpp')
+//#     include('define_namespace.hpp')
+//#     endblock defines
 
 namespace OPENXR_HPP_NAMESPACE {
 //# endblock prefix
