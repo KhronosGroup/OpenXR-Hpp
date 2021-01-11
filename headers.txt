@@ -5,6 +5,7 @@
 # Comments, with leading #, are OK too.
 
 openxr_atoms.hpp
+openxr_bool.hpp
 openxr_dispatch_dynamic.hpp
 openxr_dispatch_static.hpp
 openxr_dispatch_traits.hpp

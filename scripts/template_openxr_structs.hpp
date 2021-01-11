@@ -68,6 +68,7 @@
 #include "openxr_version.hpp"
 #include "openxr_time.hpp"
 #include "openxr_atoms.hpp"
+#include "openxr_bool.hpp"
 #include "openxr_handles.hpp"
 
 #include <openxr/openxr.h>
@@ -77,8 +78,6 @@
 #endif
 
 namespace OPENXR_HPP_NAMESPACE {
-
-using Bool32 = XrBool32;
 
 namespace impl {
 

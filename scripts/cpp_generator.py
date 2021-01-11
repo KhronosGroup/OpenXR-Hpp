@@ -945,7 +945,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             else:
                 defaultValue = '0.0f'
         elif member.type == "XrBool32":
-            defaultValue = "XR_FALSE"
+            defaultValue = "false"
         elif not self._is_tagged_type(member.type):
             defaultValue = "{}"
         elif member.type in self.dict_structs:
