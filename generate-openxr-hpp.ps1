@@ -2,7 +2,7 @@
 param (
     [Parameter()]
     [string]
-    $OpenXRRepo = (Join-Path (Get-Item "$PSScriptRoot").parent "OpenXR-SDK-Source"),
+    $OpenXRRepo = (Join-Path (Get-Item $PSScriptRoot) "../OpenXR-SDK-Source"),
 
 
     [Parameter()]
@@ -34,9 +34,9 @@ $Headers = foreach($line in Get-Content (Join-Path $PSScriptRoot headers.txt)) {
     }
 }
 
-$Registry = Join-Path "$OpenXRRepo" "specification" "registry" "xr.xml"
-$OutputLocation = Join-Path "$PSScriptRoot" "include" "openxr"
-$Script = Join-Path "$PSScriptRoot" "scripts" "hpp_genxr.py"
+$Registry = Join-Path "$OpenXRRepo" "specification/registry/xr.xml"
+$OutputLocation = Join-Path "$PSScriptRoot" "include/openxr"
+$Script = Join-Path "$PSScriptRoot" "scripts/hpp_genxr.py"
 
 # for progress bar
 $Total = $Headers.Length + 1
