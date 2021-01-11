@@ -42,6 +42,14 @@ TEST_F(OpenXrFlagsTest, flagsTest) {
   }
 
   {
+    xr::SpaceVelocityFlags flags = xr::SpaceVelocityFlagBits::LinearValid;
+    EXPECT_EQ(~flags & xr::SpaceVelocityFlagBits::AngularValid,
+              xr::SpaceVelocityFlagBits::AngularValid);
+    EXPECT_EQ(~flags & xr::SpaceVelocityFlagBits::LinearValid,
+              xr::SpaceVelocityFlagBits::None);
+  }
+
+  {
     xr::SpaceVelocityFlags flags;
     EXPECT_EQ(flags, xr::SpaceVelocityFlagBits::None);
     XrSpaceVelocityFlags cflags = flags.operator size_t();
