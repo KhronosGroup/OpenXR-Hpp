@@ -32,11 +32,6 @@
 
 namespace OPENXR_HPP_NAMESPACE {
 
-template <typename FlagBitsType>
-struct FlagTraits {
-    enum { allFlags = 0 };
-};
-
 /**
  * @brief Template type for bit flag projection
  *
@@ -106,7 +101,7 @@ class Flags {
     //! Bitwise negation (complement) operator
     Flags operator~() const {
         Flags result(*this);
-        result.m_mask ^= FlagTraits<BitType>::allFlags;
+        result.m_mask ^= static_cast<MaskType>(BitType::AllBits);
         return result;
     }
 
