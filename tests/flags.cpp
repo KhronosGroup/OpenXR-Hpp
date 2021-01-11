@@ -22,7 +22,7 @@ TEST_F(OpenXrFlagsTest, flagsTest) {
               xr::SpaceVelocityFlagBits::AngularValid);
     EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::AngularValid).operator bool(),
               true);
-    XrSpaceVelocityFlags cflags = flags.operator size_t();
+    XrSpaceVelocityFlags cflags(flags);
     EXPECT_EQ(cflags, XR_SPACE_VELOCITY_LINEAR_VALID_BIT |
                           XR_SPACE_VELOCITY_ANGULAR_VALID_BIT);
   }
@@ -37,7 +37,7 @@ TEST_F(OpenXrFlagsTest, flagsTest) {
               xr::SpaceVelocityFlagBits::None);
     EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::AngularValid).operator bool(),
               false);
-    XrSpaceVelocityFlags cflags = flags.operator size_t();
+    XrSpaceVelocityFlags cflags(flags);
     EXPECT_EQ(cflags, XR_SPACE_VELOCITY_LINEAR_VALID_BIT);
   }
 
@@ -52,7 +52,7 @@ TEST_F(OpenXrFlagsTest, flagsTest) {
   {
     xr::SpaceVelocityFlags flags;
     EXPECT_EQ(flags, xr::SpaceVelocityFlagBits::None);
-    XrSpaceVelocityFlags cflags = flags.operator size_t();
+    XrSpaceVelocityFlags cflags(flags);
     EXPECT_EQ(cflags, 0);
   }
 
