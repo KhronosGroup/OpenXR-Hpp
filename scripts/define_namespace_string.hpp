@@ -1,5 +1,5 @@
 //## Copyright (c) 2017-2021 The Khronos Group Inc.
-//## Copyright (c) 2019-2020 Collabora, Ltd.
+//## Copyright (c) 2019-2021 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
