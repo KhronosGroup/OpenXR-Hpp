@@ -78,6 +78,10 @@ class DispatchLoaderDynamic {
      * @{
      */
     /*!
+     * @brief Create a mostly-useless empty dispatch table.
+     */
+    DispatchLoaderDynamic() : DispatchLoaderDynamic(XR_NULL_HANDLE, nullptr) {}
+    /*!
      * @brief Create a lazy-populating dispatch table.
      */
     explicit DispatchLoaderDynamic(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr)
@@ -183,6 +187,7 @@ class DispatchLoaderDynamic {
     //! @brief Internal utility function to populate a function pointer if it is nullptr.
     OPENXR_HPP_INLINE XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
         if (pfn == nullptr) {
+            if (pfnGetInstanceProcAddr == nullptr) return XR_ERROR_HANDLE_INVALID;
             return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance, function_name, &pfn);
         }
         return XR_SUCCESS;
