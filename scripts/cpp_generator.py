@@ -932,8 +932,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         # assert(False)
         return True
 
-    def _get_default_for_member(self, member, struct_name=None):
-        defaultValue = None
+    def _get_default_for_member(self, member, struct_name=None, default_val="{}"):
+        defaultValue = default_val
         if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
             defaultValue = "nullptr"
         elif member.type.startswith("uint") or member.type.startswith("int"):
@@ -947,13 +947,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         elif member.type == "XrBool32":
             defaultValue = "false"
         elif not self._is_tagged_type(member.type):
-            defaultValue = "{}"
+            defaultValue = default_val
         elif member.type in self.dict_structs:
             member_struct = self.dict_structs[member.type]
             if self._is_struct_output(member_struct):
-                defaultValue = "{}"
+                defaultValue = default_val
         else:
-            defaultValue = "{}"
+            defaultValue = default_val
         return defaultValue
 
     def _index0_of_first_visible_defaultable_member(self, members):

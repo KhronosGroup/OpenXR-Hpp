@@ -31,18 +31,22 @@
 
 //# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString, make_spec_ref, extension_comment
 
-//# macro _makeDefaultConstructor(s, is_explicit)
+//# macro _makeDefaultConstructor(s, is_explicit, visible_members)
         /*{ "explicit" if is_explicit }*/ /*{s.cpp_name }*/ (
 
-            /*{s.next_param_decl_with_default if s.typed_struct}*/)
+            /*{s.next_param_decl_with_default if s.typed_struct}*/) /*{ ":" if visible_members or s.typed_struct }*/
+//#     set arg_comma = joiner(", ")
 //#     if s.typed_struct
-            : Parent(/*{s.struct_type_enum -}*/
+            /*{- arg_comma() }*/ Parent(/*{s.struct_type_enum -}*/
 //## Default-construct all parent fields
 //#         if s.parent_fields
               /*%- for _ in s.parent_fields -%*/, {} /*%- endfor -%*/
 //#         endif
              , /*{s.next_param_name}*/)
 //#     endif
+//#    for member in visible_members if member.name not in s.parent_fields and not is_static_length_string(member)
+                  /*{- arg_comma() }*/ /*{ member.name }*/{/*{ get_default_for_member(member, s.name, "") -}*/}
+//#    endfor
             {}
 //# endmacro
 
@@ -131,7 +135,7 @@
 //#     endif
 //#     if not s.is_abstract
         //! Default/empty constructor
-        /*{ _makeDefaultConstructor(s) }*/
+        /*{ _makeDefaultConstructor(s, false, visible_members) }*/
 //#     endif
 //# endif
 //# if s.is_abstract
