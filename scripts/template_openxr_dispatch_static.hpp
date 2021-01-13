@@ -82,11 +82,12 @@ class DispatchLoaderStatic {
      */
 
     //# for cur_cmd in gen.core_commands
+    //! @brief Call /*{cur_cmd.name}*/
     OPENXR_HPP_INLINE /*{cur_cmd.cdecl | collapse_whitespace | replace(";", "")}*/ const {
         return ::/*{cur_cmd.name}*/ (/*{ forwardCommandArgs(cur_cmd) }*/);
     }
 
-    //! @brief Return the function pointer this dispatcher uses for /*{cur_cmd.name}*/
+    //! @brief Return the function pointer for /*{cur_cmd.name}*/ - provided just for feature parity with xr::DispatchLoaderDynamic
     OPENXR_HPP_INLINE /*{ make_pfn_type(cur_cmd) }*/ /*{ make_pfn_getter_name(cur_cmd) }*/ () const {
         return &::/*{cur_cmd.name}*/;
     }
