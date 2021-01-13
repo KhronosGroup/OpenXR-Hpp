@@ -127,13 +127,25 @@ class DispatchLoaderDynamic {
         populate_(/*{cur_cmd.name | quote_string}*/, /*{make_pfn_name(cur_cmd)}*/);
         //# endfor
     }
+
     /*!
      * @brief Fully populate a dispatch table given a non-null XrInstance and a getInstanceProcAddr.
+     *
+     * Can be called on an "empty" dispatch to make it "not empty".
+     *
+     * @see isEmpty
      */
     void populateFully(XrInstance instance, PFN_xrGetInstanceProcAddr getInstanceProcAddr) {
         m_instance = instance;
         pfnGetInstanceProcAddr = reinterpret_cast<PFN_xrVoidFunction>(getInstanceProcAddr);
         populateFully();
+    }
+
+    /*!
+     * @brief If this dispatch is empty, it will need to be replaced/assigned before any functions will work.
+     */
+    bool isEmpty() const noexcept {
+        return nullptr == pfnGetInstanceProcAddr;
     }
 
     /*!
@@ -197,7 +209,8 @@ class DispatchLoaderDynamic {
     //! @brief Internal utility function to populate a function pointer if it is nullptr.
     OPENXR_HPP_INLINE XrResult populate_(const char *function_name, PFN_xrVoidFunction &pfn) {
         if (pfn == nullptr) {
-            if (pfnGetInstanceProcAddr == nullptr) return XR_ERROR_HANDLE_INVALID;
+            // Not exactly the right error, but not sure what's better.
+            if (isEmpty()) return XR_ERROR_HANDLE_INVALID;
             return reinterpret_cast<PFN_xrGetInstanceProcAddr>(pfnGetInstanceProcAddr)(m_instance, function_name, &pfn);
         }
         return XR_SUCCESS;
