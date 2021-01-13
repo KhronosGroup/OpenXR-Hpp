@@ -179,7 +179,20 @@ class DispatchLoaderDynamic {
         return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/))(
             /*{ forwardCommandArgs(cur_cmd) }*/);
     }
+    /*{ protect_end(cur_cmd) }*/
+    //# endfor
+    //! @}
 
+    /*!
+     * @name Function pointer accessors
+     * @brief These populate the function pointer (if required and non-const), then cast it and return it.
+     *
+     * Sometimes you just want the function pointer, instead of wanting to call the function pointer. These methods let you get that.
+     *
+     * @{
+     */
+    //# for cur_cmd in sorted_cmds
+    /*{ protect_begin(cur_cmd) }*/
     //#     filter block_doxygen_comment
     //! @brief Return the function pointer for /*{cur_cmd.name}*/, populating function pointer if required.
     //#     endfilter
@@ -192,7 +205,6 @@ class DispatchLoaderDynamic {
         //## Cast and return
         return (reinterpret_cast</*{ make_pfn_type(cur_cmd) }*/>(/*{make_pfn_name(cur_cmd)}*/));
     }
-
     //#     filter block_doxygen_comment
     //! @brief Return the function pointer for /*{cur_cmd.name}*/ (const overload - does not populate function pointer)
     //#     endfilter
