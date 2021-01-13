@@ -78,9 +78,19 @@ class DispatchLoaderDynamic {
      * @{
      */
     /*!
-     * @brief Create a mostly-useless empty dispatch table.
+     * @brief Create an empty dispatch table, which is mostly useless if XR_NO_PROTOTYPES is defined.
+     *
+     * If XR_NO_PROTOTYPES is not defined, the global symbol xrGetInstanceProcAddr is used.
      */
-    DispatchLoaderDynamic() : DispatchLoaderDynamic(XR_NULL_HANDLE, nullptr) {}
+    DispatchLoaderDynamic()
+        : DispatchLoaderDynamic(XR_NULL_HANDLE,
+#ifdef XR_NO_PROTOTYPES
+                                nullptr
+#else
+                                &::xrGetInstanceProcAddr
+#endif
+          ) {
+    }
     /*!
      * @brief Create a lazy-populating dispatch table.
      */
@@ -91,7 +101,7 @@ class DispatchLoaderDynamic {
     /*!
      * @brief Create a lazy-populating dispatch table using the static xrGetInstanceProcAddr.
      */
-    explicit DispatchLoaderDynamic(XrInstance instance = XR_NULL_HANDLE)
+    explicit DispatchLoaderDynamic(XrInstance instance)
         : DispatchLoaderDynamic(instance, &::xrGetInstanceProcAddr) {}
 #endif  // !XR_NO_PROTOTYPES
 
