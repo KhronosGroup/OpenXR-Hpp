@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2019 The Khronos Group Inc.
-//## Copyright (c) 2019 Collabora, Ltd.
+//## Copyright (c) 2017-2021 The Khronos Group Inc.
+//## Copyright (c) 2019-2021 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,11 +29,24 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-
 //# set type = "Duration"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
-//# extends "template_openxr_wrapperclass.hpp"
+//# set filename = "openxr_duration"
+//# set doc_group = "wrappers"
+//# extends "valuewrapperclass_header.hpp"
+
+//# block includes
+/**
+ * @file
+ * @brief Contains a type-safe C++ projection of XrDuration
+ *
+ * @see openxr_time.hpp, xr::Duration
+ * @ingroup wrappers
+ */
+
+#include <openxr/openxr.h>
+//# endblock
 
 //## No validity methods
 //# block validity

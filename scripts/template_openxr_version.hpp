@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2019 The Khronos Group Inc.
-//## Copyright (c) 2019 Collabora, Ltd.
+//## Copyright (c) 2017-2021 The Khronos Group Inc.
+//## Copyright (c) 2019-2021 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,10 +29,30 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# from 'macros.hpp' import make_spec_ref
+
 //# set type = "Version"
 //# set comparison_operators = ('<', '>', '<=', '>=', '==', '!=')
 //# set invalid = ""
-//# extends "template_openxr_wrapperclass.hpp"
+//# set filename = "openxr_version"
+//# set doc_group = "wrappers"
+//# extends "valuewrapperclass_header.hpp"
+
+//# block includes
+/**
+ * @file
+ * @brief Contains a type-safe C++ projection of the OpenXR packed version type.
+ * @ingroup wrappers
+ */
+
+#include <openxr/openxr.h>
+
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
+
+#include <string>
+//# endblock
 
 //## Add component-wise constructor
 //# block extra_constructors_conversion_assign
@@ -51,12 +71,19 @@ Version(uint16_t major_, uint16_t minor_, uint32_t patch_) noexcept {
 //# endblock
 
 //# block extra_methods
-//! Get the major component.
+//# filter block_doxygen_comment
+//! @brief Get the major component.
+//!
+//! /*{ make_spec_ref("XR_VERSION_MAJOR") }*/
+//!
+//! @xrentity{XR_VERSION_MAJOR}
+//# endfilter
 OPENXR_HPP_CONSTEXPR uint16_t major() const noexcept
 {
     return static_cast<uint16_t>(val_ >> 48);
 }
-//! Set the major component.
+
+//! Set the major component: 16 bits.
 void major(uint16_t val) noexcept
 {
     // blank the top 16 bits
@@ -64,12 +91,19 @@ void major(uint16_t val) noexcept
     val_ |= uint64_t(val) << 48;
 }
 
-//! Get the minor component.
+
+//# filter block_doxygen_comment
+//! @brief Get the minor component.
+//!
+//! /*{ make_spec_ref("XR_VERSION_MINOR") }*/
+//!
+//! @xrentity{XR_VERSION_MINOR}
+//# endfilter
 OPENXR_HPP_CONSTEXPR uint16_t minor() const noexcept
 {
     return static_cast<uint16_t>((val_ >> 32) & 0xffff);
 }
-//! Set the minor component.
+//! Set the minor component: 16 bits.
 void minor(uint16_t val) noexcept
 {
     // blank the correct 16 bits
@@ -77,12 +111,18 @@ void minor(uint16_t val) noexcept
     val_ |= uint64_t(val) << 32;
 }
 
-//! Get the patch component.
+//# filter block_doxygen_comment
+//! @brief Get the patch component.
+//!
+//! /*{ make_spec_ref("XR_VERSION_PATCH") }*/
+//!
+//! @xrentity{XR_VERSION_PATCH}
+//# endfilter
 OPENXR_HPP_CONSTEXPR uint32_t patch() const noexcept
 {
     return static_cast<uint32_t>(val_ & 0xffffffff);
 }
-//! Set the patch component.
+//! Set the patch component: 32 bits.
 void patch(uint32_t val) noexcept
 {
     // blank the least-significant 32 bits
@@ -90,9 +130,33 @@ void patch(uint32_t val) noexcept
     val_ |= val;
 }
 
-//! Get the current version.
+
+//# filter block_doxygen_comment
+//! @brief Get the current version of OpenXR, based on the header.
+//!
+//! /*{ make_spec_ref("XR_CURRENT_API_VERSION") }*/
+//!
+//! @xrentity{XR_CURRENT_API_VERSION}
+//# endfilter
 static OPENXR_HPP_CONSTEXPR Version current() noexcept
 {
     return Version{XR_CURRENT_API_VERSION};
 }
 //# endblock
+
+//# block extra_free_functions
+//# filter block_doxygen_comment
+//! @brief Format a version as a string.
+//! @found_by_adl
+//! @ingroup utility_accessors
+//# endfilter
+static inline std::string to_string(Version const& v)
+{
+    auto ret = std::to_string(v.major());
+    ret += ".";
+    ret += std::to_string(v.minor());
+    ret += ".";
+    ret += std::to_string(v.patch());
+    return ret;
+}
+//# endblock extra_free_functions

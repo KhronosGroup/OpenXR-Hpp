@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2019 The Khronos Group Inc.
-//## Copyright (c) 2019 Collabora, Ltd.
+//## Copyright (c) 2017-2021 The Khronos Group Inc.
+//## Copyright (c) 2019-2021 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,12 +29,43 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# from 'macros.hpp' import make_spec_ref, extension_comment
 
+//# include('file_header.hpp')
+/**
+ * @file
+ * @brief C++ projections of OpenXR enum types.
+ *
+ * Does not include the flags (bitmasks).
+ *
+ * @see openxr_flags.hpp
+ * @ingroup enums
+ */
+
+#include <openxr/openxr.h>
+
+#ifdef OPENXR_HPP_DOXYGEN
+#include <openxr/openxr_platform.h>
+#endif
+
+#include <string>
+
+// Fix name collisions from noisy includes
+#ifdef Success
+#undef Success
+#endif
+#ifdef None
+#undef None
+#endif
+
+//# include('define_inline_constexpr.hpp') without context
+//# include('define_namespace.hpp') without context
 
 namespace OPENXR_HPP_NAMESPACE {
 /*!
  * @defgroup enums Enumerations
  * @brief C++ enum classes corresponding to OpenXR C enumerations, plus associated utility functions.
+ * @ingroup wrappers
  *
  * All enumerations have three utility functions defined:
  *
@@ -42,53 +73,21 @@ namespace OPENXR_HPP_NAMESPACE {
  * - to_string_literal() - returns a const char* containing the C++ name
  * - to_string() - wraps to_string_literal(), returning a std::string
  *
+ * They all should be accessible via argument-dependent lookup, meaning you should not need to explicitly specify the namespace.
  * @{
  */
 //# for enum in gen.api_enums
-//#     set projected_type = project_type_name(enum.name)
-/*{ protect_begin(enum) }*/
-//! @brief Enum class associated with /*{enum.name}*/
-//!
-//! See the related specification text at /*{ make_spec_url(enum.name) }*/
-enum class /*{projected_type -}*/ : /*{ 'int32_t' if enum.name == 'XrResult' else 'uint32_t' }*/ {
-    //# for val in enum.values
-    /*{ protect_begin(val, enum) }*/
-    /*{create_enum_value(val.name, enum.name)}*/ = /*{val.name}*/,
-    /*{ protect_end(val, enum) }*/
-    //# endfor
-};
-
-//! @brief Free function for retrieving the raw /*{enum.name}*/ value from a /*{projected_type}*/
-//! @relates /*{projected_type}*/
-OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{enum.name}*/ get(/*{projected_type}*/ const& v) {
-    return static_cast</*{enum.name}*/>(v);
-}
-
-//! @brief Free function for retrieving the string name of a /*{projected_type}*/ value as a const char *
-//! @relates /*{projected_type}*/
-OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR const char* to_string_literal(/*{projected_type}*/ value) {
-    switch (value) {
-            //# for val in enum.values
-        /*{ protect_begin(val, enum) }*/
-        //# set valname = create_enum_value(val.name, enum.name)
-        case /*{projected_type -}*/ ::/*{- valname }*/:
-            return /*{ valname | quote_string }*/;
-            /*{ protect_end(val, enum) }*/
-            //# endfor
-        default:
-            return "invalid";
-    }
-}
-
-//! @brief Free function for retrieving the string name of a /*{projected_type}*/ value as a std::string
-//! @relates /*{projected_type}*/
-OPENXR_HPP_INLINE OPENXR_HPP_SWITCH_CONSTEXPR std::string to_string(/*{projected_type}*/ value) {
-    return {to_string_literal(value)};
-}
-
-/*{ protect_end(enum) }*/
+//## Note this won't actually find anything until automatic_source_generator.py is modified
+//## to actually store a value under "alias", but...
+//#     if enum.alias
+using /*{ project_type_name(enum.name) }*/ = /*{ project_type_name(enum.alias) }*/;
+//#     else
+//#         include("enum.hpp")
+//#     endif
 //# endfor
 
 //! @}
 
 }  // namespace OPENXR_HPP_NAMESPACE
+
+//# include('file_footer.hpp')

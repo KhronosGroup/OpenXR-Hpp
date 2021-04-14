@@ -29,20 +29,16 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-
-
-namespace OPENXR_HPP_NAMESPACE {
-
-//# include "template_openxr_version.hpp"
-//# include "template_openxr_duration.hpp"
-//# include "template_openxr_time.hpp"
-
-//## loop over atoms
 //# set comparison_operators = ('==', '!=')
-//# for type, invalid in (("SystemId", "XR_NULL_SYSTEM_ID"), ("Path", "XR_NULL_PATH"))
-//#     include "template_openxr_wrapperclass.hpp"
-//# endfor
+//# set doc_group = "atoms"
 
-using BilateralPaths = std::array<Path, SIDE_COUNT>;
+//# extends "valuewrapperclass.hpp"
 
-}  // namespace OPENXR_HPP_NAMESPACE
+/*% block comment_brief %*/Type-safe wrapper for an /*{raw_type}*/ atom./*% endblock comment_brief %*/
+
+//# block constructors
+/*{ super() }*/
+
+//! Return a null value.
+static OPENXR_HPP_CONSTEXPR /*{ type }*/ null() noexcept { return {}; }
+//# endblock

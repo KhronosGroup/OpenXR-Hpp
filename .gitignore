@@ -9,6 +9,7 @@ CMakeLists.txt.user
 *.log
 pregen/
 doc/
+doxygen/
 
 # Cached python scripts in bytecode form
 *.pyc
@@ -29,3 +30,10 @@ out/build/
 # VS misc
 *.sln
 *.pyproj
+
+!.gitignore
+!.gitattributes
+!.clang-format
+!.appveyor.yml
+!.cmake-format.json
+!.editorconfig

@@ -5,9 +5,12 @@ safety for C++ developers interacting with the OpenXR API.
 
 ## Getting Started
 
-Just `#include <openxr/openxr.hpp>` and you're ready to use the C++ bindings. If you're using a OpenXR version not yet supported by the OpenXR SDK you can find the latest version of the header [here](https://github.com/KhronosGroup/OpenXR-Hpp/blob/master/openxr/openxr.hpp).
+Just include `<openxr/openxr.hpp>` and you're ready to use the C++ bindings.
+For a more elegant usage, include files as you need them
 
 ### Minimum Requirements
+
+C++11 or newer is required. C++14 will increase the functionality available.
 
 ## Usage
 
@@ -56,24 +59,29 @@ parameter. Instead of `xrEnumerateReferenceSpaces(session, ...)` one can write
 
 ### C/C++ Interop for Handles
 
+@see handles
+
 OpenXR-Hpp supports implicit conversions between C++ OpenXR handles and C OpenXR
 handles. On 32-bit platforms all OpenXR handles are defined as `uint64_t`, thus
 preventing type-conversion checks at compile time which would catch assignments
 between incompatible handle types. Due to that, OpenXR-Hpp does not enable
-implicit conversion for 32-bit platforms by default and it is recommended to use
-a `static_cast` for the conversion like this:
-`XrSession = static_cast<XrSession>(cppDevice)` to prevent converting some
-arbitrary int to a handle or vice versa by accident. If you're developing your
-code on a 64-bit platform, but want compile your code for a 32-bit platform
-without adding the explicit casts you can define
+implicit conversion for 32-bit platforms by default. In general, use of the free
+function `get()` is recommended for use on all platforms if you need to get a
+raw handle, etc. : `XrSession rawSession = get(session)`. For more about these
+functions, see @ref utility_accessors.
+
+If you're developing your code on a 64-bit platform, but want compile your code
+for a 32-bit platform without adding the explicit getters you can define
 `OPENXR_HPP_TYPESAFE_CONVERSION` to 1 in your build system or before including
 `openxr.hpp`. On 64-bit platforms this define is set to 1 by default and can be
-set to 0 to disable implicit conversions.
+set to 0 to disable implicit conversions. However, this is not recommended.
 
 ### Flags
 
-The scoped enum feature adds type safety to the flags, but also prevents using
-the flag bits as input for bitwise operations like & and |.
+@see flags
+
+The scoped enum-class feature adds type safety to the flags, but also prevents
+using the flag bits as input for bitwise operations like `&` and `|` by default.
 
 As solution OpenXR-Hpp provides a template class `xr::Flags` which brings the
 standard operations like `&=`, `|=`, `&` and `|` to our scoped enums. Except for
@@ -95,7 +103,16 @@ xr::SwapchainCreateInfo ci({} /* pass a flag without any bits set */,
                             ...);
 ```
 
+### Enums
+
+@see enums
+
+Enums are projected similarly to flags, but without the bitwise operators
+provided.
+
 ### Structs
+
+@see structs
 
 When constructing a handle in OpenXR, one usually has to create some
 `CreateInfo` struct which describes the new handle. This can result in quite
@@ -155,19 +172,22 @@ xr::Swapchain swapchain =
 ### Return values, Error Codes & Exceptions
 
 By default OpenXR-Hpp has exceptions enabled. This means that OpenXR-Hpp checks
-the return code of each function call which returns a `xr::Result`. If
-`xr::Result` is a failure a `std::runtime_error` will be thrown. In cases where
+the return code of each function call which returns a `XrResult`. If
+`XrResult` is a failure a `std::runtime_error` will be thrown. In cases where
 there are no success codes that aren't `xr::Result::Success`, there is no need
 to return the error code any more, and the C++ bindings can now return the
-actual desired return value, e.g. a OpenXR handle. In those cases
-`ResultValue<SomeType>::type` is defined as the returned type.
+actual desired return value, e.g. a OpenXR handle.
 
-The type of `ResultValue<SomeType>::type` is a struct holding a `xr::Result` and
-a `SomeType`. This struct supports unpacking the return values by using
-`std::tie`. If exception handling is disabled by defining
-`OPENXR_HPP_NO_EXCEPTIONS`, it is provided for all "enhanced mode" functions. If
-exception handling is left on (by default) it is used when there are non-Success
-success codes defined in the registry for the function.
+@see exceptions
+
+If exceptions are disabled, or there are non-trivial success codes, the
+`ResultValue` pair is returned. `ResultValue<SomeType>` is a struct holding a
+`xr::Result` and a `SomeType`. This struct supports unpacking the return values
+by using `std::tie` just like `std::tuple` or `std::pair`. If exception handling
+is disabled by defining `OPENXR_HPP_NO_EXCEPTIONS`, it is provided for all
+"enhanced mode" functions.
+
+@see return_results
 
 ### Enumeration (Two-call idiom)
 
@@ -177,39 +197,50 @@ described in the "Buffer Size Parameters" part of the specification. In these
 cases, when using the C API in C++ you usually have to write code like this:
 
 ```c++
-std::vector<LayerProperties, Allocator> properties;
-uint32_t propertyCount;
-Result result;
+std::vector<XrApiLayerProperties> properties;
+uint32_t propertyCount = 0;
+uint32_t propertyCapacity = 0;
+XrResult result;
 do
 {
   // determine number of elements to query
-  result = static_cast<xr::Result>( xr::enumerateApiLayerProperties( &propertyCount, nullptr ) );
-  if ( ( result == Result::Success ) && propertyCount )
+  result = xrEnumerateApiLayerProperties( propertyCapacity, &propertyCount, nullptr ) );
+  if ( ( result == XR_SUCCESS ) && propertyCount )
   {
     // allocate memory & query again
-    properties.resize( propertyCount );
-    result = static_cast<xr::Result>( xr::enumerateApiLayerProperties( &propertyCount, reinterpret_cast
-     <XrApiLayerProperties*>( properties.data() ) ) );
+    properties.resize( propertyCount, {XR_TYPE_API_LAYER_PROPERTIES} );
+    propertyCapacity = propertyCount;
+    result = xrEumerateApiLayerProperties(
+      propertyCapacity, &propertyCount, properties.data() );
   }
-} while ( result == xr::Result::ErrorSizeInsufficient );
 // it's possible that the count has changed, start again if properties was not big enough
-properties.resize(propertyCount);
+} while ( result == XR_ERROR_SIZE_INSUFFICIENT );
+// Trim off any extra unpopulated entries.
+if (XR_SUCCEEDED(result)) properties.resize(propertyCount);
 ```
 
 Since writing this loop over and over again is tedious and error prone, the C++
 binding takes care of the enumeration so that you can just write:
 
 ```c++
-std::vector<xr::ApiLayerProperties> properties = physicalDevice.enumerateApiLayerProperties();
+std::vector<xr::ApiLayerProperties> properties = physicalDevice
+    .enumerateApiLayerPropertiesToVector();
 ```
+
+Note the addition of "ToVector" to the method name: this is to avoid some
+ambiguous overloads.
 
 ### Custom assertions
 
-All over `openxr.hpp`, there are a couple of calls to an assert function. By
-defining OPENXR_HPP_ASSERT, you can specify your own custom assert function to
-be called instead.
+All over the various headers, there are a couple of calls to an assert function.
+By defining OPENXR_HPP_ASSERT, you can specify your own custom assert function
+to be called instead.
+
+@see config
 
 ### Extensions / Per-instance function pointers
+
+@see dispatch
 
 The OpenXR loader exposes only the OpenXR core functions directly as entry
 points. Access to extensions requires dynamic loading of the corresponding
@@ -217,8 +248,9 @@ function pointers. OpenXR-Hpp provides a per-function dispatch mechanism by
 accepting a dispatch class as last parameter in each function call. The dispatch
 class must provide a callable type for each used OpenXR function. OpenXR-Hpp
 provides two implementations. `DispatchLoaderStatic` is designed to expose the
-core functions that are statically linked to the application. All core functions defined in in the header _default_ to a
-`DispatchLoaderStatic` instance when being called.
+core functions that are linked at build-time to the application. All core
+functions defined in the headers _default_ to a `DispatchLoaderStatic` instance
+when being called.
 
 `DispatchLoaderDynamic`, on the other hand, exposes all the core functionality
 _and_ all the known extensions. It can use lazy loading mechanism (use the
@@ -245,15 +277,16 @@ xr::DebugUtilsMessengerEXT messenger =
                                           dispatch);
 ```
 
-A client _should_ avoid instantiating a dynamic loader every time they make a call which requires one.  For example, the following is not recommended:
+A client _should_ avoid instantiating a dynamic loader every time they make a
+call which requires one. For example, the following is not recommended:
 
 
 ```c++
 // Do **NOT** do this!
 xr::DispatchLoaderDynamic dispatch{instance}; // used only for the one call below
 xr::DebugUtilsMessengerEXT messenger =
-    instance.createDebugUtilsMessengerEXT<>({ severityFlags, typeFlags, debugCallback, userData },
-                                            dispatch);
+    instance.createDebugUtilsMessengerEXT({ severityFlags, typeFlags, debugCallback, userData },
+                                          dispatch);
 ```
 
 ```c++
@@ -269,6 +302,10 @@ This code will work, but will load one or all function pointers (respectively)
 into the dispatch object every time it's called. While not an issue for
 infrequently called functions, if executed inside a loop or on a per-frame
 basis, this can adversely impact performance.
+
+Note that this can be configured.
+
+@see config_dispatch
 
 ### Samples
 

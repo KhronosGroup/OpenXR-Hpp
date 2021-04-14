@@ -1,0 +1,27 @@
+# Copyright (c) 2020-2021 The Khronos Group Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# This file should contain only the names of headers to generate.
+# Comments, with leading #, are OK too.
+
+openxr_atoms.hpp
+openxr_bool.hpp
+openxr_dispatch_dynamic.hpp
+openxr_dispatch_static.hpp
+openxr_dispatch_traits.hpp
+openxr_duration.hpp
+openxr_enums.hpp
+openxr_exceptions.hpp
+openxr_flags.hpp
+openxr_handles_forward.hpp
+openxr_handles.hpp
+openxr_helpers_opengl.hpp
+openxr_method_impls_enhanced_exceptions.inl
+openxr_method_impls_enhanced.inl
+openxr_method_impls_simple.inl
+openxr_method_impls.hpp
+openxr_structs_forward.hpp
+openxr_structs.hpp
+openxr_time.hpp
+openxr_version.hpp
+openxr.hpp

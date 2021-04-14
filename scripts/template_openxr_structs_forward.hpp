@@ -1,5 +1,5 @@
-//## Copyright (c) 2017-2019 The Khronos Group Inc.
-//## Copyright (c) 2019 Collabora, Ltd.
+//## Copyright (c) 2017-2021 The Khronos Group Inc.
+//## Copyright (c) 2019-2021 Collabora, Ltd.
 //##
 //## Licensed under the Apache License, Version 2.0 (the "License");
 //## you may not use this file except in compliance with the License.
@@ -29,12 +29,25 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
+//# include('file_header.hpp')
+/**
+ * @file
+ * @brief Forward declarations of all C++ projections of OpenXR structure types.
+ * @ingroup structs
+ */
 
+//# include('define_namespace.hpp') without context
 
 namespace OPENXR_HPP_NAMESPACE {
 
 //# for struct in gen.api_structures
+//#     if struct.alias
+using /*{ project_type_name(struct.name) }*/ = /*{ project_type_name(struct.alias) }*/;
+//#     else
 struct /*{project_type_name(struct.name)}*/;
+//#     endif
 //# endfor
 
 }  // namespace OPENXR_HPP_NAMESPACE
+
+//# include('file_footer.hpp')

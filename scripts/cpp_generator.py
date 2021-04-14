@@ -36,33 +36,40 @@ TEMPLATED_TWO_CALL = set([
     'xrEnumerateSwapchainImages'
 ])
 
-MANUALLY_PROJECTED = set((
+MANUALLY_PROJECTED_SCALARS = set((
     "XrTime",
     "XrDuration",
-    "XrSystemId",
-    "XrPath",
 ))
 
-# Determining this heuristically appears to be impossible
-INHERITANCE = {
-    'XrSwapchainImageBaseHeader': set((
-        'XrSwapchainImageOpenGLKHR',
-        'XrSwapchainImageOpenGLESKHR',
-        'XrSwapchainImageVulkanKHR',
-        'XrSwapchainImageD3D11KHR',
-        'XrSwapchainImageD3D12KHR'
-    )),
-    'XrCompositionLayerBaseHeader': set((
-        'XrCompositionLayerProjectionView',
-        'XrCompositionLayerProjection',
-        'XrCompositionLayerQuad',
-    )),
-}
+MANUALLY_PROJECTED = set((
+    "XrEventDataBuffer",
+)).union(MANUALLY_PROJECTED_SCALARS)
 
 TWO_CALL_STRING_NAME = "buffer"
 
+RULE_BREAKING_ENUMS = {
+    'XrResult': 'XR',
+    'XrStructureType': 'XR_TYPE',
+    # Legacy oopsie that made it in unintentionally.
+    # Won't happen again, scripts guarantee that.
+    'XrPerfSettingsNotificationLevelEXT': 'XR_PERF_SETTINGS_NOTIF_LEVEL_EXT',
+}
+
+SINGLE_LINE_COMMENT_STARTS = ('///', '//!', '//')
+
 CAPACITY_INPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CapacityInput')
 COUNT_OUTPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CountOutput')
+
+UPPER_TOKENS = set((
+    "API",
+    "CV1",
+    "EGL",
+    "ES",
+    "RGB",
+))
+SPECIAL_TOKENS = {
+    "OPENGL": "OpenGL"
+}
 
 
 def _discouraged_begin(cmd):
@@ -84,18 +91,28 @@ def _member_function_name(cmdname):
 
 def _to_camel_case(val):
     chars = []
-    keep_upper = True
-    for c in val:
-        if c == '_':
-            keep_upper = True
-        elif str.isdigit(c):
-            keep_upper = True
-            chars.append(c)
-        elif keep_upper:
-            chars.append(c)
-            keep_upper = False
-        else:
-            chars.append(str.lower(c))
+    for token in val.split('_'):
+        if token in UPPER_TOKENS:
+            # We take this token unmodified.
+            chars.extend(token)
+            continue
+        if token in SPECIAL_TOKENS:
+            # We have a special way of camel-casing this.
+            chars.extend(SPECIAL_TOKENS[token])
+            continue
+        next_char_upper = True
+        for c in token:
+            if str.isdigit(c):
+                # A letter immediately following a number should be kept uppercase
+                # for things like 2D, Vector3F, etc.
+                next_char_upper = True
+                chars.append(c)
+            elif next_char_upper:
+                chars.append(c)
+                next_char_upper = False
+            else:
+                chars.append(str.lower(c))
+
     return ''.join(chars)
 
 
@@ -119,14 +136,6 @@ def _is_static_length_string(member):
     return member.type == "char" and member.is_array and member.pointer_count == 0
 
 
-RULE_BREAKING_ENUMS = {
-    'XrResult': 'XR',
-    'XrStructureType': 'XR_TYPE',
-}
-
-SINGLE_LINE_COMMENT_STARTS = ('///', '//!', '//')
-
-
 def _block_comment(s, doxygen=False):
     def clean_line(line):
         line = line.rstrip()
@@ -140,15 +149,25 @@ def _block_comment(s, doxygen=False):
                 break
         return line
 
-    lines = [clean_line(line) for line in s.split('\n') if line]
+    lines = [clean_line(line).rstrip() for line in s.split('\n') if line]
+
     # Remove leading and trailing empty lines
     while lines and not lines[-1]:
         lines.pop()
     while lines and not lines[0]:
         lines.pop(0)
-    lines = [(' * ' + line).rstrip() for line in lines]
+
+    # if a line is a second+ consecutive blank line,
+    # then both that line, and the preceding one (lined up with zip)
+    # will be false-ish.
+    lines = [line
+             for prev, line in zip([""] + lines, lines)
+             if prev or line]
+    # Prepend the *
+    lines = [' * ' + line for line in lines]
     lines.insert(0, "/*!" if doxygen else "/*")
     lines.append(' */')
+    lines.append('')
     return '\n'.join(lines)
 
 
@@ -159,6 +178,77 @@ def _block_doxygen_comment(s):
 # def _make_dummy_param(name, typename, cdecl):
 #     return MemberOrParam(typename, False, True, False, False, False, 0, False, [], None, None, 0, None, False, True, name, None, cdecl)
 
+class StructProjection:
+    """Stores the struct details implementation."""
+
+    def __init__(self, struct, gen):
+        self.struct = struct
+        self.conventions = gen.genOpts.conventions
+        self.name = struct.name
+        self.cpp_name = _project_type_name(struct.name)
+        self.qualified_name = self.cpp_name
+        self.is_core = gen.isCoreExtensionName(struct.ext_name)
+        self.typed_struct = gen._is_tagged_type(struct.name)
+        self.is_base_only = gen._is_base_only(struct)
+        self.has_type_enum_value = self.typed_struct and not self.is_base_only
+
+        self.is_derived_type = struct.name in gen.struct_parents
+        self.parent_fields = []
+        self.is_output = gen._is_struct_output(struct)
+
+        self.parent_type = None
+        if self.typed_struct:
+            self.is_abstract = self.is_base_only
+            if self.is_output:
+                self.parent_cpp_type = "impl::OutputStructBase"
+                self.next_chain_type = "void *"
+            else:
+                self.parent_cpp_type = "impl::InputStructBase"
+                self.next_chain_type = "const void *"
+
+            if self.is_derived_type:
+                self.parent_type = gen.struct_parents[struct.name]
+                self.parent_cpp_type = _project_type_name(self.parent_type)
+                self.parent_fields = gen.struct_fields[gen.struct_parents[struct.name]]
+        else:
+            self.is_abstract = False
+            self.parent_cpp_type = None
+            self.next_chain_type = None
+
+        self.struct_type_enum = gen._get_tag(struct.name) if self.has_type_enum_value else None
+
+    @property
+    def struct_parent_decl(self):
+        if self.typed_struct:
+            return f": public {self.parent_cpp_type}"
+        return ""
+
+    @property
+    def next_param_decl_with_default(self):
+        if self.typed_struct:
+            return self.next_param_decl + " = nullptr"
+        return None
+
+    @property
+    def next_param_decl(self):
+        if self.typed_struct:
+            return f"{self.next_chain_type} {self.next_param_name}"
+        return None
+
+    @property
+    def next_param_name(self):
+        if self.typed_struct:
+            return "next_"
+        return None
+
+
+DISPATCH_TEMPLATE_PARAM_NAME = "Dispatch"
+DISPATCH_TEMPLATE_DEFN = "typename " + DISPATCH_TEMPLATE_PARAM_NAME
+# ENABLE_IF_TEMPLATE_DEFN = "typename std::enable_if<traits::is_dispatch<{}>::value, int>::type".format(DISPATCH_TEMPLATE_PARAM_NAME)
+ENABLE_IF_TEMPLATE_DEFN = "OPENXR_HPP_REQUIRE_DISPATCH({})".format(DISPATCH_TEMPLATE_PARAM_NAME)
+
+ENABLE_IF_TEMPLATE_DECL = ENABLE_IF_TEMPLATE_DEFN + " = 0"
+
 
 class MethodProjection:
     """Stores the method declaration and implementation."""
@@ -168,7 +258,7 @@ class MethodProjection:
         self.conventions = gen.genOpts.conventions
         self.name = cmd.name
         self.cpp_name = _member_function_name(cmd.name)
-        self.qualified_name = self.cpp_name
+        self.is_member_function = False
         self.is_core = gen.isCoreExtensionName(cmd.ext_name)
         self.params = cmd.params[:]
         self.decl_params = cmd.params[:]
@@ -183,7 +273,14 @@ class MethodProjection:
             self.cpp_handle = None
 
         self.decl_dict = {x.name: x.cdecl.strip() for x in self.params}
+        """
+        Maps an original parameter name to how the corresponding parameter in the projection, if any, should be declared in the prototype.
+        """
+
         self.access_dict = {x.name: x.name.strip() for x in self.params}
+        """
+        Maps an original parameter name to what should be passed as that parameter within the projection.
+        """
 
         self.return_type = "Result"
         self.bare_return_type = self.return_type
@@ -198,15 +295,30 @@ class MethodProjection:
 
         self.masks_simple = False
 
-        self.returns = ['result']
+        self.result_name = 'result'
+        self.returns = [self.result_name]
         self.return_template_params = []
 
-        self.dispatch = "Dispatch&& d"
-        self.suppress_default_dispatch_arg = not self.is_core
-        self.template_decl_list = ["typename Dispatch"]
+        self.dispatch = DISPATCH_TEMPLATE_PARAM_NAME + "&& d"
+        self.template_decl_list = [DISPATCH_TEMPLATE_DEFN]
+        """Template parameters to use in the method (forward) declaration."""
+
         self.template_defn_list = self.template_decl_list[:]
-        if self.is_core:
-            self.template_decl_list[0] = self.template_decl_list[0] + " = DispatchLoaderStatic"
+        """Template parameters to use in the method definition - should not include default args."""
+
+        # Add these to limit what can be deduced as a dispatch.
+        self.template_decl_list.append(ENABLE_IF_TEMPLATE_DECL)
+        self.template_defn_list.append(ENABLE_IF_TEMPLATE_DEFN)
+
+        self.exceptions_permitted = True
+        self.explicit_result_elided = False
+        """If true, our most advanced enhanced wrapper doesn't have an XrResult anywhere."""
+
+    @property
+    def qualified_name(self):
+        if self.handle and self.is_member_function:
+            return "{}::{}".format(self.cpp_handle, self.cpp_name)
+        return self.cpp_name
 
     def _declparams(self, replacements=None):
         def find_decl(name):
@@ -223,9 +335,16 @@ class MethodProjection:
             return "the output string"
         return "the output of type %s" % self.bare_return_type
 
-    @property
-    def template_decls(self):
-        return ", ".join(self.template_decl_list)
+    def get_template_decls(self, suppress_default_dispatch_arg=False):
+        decls = self.template_decl_list[:]
+        if not suppress_default_dispatch_arg:
+            for i, decl in enumerate(decls):
+                if DISPATCH_TEMPLATE_DEFN == decl:
+                    if self.is_core:
+                        decls[i] = decl + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG"
+                    else:
+                        decls[i] = decl + " OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG"
+        return ", ".join(decls)
 
     @property
     def template_defns(self):
@@ -237,9 +356,11 @@ class MethodProjection:
             params.extend(extras)
 
         params.append(self.dispatch)
-        if not self.suppress_default_dispatch_arg \
-                and not suppress_default_dispatch_arg:
-            params[-1] = params[-1] + " = Dispatch{}"
+        if not suppress_default_dispatch_arg:
+            if self.is_core:
+                params[-1] = params[-1] + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG"
+            else:
+                params[-1] = params[-1] + " OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG"
         return params
 
     def get_definition_params(self, replacements=None, extras=None):
@@ -271,7 +392,7 @@ class MethodProjection:
 
     @property
     def qualifiers(self):
-        if self.handle:
+        if self.handle and not self.is_destroy:
             return "const"
         return ""
 
@@ -280,8 +401,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     """Generate C++ wrapper header using XML element attributes from registry"""
 
     def __init__(self, *args, **kwargs):
+        self.quiet = kwargs.pop('quiet', False)
         super().__init__(*args, **kwargs)
-        self.env = make_jinja_environment(file_with_templates_as_sibs=__file__)
+        self.env = make_jinja_environment(file_with_templates_as_sibs=__file__, trim_blocks=False)
         self.env.filters['block_doxygen_comment'] = _block_doxygen_comment
 
     def outputGeneratedAuthorNote(self):
@@ -291,6 +413,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def outputCopywriteHeader(self):
         # Disabled - there is one in the template.
         pass
+
+    def computeNullAtom(self, typename):
+        null_atom = self.conventions.generate_structure_type_from_name(typename)
+        return null_atom.replace('XR_TYPE', 'XR_NULL')
 
     def findVendorSuffix(self, name):
         for vendor in self.vendor_tags:
@@ -357,7 +483,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def createEnumException(self, name):
         enum_val = self.createEnumValue(name, 'XrResult')
-        return enum_val.replace('Error', '') + 'Error'
+        suffix = self.findVendorSuffix(name)
+        if suffix:
+            enum_val = _strip_suffix(enum_val, suffix)
+        result = enum_val.replace('Error', '') + 'Error'
+        if suffix:
+            result += suffix
+        return result
 
     def _basic_method_projection(self, method):
         """Perform the basic manipulation of a MethodProjection to convert it from C to C++."""
@@ -368,11 +500,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if method.handle:
             handle = method.params[0]
             method.decl_params.pop(0)
+            method.is_member_function = True
             method.decl_dict[handle.name] = None
             method.access_dict[handle.name] = "this->get()"
             # if method.cpp_name.endswith(method.cpp_handle):
             #     method.cpp_name = _strip_suffix(method.cpp_name, method.cpp_handle)
-            method.qualified_name = "{}::{}".format(method.cpp_handle, method.cpp_name)
 
         # Convert handles
         for param in method.decl_params:
@@ -422,43 +554,56 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.is_const:
                 # Input struct
                 method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
-                method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
+                method.access_dict[name] = "{}.get()".format(name.strip())
             elif param.pointer_count == 1 and not is_two_call:
                 # Output struct
                 method.decl_dict[name] = "{}& {}".format(cpp_type, name)
-                method.access_dict[name] = "OPENXR_HPP_NAMESPACE::put({})".format(name.strip())
+                method.access_dict[name] = "{}.put()".format(name.strip())
 
-        # Convert XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
+        # Convert atoms, plus XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
         for param in method.decl_params:
-            if param.type not in MANUALLY_PROJECTED:
+            if param.type not in MANUALLY_PROJECTED_SCALARS and param.type not in self.dict_atoms:
                 continue
             name = param.name
             cpp_type = _project_type_name(param.type)
-            method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
-            method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
+            method.decl_dict[name] = "{} {}".format(cpp_type, name)
+            method.access_dict[name] = "{}.get()".format(name.strip())
 
     def _update_enhanced_return_type(self, method):
         """Set the return type based on the bare return type.
 
         Used by _enhanced_method_projection and _unique_method_projection."""
-        if method.successes_arg:
+        if method.multiple_success_codes or not method.exceptions_permitted:
+            # If we aren't allowed exceptions, or have some extra success results,
+            # we always have to return the Result.
             if method.bare_return_type == "void":
                 method.return_type = "Result"
+                method.return_statement = 'return {};'.format(method.returns[0])
             else:
                 method.return_type = "ResultValue<{}>".format(method.bare_return_type)
+                method.return_statement = 'return { %s, std::move(%s) };' % (method.returns[0], method.returns[1])
         else:
-            method.return_type = "ResultValueType<{}>::type".format(method.bare_return_type)
-            if method.bare_return_type != "void":
-                method.return_type = "typename " + method.return_type
+            # OK, we will throw an exception if allowed and just directly return the output.
+            method.explicit_result_elided = True
+            method.return_type = method.bare_return_type
+            if method.bare_return_type == "void":
+                method.return_statement = 'return;'
+            else:
+                method.return_statement = 'return {};'.format(method.returns[1])
 
         if method.return_template_params:
-            tmpl = "<{}>".format(",".join(method.return_template_params))
-        else:
-            tmpl = ""
-        method.return_statement = 'return impl::createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
-            tmpl=tmpl,
-            rets=",".join(method.returns),
-            name=method.qualified_name, successes=method.successes_arg)
+            # tmpl = "<{}>".format(",".join(method.return_template_params))
+            return_val = "{}({})".format(method.bare_return_type, ", ".join(method.returns[1:]))
+            if method.multiple_success_codes or not method.exceptions_permitted:
+                method.return_statement = 'return { %s, %s };' % (method.returns[0], return_val)
+            else:
+                method.return_statement = 'return %s;' % return_val
+        # method.return_statement = 'return impl::createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
+        #     tmpl=tmpl,
+        #     rets=",".join(method.returns),
+        #     name=method.qualified_name, successes=method.successes_arg)
+        # else:
+        #     tmpl = ""
 
     def _is_tagged_type(self, typename):
         if typename not in self.dict_structs:
@@ -551,6 +696,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         method.is_two_call = True
         method.masks_simple = False
+        # Should we put "ToVector" on the method name?
+        needs_name_decoration = True
         item_type = array_param['param'].type
         method.item_type = item_type
 
@@ -589,13 +736,15 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.bare_return_type = "string_with_allocator<Allocator>"
             method.return_constructor = method.bare_return_type + "{%s.begin(), %s.end(), vectorAllocator}" % (array_param_name, array_param_name)
             method.returns.append("str")
+            needs_name_decoration = False
         else:
             method.bare_return_type = vec_type
             method.return_constructor = array_param_name
             method.returns.append(array_param_name)
-        self._update_enhanced_return_type(method)
 
-        print(method.name, "is a two-call")
+        if needs_name_decoration:
+            self._append_to_method_name_before_vendor(method, "ToVector")
+        self._update_enhanced_return_type(method)
 
     def _method_has_single_output(self, method):
         if len(method.get_success_codes()) > 1:
@@ -611,7 +760,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.pointer_count > 0 and not param.is_const:
                 return False
 
-        print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
+        if not self.quiet:
+            print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
         return True
 
     def _enhanced_method_projection(self, method):
@@ -620,22 +770,37 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self._basic_method_projection(method)
         method.bare_return_type = "void"
         successes = method.get_success_codes()
+        method.multiple_success_codes = len(successes) > 1
+
         if len(successes) > 1:
             method.successes_arg = ", {%s}" % (", ".join(successes))
         else:
             method.successes_arg = ""
 
+        outhandles = [x for x in reversed(method.decl_params)
+                        if x.is_handle and x.pointer_count]
+
+        if method.is_create and len(outhandles) != 1:
+            # This isn't really a create from our point of view
+            method.is_create = False
+
         if method.is_create:
             method.masks_simple = False
-            outparam = method.decl_params[-1]
+            outparam = outhandles[0]
             cpp_outtype = _project_type_name(outparam.type)
             method.bare_return_type = cpp_outtype
 
-            method.decl_params.pop()
+            # Filter out the one we're returning.
+            method.decl_params = [x for x in method.decl_params
+                                  if x != outparam]
             method.decl_dict[outparam.name] = None
             method.pre_statements.append("{} handle;".format(cpp_outtype))
             method.access_dict[outparam.name] = "handle.put()"
             method.returns.append("handle")
+        elif method.is_destroy:
+            # Clear the handle
+            method.post_statements.append("val_ = XR_NULL_HANDLE;")
+
         elif self._method_has_single_output(method):
             method.masks_simple = False
             outparam = method.decl_params[-1]
@@ -662,23 +827,26 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         """Perform the manipulation of a MethodProjection for a creation function to convert it from C to C++ returning a UniqueHandle."""
 
         self._enhanced_method_projection(method)
+        self._append_to_method_name_before_vendor(method, "Unique")
+
+        method.returns.append("deleter")
+
+        method.return_template_params = [method.bare_return_type, "impl::RemoveRefConst<Dispatch>"]
+        method.post_statements.append('ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};')
+        method.handle_return_type = method.bare_return_type
+        method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
+        # method.returns[1] = "{}({}, {})"
+        self._update_enhanced_return_type(method)
+
+    def _append_to_method_name_before_vendor(self, method, s):
+        "Append a string to the end of the cpp_name of a method, but before any vendor suffix."
         vendor = self.findVendorSuffix(method.cpp_name)
         if vendor:
             # Keep the vendor suffix on the end.
             method.cpp_name = _strip_suffix(method.cpp_name, vendor)
-        method.cpp_name += "Unique"
+        method.cpp_name += s
         if vendor:
             method.cpp_name += vendor
-        if method.handle:
-            method.qualified_name = "{}::{}".format(method.cpp_handle, method.cpp_name)
-        else:
-            method.qualified_name = method.cpp_name
-
-        method.returns.append("deleter")
-        method.return_template_params = [method.bare_return_type, "impl::RemoveRefConst<Dispatch>"]
-        method.post_statements.append('ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};')
-        method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
-        self._update_enhanced_return_type(method)
 
     def outputGeneratedHeaderWarning(self):
         # File Comment
@@ -698,6 +866,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def beginFile(self, genOpts):
         AutomaticSourceOutputGenerator.beginFile(self, genOpts)
         self.conventions = self.genOpts.conventions
+        self.env.globals['filename'] = genOpts.filename
+        self.env.tests['cpp_hidden_member'] = self._cpp_hidden_member
+        self.env.tests['struct_output'] = self._is_struct_output
+        self.env.tests['struct_input'] = self._is_struct_input
         self.template = JinjaTemplate(
             self.env, "template_{}".format(genOpts.filename))
 
@@ -726,6 +898,71 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def _bitmask_for_flags(self, flags):
         return self.dict_bitmasks[flags.valid_flags]
 
+    def _is_struct_input(self, struct):
+        nextptr = [x.cdecl for x in struct.members
+                   if x.name == 'next']
+        return nextptr and 'const' in nextptr[0]
+
+    def _is_struct_output(self, struct):
+        if struct.returned_only:
+            return True
+        nextptr = [x.cdecl for x in struct.members
+                   if x.name == 'next']
+        if not nextptr:
+            return False
+        return 'const' not in nextptr[0]
+
+    def _is_member_defaultable(self, member):
+        if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
+            return True
+        if member.type.startswith("uint") or member.type.startswith("int") or member.type.startswith("float"):
+            return True
+        if member.type == "XrBool32":
+            return True
+        if not self._is_tagged_type(member.type):
+            # Might be an exaggeration?
+            return True
+        if member.type in self.dict_structs:
+            member_struct = self.dict_structs[member.type]
+
+            if self._is_struct_output(member_struct):
+                return True
+
+            return False
+        # assert(False)
+        return True
+
+    def _get_default_for_member(self, member, struct_name=None, default_val="{}"):
+        defaultValue = default_val
+        if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
+            defaultValue = "nullptr"
+        elif member.type.startswith("uint") or member.type.startswith("int"):
+            defaultValue = "0"
+        elif member.type.startswith("float"):
+            # special case XrQuaternionf::w so a default constructor xr::Quaternionf is an identity
+            if struct_name == 'XrQuaternionf' and member.name == 'w':
+                defaultValue = '1.0f'
+            else:
+                defaultValue = '0.0f'
+        elif member.type == "XrBool32":
+            defaultValue = "false"
+        elif not self._is_tagged_type(member.type):
+            defaultValue = default_val
+        elif member.type in self.dict_structs:
+            member_struct = self.dict_structs[member.type]
+            if self._is_struct_output(member_struct):
+                defaultValue = default_val
+        else:
+            defaultValue = default_val
+        return defaultValue
+
+    def _index0_of_first_visible_defaultable_member(self, members):
+        for i, member in reversed(tuple(enumerate(x for x in members if not self._cpp_hidden_member(x)))):
+            if not self._is_member_defaultable(member):
+                raise RuntimeError("Found a non-defaultable member, errors possible elsewhere due to untested codepath.")
+                return i + 1
+        return 0
+
     def _project_cppdecl(self, struct, member, defaulted=False, suffix="", input=False):
         result = member.cdecl.strip() + suffix
         # Kind of hacky, perhaps switch _project_type_name to a regex based approach?
@@ -738,32 +975,33 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         if input:
             if member.type == 'char' and member.is_array and member.pointer_count == 0:
+                # We'll initialize a fixed-size string with a cstring.
                 result = "const char* " + member.name + suffix
             elif member.type.startswith("Xr") and member.pointer_count == 0:
                 result = "const " + _project_type_name(member.type) + "& " + member.name + suffix
 
         if defaulted:
-            defaultValue = "{}"
-            if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
-                defaultValue = "nullptr"
-            elif member.type.startswith("uint") or member.type.startswith("int"):
-                defaultValue = "0"
-            elif member.type.startswith("float"):
-                # special case XrQuaternionf::w so a default constructor xr::Quaternionf is an identity
-                if struct.name == 'XrQuaternionf' and member.name == 'w':
-                    defaultValue = '1.0f'
-                else:
-                    defaultValue = '0.0f'
-            elif member.type == "XrBool32":
-                defaultValue = "XR_FALSE"
+            defaultValue = self._get_default_for_member(member, struct.name)
             result = result + " = " + defaultValue
         return result
+
+    def requires_platform_header(self, entity):
+        if not hasattr(entity, "extname"):
+            return False
+        extname = entity.extname
+        if self.isCoreExtensionName(extname):
+            return False
+        return self.dict_extensions[extname].protect_value is not None
 
     # Write out all the information for the appropriate file,
     # and then call down to the base class to wrap everything up.
     #   self            the ConformanceLayerBaseGenerator object
     def endFile(self):
         sorted_cmds = self.core_commands + self.ext_commands
+
+        self.dict_extensions = {}
+        for ext in self.extensions:
+            self.dict_extensions[ext.name] = ext
 
         self.dict_handles = {}
         for handle in self.api_handles:
@@ -783,10 +1021,16 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         for bitmask in self.api_bitmasks:
             self.dict_bitmasks[bitmask.name] = bitmask
 
+        self.dict_atoms = {}
+        for basetype in self.api_base_types:
+            if basetype.type == "XR_DEFINE_ATOM":
+                self.dict_atoms[basetype.name] = basetype
+
         self.projected_types = MANUALLY_PROJECTED.union(self.dict_handles.keys())
         self.projected_types.update(self.dict_enums.keys())
         self.projected_types.update(self.dict_structs.keys())
         self.projected_types.update(self.dict_bitmasks.keys())
+        self.projected_types.update(self.dict_atoms.keys())
 
         # Every type mentioned in some other type's parentstruct attribute.
         struct_parents = ((otherType, otherType.elem.get('parentstruct'))
@@ -805,11 +1049,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             members = struct.members
             return set(field.name for field in members if not self._cpp_hidden_member(field))
 
-        self.struct_fields = {parent: fields_of(parent) for parent in self.parents}
+        self.struct_fields = {parent: fields_of(parent) for parent in self.parents
+                              if parent in self.dict_structs}
 
         basic_cmds = {}
         enhanced_cmds = {}
+        enhanced_cmds_no_exceptions = {}
         unique_cmds = {}
+        unique_cmds_no_exceptions = {}
         for cmd in sorted_cmds:
             basic = MethodProjection(cmd, self)
             self._basic_method_projection(basic)
@@ -818,11 +1065,31 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             enhanced = MethodProjection(cmd, self)
             self._enhanced_method_projection(enhanced)
             enhanced_cmds[cmd.name] = enhanced
+            if enhanced.explicit_result_elided:
+
+                # Now try again to make one without exceptions.
+                enhanced_noexcept = MethodProjection(cmd, self)
+                enhanced_noexcept.exceptions_permitted = False
+                self._enhanced_method_projection(enhanced_noexcept)
+                enhanced_cmds_no_exceptions[cmd.name] = enhanced_noexcept
 
             if enhanced.is_create:
                 unique = MethodProjection(cmd, self)
                 self._unique_method_projection(unique)
                 unique_cmds[cmd.name] = unique
+
+                # Now try again to make one without exceptions,
+                if unique.explicit_result_elided:
+                    # all creation calls can elide the result.
+                    unique_noexcept = MethodProjection(cmd, self)
+                    unique_noexcept.exceptions_permitted = False
+                    self._unique_method_projection(unique_noexcept)
+                    unique_cmds_no_exceptions[cmd.name] = unique_noexcept
+                else:
+                    # assumption violated
+                    assert(False)
+        # Verify
+        self.selftests()
 
         file_data = self.template.render(
             gen=self,
@@ -836,24 +1103,40 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             create_enum_exception=self.createEnumException,
             basic_cmds=basic_cmds,
             enhanced_cmds=enhanced_cmds,
+            enhanced_cmds_no_exceptions=enhanced_cmds_no_exceptions,
             unique_cmds=unique_cmds,
+            unique_cmds_no_exceptions=unique_cmds_no_exceptions,
             discouraged_begin=_discouraged_begin,
             discouraged_end=_discouraged_end,
             generate_structure_type_from_name=self.conventions.generate_structure_type_from_name,
             is_tagged_type=self._is_tagged_type,
             project_cppdecl=self._project_cppdecl,
-            cpp_hidden_member=self._cpp_hidden_member,
-            struct_member_count=self._struct_member_count,
             bitmask_for_flags=self._bitmask_for_flags,
             is_static_length_string=_is_static_length_string,
-            parents=self.parents,
             struct_parents=self.struct_parents,
             struct_children=self.struct_children,
             struct_fields=self.struct_fields,
-            get_tag=self._get_tag,
-            is_base_only=self._is_base_only
+            project_struct=(lambda s: StructProjection(s, self)),
+            get_default_for_member=self._get_default_for_member,
+            index0_of_first_visible_defaultable_member=self._index0_of_first_visible_defaultable_member,
+            manually_projected=MANUALLY_PROJECTED,
         )
         write(file_data, file=self.outFile)
 
         # Finish processing in superclass
         AutomaticSourceOutputGenerator.endFile(self)
+
+    def selftests(self):
+        assert(self._is_struct_input(self.dict_structs['XrCompositionLayerProjection']))
+        assert(self._is_struct_input(self.dict_structs['XrCompositionLayerBaseHeader']))
+        assert(not self._is_struct_input(self.dict_structs['XrApplicationInfo']))
+        assert(not self._is_struct_output(self.dict_structs['XrApplicationInfo']))
+        # index = self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'].members)
+        # print(index)
+        assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'].members) == 0)
+        # index = self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members)
+        # print(index)
+        # assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members) == 0)
+        # members = self.dict_structs['XrInstanceCreateInfo'].members
+        # for i, member in enumerate(members):
+        #     print(i, member.name, self._is_member_defaultable(member))

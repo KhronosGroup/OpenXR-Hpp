@@ -17,45 +17,57 @@
 
 # Generate OpenXR header files.
 
-set(GENERATED_HEADER "${CMAKE_CURRENT_BINARY_DIR}/openxr.hpp")
+set(HEADER_LIST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../../headers.txt")
+
+# Re-run CMake if that file changes
+set_property(
+    DIRECTORY
+    APPEND
+    PROPERTY CMAKE_CONFIGURE_DEPENDS ${HEADER_LIST_FILE}
+)
+file(STRINGS ${HEADER_LIST_FILE} HEADER_FILENAMES REGEX "^openxr")
+set(GENERATED_HEADER_FILENAMES
+    "${HEADER_FILENAMES}"
+    CACHE INTERNAL ""
+)
 
 set(SCRIPT_DIR ${PROJECT_SOURCE_DIR}/scripts)
 set(XR_ROOT ${PROJECT_SOURCE_DIR}/../OpenXR-SDK-Source)
-file(GLOB GENERATION_DEPS ${PROJECT_SOURCE_DIR}/scripts/*.py
-     ${PROJECT_SOURCE_DIR}/scripts/*.hpp
-)
+file(GLOB GENERATION_DEPS ${PROJECT_SOURCE_DIR}/scripts/*)
+
 # Generate the header files and place it in the binary (build) directory.
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/openxr.hpp
-    COMMAND
-        ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/hpp_genxr.py
-        -registry ${XR_ROOT}/specification/registry/xr.xml -o
-        ${CMAKE_CURRENT_BINARY_DIR} openxr.hpp
-    DEPENDS ${GENERATION_DEPS}
-            ${XR_ROOT}/specification/registry/xr.xml
-            ${XR_ROOT}/specification/scripts/conventions.py
-            ${XR_ROOT}/specification/scripts/generator.py
-            ${XR_ROOT}/specification/scripts/genxr.py
-            ${XR_ROOT}/specification/scripts/reg.py
-            ${XR_ROOT}/specification/scripts/xrconventions.py
-            ${XR_ROOT}/src/scripts/automatic_source_generator.py
-    COMMENT "Generating ${GENERATED_HEADER}"
-)
+foreach(FN ${HEADER_FILENAMES})
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${FN}
+        COMMAND
+            ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/hpp_genxr.py
+            -registry ${XR_ROOT}/specification/registry/xr.xml -o
+            ${CMAKE_CURRENT_BINARY_DIR} -quiet ${FN}
+        DEPENDS ${GENERATION_DEPS}
+                ${XR_ROOT}/specification/registry/xr.xml
+                ${XR_ROOT}/specification/scripts/conventions.py
+                ${XR_ROOT}/specification/scripts/generator.py
+                ${XR_ROOT}/specification/scripts/genxr.py
+                ${XR_ROOT}/specification/scripts/reg.py
+                ${XR_ROOT}/specification/scripts/xrconventions.py
+                ${XR_ROOT}/src/scripts/automatic_source_generator.py
+        COMMENT "Generating ${FN}"
+    )
 
-set_source_files_properties(${GENERATED_HEADER} PROPERTIES GENERATED TRUE)
+    set_source_files_properties(
+        ${CMAKE_CURRENT_BINARY_DIR}/${FN} PROPERTIES GENERATED TRUE
+    )
+    list(APPEND GENERATED_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${FN})
+endforeach()
 
-set(INSTALL_HEADERS ${GENERATED_HEADER})
-
-# Define generate_openxr_header target to generate the OpenXR header files.
-# Other targets that need the OpenXR headers should use generate_openxr_header
-# as a dependency.
+# Define generate_headers target to generate the OpenXR header files. Other
+# targets that need the OpenXR headers should use generate_openxr_header as a
+# dependency.
 add_custom_target(
-    generate_openxr_header
-    SOURCES ${XR_ROOT}/specification/registry/xr.xml
-    DEPENDS ${GENERATED_HEADER}
+    generate_headers
+    SOURCES ${XR_ROOT}/specification/registry/xr.xml ${GENERATION_DEPS}
+    DEPENDS ${GENERATED_HEADERS}
 )
-set_target_properties(
-    generate_openxr_header PROPERTIES FOLDER ${CODEGEN_FOLDER}
-)
+set_target_properties(generate_headers PROPERTIES FOLDER ${CODEGEN_FOLDER})
 
-install(FILES ${INSTALL_HEADERS} DESTINATION include/openxr)
+install(FILES ${GENERATED_HEADERS} DESTINATION include/openxr)
