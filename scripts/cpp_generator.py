@@ -778,7 +778,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.successes_arg = ""
 
         outhandles = [x for x in reversed(method.decl_params)
-                        if x.is_handle and x.pointer_count]
+                      if x.is_handle and x.pointer_count]
 
         if method.is_create and len(outhandles) != 1:
             # This isn't really a create from our point of view

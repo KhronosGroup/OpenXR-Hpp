@@ -27,4 +27,3 @@ NamespaceIndentation: Inner
 # Line length/reflow
 ColumnLimit: 100
 ReflowComments: true
----
