@@ -6,7 +6,7 @@ safety for C++ developers interacting with the OpenXR API.
 ## Getting Started
 
 Just include `<openxr/openxr.hpp>` and you're ready to use the C++ bindings.
-For a more elegant usage, include files as you need them
+For a more elegant usage, include files as you need them.
 
 ### Minimum Requirements
 
@@ -21,15 +21,16 @@ namespace by default.
 
 The following additional naming conventions apply
 
-* All functions, enums, handles, and structs have the 'Xr'/'xr' prefix removed. In
-  addition to this the first letter of functions is lower case.
+* All functions, enums, handles, and structs have the `Xr`/`xr` prefix removed.
+  In addition to this the first letter of functions is lower case.
   * `xrCreateInstance` can be accessed as `xr::createInstance`
   * `XrActionType` can be accessed as `xr::ActionType`
   * `XrViewState` can be accessed as `xr::ViewState`
 * C enums are mapped to enum classes ("scoped enums") to provide compile time
   type safety. The names have been changed to CamelCase with the 'XR_' prefix
   and type infix removed.
-  * In case the enum **type** is an extension the extension suffix has been removed from the enum **values**.
+  * In case the enum **type** is an extension, the extension suffix has been
+    removed from the enum **values**.
   * In all other cases the extension suffix has not been removed.
   * Examples:
     * `XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO` is now
@@ -46,7 +47,7 @@ The following additional naming conventions apply
     `xr::SpaceVelocityFlagBits::LinearValid`
 
 In some cases it might be necessary to move OpenXR-Hpp to a custom namespace.
-This can be achieved by defining OPENXR_HPP_NAMESPACE before including
+This can be achieved by defining `OPENXR_HPP_NAMESPACE` before including
 OpenXR-Hpp.
 
 ### Handles
@@ -233,7 +234,7 @@ ambiguous overloads.
 ### Custom assertions
 
 All over the various headers, there are a couple of calls to an assert function.
-By defining OPENXR_HPP_ASSERT, you can specify your own custom assert function
+By defining `OPENXR_HPP_ASSERT`, you can specify your own custom assert function
 to be called instead.
 
 @see config
@@ -279,7 +280,6 @@ xr::DebugUtilsMessengerEXT messenger =
 
 A client _should_ avoid instantiating a dynamic loader every time they make a
 call which requires one. For example, the following is not recommended:
-
 
 ```c++
 // Do **NOT** do this!
