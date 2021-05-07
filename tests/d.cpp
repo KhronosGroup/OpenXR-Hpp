@@ -2,7 +2,7 @@
 #define XR_USE_GRAPHICS_API_VULKAN
 
 #include "xr_dependencies.h"
-
+#include "openxr/openxr_platform.h"
 #include "openxr/openxr.hpp"
 
 static void bla() {
