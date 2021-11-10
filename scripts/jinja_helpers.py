@@ -62,6 +62,7 @@ def _collapse_whitespace(s):
 
 
 def _protect_begin(entity, parent=None):
+    if not entity: return None
     lines = []
     if hasattr(entity, 'ext_name') and not entity.ext_name.startswith("XR_VERSION"):
         if not parent or not hasattr(parent, 'ext_name') or parent.ext_name != entity.ext_name:
@@ -74,6 +75,7 @@ def _protect_begin(entity, parent=None):
 
 
 def _protect_end(entity, parent=None):
+    if not entity: return None
     lines = []
     if entity.protect_value:
         if not parent or parent.protect_string != entity.protect_string:
