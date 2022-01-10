@@ -112,10 +112,12 @@ namespace traits {
 // Explicit specializations of cpp_type_from_object_type_enum
 //# for handle in gen.api_handles
 //#     set shortname = project_type_name(handle.name)
+/*{protect_begin(handle)}*/
 template <>
 struct cpp_type_from_object_type_enum<ObjectType::/*{shortname}*/> {
     using type = /*{shortname}*/;
 };
+/*{protect_end(handle)}*/
 //# endfor
 } // namespace traits
 #endif  // !OPENXR_HPP_DOXYGEN
