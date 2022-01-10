@@ -17,5 +17,5 @@ grep "^openxr" headers.txt | while read fn; do
     generate "$fn"
 done
 
-clang-format-6.0 -style=file -i include/openxr/*.hpp include/openxr/*.inl
+clang-format -style=file -i include/openxr/*.hpp include/openxr/*.inl
 )
