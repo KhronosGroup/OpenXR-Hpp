@@ -146,8 +146,12 @@ def _project_type_name(typename):
     return _strip_prefix(typename, "Xr")
 
 
+def _is_static_length_array(member):
+    return member.is_array and member.pointer_count == 0
+
+
 def _is_static_length_string(member):
-    return member.type == "char" and member.is_array and member.pointer_count == 0
+    return member.type == "char" and _is_static_length_array(member)
 
 
 def _block_comment(s, doxygen=False):
@@ -981,7 +985,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         return 0
 
     def _project_cppdecl(self, struct, member, defaulted=False, suffix="", input=False):
-        result = member.cdecl.strip() + suffix
+        result = member.cdecl.strip()
+        if "[" in result:
+            # Insert the suffix before the array decl
+            pos = result.find("[")
+            result = result[:pos] + suffix + result[pos:]
+        else:
+            result += suffix
         # Kind of hacky, perhaps switch _project_type_name to a regex based approach?
         if (member.is_const):
             result = _strip_prefix(result, "const").strip()
@@ -1132,6 +1142,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             is_tagged_type=self._is_tagged_type,
             project_cppdecl=self._project_cppdecl,
             bitmask_for_flags=self._bitmask_for_flags,
+            is_static_length_array=_is_static_length_array,
             is_static_length_string=_is_static_length_string,
             struct_parents=self.struct_parents,
             struct_children=self.struct_children,

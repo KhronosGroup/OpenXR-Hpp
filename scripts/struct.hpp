@@ -29,15 +29,15 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString, make_spec_ref, extension_comment
+//# from 'macros.hpp' import wrapperSizeStaticAssert, initializeStaticLengthString, initializeStaticLengthArray, make_spec_ref, extension_comment
 
 //# macro _makeDefaultConstructor(s, is_explicit, visible_members)
         /*{ "explicit" if is_explicit }*/ /*{s.cpp_name }*/ (
+            /*{s.next_param_decl_with_default if s.typed_struct}*/)
 
-            /*{s.next_param_decl_with_default if s.typed_struct}*/) /*{ ":" if visible_members or s.typed_struct }*/
-//#     set arg_comma = joiner(", ")
+//#     set initializer_comma = initializers()
 //#     if s.typed_struct
-            /*{- arg_comma() }*/ Parent(/*{s.struct_type_enum -}*/
+            /*{- initializer_comma() }*/ Parent(/*{s.struct_type_enum -}*/
 //## Default-construct all parent fields
 //#         if s.parent_fields
               /*%- for _ in s.parent_fields -%*/, {} /*%- endfor -%*/
@@ -45,7 +45,7 @@
              , /*{s.next_param_name}*/)
 //#     endif
 //#    for member in visible_members if member.name not in s.parent_fields and not is_static_length_string(member)
-                  /*{- arg_comma() }*/ /*{ member.name }*/{/*{ get_default_for_member(member, s.name, "") -}*/}
+                  /*{- initializer_comma() }*/ /*{ member.name }*/{/*{ get_default_for_member(member, s.name, "") -}*/}
 //#    endfor
             {}
 //# endmacro
@@ -61,27 +61,31 @@
 //#    if s.typed_struct
                   /*{- arg_comma() }*/ /*{ s.next_param_decl_with_default -}*/
 //#    endif
-                  ) :
-//#    set initializer_comma = joiner(",")
+                  )
+//#    set initializer_comma = initializers()
 
 //#    if s.typed_struct
 //#        set arg_comma = joiner(",")
               /*{- initializer_comma() }*/ Parent(
                 /*{- arg_comma() -}*/ /*% if s.is_abstract %*/type_ /*% else %*/ /*{- s.struct_type_enum -}*/ /*% endif %*/
 //#        for member in visible_members if member.name in s.parent_fields
-//## commented out and not is_static_length_string(member)
                 /*{- arg_comma() }*/ /*{ member.name + "_" -}*/
 //#        endfor
                 /*{- arg_comma() }*/ /*{ s.next_param_name -}*/
               )
 //#    endif
 
-//#    for member in visible_members if member.name not in s.parent_fields and not is_static_length_string(member)
+//#    for member in visible_members if member.name not in s.parent_fields and not is_static_length_array(member)
               /*{- initializer_comma() }*/ /*{ member.name }*/ {/*{ member.name + "_"}*/}
 //#    endfor
         {
-//#    for member in visible_members if is_static_length_string(member)
+//#    for member in visible_members if is_static_length_array(member)
+//#         if is_static_length_string(member)
             /*{ initializeStaticLengthString(member.name + "_", member.name, member.array_count_var) }*/
+//#         else
+            /*{ initializeStaticLengthArray(member.name + "_", member.name) }*/
+//#         endif
+
 //#    endfor
         }
 
