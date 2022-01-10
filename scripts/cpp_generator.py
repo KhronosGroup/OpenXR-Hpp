@@ -80,7 +80,10 @@ UPPER_TOKENS = set((
     "EGL",
     "ES",
     "RGB",
+    "CW",  # clockwise
+    "CCW",  # counter-clockwise
 ))
+
 SPECIAL_TOKENS = {
     "OPENGL": "OpenGL"
 }
