@@ -29,7 +29,7 @@
 //## choose to deem waived or otherwise exclude such Section(s) of the License,
 //## but only in their entirety and only with respect to the Combined Software.
 
-//# from 'macros.hpp' import make_spec_ref, extension_comment
+//# from 'macros.hpp' import make_spec_ref, extension_comment, wrapperSizeStaticAssert
 
 //# set projected_type = project_type_name(enum.name)
 /*{ protect_begin(enum) }*/
@@ -44,13 +44,14 @@
 //# endif
 //! @xrentity{/*{ enum.name }*/}
 //# endfilter
-enum class /*{projected_type -}*/ : /*{ 'int32_t' if enum.name == 'XrResult' else 'uint32_t' }*/ {
+enum class /*{projected_type -}*/ : int32_t {
 //# for val in enum.values
     /*{ protect_begin(val, enum) }*/
     /*{create_enum_value(val.name, enum.name)}*/ = /*{val.name}*/,
     /*{ protect_end(val, enum) }*/
 //# endfor
 };
+/*{ wrapperSizeStaticAssert(projected_type, enum.name) }*/
 
 //! @addtogroup utility_accessors
 //! @{
