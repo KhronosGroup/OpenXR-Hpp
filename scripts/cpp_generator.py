@@ -24,7 +24,14 @@ from jinja_helpers import JinjaTemplate, make_jinja_environment
 VALID_FOR_NULL_INSTANCE = set((
     'xrEnumerateInstanceExtensionProperties',
     'xrEnumerateApiLayerProperties',
-    'xrCreateInstance'
+    'xrCreateInstance',
+    'xrLoaderInitKHR',
+))
+
+# These break the projection right now.
+SKIP = set((
+    'xrGetSceneComputeStateMSFT',
+    'xrGetSwapchainStateFB',
 ))
 
 DISCOURAGED = set((
@@ -44,6 +51,13 @@ MANUALLY_PROJECTED_SCALARS = set((
 MANUALLY_PROJECTED = set((
     "XrEventDataBuffer",
 )).union(MANUALLY_PROJECTED_SCALARS)
+
+SKIP_PROJECTION = set((
+    "XrBaseInStructure",
+    "XrBaseOutStructure",
+    # Array of XrColor4f not getting initialized right
+    "XrPassthroughColorMapMonoToRgbaFB",
+))
 
 TWO_CALL_STRING_NAME = "buffer"
 
@@ -66,7 +80,10 @@ UPPER_TOKENS = set((
     "EGL",
     "ES",
     "RGB",
+    "CW",  # clockwise
+    "CCW",  # counter-clockwise
 ))
+
 SPECIAL_TOKENS = {
     "OPENGL": "OpenGL"
 }
@@ -132,8 +149,12 @@ def _project_type_name(typename):
     return _strip_prefix(typename, "Xr")
 
 
+def _is_static_length_array(member):
+    return member.is_array and member.pointer_count == 0
+
+
 def _is_static_length_string(member):
-    return member.type == "char" and member.is_array and member.pointer_count == 0
+    return member.type == "char" and _is_static_length_array(member)
 
 
 def _block_comment(s, doxygen=False):
@@ -548,6 +569,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 continue
             if self._is_base_only(self.dict_structs[param.type]):
                 # This is a polymorphic parameter: skip conversion for now.
+                continue
+            if param.type in SKIP_PROJECTION:
+                # This is a mess to project.
                 continue
             name = param.name
             cpp_type = _project_type_name(param.type)
@@ -964,7 +988,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         return 0
 
     def _project_cppdecl(self, struct, member, defaulted=False, suffix="", input=False):
-        result = member.cdecl.strip() + suffix
+        result = member.cdecl.strip()
+        if "[" in result:
+            # Insert the suffix before the array decl
+            pos = result.find("[")
+            result = result[:pos] + suffix + result[pos:]
+        else:
+            result += suffix
         # Kind of hacky, perhaps switch _project_type_name to a regex based approach?
         if (member.is_const):
             result = _strip_prefix(result, "const").strip()
@@ -1031,6 +1061,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.projected_types.update(self.dict_structs.keys())
         self.projected_types.update(self.dict_bitmasks.keys())
         self.projected_types.update(self.dict_atoms.keys())
+        self.projected_types.difference_update(SKIP_PROJECTION)
 
         # Every type mentioned in some other type's parentstruct attribute.
         struct_parents = ((otherType, otherType.elem.get('parentstruct'))
@@ -1038,6 +1069,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.struct_parents = {child.elem.get('name'): parent for child, parent in struct_parents
                                if parent is not None}
         self.parents = set(self.struct_parents.values())
+
+        self.skip_projection = SKIP_PROJECTION
 
         def children_of(t):
             return set(child for child, parent in self.struct_parents.items() if parent == t)
@@ -1112,6 +1145,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             is_tagged_type=self._is_tagged_type,
             project_cppdecl=self._project_cppdecl,
             bitmask_for_flags=self._bitmask_for_flags,
+            is_static_length_array=_is_static_length_array,
             is_static_length_string=_is_static_length_string,
             struct_parents=self.struct_parents,
             struct_children=self.struct_children,
@@ -1120,6 +1154,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             get_default_for_member=self._get_default_for_member,
             index0_of_first_visible_defaultable_member=self._index0_of_first_visible_defaultable_member,
             manually_projected=MANUALLY_PROJECTED,
+            skip=SKIP,
         )
         write(file_data, file=self.outFile)
 

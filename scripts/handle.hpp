@@ -123,7 +123,7 @@ RawHandleType *put(bool clear = true) noexcept {
  * @{
  */
 //## Generate "member function" prototypes
-//# for cur_cmd in sorted_cmds if cur_cmd.params[0].type == raw_type
+//# for cur_cmd in sorted_cmds if cur_cmd.params[0].type == raw_type and cur_cmd.name not in skip
 /*{ method_prototypes(cur_cmd, handle) }*/
 
 //# endfor

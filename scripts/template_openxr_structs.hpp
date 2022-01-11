@@ -160,7 +160,7 @@ OPENXR_HPP_INLINE XrEventDataBuffer* put(EventDataBuffer& v, bool clear = true) 
     return v.put(clear);
 }
 
-//# for struct in gen.api_structures if struct.name not in manually_projected
+//# for struct in gen.api_structures if struct.name not in manually_projected and struct.name not in gen.skip_projection
 
 //#     include('struct.hpp')
 

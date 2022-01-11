@@ -42,6 +42,19 @@ def _add_to_path():
 _WHITESPACE = re.compile(r"[\s\n]+")
 
 
+class Initializers:
+    """Like jinja's joiner, except our first one is : instead of empty."""
+
+    def __init__(self):
+        self.comma = False
+
+    def __call__(self) -> str:
+        if not self.comma:
+            self.comma = True
+            return ":"
+        return ","
+
+
 def _undecorate(name):
     """Undecorate a name by removing the leading Xr and making it lowercase."""
     lower = name.lower()
@@ -148,6 +161,7 @@ def make_jinja_environment(file_with_templates_as_sibs=None, search_path=None, t
     env.filters['collapse_whitespace'] = _collapse_whitespace
     env.globals['protect_begin'] = _protect_begin
     env.globals['protect_end'] = _protect_end
+    env.globals['initializers'] = Initializers
 
     return env
 

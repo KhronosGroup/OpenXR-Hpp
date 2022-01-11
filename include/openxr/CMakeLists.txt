@@ -32,25 +32,30 @@ set(GENERATED_HEADER_FILENAMES
 )
 
 set(SCRIPT_DIR ${PROJECT_SOURCE_DIR}/scripts)
-set(XR_ROOT ${PROJECT_SOURCE_DIR}/../OpenXR-SDK-Source)
 file(GLOB GENERATION_DEPS ${PROJECT_SOURCE_DIR}/scripts/*)
 
+set(PYTHONPATH ${OPENXR_SPECSCRIPTS_DIR} ${OPENXR_SDKSCRIPTS_DIR})
+if(NOT WIN32)
+    string(REPLACE ";" ":" PYTHONPATH "${PYTHONPATH}")
+endif()
 # Generate the header files and place it in the binary (build) directory.
 foreach(FN ${HEADER_FILENAMES})
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${FN}
         COMMAND
+            ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}"
             ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/hpp_genxr.py
-            -registry ${XR_ROOT}/specification/registry/xr.xml -o
-            ${CMAKE_CURRENT_BINARY_DIR} -quiet ${FN}
+            -registry ${OPENXR_REGISTRY} -o ${CMAKE_CURRENT_BINARY_DIR} -quiet
+            ${FN}
         DEPENDS ${GENERATION_DEPS}
-                ${XR_ROOT}/specification/registry/xr.xml
-                ${XR_ROOT}/specification/scripts/conventions.py
-                ${XR_ROOT}/specification/scripts/generator.py
-                ${XR_ROOT}/specification/scripts/genxr.py
-                ${XR_ROOT}/specification/scripts/reg.py
-                ${XR_ROOT}/specification/scripts/xrconventions.py
-                ${XR_ROOT}/src/scripts/automatic_source_generator.py
+                ${OPENXR_REGISTRY}
+                ${OPENXR_SPECSCRIPTS_DIR}/spec_tools/conventions.py
+                ${OPENXR_SPECSCRIPTS_DIR}/generator.py
+                ${OPENXR_SPECSCRIPTS_DIR}/genxr.py
+                ${OPENXR_SPECSCRIPTS_DIR}/reg.py
+                ${OPENXR_SPECSCRIPTS_DIR}/xrconventions.py
+                ${OPENXR_SDKSCRIPTS_DIR}/automatic_source_generator.py
+        VERBATIM
         COMMENT "Generating ${FN}"
     )
 
@@ -65,7 +70,7 @@ endforeach()
 # dependency.
 add_custom_target(
     generate_headers
-    SOURCES ${XR_ROOT}/specification/registry/xr.xml ${GENERATION_DEPS}
+    SOURCES ${OPENXR_REGISTRY} ${GENERATION_DEPS}
     DEPENDS ${GENERATED_HEADERS}
 )
 set_target_properties(generate_headers PROPERTIES FOLDER ${CODEGEN_FOLDER})

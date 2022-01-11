@@ -65,3 +65,7 @@ if (nullptr != /*{ src }*/) {
 #endif
 }
 //# endmacro
+
+//# macro initializeStaticLengthArray(src, dst)
+memcpy(/*{ dst }*/, /*{src}*/, sizeof(/*{dst}*/));
+//# endmacro

@@ -7,11 +7,11 @@ param (
 
     [Parameter()]
     [string]
-    $Python = "python3.exe",
+    $Python = "python3",
 
     [Parameter()]
     [string]
-    $ClangFormat = "clang-format.exe",
+    $ClangFormat = "clang-format",
 
     [Parameter()]
     [switch]
@@ -23,7 +23,7 @@ param (
 
     [Parameter()]
     [string]
-    $Doxygen = "doxygen.exe"
+    $Doxygen = "doxygen"
 )
 
 $Headers = foreach($line in Get-Content (Join-Path $PSScriptRoot headers.txt)) {
