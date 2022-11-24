@@ -157,8 +157,8 @@ if __name__ == '__main__':
     parser.add_argument('-profile', action='store_true',
                         help='Enable profiling')
     parser.add_argument('-registry', action='store',
-                        default='vk.xml',
-                        help='Use specified registry file instead of vk.xml')
+                        default='xr.xml',
+                        help='Use specified registry file instead of xr.xml')
     parser.add_argument('-time', action='store_true',
                         help='Enable timing')
     parser.add_argument('-validate', action='store_true',
