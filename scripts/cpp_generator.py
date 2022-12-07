@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2017-2019 The Khronos Group Inc.
+# Copyright (c) 2017-2022 The Khronos Group Inc.
 # Copyright (c) 2017-2019 Valve Corporation
 # Copyright (c) 2017-2019 LunarG, Inc.
 #
@@ -57,6 +57,8 @@ SKIP_PROJECTION = set((
     "XrBaseOutStructure",
     # Array of XrColor4f not getting initialized right
     "XrPassthroughColorMapMonoToRgbaFB",
+    'XrCompositionLayerPassthroughHTC',
+    'XrAsyncRequestIdFB',
 ))
 
 TWO_CALL_STRING_NAME = "buffer"
