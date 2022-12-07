@@ -598,6 +598,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         for param in method.decl_params:
             if param.type not in MANUALLY_PROJECTED_SCALARS and param.type not in self.dict_atoms:
                 continue
+            if param.type in SKIP_PROJECTION:
+                continue
             name = param.name
             cpp_type = _project_type_name(param.type)
             method.decl_dict[name] = "{} {}".format(cpp_type, name)
@@ -786,6 +788,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         last_param = method.params[-1]
         if last_param.is_const or last_param.pointer_count != 1 or last_param.array_count_var != '':
+            return False
+
+        # Do not return a single output of a type we aren't projecting
+        if last_param.type in SKIP_PROJECTION:
             return False
 
         for param in method.params[:-1]:
