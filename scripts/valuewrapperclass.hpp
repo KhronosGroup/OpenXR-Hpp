@@ -49,8 +49,11 @@
 //# block constructors scoped
 //#     block constructor_default scoped
 
+//#         if not suppress_default_constructor
     //! Default constructor.
     OPENXR_HPP_CONSTEXPR /*{ type }*/ () noexcept = default;
+
+//#         endif
 
 //#     endblock constructor_default
 
@@ -106,5 +109,5 @@
 //# endblock method_put_body
 
 //# block private
-    /*{ raw_type }*/ val_{/*{ invalid }*/};
+    /*{ raw_type }*/ val_/*% if not suppress_nsdmi %*/{/*{ invalid }*/}/*% endif %*/;
 //# endblock private
