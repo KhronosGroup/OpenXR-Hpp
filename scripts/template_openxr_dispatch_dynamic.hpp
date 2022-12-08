@@ -74,7 +74,7 @@ namespace OPENXR_HPP_NAMESPACE {
 class DispatchLoaderDynamic {
    public:
     /*!
-     * @name Constuctor/Factory functions
+     * @name Constructor/Factory functions
      * @{
      */
     /*!
