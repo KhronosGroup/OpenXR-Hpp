@@ -238,7 +238,7 @@ TAB_SIZE               = 4
 # "Side Effects:". You can put \n's in the value part of an alias to insert
 # newlines.
 
-ALIASES                = "xrentity{1}=\xrefitem xrentity \"OpenXR Entity\" \"OpenXR Entities\" [\1](https://www.khronos.org/registry/OpenXR/specs/1.0/man/html/\1.html) @addindex \1"
+ALIASES                = "xrentity{1}=\xrefitem xrentity \"OpenXR Entity\" \"OpenXR Entities\" [\1](https://www.khronos.org/registry/OpenXR/specs/1.0/man/html/\1.html) \\addindex \1"
 ALIASES                += "found_by_adl=Found by argument-dependent lookup, no need for explicit namespace qualification."
 
 # This tag can be used to specify a number of word-keyword mappings (TCL only).
