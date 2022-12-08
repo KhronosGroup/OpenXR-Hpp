@@ -57,7 +57,6 @@ SKIP_PROJECTION = set((
     "XrBaseOutStructure",
     # Array of XrColor4f not getting initialized right
     "XrPassthroughColorMapMonoToRgbaFB",
-    'XrCompositionLayerPassthroughHTC',
     # No "invalid" atom value
     'XrAsyncRequestIdFB',
     'XrEventDataSpatialAnchorCreateCompleteFB',
@@ -955,22 +954,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def _is_member_defaultable(self, member):
         if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
             return True
-        if member.type.startswith("uint") or member.type.startswith("int") or member.type.startswith("float"):
+        if self._is_type_defaultable(member.type):
             return True
-        if member.type == "XrBool32":
-            return True
-        if not self._is_tagged_type(member.type):
-            # Might be an exaggeration?
-            return True
-        if member.type in self.dict_structs:
-            member_struct = self.dict_structs[member.type]
-
-            if self._is_struct_output(member_struct):
-                return True
-
-            return False
-        # assert(False)
-        return True
+        return False
 
     def _get_default_for_member(self, member, struct_name=None, default_val="{}"):
         defaultValue = default_val
@@ -995,6 +981,29 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         else:
             defaultValue = default_val
         return defaultValue
+
+    def _is_type_defaultable(self, typename: str):
+        if typename.startswith("uint") or typename.startswith("int") or typename.startswith("float"):
+            return True
+        if typename == "XrBool32":
+            return True
+        if typename in self.dict_atoms:
+            return self.computeNullAtom(typename) is not None
+        if self._is_tagged_type(typename):
+            tag = self._get_tag(typename)
+
+            if tag is None:
+                return False
+            member_struct = self.dict_structs[typename]
+            if self._is_struct_output(member_struct):
+                return True
+
+            for member in tuple(x for x in member_struct.members if not self._cpp_hidden_member(x)):
+                if not self._is_member_defaultable(member):
+                    return False
+
+            return True
+        return True
 
     def _index0_of_first_visible_defaultable_member(self, members):
         for i, member in reversed(tuple(enumerate(x for x in members if not self._cpp_hidden_member(x)))):
