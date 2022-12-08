@@ -31,6 +31,8 @@
 
 //# set comparison_operators = ('==', '!=')
 //# set doc_group = "atoms"
+//# set has_null_define = (not (not invalid))
+//# set cannot_clear = (not has_null_define)
 
 //# extends "valuewrapperclass.hpp"
 
@@ -39,6 +41,8 @@
 //# block constructors
 /*{ super() }*/
 
+//#   if has_null_define
 //! Return a null value.
 static OPENXR_HPP_CONSTEXPR /*{ type }*/ null() noexcept { return {}; }
+//#   endif
 //# endblock

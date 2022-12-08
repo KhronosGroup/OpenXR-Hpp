@@ -156,7 +156,7 @@ OPENXR_HPP_CONSTEXPR OPENXR_HPP_INLINE /*{ raw_type }*/ get(/*{input_param_type}
 
 //# block free_put scoped
 //#     filter block_doxygen_comment
-//! @brief Free function for clearing (by default) and getting the address of the raw /*{ raw_type }*/ from an /*{type}*/ /*{ object_instance_desc }*/.
+//! @brief Free function for /*% if not cannot_clear %*/clearing (by default) and /*% endif %*/getting the address of the raw /*{ raw_type }*/ from an /*{type}*/ /*{ object_instance_desc }*/.
 //!
 //! @found_by_adl
 //! @see /*{type}*/::put( )

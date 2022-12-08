@@ -57,15 +57,6 @@ SKIP_PROJECTION = set((
     "XrBaseOutStructure",
     # Array of XrColor4f not getting initialized right
     "XrPassthroughColorMapMonoToRgbaFB",
-    # No "invalid" atom value
-    'XrAsyncRequestIdFB',
-    'XrEventDataSpatialAnchorCreateCompleteFB',
-    'XrEventDataSpaceSetStatusCompleteFB',
-    'XrEventDataSpaceQueryCompleteFB',
-    'XrEventDataSpaceEraseCompleteFB',
-    'XrEventDataSpaceQueryResultsAvailableFB',
-    'XrEventDataSpaceSaveCompleteFB',
-    'XrSpaceSaveInfoFB',
 ))
 
 TWO_CALL_STRING_NAME = "buffer"
@@ -446,7 +437,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def computeNullAtom(self, typename):
         null_atom = self.conventions.generate_structure_type_from_name(typename)
-        return null_atom.replace('XR_TYPE', 'XR_NULL')
+        name = null_atom.replace('XR_TYPE', 'XR_NULL')
+        if not self.registry.reg.findall(f"types/type[name = '{name}']"):
+            return None
+        return name
 
     def findVendorSuffix(self, name):
         for vendor in self.vendor_tags:
