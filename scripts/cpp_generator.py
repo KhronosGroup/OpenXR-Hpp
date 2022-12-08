@@ -196,9 +196,6 @@ def _block_doxygen_comment(s):
     return _block_comment(s, doxygen=True)
 
 
-# def _make_dummy_param(name, typename, cdecl):
-#     return MemberOrParam(typename, False, True, False, False, False, 0, False, [], None, None, 0, None, False, True, name, None, cdecl)
-
 class StructProjection:
     """Stores the struct details implementation."""
 
