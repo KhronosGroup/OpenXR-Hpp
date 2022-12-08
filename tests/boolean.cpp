@@ -34,7 +34,6 @@ TEST_F(OpenXrBoolTest, boolTest) {
     EXPECT_TRUE(true != xr::Bool32(false));
     EXPECT_TRUE(XR_TRUE != xr::Bool32(false));
 
-
     EXPECT_FALSE(!xr::Bool32(true) == true);
     EXPECT_FALSE(!xr::Bool32(true) == XR_TRUE);
     EXPECT_FALSE(!xr::Bool32(true) != false);
