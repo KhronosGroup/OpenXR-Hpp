@@ -12,31 +12,25 @@ protected:
 
 TEST_F(OpenXrFlagsTest, flagsTest) {
   {
-    xr::SpaceVelocityFlags flags = xr::SpaceVelocityFlagBits::LinearValid |
-                                   xr::SpaceVelocityFlagBits::AngularValid;
+    xr::SpaceVelocityFlags flags =
+        xr::SpaceVelocityFlagBits::LinearValid | xr::SpaceVelocityFlagBits::AngularValid;
     EXPECT_EQ(flags & xr::SpaceVelocityFlagBits::LinearValid,
               xr::SpaceVelocityFlagBits::LinearValid);
-    EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::LinearValid).operator bool(),
-              true);
+    EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::LinearValid).operator bool(), true);
     EXPECT_EQ(flags & xr::SpaceVelocityFlagBits::AngularValid,
               xr::SpaceVelocityFlagBits::AngularValid);
-    EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::AngularValid).operator bool(),
-              true);
+    EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::AngularValid).operator bool(), true);
     XrSpaceVelocityFlags cflags(flags);
-    EXPECT_EQ(cflags, XR_SPACE_VELOCITY_LINEAR_VALID_BIT |
-                          XR_SPACE_VELOCITY_ANGULAR_VALID_BIT);
+    EXPECT_EQ(cflags, XR_SPACE_VELOCITY_LINEAR_VALID_BIT | XR_SPACE_VELOCITY_ANGULAR_VALID_BIT);
   }
 
   {
     xr::SpaceVelocityFlags flags = xr::SpaceVelocityFlagBits::LinearValid;
     EXPECT_EQ(flags & xr::SpaceVelocityFlagBits::LinearValid,
               xr::SpaceVelocityFlagBits::LinearValid);
-    EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::LinearValid).operator bool(),
-              true);
-    EXPECT_EQ(flags & xr::SpaceVelocityFlagBits::AngularValid,
-              xr::SpaceVelocityFlagBits::None);
-    EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::AngularValid).operator bool(),
-              false);
+    EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::LinearValid).operator bool(), true);
+    EXPECT_EQ(flags & xr::SpaceVelocityFlagBits::AngularValid, xr::SpaceVelocityFlagBits::None);
+    EXPECT_EQ((flags & xr::SpaceVelocityFlagBits::AngularValid).operator bool(), false);
     XrSpaceVelocityFlags cflags(flags);
     EXPECT_EQ(cflags, XR_SPACE_VELOCITY_LINEAR_VALID_BIT);
   }
@@ -45,8 +39,7 @@ TEST_F(OpenXrFlagsTest, flagsTest) {
     xr::SpaceVelocityFlags flags = xr::SpaceVelocityFlagBits::LinearValid;
     EXPECT_EQ(~flags & xr::SpaceVelocityFlagBits::AngularValid,
               xr::SpaceVelocityFlagBits::AngularValid);
-    EXPECT_EQ(~flags & xr::SpaceVelocityFlagBits::LinearValid,
-              xr::SpaceVelocityFlagBits::None);
+    EXPECT_EQ(~flags & xr::SpaceVelocityFlagBits::LinearValid, xr::SpaceVelocityFlagBits::None);
   }
 
   {
@@ -57,14 +50,12 @@ TEST_F(OpenXrFlagsTest, flagsTest) {
   }
 
   {
-    auto flags = xr::SpaceVelocityFlagBits::LinearValid |
-                 xr::SpaceVelocityFlagBits::AngularValid;
+    auto flags = xr::SpaceVelocityFlagBits::LinearValid | xr::SpaceVelocityFlagBits::AngularValid;
     EXPECT_TRUE((std::is_same<decltype(flags), xr::SpaceVelocityFlags>::value));
   }
 
   {
-    auto flags = xr::SpaceVelocityFlagBits::LinearValid |
-                 xr::SpaceVelocityFlagBits::AngularValid;
+    auto flags = xr::SpaceVelocityFlagBits::LinearValid | xr::SpaceVelocityFlagBits::AngularValid;
     EXPECT_TRUE((std::is_same<decltype(flags), xr::SpaceVelocityFlags>::value));
   }
 }
