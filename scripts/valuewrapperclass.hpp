@@ -103,11 +103,11 @@
 
 //# block method_put_body
 //#     if not cannot_clear
-        if (clear) val_ = /*{ invalid if invalid else "0"}*/;
+        if (clear) val_ = /*{ invalid if invalid else "{}"}*/;
 //#     endif
         return &val_;
 //# endblock method_put_body
 
 //# block private
-    /*{ raw_type }*/ val_/*% if not suppress_nsdmi %*/{/*{ invalid }*/}/*% endif %*/;
+    /*{ raw_type }*/ val_{/*{ invalid if invalid }*/};
 //# endblock private
