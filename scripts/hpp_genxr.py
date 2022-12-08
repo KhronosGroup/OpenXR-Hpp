@@ -58,17 +58,17 @@ def makeREstring(strings, default=None):
 
 def genTarget(args):
     """
-    Generate a target based on the options in the matching genOpts{} object.
+    Create an API generator and corresponding generator options based on
+    the requested target and command line options.
 
     This is encapsulated in a function so it can be profiled and/or timed.
     The args parameter is an parsed argument object containing the following
     fields that are used:
-    target - target to generate
-    directory - directory to generate it in
-    protect - True if re-inclusion wrappers should be created
-    extensions - list of additional extensions to include in generated
-    interfaces
-    """
+    - target - target to generate
+    - directory - directory to generate it in
+    - protect - True if re-inclusion wrappers should be created
+    - extensions - list of additional extensions to include in generated interfaces"""
+
     # Create generator options with specified parameters
     header = args.target
     if 'dispatch' in args.target:
@@ -107,17 +107,11 @@ def genTarget(args):
         write('* options.removeExtensions  =', options.removeExtensions, file=sys.stderr)
         write('* options.emitExtensions    =', options.emitExtensions, file=sys.stderr)
 
-    startTimer(args.time)
     gen = CppGenerator(errFile=errWarn,
                        warnFile=errWarn,
                        diagFile=diag,
                        quiet=args.quiet)
-    reg.setGenerator(gen)
-    reg.apiGen(options)
-
-    if not args.quiet:
-        write('* Generated', options.filename, file=sys.stderr)
-    endTimer(args.time, '* Time to generate ' + options.filename + ' =')
+    return (gen, options)
 
 
 # -feature name
@@ -157,8 +151,8 @@ if __name__ == '__main__':
     parser.add_argument('-profile', action='store_true',
                         help='Enable profiling')
     parser.add_argument('-registry', action='store',
-                        default='vk.xml',
-                        help='Use specified registry file instead of vk.xml')
+                        default='xr.xml',
+                        help='Use specified registry file instead of xr.xml')
     parser.add_argument('-time', action='store_true',
                         help='Enable timing')
     parser.add_argument('-validate', action='store_true',
@@ -170,26 +164,14 @@ if __name__ == '__main__':
                         help='Specify target')
     parser.add_argument('-quiet', action='store_true', default=False,
                         help='Suppress script output during normal execution.')
+    parser.add_argument('-verbose', action='store_false', dest='quiet', default=True,
+                        help='Enable script output during normal execution.')
 
     args = parser.parse_args()
 
     # This splits arguments which are space-separated lists
     args.feature = [name for arg in args.feature for name in arg.split()]
     args.extension = [name for arg in args.extension for name in arg.split()]
-
-    # Load & parse registry
-    reg = Registry()
-
-    startTimer(args.time)
-    reg.loadFile(args.registry)
-    endTimer(args.time, '* Time to make and parse ElementTree =')
-
-    if args.validate:
-        reg.validateGroups()
-
-    if args.dump:
-        write('* Dumping registry to regdump.txt', file=sys.stderr)
-        reg.dumpReg(filehandle=open('regdump.txt', 'w', encoding='utf-8'))
 
     # create error/warning & diagnostic files
     if args.errfile:
@@ -202,14 +184,37 @@ if __name__ == '__main__':
     else:
         diag = None
 
+    # Create the API generator & generator options
+    (gen, options) = genTarget(args)
+
+    # Create the registry object with the specified generator and generator
+    # options. The options are set before XML loading as they may affect it.
+    reg = Registry(gen, options)
+
+    # Parse the specified registry XML into an ElementTree object
+    startTimer(args.time)
+    reg.loadFile(args.registry)
+    endTimer(args.time, '* Time to make and parse ElementTree =')
+
+    if args.validate:
+        reg.validateGroups()
+
+    if args.dump:
+        write('* Dumping registry to regdump.txt', file=sys.stderr)
+        reg.dumpReg(filehandle=open('regdump.txt', 'w', encoding='utf-8'))
+
     if args.debug:
         import pdb
-        pdb.run('genTarget(args)')
+        pdb.run('reg.apiGen()')
     elif args.profile:
         import cProfile
         import pstats
-        cProfile.run('genTarget(args)', 'profile.txt')
+        cProfile.run('reg.apiGen()', 'profile.txt')
         p = pstats.Stats('profile.txt')
         p.strip_dirs().sort_stats('time').print_stats(50)
     else:
-        genTarget(args)
+        startTimer(args.time)
+        reg.apiGen()
+        if not args.quiet:
+            write('* Generated', options.filename, file=sys.stderr)
+        endTimer(args.time, '* Time to generate ' + options.filename + ' =')

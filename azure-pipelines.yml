@@ -14,9 +14,8 @@ jobs:
 
     steps:
       - script: |
-          sudo apt-add-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-6.0 main"
           sudo apt-get update
-          sudo apt-get install -y libgtest-dev clang-format-6.0
+          sudo apt-get install -y libgtest-dev clang-format
         displayName: 'Install required packages'
 
       - script: |
@@ -26,12 +25,12 @@ jobs:
         displayName: "Clone OpenXR-SDK-Source"
 
       - script: ./generate-openxr-hpp.sh
-        displayName: "Generate header"
+        displayName: "Generate headers"
 
       - task: PublishPipelineArtifact@1
         inputs:
-          targetPath: "$(Build.SourcesDirectory)/include/openxr/openxr.hpp"
-          artifact: "openxr-hpp-header"
+          targetPath: "$(Build.SourcesDirectory)/include/openxr"
+          artifact: "openxr-hpp-headers"
           publishLocation: "pipeline"
 
       # - script: |
