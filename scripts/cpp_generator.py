@@ -942,12 +942,16 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         return self.dict_bitmasks[flags.valid_flags]
 
     def _is_struct_input(self, struct):
+        if struct.name.startswith("XrEventData"):
+            return False
         nextptr = [x.cdecl for x in struct.members
                    if x.name == 'next']
         return nextptr and 'const' in nextptr[0]
 
     def _is_struct_output(self, struct):
         if struct.returned_only:
+            return True
+        if struct.name.startswith("XrEventData"):
             return True
         nextptr = [x.cdecl for x in struct.members
                    if x.name == 'next']
