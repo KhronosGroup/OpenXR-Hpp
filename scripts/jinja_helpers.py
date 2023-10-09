@@ -63,7 +63,7 @@ def _undecorate(name):
 
 
 def _quote_string(s):
-    return '"{}"'.format(s)
+    return f'"{s}"'
 
 
 def _base_name(name):
@@ -75,28 +75,30 @@ def _collapse_whitespace(s):
 
 
 def _protect_begin(entity, parent=None):
-    if not entity: return None
+    if not entity:
+        return None
     lines = []
     if hasattr(entity, 'ext_name') and not entity.ext_name.startswith("XR_VERSION"):
         if not parent or not hasattr(parent, 'ext_name') or parent.ext_name != entity.ext_name:
-            lines.append("#ifdef {}".format(entity.ext_name))
+            lines.append(f"#ifdef {entity.ext_name}")
     if entity.protect_value:
         if not parent or parent.protect_string != entity.protect_string:
             # No need to double-protect if condition the same
-            lines.append("#if {}".format(entity.protect_string))
+            lines.append(f"#if {entity.protect_string}")
     return "\n".join(lines)
 
 
 def _protect_end(entity, parent=None):
-    if not entity: return None
+    if not entity:
+        return None
     lines = []
     if entity.protect_value:
         if not parent or parent.protect_string != entity.protect_string:
             # No need to double-protect if condition the same
-            lines.append("#endif // {}".format(entity.protect_string))
+            lines.append(f"#endif // {entity.protect_string}")
     if hasattr(entity, 'ext_name') and not entity.ext_name.startswith("XR_VERSION"):
         if not parent or not hasattr(parent, 'ext_name') or parent.ext_name != entity.ext_name:
-            lines.append("#endif  // {}".format(entity.ext_name))
+            lines.append(f"#endif  // {entity.ext_name}")
     return "\n".join(lines)
 
 
