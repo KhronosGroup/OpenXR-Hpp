@@ -305,7 +305,7 @@ class MethodProjection:
         self.bare_return_type = self.return_type
 
         self.return_codes = cmd.return_values[:]
-        self.cpp_return_codes = [f"Result::{gen.createEnumValue(x, 'XrResult')}"
+        self.cpp_return_codes = [f"Result::{gen.create_enum_value(x, 'XrResult')}"
                                  for x in self.return_codes]
 
         self.return_statement = "return result;"
@@ -433,7 +433,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         # Disabled - there is one in the template.
         pass
 
-    def computeNullAtom(self, typename):
+    def compute_null_atom(self, typename):
         null_atom = self.conventions.generate_structure_type_from_name(typename)
         name = null_atom.replace('XR_TYPE', 'XR_NULL')
         assert self.registry
@@ -443,7 +443,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             return '0'
         return name
 
-    def findVendorSuffix(self, name):
+    def find_vendor_suffix(self, name):
         if not self.vendor_regex:
             # Populate this regex on first usage
             tags = "|".join(self.vendor_tags)
@@ -453,25 +453,25 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if m:
             return m.group('vendor')
 
-    def getEnumValuePrefixSuffix(self, typename):
+    def get_enum_value_prefix_suffix(self, typename):
         if typename in RULE_BREAKING_ENUMS:
             prefix = RULE_BREAKING_ENUMS[typename]
         else:
             prefix = self.conventions.generate_structure_type_from_name(typename)
             prefix = prefix.replace('XR_TYPE', 'XR')
-        suffix = self.findVendorSuffix(prefix)
+        suffix = self.find_vendor_suffix(prefix)
         if suffix:
             prefix = _strip_suffix(prefix, f"_{suffix}")
         return prefix, suffix
 
-    def createEnumValue(self, name, typename):
-        prefix, type_suffix = self.getEnumValuePrefixSuffix(typename)
+    def create_enum_value(self, name, typename):
+        prefix, type_suffix = self.get_enum_value_prefix_suffix(typename)
         name = _strip_prefix(name, f"{prefix}_")
         suffix = None
         if type_suffix:
             name = _strip_suffix(name, f"_{type_suffix}")
 
-        suffix = self.findVendorSuffix(name)
+        suffix = self.find_vendor_suffix(name)
         if suffix:
             name = _strip_suffix(name, f"_{suffix}")
         enum_name = _to_camel_case(name)
@@ -481,10 +481,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         return enum_name
 
-    def getFlagValuePrefixSuffix(self, typename):
+    def get_flag_value_prefix_suffix(self, typename):
         prefix = self.conventions.generate_structure_type_from_name(typename)
         prefix = prefix.replace('XR_TYPE', 'XR')
-        suffix = self.findVendorSuffix(prefix)
+        suffix = self.find_vendor_suffix(prefix)
         if suffix:
             prefix = _strip_suffix(prefix, f"_{suffix}")
             suffix = f"BIT_{suffix}"
@@ -494,14 +494,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         prefix = prefix[:-len('_FLAG_BITS')]
         return prefix, suffix
 
-    def createFlagValue(self, name, typename):
-        prefix, type_suffix = self.getFlagValuePrefixSuffix(typename)
+    def create_flag_value(self, name, typename):
+        prefix, type_suffix = self.get_flag_value_prefix_suffix(typename)
         name = _strip_prefix(name, f"{prefix}_")
         suffix = None
         if type_suffix:
             name = _strip_suffix(name, f"_{type_suffix}")
 
-        suffix = self.findVendorSuffix(name)
+        suffix = self.find_vendor_suffix(name)
         if suffix:
             name = _strip_suffix(name, f"_{suffix}")
         enum_name = _to_camel_case(name)
@@ -511,9 +511,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         return enum_name
 
-    def createEnumException(self, name):
-        enum_val = self.createEnumValue(name, 'XrResult')
-        suffix = self.findVendorSuffix(name)
+    def create_enum_exception(self, name):
+        enum_val = self.create_enum_value(name, 'XrResult')
+        suffix = self.find_vendor_suffix(name)
         if suffix:
             enum_val = _strip_suffix(enum_val, suffix)
         result = f"{enum_val.replace('Error', '')}Error"
@@ -644,7 +644,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         raw_tag = tag_member[0].values
         if not raw_tag:
             return None
-        return f"StructureType::{self.createEnumValue(raw_tag, 'XrStructureType')}"
+        return f"StructureType::{self.create_enum_value(raw_tag, 'XrStructureType')}"
 
     def _enhanced_method_detect_twocall(self, method):
         # Find the three important parameters
@@ -872,7 +872,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def _append_to_method_name_before_vendor(self, method, s):
         "Append a string to the end of the cpp_name of a method, but before any vendor suffix."
-        vendor = self.findVendorSuffix(method.cpp_name)
+        vendor = self.find_vendor_suffix(method.cpp_name)
         if vendor:
             # Keep the vendor suffix on the end.
             method.cpp_name = _strip_suffix(method.cpp_name, vendor)
@@ -885,9 +885,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         generated_warning = '// *********** THIS FILE IS GENERATED - DO NOT EDIT ***********\n'
         generated_warning += '//     See cpp_generator.py for modifications\n'
         generated_warning += '// ************************************************************\n'
-        assert (self.createEnumValue("XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT", "XrStructureType")
+        assert (self.create_enum_value("XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT", "XrStructureType")
                 == "SpatialAnchorSpaceCreateInfoMSFT")
-        assert (self.createEnumValue("XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT", "XrPerfSettingsSubDomainEXT")
+        assert (self.create_enum_value("XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT", "XrPerfSettingsSubDomainEXT")
                 == "Compositing")
         write(generated_warning, file=self.outFile)
 
@@ -905,14 +905,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.env.tests['struct_input'] = self._is_struct_input
         self.template = JinjaTemplate(self.env, f"template_{genOpts.filename}")
 
-    def extensionReturnCodesForCommand(self, cur_cmd):
+    def extension_return_codes_for_command(self, cur_cmd):
         assert self.registry
         return (x for x
                 in self.registry.commandextensionerrors + self.registry.commandextensionsuccesses
                 if x.command == cur_cmd.name)
 
-    def allReturnCodesForCommand(self, cur_cmd):
-        return cur_cmd.return_values + list(self.extensionReturnCodesForCommand(cur_cmd))
+    def all_return_codes_for_command(self, cur_cmd):
+        return cur_cmd.return_values + list(self.extension_return_codes_for_command(cur_cmd))
 
     def _is_base_only(self, struct):
         if not struct:
@@ -957,28 +957,28 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         return False
 
     def _get_default_for_member(self, member, struct_name=None, default_val="{}"):
-        defaultValue = default_val
+        default_value = default_val
         if member.pointer_count > 0 or (member.type == 'char' and member.is_array):
-            defaultValue = "nullptr"
+            default_value = "nullptr"
         elif member.type.startswith("uint") or member.type.startswith("int"):
-            defaultValue = "0"
+            default_value = "0"
         elif member.type.startswith("float"):
             # special case XrQuaternionf::w so a default constructor xr::Quaternionf is an identity
             if struct_name == 'XrQuaternionf' and member.name == 'w':
-                defaultValue = '1.0f'
+                default_value = '1.0f'
             else:
-                defaultValue = '0.0f'
+                default_value = '0.0f'
         elif member.type == "XrBool32":
-            defaultValue = "false"
+            default_value = "false"
         elif not self._is_tagged_type(member.type):
-            defaultValue = default_val
+            default_value = default_val
         elif member.type in self.dict_structs:
             member_struct = self.dict_structs[member.type]
             if self._is_struct_output(member_struct):
-                defaultValue = default_val
+                default_value = default_val
         else:
-            defaultValue = default_val
-        return defaultValue
+            default_value = default_val
+        return default_value
 
     def _is_type_defaultable(self, typename: str):
         if typename.startswith("uint") or typename.startswith("int") or typename.startswith("float"):
@@ -986,7 +986,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if typename == "XrBool32":
             return True
         if typename in self.dict_atoms:
-            return self.computeNullAtom(typename) is not None
+            return self.compute_null_atom(typename) is not None
         if self._is_tagged_type(typename):
             tag = self._get_tag(typename)
 
@@ -1035,8 +1035,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 result = f"const {_project_type_name(member.type)}& {member.name}{suffix}"
 
         if defaulted:
-            defaultValue = self._get_default_for_member(member, struct.name)
-            result = result + " = " + defaultValue
+            default_value = self._get_default_for_member(member, struct.name)
+            result += f" = {default_value}"
         return result
 
     def requires_platform_header(self, entity):
@@ -1154,11 +1154,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             registry=self.registry,
             null_instance_ok=VALID_FOR_NULL_INSTANCE,
             sorted_cmds=sorted_cmds,
-            create_enum_value=self.createEnumValue,
-            create_flag_value=self.createFlagValue,
+            create_enum_value=self.create_enum_value,
+            create_flag_value=self.create_flag_value,
             project_type_name=_project_type_name,
             result_enum=result_enum,
-            create_enum_exception=self.createEnumException,
+            create_enum_exception=self.create_enum_exception,
             basic_cmds=basic_cmds,
             enhanced_cmds=enhanced_cmds,
             enhanced_cmds_no_exceptions=enhanced_cmds_no_exceptions,
