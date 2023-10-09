@@ -802,8 +802,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.pointer_count > 0 and not param.is_const:
                 return False
 
-        if not self.quiet:
-            print(f"method {method.name} has output parameter {last_param.name} of type {last_param.type}")
+        # if not self.quiet:
+        #     print(f"method {method.name} has output parameter {last_param.name} of type {last_param.type}")
         return True
 
     def _enhanced_method_projection(self, method):
