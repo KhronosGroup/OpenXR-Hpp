@@ -128,7 +128,10 @@
 
 //#     set visible_members = struct.members | reject('cpp_hidden_member') | list
 
-//#     if visible_members | count > 0 or s.is_abstract
+//#     set is_event = struct.name.startswith("XrEventData") and struct.name != "XrEventDataBuffer"
+//#     if is_event
+        // No full constructor, app will not construct this type.
+//#     elif visible_members | count > 0 or s.is_abstract
 //#         if s.is_abstract
         //! Protected constructor: this type is abstract.
 //#         else
