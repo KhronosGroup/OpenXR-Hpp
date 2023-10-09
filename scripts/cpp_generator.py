@@ -541,38 +541,35 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         for param in method.decl_params:
             name = param.name
+            name_stripped = name.strip()
             cpp_type = _project_type_name(param.type)
 
             # Convert handles
             if param.type in self.dict_handles:
                 if param.pointer_count == 0:
                     # Input handle
-                    method.decl_dict[name] = "{} {}".format(
-                        cpp_type, name)
-                    method.access_dict[name] = "{}.get()".format(name.strip())
+                    method.decl_dict[name] = f"{cpp_type} {name}"
+                    method.access_dict[name] = f"{name_stripped}.get()"
                 elif param.pointer_count == 1:
                     # Output handle
-                    method.decl_dict[name] = "{}& {}".format(
-                        cpp_type, name)
-                    method.access_dict[name] = "{}.put()".format(name.strip())
+                    method.decl_dict[name] = f"{cpp_type}& {name}"
+                    method.access_dict[name] = f"{name_stripped}.put()"
                 continue
 
             # Convert enums
             if param.type in self.dict_enums:
                 if param.pointer_count == 0:
                     # Input enum
-                    method.decl_dict[name] = "{} {}".format(
-                        cpp_type, name)
-                    method.access_dict[name] = "OPENXR_HPP_NAMESPACE::get({})".format(name.strip())
+                    method.decl_dict[name] = f"{cpp_type} {name}"
+                    method.access_dict[name] = f"OPENXR_HPP_NAMESPACE::get({name_stripped})"
                 elif param.pointer_count == 1 and not is_two_call:
                     # Output enum
-                    method.decl_dict[name] = "{}& {}".format(
-                        cpp_type, name)
+                    method.decl_dict[name] = f"{cpp_type}& {name}"
                     method.pre_statements.append(
-                        "{} {}_tmp;".format(param.type, name.strip()))
-                    method.access_dict[name] = "&{}_tmp".format(name.strip())
+                        f"{param.type} {name_stripped}_tmp;")
+                    method.access_dict[name] = f"&{name_stripped}_tmp"
                     method.post_statements.append(
-                        "{name} = static_cast<{t}>({name}_tmp);".format(name=name.strip(), t=cpp_type))
+                        f"{name_stripped} = static_cast<{cpp_type}>({name_stripped}_tmp);")
                 continue
 
             # Convert structs
@@ -587,12 +584,12 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
             if param.is_const:
                 # Input struct
-                method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
-                method.access_dict[name] = "{}.get()".format(name.strip())
+                method.decl_dict[name] = f"const {cpp_type}& {name}"
+                method.access_dict[name] = f"{name_stripped}.get()"
             elif param.pointer_count == 1 and not is_two_call:
                 # Output struct
-                method.decl_dict[name] = "{}& {}".format(cpp_type, name)
-                method.access_dict[name] = "{}.put()".format(name.strip())
+                method.decl_dict[name] = f"{cpp_type}& {name}"
+                method.access_dict[name] = f"{name_stripped}.put()"
 
         # Convert atoms, plus XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
         for param in method.decl_params:
@@ -602,8 +599,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 continue
             name = param.name
             cpp_type = _project_type_name(param.type)
-            method.decl_dict[name] = "{} {}".format(cpp_type, name)
-            method.access_dict[name] = "{}.get()".format(name.strip())
+            method.decl_dict[name] = f"{cpp_type} {name}"
+            method.access_dict[name] = f"{name.strip()}.get()"
 
     def _update_enhanced_return_type(self, method):
         """Set the return type based on the bare return type.
@@ -614,10 +611,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             # we always have to return the Result.
             if method.bare_return_type == "void":
                 method.return_type = "Result"
-                method.return_statement = 'return {};'.format(method.returns[0])
+                method.return_statement = f'return {method.returns[0]};'.format()
             else:
                 method.return_type = "ResultValue<{}>".format(method.bare_return_type)
-                method.return_statement = 'return { %s, std::move(%s) };' % (method.returns[0], method.returns[1])
+                method.return_statement = f'return {{ {method.returns[0]}, std::move({method.returns[1]}) }};'
         else:
             # OK, we will throw an exception if allowed and just directly return the output.
             method.explicit_result_elided = True
@@ -897,10 +894,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         generated_warning = '// *********** THIS FILE IS GENERATED - DO NOT EDIT ***********\n'
         generated_warning += '//     See cpp_generator.py for modifications\n'
         generated_warning += '// ************************************************************\n'
-        assert(self.createEnumValue("XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT", "XrStructureType")
-               == "SpatialAnchorSpaceCreateInfoMSFT")
-        assert(self.createEnumValue("XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT", "XrPerfSettingsSubDomainEXT")
-               == "Compositing")
+        assert (self.createEnumValue("XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT", "XrStructureType")
+                == "SpatialAnchorSpaceCreateInfoMSFT")
+        assert (self.createEnumValue("XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT", "XrPerfSettingsSubDomainEXT")
+                == "Compositing")
         write(generated_warning, file=self.outFile)
 
     # Call the base class to properly begin the file, and then add
