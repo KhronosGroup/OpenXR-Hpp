@@ -245,6 +245,7 @@ class StructProjection:
     @property
     def next_param_decl_with_default(self):
         if self.typed_struct:
+            assert self.next_param_decl
             return self.next_param_decl + " = nullptr"
         return None
 
@@ -438,6 +439,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def computeNullAtom(self, typename):
         null_atom = self.conventions.generate_structure_type_from_name(typename)
         name = null_atom.replace('XR_TYPE', 'XR_NULL')
+        assert self.registry
         if not self.registry.reg.findall(f"types/type[name = '{name}']"):
             # Not all extensions define a NULL value for their atoms, so we have to fall back to a zero value.
             # I'm looking at you XR_FB_spatial_entity
@@ -732,6 +734,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.masks_simple = False
         # Should we put "ToVector" on the method name?
         needs_name_decoration = True
+        assert array_param
         item_type = array_param['param'].type
         method.item_type = item_type
 
@@ -906,6 +909,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     #   gen_opts        the ConformanceLayerHeaderGeneratorOptions object
     def beginFile(self, genOpts):
         AutomaticSourceOutputGenerator.beginFile(self, genOpts)
+        assert self.genOpts
         self.conventions = self.genOpts.conventions
         self.env.globals['filename'] = genOpts.filename
         self.env.tests['cpp_hidden_member'] = self._cpp_hidden_member
@@ -915,6 +919,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             self.env, "template_{}".format(genOpts.filename))
 
     def extensionReturnCodesForCommand(self, cur_cmd):
+        assert self.registry
         return (x for x
                 in self.registry.commandextensionerrors + self.registry.commandextensionsuccesses
                 if x.command == cur_cmd.name)
@@ -1019,7 +1024,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 return i + 1
         return 0
 
-    def _project_cppdecl(self, struct, member, defaulted=False, suffix="", input=False):
+    def _project_cppdecl(self, struct, member, defaulted=False, suffix="", in_decl=False):
         result = member.cdecl.strip()
         if "[" in result:
             # Insert the suffix before the array decl
@@ -1035,7 +1040,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if (member.is_const):
             result = "const " + result
 
-        if input:
+        if in_decl:
             if member.type == 'char' and member.is_array and member.pointer_count == 0:
                 # We'll initialize a fixed-size string with a cstring.
                 result = "const char* " + member.name + suffix
@@ -1072,8 +1077,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.dict_enums = {}
         for enum in self.api_enums:
             self.dict_enums[enum.name] = enum
-            if enum.name == 'XrResult':
-                result_enum = enum
+
+        result_enum = self.dict_enums['XrResult']
 
         self.dict_structs = {}
         for struct in self.api_structures:
@@ -1096,6 +1101,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.projected_types.difference_update(SKIP_PROJECTION)
 
         # Every type mentioned in some other type's parentstruct attribute.
+        assert self.registry
         struct_parents = ((otherType, otherType.elem.get('parentstruct'))
                           for otherType in self.registry.typedict.values())
         self.struct_parents = {child.elem.get('name'): parent for child, parent in struct_parents
@@ -1152,7 +1158,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                     unique_cmds_no_exceptions[cmd.name] = unique_noexcept
                 else:
                     # assumption violated
-                    assert(False)
+                    assert False
         # Verify
         self.selftests()
 
@@ -1194,12 +1200,12 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         AutomaticSourceOutputGenerator.endFile(self)
 
     def selftests(self):
-        assert(self._is_struct_input(self.dict_structs['XrCompositionLayerProjection']))
-        assert(self._is_struct_input(self.dict_structs['XrCompositionLayerBaseHeader']))
-        assert(not self._is_struct_input(self.dict_structs['XrApplicationInfo']))
-        assert(not self._is_struct_output(self.dict_structs['XrApplicationInfo']))
+        assert self._is_struct_input(self.dict_structs['XrCompositionLayerProjection'])
+        assert self._is_struct_input(self.dict_structs['XrCompositionLayerBaseHeader'])
+        assert not self._is_struct_input(self.dict_structs['XrApplicationInfo'])
+        assert not self._is_struct_output(self.dict_structs['XrApplicationInfo'])
 
-        assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'], self.dict_structs['XrApplicationInfo'].members) == 0)
+        assert self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'], self.dict_structs['XrApplicationInfo'].members) == 0
         # index = self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members)
         # print(index)
         # assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members) == 0)

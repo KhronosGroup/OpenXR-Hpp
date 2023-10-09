@@ -56,7 +56,7 @@
 //#    set arg_comma = joiner(", ")
                   /*%- if s.is_abstract %*/ /*{ arg_comma() }*/ StructureType type_ /*% endif -%*/
 //#    for member in visible_members
-                  /*{- arg_comma() }*/ /*{ project_cppdecl(struct, member, defaulted=(allowDefaulting and (loop.index0 >= first_defaultable_index0)), suffix="_", input=True) -}*/
+                  /*{- arg_comma() }*/ /*{ project_cppdecl(struct, member, defaulted=(allowDefaulting and (loop.index0 >= first_defaultable_index0)), suffix="_", in_decl=True) -}*/
 //#    endfor
 //#    if s.typed_struct
                   /*{- arg_comma() }*/ /*{ s.next_param_decl_with_default -}*/
