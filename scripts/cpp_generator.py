@@ -264,7 +264,6 @@ class StructProjection:
 
 DISPATCH_TEMPLATE_PARAM_NAME = "Dispatch"
 DISPATCH_TEMPLATE_DEFN = f"typename {DISPATCH_TEMPLATE_PARAM_NAME}"
-# ENABLE_IF_TEMPLATE_DEFN = "typename std::enable_if<traits::is_dispatch<{}>::value, int>::type".format(DISPATCH_TEMPLATE_PARAM_NAME)
 ENABLE_IF_TEMPLATE_DEFN = f"OPENXR_HPP_REQUIRE_DISPATCH({DISPATCH_TEMPLATE_PARAM_NAME})"
 
 ENABLE_IF_TEMPLATE_DECL = f"{ENABLE_IF_TEMPLATE_DEFN} = 0"
@@ -394,11 +393,9 @@ class MethodProjection:
         def find_invoke(name):
             if replacements and name in replacements:
                 return replacements.get(name)
-            return self.access_dict.get(name)
-        invocation_params = (find_invoke(param.name) for param in self.params)
-        return "Result result = static_cast<Result>( d.{}({}) );".format(
-            self.name, ", ".join(invocation_params)
-        )
+            return self.access_dict[name]
+        invocation_params = ", ".join(find_invoke(param.name) for param in self.params)
+        return f"Result result = static_cast<Result>( d.{self.name}({invocation_params}) );"
 
     def get_invocation(self, **kwargs):
         lines = self.pre_statements[:]
@@ -611,7 +608,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             # we always have to return the Result.
             if method.bare_return_type == "void":
                 method.return_type = "Result"
-                method.return_statement = f'return {method.returns[0]};'.format()
+                method.return_statement = f'return {method.returns[0]};'
             else:
                 method.return_type = f"ResultValue<{method.bare_return_type}>"
                 method.return_statement = f'return {{ {method.returns[0]}, std::move({method.returns[1]}) }};'
@@ -625,18 +622,12 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 method.return_statement = f'return {method.returns[1]};'
 
         if method.return_template_params:
-            # tmpl = "<{}>".format(",".join(method.return_template_params))
-            return_val = f"{method.bare_return_type}({', '.join(method.returns[1:])})"
+            returns = ', '.join(method.returns[1:])
+            return_val = f"{method.bare_return_type}({returns})"
             if method.multiple_success_codes or not method.exceptions_permitted:
-                method.return_statement = 'return { %s, %s };' % (method.returns[0], return_val)
+                method.return_statement = f'return {{ {method.returns[0]}, {return_val} }};'
             else:
                 method.return_statement = f'return {return_val};'
-        # method.return_statement = 'return impl::createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
-        #     tmpl=tmpl,
-        #     rets=",".join(method.returns),
-        #     name=method.qualified_name, successes=method.successes_arg)
-        # else:
-        #     tmpl = ""
 
     def _is_tagged_type(self, typename):
         if typename not in self.dict_structs:

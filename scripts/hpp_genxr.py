@@ -39,7 +39,7 @@ from xrconventions import OpenXRConventions
 def makeREstring(strings: Iterable[str], default: typing.Optional[str] = None) -> str:
     """Turn a list of strings into a regexp string matching exactly those strings."""
     if strings or default is None:
-        return '^(' + '|'.join((re.escape(s) for s in strings)) + ')$'
+        return f"^({'|'.join(re.escape(s) for s in strings)})$"
     return default
 
 
