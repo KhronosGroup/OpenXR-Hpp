@@ -1007,10 +1007,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             return True
         return True
 
-    def _index0_of_first_visible_defaultable_member(self, members):
+    def _index0_of_first_visible_defaultable_member(self, struct_data, members):
         for i, member in reversed(tuple(enumerate(x for x in members if not self._cpp_hidden_member(x)))):
             if not self._is_member_defaultable(member):
-                raise RuntimeError("Found a non-defaultable member, errors possible elsewhere due to untested codepath.")
+                raise RuntimeError(
+                    f"Found a non-defaultable member, errors possible elsewhere due to untested codepath: in {struct_data.name}: {member.cdecl.strip()}")
                 return i + 1
         return 0
 
@@ -1193,9 +1194,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         assert(self._is_struct_input(self.dict_structs['XrCompositionLayerBaseHeader']))
         assert(not self._is_struct_input(self.dict_structs['XrApplicationInfo']))
         assert(not self._is_struct_output(self.dict_structs['XrApplicationInfo']))
-        # index = self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'].members)
-        # print(index)
-        assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'].members) == 0)
+
+        assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'], self.dict_structs['XrApplicationInfo'].members) == 0)
         # index = self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members)
         # print(index)
         # assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members) == 0)

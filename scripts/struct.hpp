@@ -52,7 +52,7 @@
 
 //# macro _makeFullInitializingConstructor(struct, s, visible_members, allowDefaulting)
         /*{ s.cpp_name }*/ (
-//#    set first_defaultable_index0 = index0_of_first_visible_defaultable_member(visible_members)
+//#    set first_defaultable_index0 = index0_of_first_visible_defaultable_member(struct, visible_members)
 //#    set arg_comma = joiner(", ")
                   /*%- if s.is_abstract %*/ /*{ arg_comma() }*/ StructureType type_ /*% endif -%*/
 //#    for member in visible_members
