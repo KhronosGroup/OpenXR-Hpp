@@ -66,6 +66,10 @@ SKIP_PROJECTION = set((
     'XrEventDataSpaceQueryResultsAvailableFB',
     'XrEventDataSpaceSaveCompleteFB',
     'XrSpaceSaveInfoFB',
+
+    # The alias is confusing things
+    'XrDevicePcmSampleRateGetInfoFB',
+    'XrDevicePcmSampleRateStateFB',
 ))
 
 TWO_CALL_STRING_NAME = "buffer"
