@@ -273,7 +273,7 @@ class StructProjection:
 DISPATCH_TEMPLATE_PARAM_NAME = "Dispatch"
 DISPATCH_TEMPLATE_DEFN = "typename " + DISPATCH_TEMPLATE_PARAM_NAME
 # ENABLE_IF_TEMPLATE_DEFN = "typename std::enable_if<traits::is_dispatch<{}>::value, int>::type".format(DISPATCH_TEMPLATE_PARAM_NAME)
-ENABLE_IF_TEMPLATE_DEFN = "OPENXR_HPP_REQUIRE_DISPATCH({})".format(DISPATCH_TEMPLATE_PARAM_NAME)
+ENABLE_IF_TEMPLATE_DEFN = f"OPENXR_HPP_REQUIRE_DISPATCH({DISPATCH_TEMPLATE_PARAM_NAME})"
 
 ENABLE_IF_TEMPLATE_DECL = ENABLE_IF_TEMPLATE_DEFN + " = 0"
 
@@ -345,7 +345,7 @@ class MethodProjection:
     @property
     def qualified_name(self):
         if self.handle and self.is_member_function:
-            return "{}::{}".format(self.cpp_handle, self.cpp_name)
+            return f"{self.cpp_handle}::{self.cpp_name}"
         return self.cpp_name
 
     def _declparams(self, replacements=None):
@@ -361,7 +361,7 @@ class MethodProjection:
     def prose_bare_return(self):
         if 'string' in self.bare_return_type:
             return "the output string"
-        return "the output of type %s" % self.bare_return_type
+        return f"the output of type {self.bare_return_type}"
 
     def get_template_decls(self, suppress_default_dispatch_arg=False):
         decls = self.template_decl_list[:]
@@ -618,7 +618,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 method.return_type = "Result"
                 method.return_statement = f'return {method.returns[0]};'.format()
             else:
-                method.return_type = "ResultValue<{}>".format(method.bare_return_type)
+                method.return_type = f"ResultValue<{method.bare_return_type}>"
                 method.return_statement = f'return {{ {method.returns[0]}, std::move({method.returns[1]}) }};'
         else:
             # OK, we will throw an exception if allowed and just directly return the output.
@@ -627,15 +627,15 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if method.bare_return_type == "void":
                 method.return_statement = 'return;'
             else:
-                method.return_statement = 'return {};'.format(method.returns[1])
+                method.return_statement = f'return {method.returns[1]};'
 
         if method.return_template_params:
             # tmpl = "<{}>".format(",".join(method.return_template_params))
-            return_val = "{}({})".format(method.bare_return_type, ", ".join(method.returns[1:]))
+            return_val = f"{method.bare_return_type}({', '.join(method.returns[1:])})"
             if method.multiple_success_codes or not method.exceptions_permitted:
                 method.return_statement = 'return { %s, %s };' % (method.returns[0], return_val)
             else:
-                method.return_statement = 'return %s;' % return_val
+                method.return_statement = f'return {return_val};'
         # method.return_statement = 'return impl::createResultValue{tmpl}({rets}, OPENXR_HPP_NAMESPACE_STRING "::{name}"{successes});'.format(
         #     tmpl=tmpl,
         #     rets=",".join(method.returns),
@@ -749,9 +749,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if templated:
             vector_member_type = 'ResultItemType'
 
-        vec_type = "std::vector<{}, Allocator>".format(vector_member_type)
+        vec_type = f"std::vector<{vector_member_type}, Allocator>"
         method.vec_type = vec_type
-        method.template_decl_list.insert(0, "typename Allocator = std::allocator<{}>".format(vector_member_type))
+        method.template_decl_list.insert(0, f"typename Allocator = std::allocator<{vector_member_type}>")
         method.template_defn_list.insert(0, "typename Allocator")
 
         if templated:
@@ -837,7 +837,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.decl_params = [x for x in method.decl_params
                                   if x != outparam]
             method.decl_dict[outparam.name] = None
-            method.pre_statements.append("{} handle;".format(cpp_outtype))
+            method.pre_statements.append(f"{cpp_outtype} handle;")
             method.access_dict[outparam.name] = "handle.put()"
             method.returns.append("handle")
         elif method.is_destroy:
@@ -852,7 +852,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
             method.decl_params.pop()
             method.decl_dict[outparam.name] = None
-            method.pre_statements.append("{} returnVal;".format(cpp_outtype))
+            method.pre_statements.append(f"{cpp_outtype} returnVal;")
             if outparam.type in self.projected_types:
                 method.access_dict[outparam.name] = "OPENXR_HPP_NAMESPACE::put(returnVal)"
             else:
@@ -877,7 +877,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.return_template_params = [method.bare_return_type, "impl::RemoveRefConst<Dispatch>"]
         method.post_statements.append('ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};')
         method.handle_return_type = method.bare_return_type
-        method.bare_return_type = "UniqueHandle<{}, impl::RemoveRefConst<Dispatch>>".format(method.bare_return_type)
+        method.bare_return_type = f"UniqueHandle<{method.bare_return_type}, impl::RemoveRefConst<Dispatch>>"
         # method.returns[1] = "{}({}, {})"
         self._update_enhanced_return_type(method)
 
@@ -914,8 +914,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.env.tests['cpp_hidden_member'] = self._cpp_hidden_member
         self.env.tests['struct_output'] = self._is_struct_output
         self.env.tests['struct_input'] = self._is_struct_input
-        self.template = JinjaTemplate(
-            self.env, "template_{}".format(genOpts.filename))
+        self.template = JinjaTemplate(self.env, f"template_{genOpts.filename}")
 
     def extensionReturnCodesForCommand(self, cur_cmd):
         assert self.registry
