@@ -57,6 +57,15 @@ SKIP_PROJECTION = set((
     "XrBaseOutStructure",
     # Array of XrColor4f not getting initialized right
     "XrPassthroughColorMapMonoToRgbaFB",
+    # No "invalid" atom value
+    'XrAsyncRequestIdFB',
+    'XrEventDataSpatialAnchorCreateCompleteFB',
+    'XrEventDataSpaceSetStatusCompleteFB',
+    'XrEventDataSpaceQueryCompleteFB',
+    'XrEventDataSpaceEraseCompleteFB',
+    'XrEventDataSpaceQueryResultsAvailableFB',
+    'XrEventDataSpaceSaveCompleteFB',
+    'XrSpaceSaveInfoFB',
 ))
 
 TWO_CALL_STRING_NAME = "buffer"
