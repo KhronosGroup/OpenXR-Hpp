@@ -431,6 +431,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.env = make_jinja_environment(file_with_templates_as_sibs=__file__, trim_blocks=False)
         self.env.filters['block_doxygen_comment'] = _block_doxygen_comment
 
+        self.dict_extensions = {}
+        self.dict_handles = {}
+        self.dict_enums = {}
+        self.dict_structs = {}
+        self.dict_bitmasks = {}
+        self.dict_atoms = {}
+        self.projected_types = MANUALLY_PROJECTED.copy()
+
     def outputGeneratedAuthorNote(self):
         # Disabled
         pass
@@ -1051,34 +1059,28 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def endFile(self):
         sorted_cmds = self.core_commands + self.ext_commands
 
-        self.dict_extensions = {}
         for ext in self.extensions:
             self.dict_extensions[ext.name] = ext
 
-        self.dict_handles = {}
         for handle in self.api_handles:
             self.dict_handles[handle.name] = handle
 
-        self.dict_enums = {}
         for enum in self.api_enums:
             self.dict_enums[enum.name] = enum
 
         result_enum = self.dict_enums['XrResult']
 
-        self.dict_structs = {}
         for struct in self.api_structures:
             self.dict_structs[struct.name] = struct
 
-        self.dict_bitmasks = {}
         for bitmask in self.api_bitmasks:
             self.dict_bitmasks[bitmask.name] = bitmask
 
-        self.dict_atoms = {}
         for basetype in self.api_base_types:
             if basetype.type == "XR_DEFINE_ATOM":
                 self.dict_atoms[basetype.name] = basetype
 
-        self.projected_types = MANUALLY_PROJECTED.union(self.dict_handles.keys())
+        self.projected_types.update(self.dict_handles.keys())
         self.projected_types.update(self.dict_enums.keys())
         self.projected_types.update(self.dict_structs.keys())
         self.projected_types.update(self.dict_bitmasks.keys())
