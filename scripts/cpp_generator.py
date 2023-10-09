@@ -194,7 +194,7 @@ def _block_comment(s, doxygen=False):
              for prev, line in zip([""] + lines, lines)
              if prev or line]
     # Prepend the *
-    lines = [' * ' + line for line in lines]
+    lines = [f" * {line}" for line in lines]
     lines.insert(0, "/*!" if doxygen else "/*")
     lines.append(' */')
     lines.append('')
@@ -254,7 +254,7 @@ class StructProjection:
     def next_param_decl_with_default(self):
         if self.typed_struct:
             assert self.next_param_decl
-            return self.next_param_decl + " = nullptr"
+            return f"{self.next_param_decl} = nullptr"
         return None
 
     @property
@@ -271,11 +271,11 @@ class StructProjection:
 
 
 DISPATCH_TEMPLATE_PARAM_NAME = "Dispatch"
-DISPATCH_TEMPLATE_DEFN = "typename " + DISPATCH_TEMPLATE_PARAM_NAME
+DISPATCH_TEMPLATE_DEFN = f"typename {DISPATCH_TEMPLATE_PARAM_NAME}"
 # ENABLE_IF_TEMPLATE_DEFN = "typename std::enable_if<traits::is_dispatch<{}>::value, int>::type".format(DISPATCH_TEMPLATE_PARAM_NAME)
 ENABLE_IF_TEMPLATE_DEFN = f"OPENXR_HPP_REQUIRE_DISPATCH({DISPATCH_TEMPLATE_PARAM_NAME})"
 
-ENABLE_IF_TEMPLATE_DECL = ENABLE_IF_TEMPLATE_DEFN + " = 0"
+ENABLE_IF_TEMPLATE_DECL = f"{ENABLE_IF_TEMPLATE_DEFN} = 0"
 
 
 class MethodProjection:
@@ -314,7 +314,7 @@ class MethodProjection:
         self.bare_return_type = self.return_type
 
         self.return_codes = cmd.return_values[:]
-        self.cpp_return_codes = ['Result::' + gen.createEnumValue(x, 'XrResult')
+        self.cpp_return_codes = [f"Result::{gen.createEnumValue(x, 'XrResult')}"
                                  for x in self.return_codes]
 
         self.return_statement = "return result;"
@@ -327,7 +327,7 @@ class MethodProjection:
         self.returns = [self.result_name]
         self.return_template_params = []
 
-        self.dispatch = DISPATCH_TEMPLATE_PARAM_NAME + "&& d"
+        self.dispatch = f"{DISPATCH_TEMPLATE_PARAM_NAME}&& d"
         self.template_decl_list = [DISPATCH_TEMPLATE_DEFN]
         """Template parameters to use in the method (forward) declaration."""
 
@@ -369,9 +369,9 @@ class MethodProjection:
             for i, decl in enumerate(decls):
                 if DISPATCH_TEMPLATE_DEFN == decl:
                     if self.is_core:
-                        decls[i] = decl + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG"
+                        decls[i] = f"{decl} OPENXR_HPP_DEFAULT_CORE_DISPATCH_TYPE_ARG"
                     else:
-                        decls[i] = decl + " OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG"
+                        decls[i] = f"{decl} OPENXR_HPP_DEFAULT_EXT_DISPATCH_TYPE_ARG"
         return ", ".join(decls)
 
     @property
@@ -386,9 +386,9 @@ class MethodProjection:
         params.append(self.dispatch)
         if not suppress_default_dispatch_arg:
             if self.is_core:
-                params[-1] = params[-1] + " OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG"
+                params[-1] = f"{params[-1]} OPENXR_HPP_DEFAULT_CORE_DISPATCH_ARG"
             else:
-                params[-1] = params[-1] + " OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG"
+                params[-1] = f"{params[-1]} OPENXR_HPP_DEFAULT_EXT_DISPATCH_ARG"
         return params
 
     def get_definition_params(self, replacements=None, extras=None):
@@ -465,19 +465,19 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             prefix = prefix.replace('XR_TYPE', 'XR')
         suffix = self.findVendorSuffix(prefix)
         if suffix:
-            prefix = _strip_suffix(prefix, '_' + suffix)
+            prefix = _strip_suffix(prefix, f"_{suffix}")
         return prefix, suffix
 
     def createEnumValue(self, name, typename):
         prefix, type_suffix = self.getEnumValuePrefixSuffix(typename)
-        name = _strip_prefix(name, prefix + '_')
+        name = _strip_prefix(name, f"{prefix}_")
         suffix = None
         if type_suffix:
-            name = _strip_suffix(name, '_' + type_suffix)
+            name = _strip_suffix(name, f"_{type_suffix}")
 
         suffix = self.findVendorSuffix(name)
         if suffix:
-            name = _strip_suffix(name, '_' + suffix)
+            name = _strip_suffix(name, f"_{suffix}")
         enum_name = _to_camel_case(name)
 
         if suffix:
@@ -490,8 +490,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         prefix = prefix.replace('XR_TYPE', 'XR')
         suffix = self.findVendorSuffix(prefix)
         if suffix:
-            prefix = _strip_suffix(prefix, '_' + suffix)
-            suffix = 'BIT_' + suffix
+            prefix = _strip_suffix(prefix, f"_{suffix}")
+            suffix = f"BIT_{suffix}"
         else:
             suffix = 'BIT'
 
@@ -500,14 +500,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
     def createFlagValue(self, name, typename):
         prefix, type_suffix = self.getFlagValuePrefixSuffix(typename)
-        name = _strip_prefix(name, prefix + '_')
+        name = _strip_prefix(name, f"{prefix}_")
         suffix = None
         if type_suffix:
-            name = _strip_suffix(name, '_' + type_suffix)
+            name = _strip_suffix(name, f"_{type_suffix}")
 
         suffix = self.findVendorSuffix(name)
         if suffix:
-            name = _strip_suffix(name, '_' + suffix)
+            name = _strip_suffix(name, f"_{suffix}")
         enum_name = _to_camel_case(name)
 
         if suffix:
@@ -520,7 +520,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         suffix = self.findVendorSuffix(name)
         if suffix:
             enum_val = _strip_suffix(enum_val, suffix)
-        result = enum_val.replace('Error', '') + 'Error'
+        result = f"{enum_val.replace('Error', '')}Error"
         if suffix:
             result += suffix
         return result
@@ -658,7 +658,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         raw_tag = tag_member[0].values
         if not raw_tag:
             return None
-        return "StructureType::" + self.createEnumValue(raw_tag, "XrStructureType")
+        return f"StructureType::{self.createEnumValue(raw_tag, 'XrStructureType')}"
 
     def _enhanced_method_detect_twocall(self, method):
         # Find the three important parameters
@@ -769,7 +769,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.decl_dict[count_output_param_name] = None
         method.decl_dict[array_param_name] = None
 
-        method.access_dict[count_output_param_name] = "&" + count_output_param_name
+        method.access_dict[count_output_param_name] = f"&{count_output_param_name}"
 
         if item_type == "char":
             method.bare_return_type = "string_with_allocator<Allocator>"
@@ -804,7 +804,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 return False
 
         if not self.quiet:
-            print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
+            print(f"method {method.name} has output parameter {last_param.name} of type {last_param.type}")
         return True
 
     def _enhanced_method_projection(self, method):
@@ -1032,14 +1032,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if member.type.startswith("Xr"):
             result = _project_type_name(result)
         if (member.is_const):
-            result = "const " + result
+            result = f"const {result}"
 
         if in_decl:
             if member.type == 'char' and member.is_array and member.pointer_count == 0:
                 # We'll initialize a fixed-size string with a cstring.
-                result = "const char* " + member.name + suffix
+                result = f"const char* {member.name}{suffix}"
             elif member.type.startswith("Xr") and member.pointer_count == 0:
-                result = "const " + _project_type_name(member.type) + "& " + member.name + suffix
+                result = f"const {_project_type_name(member.type)}& {member.name}{suffix}"
 
         if defaulted:
             defaultValue = self._get_default_for_member(member, struct.name)
