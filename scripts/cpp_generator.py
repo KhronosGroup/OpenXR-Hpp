@@ -1018,11 +1018,11 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         else:
             result += suffix
         # Kind of hacky, perhaps switch _project_type_name to a regex based approach?
-        if (member.is_const):
+        if member.is_const:
             result = _strip_prefix(result, "const").strip()
         if member.type.startswith("Xr"):
             result = _project_type_name(result)
-        if (member.is_const):
+        if member.is_const:
             result = f"const {result}"
 
         if in_decl:
