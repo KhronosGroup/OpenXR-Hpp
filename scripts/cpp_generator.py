@@ -436,7 +436,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         null_atom = self.conventions.generate_structure_type_from_name(typename)
         name = null_atom.replace('XR_TYPE', 'XR_NULL')
         if not self.registry.reg.findall(f"types/type[name = '{name}']"):
-            return None
+            # Not all extensions define a NULL value for their atoms, so we have to fall back to a zero value.
+            # I'm looking at you XR_FB_spatial_entity
+            return '0'
         return name
 
     def findVendorSuffix(self, name):

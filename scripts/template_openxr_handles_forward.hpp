@@ -57,6 +57,10 @@ namespace traits {
 class DispatchLoaderStatic;
 class DispatchLoaderDynamic;
 
+// FIXME a hack to get this working, since I don't know how to appropriately force the code to not project the
+// XrSpaceUserIdFB name, and I don't want to make a openxr_spaceuseridfb.hpp file just for this.
+using SpaceUserIdFB = XrSpaceUserIdFB;
+
 //# for handle in gen.api_handles
 //## Note this won't actually find anything until automatic_source_generator.py is modified
 //## to actually store a value under "alias" for handles, but...
