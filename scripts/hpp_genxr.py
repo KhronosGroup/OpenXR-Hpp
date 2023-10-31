@@ -19,6 +19,9 @@ import os
 import re
 import sys
 import time
+import typing
+import subprocess
+from collections.abc import Iterable
 
 OPENXR = os.getenv("OPENXR_REPO")
 if not OPENXR:
@@ -33,30 +36,39 @@ from reg import Registry
 from xrconventions import OpenXRConventions
 
 # Simple timer functions
-startTime = None
+startTime: typing.Optional[float] = None
 
 
-def startTimer(timeit):
-    global startTime
-    startTime = time.process_time()
-
-
-def endTimer(timeit, msg):
-    global startTime
-    endTime = time.process_time()
+def startTimer(timeit: bool):
     if timeit:
+        global startTime
+        startTime = time.process_time()
+
+
+def endTimer(timeit: bool, msg: str):
+    if timeit:
+        global startTime
+        endTime = time.process_time()
         write(msg, endTime - startTime, file=sys.stderr)
         startTime = None
 
 
-def makeREstring(strings, default=None):
+def makeREstring(strings: Iterable[str], default: typing.Optional[str]=None) -> str:
     """Turn a list of strings into a regexp string matching exactly those strings."""
     if strings or default is None:
         return '^(' + '|'.join((re.escape(s) for s in strings)) + ')$'
     return default
 
+errWarn: typing.TextIO = sys.stderr
+diag: typing.TextIO = None
 
-def genTarget(args):
+def get_headers() -> typing.List[str]:
+    lines = []
+    with open(os.path.join('headers.txt'), 'r', encoding='utf-8') as f:
+        lines = [ line.strip() for line in f.readlines() if re.match('^openxr.*', line) is not None ]
+    return lines
+
+def genTarget(args) -> typing.Tuple[CppGenerator, AutomaticSourceGeneratorOptions]:
     """
     Create an API generator and corresponding generator options based on
     the requested target and command line options.
@@ -80,6 +92,11 @@ def genTarget(args):
             "XR_MSFT_controller_model",
             # Projection of static string fails
             "XR_MSFT_spatial_graph_bridge",
+            "XR_MSFT_spatial_anchor_persistence",
+            "XR_MSFT_holographic_window_attachment",
+            # Projection of UuidMSFT fails
+            "XR_MSFT_scene_understanding",
+            "XR_MSFT_scene_understanding_serialization",
         ))
 
     # Turn lists of names/patterns into matching regular expressions
@@ -118,7 +135,7 @@ def genTarget(args):
 # -extension name
 # For both, "name" may be a single name, or a space-separated list
 # of names, or a regular expression.
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-defaultExtensions', action='store',
@@ -136,6 +153,8 @@ if __name__ == '__main__':
     parser.add_argument('-feature', action='append',
                         default=[],
                         help='Specify a core API feature name or names to add to targets')
+    parser.add_argument('-format', action='store_true', default=False,
+                        help='Format the generated output using clang-format')
     parser.add_argument('-debug', action='store_true',
                         help='Enable debugging')
     parser.add_argument('-dump', action='store_true',
@@ -175,14 +194,24 @@ if __name__ == '__main__':
 
     # create error/warning & diagnostic files
     if args.errfile:
+        global errWarn
         errWarn = open(args.errfile, 'w', encoding='utf-8')
-    else:
-        errWarn = sys.stderr
 
     if args.diagfile:
+        global diag
         diag = open(args.diagfile, 'w', encoding='utf-8')
+
+    if args.target is not None:
+        # Replicate pre-existing behavior
+        generateHeader(args, args.target)
     else:
-        diag = None
+        # if no target is specified, execute all targets
+        for line in get_headers():
+            generateHeader(args, line)
+
+
+def generateHeader(args, header):
+    args.target = header
 
     # Create the API generator & generator options
     (gen, options) = genTarget(args)
@@ -218,3 +247,13 @@ if __name__ == '__main__':
         if not args.quiet:
             write('* Generated', options.filename, file=sys.stderr)
         endTimer(args.time, '* Time to generate ' + options.filename + ' =')
+
+    if args.format:
+        outputfile = os.path.join(args.directory, options.filename)
+        subprocess.run(['clang-format', '-style=file', '-i', outputfile])
+
+# Keeping this at the bottom so all function defintitions are in scope by the time it runs
+# If we left it where main() is now, then when main calls generateHeader(), it would fail
+# Conversely if I move generateHader() earlier, then the git diff wouldn't show it as unchanged
+if __name__ == '__main__':
+    main()
