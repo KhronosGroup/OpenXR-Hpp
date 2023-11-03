@@ -529,11 +529,12 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             # if method.cpp_name.endswith(method.cpp_handle):
             #     method.cpp_name = _strip_suffix(method.cpp_name, method.cpp_handle)
 
-        # Convert handles
         for param in method.decl_params:
+            name = param.name
+            cpp_type = _project_type_name(param.type)
+
+            # Convert handles
             if param.type in self.dict_handles:
-                name = param.name
-                cpp_type = _project_type_name(param.type)
                 if param.pointer_count == 0:
                     # Input handle
                     method.decl_dict[name] = "{} {}".format(
@@ -544,12 +545,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                     method.decl_dict[name] = "{}& {}".format(
                         cpp_type, name)
                     method.access_dict[name] = "{}.put()".format(name.strip())
+                continue
 
-        # Convert enums
-        for param in method.decl_params:
+            # Convert enums
             if param.type in self.dict_enums:
-                name = param.name
-                cpp_type = _project_type_name(param.type)
                 if param.pointer_count == 0:
                     # Input enum
                     method.decl_dict[name] = "{} {}".format(
@@ -564,9 +563,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                     method.access_dict[name] = "{}_tmp".format(name.strip())
                     method.post_statements.append(
                         "{name} = static_cast<{t}>({name}_tmp);".format(name=name.strip(), t=cpp_type))
+                continue
 
-        # Convert structs
-        for param in method.decl_params:
+            # Convert structs
             if param.type not in self.dict_structs:
                 continue
             if self._is_base_only(self.dict_structs[param.type]):
@@ -575,8 +574,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.type in SKIP_PROJECTION:
                 # This is a mess to project.
                 continue
-            name = param.name
-            cpp_type = _project_type_name(param.type)
+
             if param.is_const:
                 # Input struct
                 method.decl_dict[name] = "const {}& {}".format(cpp_type, name)
@@ -792,8 +790,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.pointer_count > 0 and not param.is_const:
                 return False
 
-        if not self.quiet:
-            print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
+        # if not self.quiet:
+        #     print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
         return True
 
     def _enhanced_method_projection(self, method):
@@ -841,12 +839,15 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
             method.decl_params.pop()
             method.decl_dict[outparam.name] = None
-            method.pre_statements.append("{} returnVal;".format(cpp_outtype))
-            if outparam.type in self.projected_types:
-                method.access_dict[outparam.name] = "OPENXR_HPP_NAMESPACE::put(returnVal)"
+            method.pre_statements.append("{} {};".format(cpp_outtype, outparam.name))
+            method.returns.append(outparam.name)
+            if outparam.type in self.dict_enums:
+                # no extra access dict projection required
+                pass
+            elif outparam.type in self.projected_types:
+                method.access_dict[outparam.name] = f"OPENXR_HPP_NAMESPACE::put({outparam.name})"
             else:
-                method.access_dict[outparam.name] = "&returnVal"
-            method.returns.append("returnVal")
+                method.access_dict[outparam.name] = f"&{outparam.name}"
 
         self._update_enhanced_return_type(method)
 
