@@ -560,7 +560,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                         cpp_type, name)
                     method.pre_statements.append(
                         "{} {}_tmp;".format(param.type, name.strip()))
-                    method.access_dict[name] = "{}_tmp".format(name.strip())
+                    method.access_dict[name] = "&{}_tmp".format(name.strip())
                     method.post_statements.append(
                         "{name} = static_cast<{t}>({name}_tmp);".format(name=name.strip(), t=cpp_type))
                 continue
