@@ -17,6 +17,7 @@
 # limitations under the License.
 
 import re
+from typing import Optional
 
 from automatic_source_generator import AutomaticSourceOutputGenerator, write
 from jinja_helpers import JinjaTemplate, make_jinja_environment
@@ -424,6 +425,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         self.env = make_jinja_environment(file_with_templates_as_sibs=__file__, trim_blocks=False)
         self.env.filters['block_doxygen_comment'] = _block_doxygen_comment
 
+        self.vendor_regex: Optional[re.Pattern] = None
+
     def outputGeneratedAuthorNote(self):
         # Disabled
         pass
@@ -442,9 +445,14 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         return name
 
     def findVendorSuffix(self, name):
-        for vendor in self.vendor_tags:
-            if name.endswith(vendor):
-                return vendor
+        if not self.vendor_regex:
+            # Populate this regex on first usage
+            tags = "|".join(self.vendor_tags)
+            self.vendor_regex = re.compile(rf"^.*(?P<vendor>({tags})(|X|X[0-9]+)?)$")
+
+        m = self.vendor_regex.match(name)
+        if m:
+            return m.group('vendor')
 
     def getEnumValuePrefixSuffix(self, typename):
         if typename in RULE_BREAKING_ENUMS:
