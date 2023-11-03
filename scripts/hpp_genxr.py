@@ -19,6 +19,9 @@ import os
 import re
 import sys
 import time
+import typing
+import subprocess
+from collections.abc import Iterable
 
 OPENXR = os.getenv("OPENXR_REPO")
 if not OPENXR:
@@ -32,31 +35,26 @@ from generator import write
 from reg import Registry
 from xrconventions import OpenXRConventions
 
-# Simple timer functions
-startTime = None
 
-
-def startTimer(timeit):
-    global startTime
-    startTime = time.process_time()
-
-
-def endTimer(timeit, msg):
-    global startTime
-    endTime = time.process_time()
-    if timeit:
-        write(msg, endTime - startTime, file=sys.stderr)
-        startTime = None
-
-
-def makeREstring(strings, default=None):
+def makeREstring(strings: Iterable[str], default: typing.Optional[str] = None) -> str:
     """Turn a list of strings into a regexp string matching exactly those strings."""
     if strings or default is None:
         return '^(' + '|'.join((re.escape(s) for s in strings)) + ')$'
     return default
 
 
-def genTarget(args):
+errWarn: typing.TextIO = sys.stderr
+diag: typing.TextIO = None
+
+
+def get_headers() -> typing.List[str]:
+    lines = []
+    with open(os.path.join('headers.txt'), 'r', encoding='utf-8') as f:
+        lines = [line.strip() for line in f.readlines() if re.match('^openxr.*', line) is not None]
+    return lines
+
+
+def genTarget(args) -> typing.Tuple[CppGenerator, AutomaticSourceGeneratorOptions]:
     """
     Create an API generator and corresponding generator options based on
     the requested target and command line options.
@@ -80,6 +78,11 @@ def genTarget(args):
             "XR_MSFT_controller_model",
             # Projection of static string fails
             "XR_MSFT_spatial_graph_bridge",
+            "XR_MSFT_spatial_anchor_persistence",
+            "XR_MSFT_holographic_window_attachment",
+            # Projection of UuidMSFT fails
+            "XR_MSFT_scene_understanding",
+            "XR_MSFT_scene_understanding_serialization",
         ))
 
     # Turn lists of names/patterns into matching regular expressions
@@ -118,7 +121,7 @@ def genTarget(args):
 # -extension name
 # For both, "name" may be a single name, or a space-separated list
 # of names, or a regular expression.
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-defaultExtensions', action='store',
@@ -136,27 +139,17 @@ if __name__ == '__main__':
     parser.add_argument('-feature', action='append',
                         default=[],
                         help='Specify a core API feature name or names to add to targets')
-    parser.add_argument('-debug', action='store_true',
-                        help='Enable debugging')
-    parser.add_argument('-dump', action='store_true',
-                        help='Enable dump to stderr')
+    parser.add_argument('-format', action='store_true', default=False,
+                        help='Format the generated output using clang-format')
     parser.add_argument('-diagfile', action='store',
                         default=None,
                         help='Write diagnostics to specified file')
     parser.add_argument('-errfile', action='store',
                         default=None,
                         help='Write errors and warnings to specified file instead of stderr')
-    parser.add_argument('-noprotect', dest='protect', action='store_false',
-                        help='Disable inclusion protection in output headers')
-    parser.add_argument('-profile', action='store_true',
-                        help='Enable profiling')
     parser.add_argument('-registry', action='store',
                         default='xr.xml',
                         help='Use specified registry file instead of xr.xml')
-    parser.add_argument('-time', action='store_true',
-                        help='Enable timing')
-    parser.add_argument('-validate', action='store_true',
-                        help='Enable group validation')
     parser.add_argument('-o', action='store', dest='directory',
                         default='.',
                         help='Create target and related files in specified directory')
@@ -175,14 +168,24 @@ if __name__ == '__main__':
 
     # create error/warning & diagnostic files
     if args.errfile:
+        global errWarn
         errWarn = open(args.errfile, 'w', encoding='utf-8')
-    else:
-        errWarn = sys.stderr
 
     if args.diagfile:
+        global diag
         diag = open(args.diagfile, 'w', encoding='utf-8')
+
+    if args.target is not None:
+        # Replicate pre-existing behavior
+        generate_header(args, args.target)
     else:
-        diag = None
+        # if no target is specified, execute all targets
+        for line in get_headers():
+            generate_header(args, line)
+
+
+def generate_header(args, header):
+    args.target = header
 
     # Create the API generator & generator options
     (gen, options) = genTarget(args)
@@ -192,29 +195,16 @@ if __name__ == '__main__':
     reg = Registry(gen, options)
 
     # Parse the specified registry XML into an ElementTree object
-    startTimer(args.time)
     reg.loadFile(args.registry)
-    endTimer(args.time, '* Time to make and parse ElementTree =')
 
-    if args.validate:
-        reg.validateGroups()
+    reg.apiGen()
+    if not args.quiet:
+        write('* Generated', options.filename, file=sys.stderr)
 
-    if args.dump:
-        write('* Dumping registry to regdump.txt', file=sys.stderr)
-        reg.dumpReg(filehandle=open('regdump.txt', 'w', encoding='utf-8'))
+    if args.format:
+        outputfile = os.path.join(args.directory, options.filename)
+        subprocess.run(['clang-format', '-style=file', '-i', outputfile], check=True)
 
-    if args.debug:
-        import pdb
-        pdb.run('reg.apiGen()')
-    elif args.profile:
-        import cProfile
-        import pstats
-        cProfile.run('reg.apiGen()', 'profile.txt')
-        p = pstats.Stats('profile.txt')
-        p.strip_dirs().sort_stats('time').print_stats(50)
-    else:
-        startTimer(args.time)
-        reg.apiGen()
-        if not args.quiet:
-            write('* Generated', options.filename, file=sys.stderr)
-        endTimer(args.time, '* Time to generate ' + options.filename + ' =')
+
+if __name__ == '__main__':
+    main()

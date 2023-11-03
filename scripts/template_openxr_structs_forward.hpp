@@ -41,13 +41,14 @@
 namespace OPENXR_HPP_NAMESPACE {
 
 //# for struct in gen.api_structures
-//#     if struct.alias
-using /*{ project_type_name(struct.name) }*/ = /*{ project_type_name(struct.alias) }*/;
-//#     else
 struct /*{project_type_name(struct.name)}*/;
-//#     endif
 //# endfor
 
+//# for k,v in gen.aliases.items()
+//# if v in gen.dict_structs
+using /*{ project_type_name(k) }*/ = /*{ project_type_name(v) }*/;
+//# endif
+//# endfor
 }  // namespace OPENXR_HPP_NAMESPACE
 
 //# include('file_footer.hpp')
