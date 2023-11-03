@@ -790,8 +790,8 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.pointer_count > 0 and not param.is_const:
                 return False
 
-        if not self.quiet:
-            print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
+        # if not self.quiet:
+        #     print("method " + method.name + " has output parameter " + last_param.name + " of type " + last_param.type)
         return True
 
     def _enhanced_method_projection(self, method):
@@ -839,16 +839,15 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
             method.decl_params.pop()
             method.decl_dict[outparam.name] = None
+            method.pre_statements.append("{} {};".format(cpp_outtype, outparam.name))
+            method.returns.append(outparam.name)
             if outparam.type in self.dict_enums:
-                method.pre_statements.append("{} {};".format(cpp_outtype, outparam.name))
-                method.returns.append(outparam.name)
+                # no extra access dict projection required
+                pass
+            elif outparam.type in self.projected_types:
+                method.access_dict[outparam.name] = f"OPENXR_HPP_NAMESPACE::put({outparam.name})"
             else:
-                method.pre_statements.append("{} returnVal;".format(cpp_outtype))
-                if outparam.type in self.projected_types:
-                    method.access_dict[outparam.name] = "OPENXR_HPP_NAMESPACE::put(returnVal)"
-                else:
-                    method.access_dict[outparam.name] = "&returnVal"
-                method.returns.append("returnVal")
+                method.access_dict[outparam.name] = f"&{outparam.name}"
 
         self._update_enhanced_return_type(method)
 
