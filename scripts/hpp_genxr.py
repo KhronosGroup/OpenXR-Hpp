@@ -35,23 +35,6 @@ from generator import write
 from reg import Registry
 from xrconventions import OpenXRConventions
 
-# Simple timer functions
-startTime: typing.Optional[float] = None
-
-
-def startTimer(timeit: bool):
-    if timeit:
-        global startTime
-        startTime = time.process_time()
-
-
-def endTimer(timeit: bool, msg: str):
-    if timeit:
-        global startTime
-        endTime = time.process_time()
-        write(msg, endTime - startTime, file=sys.stderr)
-        startTime = None
-
 
 def makeREstring(strings: Iterable[str], default: typing.Optional[str] = None) -> str:
     """Turn a list of strings into a regexp string matching exactly those strings."""
@@ -158,27 +141,15 @@ def main():
                         help='Specify a core API feature name or names to add to targets')
     parser.add_argument('-format', action='store_true', default=False,
                         help='Format the generated output using clang-format')
-    parser.add_argument('-debug', action='store_true',
-                        help='Enable debugging')
-    parser.add_argument('-dump', action='store_true',
-                        help='Enable dump to stderr')
     parser.add_argument('-diagfile', action='store',
                         default=None,
                         help='Write diagnostics to specified file')
     parser.add_argument('-errfile', action='store',
                         default=None,
                         help='Write errors and warnings to specified file instead of stderr')
-    parser.add_argument('-noprotect', dest='protect', action='store_false',
-                        help='Disable inclusion protection in output headers')
-    parser.add_argument('-profile', action='store_true',
-                        help='Enable profiling')
     parser.add_argument('-registry', action='store',
                         default='xr.xml',
                         help='Use specified registry file instead of xr.xml')
-    parser.add_argument('-time', action='store_true',
-                        help='Enable timing')
-    parser.add_argument('-validate', action='store_true',
-                        help='Enable group validation')
     parser.add_argument('-o', action='store', dest='directory',
                         default='.',
                         help='Create target and related files in specified directory')
@@ -206,14 +177,14 @@ def main():
 
     if args.target is not None:
         # Replicate pre-existing behavior
-        generateHeader(args, args.target)
+        generate_header(args, args.target)
     else:
         # if no target is specified, execute all targets
         for line in get_headers():
-            generateHeader(args, line)
+            generate_header(args, line)
 
 
-def generateHeader(args, header):
+def generate_header(args, header):
     args.target = header
 
     # Create the API generator & generator options
@@ -224,36 +195,15 @@ def generateHeader(args, header):
     reg = Registry(gen, options)
 
     # Parse the specified registry XML into an ElementTree object
-    startTimer(args.time)
     reg.loadFile(args.registry)
-    endTimer(args.time, '* Time to make and parse ElementTree =')
 
-    if args.validate:
-        reg.validateGroups()
-
-    if args.dump:
-        write('* Dumping registry to regdump.txt', file=sys.stderr)
-        reg.dumpReg(filehandle=open('regdump.txt', 'w', encoding='utf-8'))
-
-    if args.debug:
-        import pdb
-        pdb.run('reg.apiGen()')
-    elif args.profile:
-        import cProfile
-        import pstats
-        cProfile.run('reg.apiGen()', 'profile.txt')
-        p = pstats.Stats('profile.txt')
-        p.strip_dirs().sort_stats('time').print_stats(50)
-    else:
-        startTimer(args.time)
-        reg.apiGen()
-        if not args.quiet:
-            write('* Generated', options.filename, file=sys.stderr)
-        endTimer(args.time, '* Time to generate ' + options.filename + ' =')
+    reg.apiGen()
+    if not args.quiet:
+        write('* Generated', options.filename, file=sys.stderr)
 
     if args.format:
         outputfile = os.path.join(args.directory, options.filename)
-        subprocess.run(['clang-format', '-style=file', '-i', outputfile])
+        subprocess.run(['clang-format', '-style=file', '-i', outputfile], check=True)
 
 
 if __name__ == '__main__':
