@@ -20,45 +20,10 @@ import re
 from typing import Optional
 
 from automatic_source_generator import AutomaticSourceOutputGenerator, write
+from data import (DISCOURAGED, MANUALLY_PROJECTED, MANUALLY_PROJECTED_SCALARS,
+                  SKIP, SKIP_PROJECTION, SPECIAL_TOKENS, TEMPLATED_TWO_CALL,
+                  UPPER_TOKENS, VALID_FOR_NULL_INSTANCE)
 from jinja_helpers import JinjaTemplate, make_jinja_environment
-
-VALID_FOR_NULL_INSTANCE = set((
-    'xrEnumerateInstanceExtensionProperties',
-    'xrEnumerateApiLayerProperties',
-    'xrCreateInstance',
-    'xrLoaderInitKHR',
-))
-
-# These break the projection right now.
-SKIP = set((
-    'xrGetSceneComputeStateMSFT',
-    'xrGetSwapchainStateFB',
-))
-
-DISCOURAGED = set((
-    'xrResultToString',
-    'xrStructureTypeToString',
-))
-
-TEMPLATED_TWO_CALL = set([
-    'xrEnumerateSwapchainImages'
-])
-
-MANUALLY_PROJECTED_SCALARS = set((
-    "XrTime",
-    "XrDuration",
-))
-
-MANUALLY_PROJECTED = set((
-    "XrEventDataBuffer",
-)).union(MANUALLY_PROJECTED_SCALARS)
-
-SKIP_PROJECTION = set((
-    "XrBaseInStructure",
-    "XrBaseOutStructure",
-    # Array of XrColor4f not getting initialized right
-    "XrPassthroughColorMapMonoToRgbaFB",
-))
 
 TWO_CALL_STRING_NAME = "buffer"
 
@@ -74,20 +39,6 @@ SINGLE_LINE_COMMENT_STARTS = ('///', '//!', '//')
 
 CAPACITY_INPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CapacityInput')
 COUNT_OUTPUT_RE = re.compile(r'(?P<itemname>[a-zA-Z]*)CountOutput')
-
-UPPER_TOKENS = set((
-    "API",
-    "CV1",
-    "EGL",
-    "ES",
-    "RGB",
-    "CW",  # clockwise
-    "CCW",  # counter-clockwise
-))
-
-SPECIAL_TOKENS = {
-    "OPENGL": "OpenGL"
-}
 
 
 def _discouraged_begin(cmd):
