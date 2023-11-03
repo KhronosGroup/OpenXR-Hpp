@@ -53,20 +53,23 @@ def endTimer(timeit: bool, msg: str):
         startTime = None
 
 
-def makeREstring(strings: Iterable[str], default: typing.Optional[str]=None) -> str:
+def makeREstring(strings: Iterable[str], default: typing.Optional[str] = None) -> str:
     """Turn a list of strings into a regexp string matching exactly those strings."""
     if strings or default is None:
         return '^(' + '|'.join((re.escape(s) for s in strings)) + ')$'
     return default
 
+
 errWarn: typing.TextIO = sys.stderr
 diag: typing.TextIO = None
+
 
 def get_headers() -> typing.List[str]:
     lines = []
     with open(os.path.join('headers.txt'), 'r', encoding='utf-8') as f:
-        lines = [ line.strip() for line in f.readlines() if re.match('^openxr.*', line) is not None ]
+        lines = [line.strip() for line in f.readlines() if re.match('^openxr.*', line) is not None]
     return lines
+
 
 def genTarget(args) -> typing.Tuple[CppGenerator, AutomaticSourceGeneratorOptions]:
     """
@@ -252,8 +255,6 @@ def generateHeader(args, header):
         outputfile = os.path.join(args.directory, options.filename)
         subprocess.run(['clang-format', '-style=file', '-i', outputfile])
 
-# Keeping this at the bottom so all function defintitions are in scope by the time it runs
-# If we left it where main() is now, then when main calls generateHeader(), it would fail
-# Conversely if I move generateHader() earlier, then the git diff wouldn't show it as unchanged
+
 if __name__ == '__main__':
     main()
