@@ -52,11 +52,11 @@
 
 //# macro _makeFullInitializingConstructor(struct, s, visible_members, allowDefaulting)
         /*{ s.cpp_name }*/ (
-//#    set first_defaultable_index0 = index0_of_first_visible_defaultable_member(visible_members)
+//#    set first_defaultable_index0 = index0_of_first_visible_defaultable_member(struct, visible_members)
 //#    set arg_comma = joiner(", ")
                   /*%- if s.is_abstract %*/ /*{ arg_comma() }*/ StructureType type_ /*% endif -%*/
 //#    for member in visible_members
-                  /*{- arg_comma() }*/ /*{ project_cppdecl(struct, member, defaulted=(allowDefaulting and (loop.index0 >= first_defaultable_index0)), suffix="_", input=True) -}*/
+                  /*{- arg_comma() }*/ /*{ project_cppdecl(struct, member, defaulted=(allowDefaulting and (loop.index0 >= first_defaultable_index0)), suffix="_", in_decl=True) -}*/
 //#    endfor
 //#    if s.typed_struct
                   /*{- arg_comma() }*/ /*{ s.next_param_decl_with_default -}*/
@@ -128,7 +128,10 @@
 
 //#     set visible_members = struct.members | reject('cpp_hidden_member') | list
 
-//#     if visible_members | count > 0 or s.is_abstract
+//#     set is_event = struct.name.startswith("XrEventData") and struct.name not in ("XrEventDataBuffer", "XrEventDataBaseHeader")
+//#     if is_event
+        // No full constructor, app will not construct this type with any data
+//#     elif visible_members | count > 0 or s.is_abstract
 //#         if s.is_abstract
         //! Protected constructor: this type is abstract.
 //#         else

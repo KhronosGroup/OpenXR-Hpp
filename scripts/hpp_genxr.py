@@ -18,7 +18,6 @@ import argparse
 import os
 import re
 import sys
-import time
 import typing
 import subprocess
 from collections.abc import Iterable
@@ -34,12 +33,13 @@ from cpp_generator import CppGenerator
 from generator import write
 from reg import Registry
 from xrconventions import OpenXRConventions
+from data import EXCLUDED_EXTENSIONS
 
 
 def makeREstring(strings: Iterable[str], default: typing.Optional[str] = None) -> str:
     """Turn a list of strings into a regexp string matching exactly those strings."""
     if strings or default is None:
-        return '^(' + '|'.join((re.escape(s) for s in strings)) + ')$'
+        return f"^({'|'.join(re.escape(s) for s in strings)})$"
     return default
 
 
@@ -69,21 +69,13 @@ def genTarget(args) -> typing.Tuple[CppGenerator, AutomaticSourceGeneratorOption
 
     # Create generator options with specified parameters
     header = args.target
+    removeExtensions = None
     if 'dispatch' in args.target:
         # Don't omit anything when generating dispatchers.
-        removeExtensions = None
-    else:
-        removeExtensions = makeREstring((
-            # Atom not projecting right?
-            "XR_MSFT_controller_model",
-            # Projection of static string fails
-            "XR_MSFT_spatial_graph_bridge",
-            "XR_MSFT_spatial_anchor_persistence",
-            "XR_MSFT_holographic_window_attachment",
-            # Projection of UuidMSFT fails
-            "XR_MSFT_scene_understanding",
-            "XR_MSFT_scene_understanding_serialization",
-        ))
+        pass
+
+    elif EXCLUDED_EXTENSIONS:
+        removeExtensions = makeREstring(EXCLUDED_EXTENSIONS)
 
     # Turn lists of names/patterns into matching regular expressions
     emitExtensionsPat = makeREstring(args.emitExtensions, '.*')
