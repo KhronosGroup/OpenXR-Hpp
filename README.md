@@ -28,10 +28,34 @@ directory of this one.
 
 ## Building
 
-If you just want to generate the headers, run `./generate-openxr-hpp.sh` or
-`./generate-openxr-hpp.ps1`. If your OpenXR-SDK-Source (or internal gitlab) repo
-isn't in a directory named that parallel to this one, you can set `OPENXR_REPO`
-environment variable before running. Requires clang-format, preferably 6.0.
+### Install clang-format
+
+Requires clang-format, preferably 6.0.
+
+### Download OpenXR-Hpp
+
+```shell
+git clone https://github.com/KhronosGroup/OpenXR-Hpp.git
+```
+
+### Download OpenXR-SDK-Source
+
+```shell
+git clone https://github.com/KhronosGroup/OpenXR-SDK-Source.git
+```
+
+We need to place the OpenXR-SDK-Source in the same directory
+of OpenXR-Hpp as it uses Python script of OpenXR-SDK-Source.
+
+If your OpenXR-SDK-Source (or internal gitlab) repo
+isn't in a directory named that parallel to OpenXR-Hpp, you can set `OPENXR_REPO`
+environment variable before running.
+
+### Run script to generate hpp files
+
+Run un `./generate-openxr-hpp.sh` or `./generate-openxr-hpp.ps1`. 
+
+### Run tests
 
 If you'd like to build the tests (making sure the headers can compile),
 use CMake to generate a build system, like:
