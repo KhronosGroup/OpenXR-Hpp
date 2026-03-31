@@ -44,8 +44,10 @@
 //#         endif
              , /*{s.next_param_name}*/)
 //#     endif
-//#    for member in visible_members if member.name not in s.parent_fields and not is_static_length_string(member)
+//#    for member in visible_members
+//#       if cpp_hidden_member|length + loop.index > s.parent_fields|length and not is_static_length_string(member)
                   /*{- initializer_comma() }*/ /*{ member.name }*/{/*{ get_default_for_member(member, s.name, "") -}*/}
+//#       endif
 //#    endfor
             {}
 //# endmacro
@@ -68,15 +70,19 @@
 //#        set arg_comma = joiner(",")
               /*{- initializer_comma() }*/ Parent(
                 /*{- arg_comma() -}*/ /*% if s.is_abstract %*/type_ /*% else %*/ /*{- s.struct_type_enum -}*/ /*% endif %*/
-//#        for member in visible_members if member.name in s.parent_fields
+//#        for member in visible_members
+//#           if cpp_hidden_member|length + loop.index <= s.parent_fields|length
                 /*{- arg_comma() }*/ /*{ member.name + "_" -}*/
+//#           endif
 //#        endfor
                 /*{- arg_comma() }*/ /*{ s.next_param_name -}*/
               )
 //#    endif
 
-//#    for member in visible_members if member.name not in s.parent_fields and not is_static_length_array(member)
+//#    for member in visible_members
+//#       if cpp_hidden_member|length + loop.index > s.parent_fields|length and not is_static_length_array(member)
               /*{- initializer_comma() }*/ /*{ member.name }*/ {/*{ member.name + "_"}*/}
+//#       endif
 //#    endfor
         {
 //#    for member in visible_members if is_static_length_array(member)
@@ -109,7 +115,7 @@
     //! @ingroup structs
 //#     endif
 //# endfilter
-    struct XR_MAY_ALIAS /*{ s.cpp_name }*/ /*{ s.struct_parent_decl }*/
+    struct XR_MAY_ALIAS /*{ s.alignas_spec }*/ /*{ s.cpp_name }*/ /*{ s.struct_parent_decl }*/
     {
 //# if s.typed_struct
     private:
@@ -204,10 +210,21 @@
             }
             return reinterpret_cast</*{ struct.name }*/*>(this);
         }
+//# else
+//#     filter block_doxygen_comment
+        //! @brief Accessor for passing this as the address of a raw /*{struct.name}*/.
+        //!
+        //! The optional clear argument is not used in this abstract class
+//# endfilter
+        /*{ struct.name }*/ * put([[maybe_unused]] bool clear = true) noexcept {
+            return reinterpret_cast</*{ struct.name }*/*>(this);
+        }
 //# endif
 
-//# for member in struct.members if not member is cpp_hidden_member and member.name not in s.parent_fields
+//# for member in struct.members if not member is cpp_hidden_member 
+//#    if loop.index > s.parent_fields|length
         /*{ project_cppdecl(struct, member) }*/;
+//#    endif
 //# endfor
     };
     /*{ wrapperSizeStaticAssert(struct.name, s.cpp_name) }*/
@@ -221,22 +238,19 @@
         return s.get();
     }
 
-//# if not s.is_abstract
-//#     filter block_doxygen_comment
+//# filter block_doxygen_comment
     //! @brief Free function accessor for clearing (by default) and passing /*{s.cpp_name}*/ as the address of a raw /*{struct.name}*/
     //! @relates /*{s.cpp_name}*/
     //! @ingroup utility_accessors
 //# endfilter
     static OPENXR_HPP_INLINE /*{ struct.name }*/ * put(/*{s.cpp_name}*/ &s, bool clear = true) noexcept { return s.put(clear); }
-//# endif
-
 //# if s.is_derived_type
 //#     filter block_doxygen_comment
     //! @brief Free function accessor for a reference to const /*{s.cpp_name}*/ as a raw, pointer to const /*{s.parent_type}*/ (the base type)
     //! @relates /*{s.cpp_name}*/
     //! @relatesalso /*{s.parent_cpp_type}*/
     //! @ingroup utility_accessors
-//#     endfilter
+//# endfilter
     static OPENXR_HPP_INLINE /*{s.parent_type}*/ const* get_base(/*{s.cpp_name}*/ const& h) {
         return h.get_base();
     }

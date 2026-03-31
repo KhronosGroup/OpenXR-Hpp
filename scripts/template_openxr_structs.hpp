@@ -105,6 +105,44 @@ namespace impl {
     /*{ wrapperSizeStaticAssert('::XrBaseOutStructure', 'OutputStructBase') }*/
 }  // namespace impl
 
+#ifdef XR_EXT_future
+#ifdef _WIN64
+    #pragma pack(push, 4)
+#endif
+/*!
+ * C++ projection of XrFutureCompletionBaseHeaderEXT
+ *
+ * Provided by the `XR_EXT_future` extension.
+ *
+ * @see
+ * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrFutureCompletionBaseHeaderEXT>
+ * @xrentity{XrFutureCompletionBaseHeaderEXT}
+ * @ingroup abstracttypedstructs
+ */
+class XR_MAY_ALIAS FutureCompletionBaseHeaderEXT : public impl::OutputStructBase {
+private:
+    using Parent = impl::OutputStructBase;
+
+protected:
+    //! Protected constructor: this type is abstract.
+    FutureCompletionBaseHeaderEXT(StructureType type_, const Result& futureResult_,
+                                  void* next_ = nullptr)
+        : Parent(type_, next_), futureResult{futureResult_} {}
+
+public:
+    Result futureResult;
+};
+#ifdef _WIN64
+    #pragma pack(pop)
+#endif
+
+#ifdef _WIN64
+    static_assert(sizeof(FutureCompletionBaseHeaderEXT) == 20);
+#else
+    /*{ wrapperSizeStaticAssert('::XrFutureCompletionBaseHeaderEXT', 'FutureCompletionBaseHeaderEXT') }*/
+#endif
+#endif // XR_EXT_future
+
 //# filter block_doxygen_comment
 //! @brief Wrapper for XrEventDataBuffer
 //!

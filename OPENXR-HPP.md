@@ -41,6 +41,10 @@ The following additional naming conventions apply
     * `XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT` is now
       `xr::DebugUtilsMessageSeverityFlagBitsEXT::Verbose`. (Type is an
       extension, so removed from value.)
+  * Note: to avoid compilation error, if the enum identifier start 
+    with a digit, it has an underscore prefix :
+      e.g. XR_MARKER_ARUCO_DICT_4X4_50_ML become xr::MarkerArucoDictML:_4X4_50
+           (and not xr::MarkerArucoDictML:4X4_50)
 * Flag bits are handled like enums with the addition that the `_BIT` suffix has
   also been removed.
   * `XR_SPACE_VELOCITY_LINEAR_VALID_BIT` is now
@@ -169,6 +173,10 @@ xr::Swapchain swapchain =
                               1,
                               1});
 ```
+
+Because of the strict C++ naming rule, a sub-class can't change a parent class
+member name; so in very rare cases the sub-class keep the parent member name
+(e.g. XrCompositionLayerPassthroughFB.flags become XrCompositionLayerPassthroughFB.layerFlags).
 
 ### Return values, Error Codes & Exceptions
 
@@ -303,11 +311,75 @@ into the dispatch object every time it's called. While not an issue for
 infrequently called functions, if executed inside a loop or on a per-frame
 basis, this can adversely impact performance.
 
-Note that this can be configured.
+However, you can define a global dynamic dispatcher, e.g. :
+
+in file pch.h :
+```c++
+// ...
+#include <openxr/openxr.h>
+#include <openxr/openxr_platform.h>
+#include <openxr/openxr_reflection.h>
+#include <openxr/openxr_dispatch_dynamic.hpp>
+extern xr::DispatchLoaderDynamic globalDispatchLoaderDynamic;
+#define OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER_TYPE xr::DispatchLoaderDynamic
+#define OPENXR_HPP_DEFAULT_EXTENSION_DISPATCHER std::move(::globalDispatchLoaderDynamic)
+#include <openxr/openxr.hpp>
+// ...
+```
+
+in file pch.cpp :
+```c++
+#include "pch.h"
+xr::DispatchLoaderDynamic globalDispatchLoaderDynamic;
+```
+
+then in your code :
+```c++
+#include "pch.h"
+// ...
+xr::DebugUtilsMessengerEXT messenger =
+    instance.createDebugUtilsMessengerEXT({ severityFlags, typeFlags, debugCallback, userData });
+```
 
 @see config_dispatch
 
 ### Samples
+
+## Incompatibilities
+
+A few modifications introduced some minor incompatibilities :
+
+* pseudo native C type projection 
+* replace XrViewState and XrView with xr::viewState and xr::view.
+
+which meens that in some functions calls you must replace OpenXR type
+pointer with OpenXR-HPP type reference, and some basic C type (as
+std::uint32_t) pointers with references.
+
+You can revert to the previous behaviour by commenting lines in the
+scripts/data.py file :
+
+```c++
+PROJECTED_NATIVE_C_TYPE = set((
+## stop C type projection (pointer -> reference)
+#    "int8_t",
+#    "int32_t",
+#    "int64_t",
+#    "uint8_t",
+#    "uint32_t",
+#    "uint64_t",
+#    "float",
+#    "XrSpaceUserIdFB",
+))
+
+SKIP_PROJECTION = set((
+    "XrBaseInStructure",
+    "XrBaseOutStructure",
+## unproject few OpenXR types
+    "XrViewState",
+    "XrView",
+))
+```
 
 ## See Also
 

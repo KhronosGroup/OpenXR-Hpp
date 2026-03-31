@@ -20,8 +20,9 @@ import re
 from typing import Optional
 
 from automatic_source_generator import AutomaticSourceOutputGenerator, write
-from data import (DISCOURAGED, MANUALLY_PROJECTED, MANUALLY_PROJECTED_SCALARS,
-                  SKIP, SKIP_PROJECTION, SPECIAL_TOKENS, TEMPLATED_TWO_CALL,
+from data import (DISCOURAGED, 
+                  PROJECTED_NATIVE_C_TYPE, MANUALLY_PROJECTED, MANUALLY_PROJECTED_SCALARS,
+                  SKIP, SKIP_PROJECTION, SPECIAL_TOKENS,
                   UPPER_TOKENS, VALID_FOR_NULL_INSTANCE)
 from jinja_helpers import JinjaTemplate, make_jinja_environment
 
@@ -102,7 +103,12 @@ def _project_type_name(typename):
 
 
 def _is_static_length_array(member):
-    return member.is_array and member.pointer_count == 0
+    is_static_length_array = member.is_array and member.pointer_count == 0
+    if is_static_length_array and member.array_count_var == '':
+        size_begin = member.cdecl.find("[")
+        size_end = member.cdecl.find("]", size_begin)
+        member.array_count_var = member.cdecl[size_begin + 1:size_end]
+    return is_static_length_array
 
 
 def _is_static_length_string(member):
@@ -211,6 +217,12 @@ class StructProjection:
         if self.typed_struct:
             return "next_"
         return None
+
+    @property
+    def alignas_spec(self):
+        if self.parent_type == "XrFutureCompletionBaseHeaderEXT":
+            return "\n#ifdef _WIN64\nalignas(void*)\n#endif\n"
+        return ""
 
 
 DISPATCH_TEMPLATE_PARAM_NAME = "Dispatch"
@@ -438,6 +450,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if suffix:
             enum_name += suffix
 
+        if enum_name[0].isdigit():
+            enum_name = "_" + enum_name
+ 
         return enum_name
 
     def get_flag_value_prefix_suffix(self, typename):
@@ -492,10 +507,12 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             method.is_member_function = True
             method.decl_dict[handle.name] = None
             method.access_dict[handle.name] = "this->get()"
-            # if method.cpp_name.endswith(method.cpp_handle):
-            #     method.cpp_name = _strip_suffix(method.cpp_name, method.cpp_handle)
 
         for param in method.decl_params:
+            if param.type in SKIP_PROJECTION:
+                # This is a mess to project.
+                continue
+
             name = param.name
             name_stripped = name.strip()
             cpp_type = _project_type_name(param.type)
@@ -518,45 +535,82 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                     # Input enum
                     method.decl_dict[name] = f"{cpp_type} {name}"
                     method.access_dict[name] = f"OPENXR_HPP_NAMESPACE::get({name_stripped})"
-                elif param.pointer_count == 1 and not is_two_call:
+                elif param.pointer_count == 1:
                     # Output enum
-                    method.decl_dict[name] = f"{cpp_type}& {name}"
-                    method.pre_statements.append(
-                        f"{param.type} {name_stripped}_tmp;")
-                    method.access_dict[name] = f"&{name_stripped}_tmp"
-                    method.post_statements.append(
-                        f"{name_stripped} = static_cast<{cpp_type}>({name_stripped}_tmp);")
+                    if param.pointer_count_var != '':
+                        method.decl_dict[name] = f"{cpp_type}* {name}"
+                        method.access_dict[name] = f"{name_stripped} == nullptr ? nullptr : OPENXR_HPP_NAMESPACE::put(*{name_stripped})"
+                    else:
+                        method.decl_dict[name] = f"{cpp_type}& {name}"
+                        method.access_dict[name] = f"OPENXR_HPP_NAMESPACE::put({name_stripped})"
                 continue
 
             # Convert structs
-            if param.type not in self.dict_structs:
-                continue
-            if self._is_base_only(self.dict_structs[param.type]):
-                # This is a polymorphic parameter: skip conversion for now.
-                continue
-            if param.type in SKIP_PROJECTION:
-                # This is a mess to project.
-                continue
+            if param.type in self.dict_structs:
+                if param.is_const:
+                    # Input struct
+                    method.decl_dict[name] = f"const {cpp_type}& {name}"
+                    method.access_dict[name] = f"{name_stripped}.get()"
+                elif param.pointer_count == 0:
+                    # Input struct passed by value
+                    method.decl_dict[name] = f"{cpp_type} {name}"
+                    method.access_dict[name] = f"{name_stripped}" # auto cast by specific structure static_cast operator
+                elif param.pointer_count == 1:
+                    # Output struct
+                    if param.pointer_count_var != '':
+                        method.decl_dict[name] = f"{cpp_type}* {name}"
+                        last_param_struct = self.dict_structs.get(param.type)
+                        method.access_dict[name] = f"{name_stripped} == nullptr ? nullptr : {name_stripped}->put(false)"
+                    else:
+                        method.decl_dict[name] = f"{cpp_type}& {name}"
+                        last_param_struct = self.dict_structs.get(param.type)
+                        if self._is_base_only(last_param_struct) or self._contains_pointer(last_param_struct):
+                           method.access_dict[name] = f"{name_stripped}.put(false)"
+                        else:
+                           method.access_dict[name] = f"{name_stripped}.put()"
+                elif param.pointer_count == 2:
+                    # Output struct array
+                    method.decl_dict[name] = f"{cpp_type}*& {name}"
+                    method.access_dict[name] = f"reinterpret_cast<{param.type}**>(&{name_stripped})"
 
-            if param.is_const:
-                # Input struct
-                method.decl_dict[name] = f"const {cpp_type}& {name}"
-                method.access_dict[name] = f"{name_stripped}.get()"
-            elif param.pointer_count == 1 and not is_two_call:
-                # Output struct
-                method.decl_dict[name] = f"{cpp_type}& {name}"
-                method.access_dict[name] = f"{name_stripped}.put()"
+            # Convert atoms, plus manually projeced scalars (XrTime, XrDuration, XrBool32...) as special case (promoted from raw ints to constexpr wrapper classes)
+            if param.type in self.dict_atoms or param.type in MANUALLY_PROJECTED_SCALARS:
+                name = param.name
+                cpp_type = _project_type_name(param.type)
+                if param.pointer_count == 1 and not param.is_const:
+                   if param.pointer_count_var != '':
+                       method.decl_dict[name] = f"{cpp_type}* {name}"
+                       method.access_dict[name] = f"{name.strip()} == nullptr ? nullptr : {name.strip()}->put()"
+                   else:
+                       method.decl_dict[name] = f"{cpp_type}& {name}"
+                       method.access_dict[name] = f"{name.strip()}.put()"
+                else:
+                    method.decl_dict[name] = f"{cpp_type} {name}"
+                    method.access_dict[name] = f"{name.strip()}.get()"
+                    
+            # Convert native C types
+            elif param.type in PROJECTED_NATIVE_C_TYPE:
+                if param.is_const:
+                    # Input struct
+                    method.decl_dict[name] = f"const {cpp_type}& {name}"
+                    method.access_dict[name] = f"&{name}"
+                elif param.pointer_count == 0:
+                    # Input struct passed by value
+                    method.decl_dict[name] = f"{cpp_type} {name}"
+                    method.access_dict[name] = f"{name}"
+                elif param.pointer_count == 1:
+                    # Output struct from pointer to reference
+                    if param.pointer_count_var != '':
+                        method.decl_dict[name] = f"{cpp_type}* {name}"
+                        method.access_dict[name] = f"{name}"
+                    else:
+                        method.decl_dict[name] = f"{cpp_type}& {name}"
+                        method.access_dict[name] = f"&{name}"
+                elif param.pointer_count == 2:
+                    # Output struct array (pointer of pointer) to pointer reference
+                    method.decl_dict[name] = f"{cpp_type}*& {name}"
+                    method.access_dict[name] = f"&{name}"
 
-        # Convert atoms, plus XrTime and XrDuration as special case (promoted from raw ints to constexpr wrapper classes)
-        for param in method.decl_params:
-            if param.type not in MANUALLY_PROJECTED_SCALARS and param.type not in self.dict_atoms:
-                continue
-            if param.type in SKIP_PROJECTION:
-                continue
-            name = param.name
-            cpp_type = _project_type_name(param.type)
-            method.decl_dict[name] = f"{cpp_type} {name}"
-            method.access_dict[name] = f"{name.strip()}.get()"
 
     def _update_enhanced_return_type(self, method):
         """Set the return type based on the bare return type.
@@ -591,13 +645,13 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def _is_tagged_type(self, typename):
         if typename not in self.dict_structs:
             return False
-        return any((x.name == "type" for x in self.dict_structs[typename].members))
+        return any((x.name == "type" and x.type == "XrStructureType" for x in self.dict_structs[typename].members))
 
     def _get_tag(self, typename):
         if typename not in self.dict_structs:
             return None
         tag_member = [x for x in self.dict_structs[typename].members
-                      if x.name == "type"]
+                      if x.name == "type" and x.type == "XrStructureType"]
         if not tag_member:
             return None
         raw_tag = tag_member[0].values
@@ -677,6 +731,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             # If we're missing at least one, stop checking two-call stuff here.
             return False
 
+
         method.is_two_call = True
         method.masks_simple = False
         # Should we put "ToVector" on the method name?
@@ -687,9 +742,10 @@ class CppGenerator(AutomaticSourceOutputGenerator):
 
         item_type_cpp = _project_type_name(item_type)
         method.item_type_cpp = item_type_cpp
-        templated = method.name in TEMPLATED_TWO_CALL
+        last_param_struct = self.dict_structs.get(array_param['param'].type)
+        templated = self._is_base_only(last_param_struct)
         method.templated = templated
-
+        
         vector_member_type = item_type_cpp
         if templated:
             vector_member_type = 'ResultItemType'
@@ -735,7 +791,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             return False
 
         last_param = method.params[-1]
-        if last_param.is_const or last_param.pointer_count != 1 or last_param.array_count_var != '':
+        last_param_struct = self.dict_structs.get(last_param.type)
+        if last_param.is_const or last_param.pointer_count != 1 or last_param.array_count_var != '' \
+              or self._is_base_only(last_param_struct) or self._contains_pointer(last_param_struct):
             return False
 
         # Do not return a single output of a type we aren't projecting
@@ -748,8 +806,6 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if param.pointer_count > 0 and not param.is_const:
                 return False
 
-        # if not self.quiet:
-        #     print(f"method {method.name} has output parameter {last_param.name} of type {last_param.type}")
         return True
 
     def _enhanced_method_projection(self, method):
@@ -826,7 +882,6 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         method.post_statements.append('ObjectDestroy<impl::RemoveRefConst<Dispatch>> deleter{d};')
         method.handle_return_type = method.bare_return_type
         method.bare_return_type = f"UniqueHandle<{method.bare_return_type}, impl::RemoveRefConst<Dispatch>>"
-        # method.returns[1] = "{}({}, {})"
         self._update_enhanced_return_type(method)
 
     def _append_to_method_name_before_vendor(self, method, s):
@@ -876,13 +931,18 @@ class CppGenerator(AutomaticSourceOutputGenerator):
     def _is_base_only(self, struct):
         if not struct:
             return False
-        tag_member = [x for x in struct.members if x.name == "type"]
+        tag_member = [x for x in struct.members if x.name == "type" and x.type == "XrStructureType"]
         if not tag_member:
             return False
         return tag_member[0].values is None
 
+    def _contains_pointer(self, struct):
+        if not struct:
+            return False
+        return any(x.pointer_count > 0 and (x.name != "next" or x.type != "void") for x in struct.members)
+
     def _cpp_hidden_member(self, member):
-        return member.name == "type" or member.name == "next"
+        return (member.name == "type" and member.type == "XrStructureType") or (member.name == "next" and member.type == "void")
 
     def _struct_member_count(self, struct):
         return len(struct.members)
@@ -894,7 +954,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if struct.name.startswith("XrEventData"):
             return False
         nextptr = [x.cdecl for x in struct.members
-                   if x.name == 'next']
+                   if (x.name == 'next' and x.type == 'void')]
         return nextptr and 'const' in nextptr[0]
 
     def _is_struct_output(self, struct):
@@ -903,7 +963,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if struct.name.startswith("XrEventData"):
             return True
         nextptr = [x.cdecl for x in struct.members
-                   if x.name == 'next']
+                   if (x.name == 'next' and x.type == 'void')]
         if not nextptr:
             return False
         return 'const' not in nextptr[0]
@@ -990,7 +1050,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             if member.type == 'char' and member.is_array and member.pointer_count == 0:
                 # We'll initialize a fixed-size string with a cstring.
                 result = f"const char* {member.name}{suffix}"
-            elif member.type.startswith("Xr") and member.pointer_count == 0:
+            elif member.type.startswith("Xr") and not member.is_array and member.pointer_count == 0:
                 result = f"const {_project_type_name(member.type)}& {member.name}{suffix}"
 
         if defaulted:
@@ -1005,6 +1065,19 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         if self.isCoreExtensionName(extname):
             return False
         return self.dict_extensions[extname].protect_value is not None
+        
+    def topologic_sort(self, api_list):
+        # Don't use iterators because we move items in place while scanning and searching
+        index = 0
+        while index < len(api_list):
+            parent = self.struct_parents.get(api_list[index].name)
+            if (parent):
+               for depend in range(index + 1, len(api_list)):
+                  if api_list[depend].name == parent:
+                     api_list.insert(index, api_list.pop(depend))
+                     index += 1
+                     break
+            index += 1
 
     # Write out all the information for the appropriate file,
     # and then call down to the base class to wrap everything up.
@@ -1022,15 +1095,16 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             self.dict_enums[enum.name] = enum
 
         result_enum = self.dict_enums['XrResult']
+        result_enum.values = [value for value in result_enum.values if not value.alias]
 
         for struct in self.api_structures:
             self.dict_structs[struct.name] = struct
-
+            
         for bitmask in self.api_bitmasks:
             self.dict_bitmasks[bitmask.name] = bitmask
 
         for basetype in self.api_base_types:
-            if basetype.type == "XR_DEFINE_ATOM":
+            if basetype.type == "XR_DEFINE_ATOM" or basetype.type == "XR_DEFINE_OPAQUE_64":
                 self.dict_atoms[basetype.name] = basetype
 
         self.projected_types = MANUALLY_PROJECTED.union(self.dict_handles.keys())
@@ -1099,6 +1173,9 @@ class CppGenerator(AutomaticSourceOutputGenerator):
                 else:
                     # assumption violated
                     assert False
+
+        self.topologic_sort(self.api_structures)
+
         # Verify
         self.selftests()
 
@@ -1146,9 +1223,3 @@ class CppGenerator(AutomaticSourceOutputGenerator):
         assert not self._is_struct_output(self.dict_structs['XrApplicationInfo'])
 
         assert self._index0_of_first_visible_defaultable_member(self.dict_structs['XrApplicationInfo'], self.dict_structs['XrApplicationInfo'].members) == 0
-        # index = self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members)
-        # print(index)
-        # assert(self._index0_of_first_visible_defaultable_member(self.dict_structs['XrInstanceCreateInfo'].members) == 0)
-        # members = self.dict_structs['XrInstanceCreateInfo'].members
-        # for i, member in enumerate(members):
-        #     print(i, member.name, self._is_member_defaultable(member))

@@ -44,7 +44,7 @@
 //# endif
 //! @xrentity{/*{ enum.name }*/}
 //# endfilter
-enum class /*{projected_type -}*/ : int32_t {
+enum class /*{projected_type -}*/ {
 //# for val in enum.values
     /*{ protect_begin(val, enum) }*/
     /*{create_enum_value(val.name, enum.name)}*/ = /*{val.name}*/,
@@ -63,6 +63,18 @@ enum class /*{projected_type -}*/ : int32_t {
 //# endfilter
 OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{enum.name}*/ get(/*{projected_type}*/ const& v) {
     return static_cast</*{enum.name}*/>(v);
+}
+
+//! @addtogroup utility_accessors
+//! @{
+//# filter block_doxygen_comment
+//! @brief Free function for retrieving the raw /*{enum.name}*/ address from a /*{projected_type}*/.
+//!
+//! @found_by_adl
+//! @see /*{projected_type}*/
+//# endfilter
+OPENXR_HPP_INLINE /*{enum.name}*/ * put(/*{projected_type}*/ &v) {
+    return reinterpret_cast</*{enum.name}*/*>(&v);
 }
 
 //# filter block_doxygen_comment

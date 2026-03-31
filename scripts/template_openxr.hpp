@@ -95,6 +95,7 @@ namespace OPENXR_HPP_NAMESPACE {}  // namespace OPENXR_HPP_NAMESPACE
 
 #include "openxr_atoms.hpp"
 #include "openxr_time.hpp"
+#include "openxr_bool.hpp"
 #include "openxr_version.hpp"
 #include "openxr_dispatch_static.hpp"
 #include "openxr_dispatch_dynamic.hpp"
