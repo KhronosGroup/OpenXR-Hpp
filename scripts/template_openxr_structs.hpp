@@ -115,7 +115,7 @@ namespace impl {
  * Provided by the `XR_EXT_future` extension.
  *
  * @see
- * <https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XrFutureCompletionBaseHeaderEXT>
+ * <https://www.khronos.org/registry/OpenXR/specs/1.1/html/xrspec.html#XrFutureCompletionBaseHeaderEXT>
  * @xrentity{XrFutureCompletionBaseHeaderEXT}
  * @ingroup abstracttypedstructs
  */
