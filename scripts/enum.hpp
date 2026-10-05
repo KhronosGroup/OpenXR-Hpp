@@ -68,7 +68,7 @@ OPENXR_HPP_INLINE OPENXR_HPP_CONSTEXPR /*{enum.name}*/ get(/*{projected_type}*/ 
 //! @addtogroup utility_accessors
 //! @{
 //# filter block_doxygen_comment
-//! @brief Free function for retrieving the raw /*{enum.name}*/ address from a /*{projected_type}*/.
+//! @brief Free function for retrieving the raw /*{enum.name}*/ address from a /*{projected_type}*/ for assignment.
 //!
 //! @found_by_adl
 //! @see /*{projected_type}*/
