@@ -103,16 +103,19 @@ def _project_type_name(typename):
 
 
 def _is_static_length_array(member):
-    is_static_length_array = member.is_array and member.pointer_count == 0
-    if is_static_length_array and member.array_count_var == '':
-        size_begin = member.cdecl.find("[")
-        size_end = member.cdecl.find("]", size_begin)
-        member.array_count_var = member.cdecl[size_begin + 1:size_end]
-    return is_static_length_array
+    return member.is_array and member.pointer_count == 0
 
 
 def _is_static_length_string(member):
     return member.type == "char" and _is_static_length_array(member)
+
+
+def _get_static_length(member):
+    if member.array_count_var == '':
+        size_begin = member.cdecl.find("[")
+        size_end = member.cdecl.find("]", size_begin)
+        return member.cdecl[size_begin + 1:size_end]
+    return member.array_count_var
 
 
 def _block_comment(s, doxygen=False):
@@ -1202,6 +1205,7 @@ class CppGenerator(AutomaticSourceOutputGenerator):
             bitmask_for_flags=self._bitmask_for_flags,
             is_static_length_array=_is_static_length_array,
             is_static_length_string=_is_static_length_string,
+            get_static_length=_get_static_length,
             struct_parents=self.struct_parents,
             struct_children=self.struct_children,
             struct_fields=self.struct_fields,

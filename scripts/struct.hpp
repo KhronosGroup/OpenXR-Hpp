@@ -87,7 +87,7 @@
         {
 //#    for member in visible_members if is_static_length_array(member)
 //#         if is_static_length_string(member)
-            /*{ initializeStaticLengthString(member.name + "_", member.name, member.array_count_var) }*/
+            /*{ initializeStaticLengthString(member.name + "_", member.name, get_static_length(member)) }*/
 //#         else
             /*{ initializeStaticLengthArray(member.name + "_", member.name) }*/
 //#         endif
