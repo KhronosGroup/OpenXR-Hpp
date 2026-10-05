@@ -38,8 +38,11 @@
  * @ingroup api_free_functions
  */
 
+#include "openxr_enums.hpp"
+
 #include "openxr_handles.hpp"
 #include "openxr_structs.hpp"
+
 
 
 #include "openxr_method_impls_simple.inl"
