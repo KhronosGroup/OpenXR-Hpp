@@ -119,7 +119,7 @@ namespace impl {
  * @xrentity{XrFutureCompletionBaseHeaderEXT}
  * @ingroup abstracttypedstructs
  */
-class XR_MAY_ALIAS FutureCompletionBaseHeaderEXT : public impl::OutputStructBase {
+struct XR_MAY_ALIAS FutureCompletionBaseHeaderEXT : public impl::OutputStructBase {
 private:
     using Parent = impl::OutputStructBase;
 
